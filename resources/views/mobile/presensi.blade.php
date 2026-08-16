@@ -2970,6 +2970,8 @@ window.addEventListener('load', function() {
     let selfieProgressAnimationFrame = null;
     let faceScanOnboardingAccepted = false;
     let faceScanInProgress = false;
+    let faceScanRetryTimer = null;
+    let faceScanSessionId = 0;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
@@ -3962,6 +3964,7 @@ window.addEventListener('load', function() {
     }
 
     async function captureSelfie() {
+        const currentSessionId = ++faceScanSessionId;
         const video = document.getElementById('selfie-video');
         const canvas = document.getElementById('selfie-canvas');
         const selfieDataInput = document.getElementById('selfie-data');
@@ -3973,6 +3976,11 @@ window.addEventListener('load', function() {
 
         if (faceScanRequired) {
             hideFaceScanRetryButton();
+        }
+
+        if (faceScanRetryTimer) {
+            window.clearTimeout(faceScanRetryTimer);
+            faceScanRetryTimer = null;
         }
 
         if (!faceScanRequired && selfieCaptured && pendingSelfieData.length >= 100) {
@@ -4076,6 +4084,10 @@ window.addEventListener('load', function() {
             stopSelfieStream();
             selfieCaptured = true;
             if (faceScanRequired) {
+                if (faceScanRetryTimer) {
+                    window.clearTimeout(faceScanRetryTimer);
+                    faceScanRetryTimer = null;
+                }
                 updateSelfieGuideState({
                     state: 'success',
                     message: 'Wajah cocok. Mengirim presensi.',
@@ -4106,7 +4118,6 @@ window.addEventListener('load', function() {
         } catch (error) {
             console.error('Face scan failed:', error);
             const errorMessage = error?.message || (faceScanRequired ? 'Scan wajah belum berhasil.' : 'Selfie belum berhasil diambil.');
-            const shouldAutoRetry = faceScanRequired && isRetryableFaceScanError(errorMessage);
             const verificationRejected = faceScanRequired && (
                 isFaceMismatchRejection(errorMessage, error?.notes)
                 || error?.notes === 'liveness_below_threshold'
@@ -4123,9 +4134,11 @@ window.addEventListener('load', function() {
                 setSelfieStatus(errorMessage, 'error');
                 setSelfieProgressOrbState('error');
             }
-            updateFaceInstruction(faceScanRequired
-                ? 'Scan diulang otomatis. Arahkan wajah ke tengah frame.'
-                : 'Ulangi pengambilan selfie.');
+            if (faceScanRequired) {
+                updateFaceInstruction('Scan diulang otomatis. Arahkan wajah ke tengah frame.');
+            } else {
+                updateFaceInstruction('Ulangi pengambilan selfie.');
+            }
 
             if (verificationRejected) {
                 updateSelfieGuideState({
@@ -4136,7 +4149,14 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
-                window.setTimeout(() => {
+                if (faceScanRetryTimer) {
+                    window.clearTimeout(faceScanRetryTimer);
+                }
+
+                faceScanRetryTimer = window.setTimeout(() => {
+                    if (currentSessionId !== faceScanSessionId) {
+                        return;
+                    }
                     if (!selfieModal?.classList.contains('show')) {
                         return;
                     }
@@ -4151,11 +4171,6 @@ window.addEventListener('load', function() {
                     setSelfieStatus('Scan berjalan otomatis. Arahkan wajah ke dalam frame.', 'info');
                     captureSelfie();
                 }, verificationRejected ? 420 : 520);
-            } else {
-                showFormalErrorAlert(
-                    'Pengambilan Selfie Gagal',
-                    errorMessage || 'Selfie belum berhasil diambil. Silakan ulangi.'
-                );
             }
         } finally {
             faceScanInProgress = false;
