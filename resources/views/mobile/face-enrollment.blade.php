@@ -97,30 +97,19 @@
 
         #face-video {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 88%;
-            height: 88%;
+            inset: 0;
             display: none;
             object-fit: cover;
-            transform: translate(-50%, -50%) scaleX(-1);
-            transform-origin: center;
-            border-radius: 24px;
+            transform: scaleX(-1);
             background: #111827;
             z-index: 0;
         }
 
         #face-preview {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 88%;
-            height: 88%;
+            inset: 0;
             display: none;
             object-fit: cover;
-            transform: translate(-50%, -50%);
-            transform-origin: center;
-            border-radius: 24px;
             background: #111827;
             z-index: 0;
         }
