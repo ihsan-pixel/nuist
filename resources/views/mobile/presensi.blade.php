@@ -964,6 +964,11 @@
             justify-content: center;
         }
 
+        .face-scan-mode .selfie-stage {
+            min-height: 100vh;
+            padding-bottom: 132px;
+        }
+
         .face-scan-mode .selfie-status-banner {
             display: none;
         }
@@ -1089,8 +1094,8 @@
         .face-scan-mode #selfie-video,
         .face-scan-mode #selfie-preview {
             object-fit: cover;
-            object-position: center 38%;
-            transform: scaleX(-1) scale(1.06) translateY(2%);
+            object-position: center 34%;
+            transform: scaleX(-1) scale(1.12) translateY(1%);
             transform-origin: center center;
         }
 
@@ -1105,8 +1110,8 @@
             position: absolute;
             left: 50%;
             top: 22%;
-            width: min(74vw, 332px);
-            height: min(102vw, 448px);
+            width: min(80vw, 364px);
+            height: min(110vw, 500px);
             transform: translateX(-50%);
             border: 3px solid rgba(255, 255, 255, 0.92);
             border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
@@ -1243,6 +1248,10 @@
             font-weight: 500;
             color: rgba(255, 255, 255, 0.82);
             text-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .selfie-stage-copy {
+            margin-bottom: 10px;
         }
 
         .selfie-progress-value,
@@ -1558,7 +1567,7 @@
             padding: 0;
             background: transparent;
             backdrop-filter: none;
-            gap: 12px;
+            gap: 14px;
         }
 
         .selfie-footer-title,
@@ -1570,6 +1579,28 @@
 
         .face-scan-mode #btn-submit-presensi {
             display: none !important;
+        }
+
+        .face-scan-info-button {
+            position: absolute;
+            right: 18px;
+            bottom: 92px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(15, 23, 42, 0.72);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 8;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+            backdrop-filter: blur(12px);
+        }
+
+        .face-scan-info-button:active {
+            transform: scale(0.96);
         }
 
         .swal2-container {
@@ -2247,11 +2278,6 @@
                     @endif
                 </div>
 
-                @if($verificationMode === 'face_scan')
-                <button type="button" id="btn-face-scan-help" class="face-scan-help-button" aria-label="Buka panduan scan wajah">
-                    <i class="bx bx-info-circle"></i>
-                </button>
-                @endif
             </div>
 
             <input type="hidden" id="selfie-data" name="selfie_data">
@@ -2275,6 +2301,11 @@
                 Kirim Presensi
             </button>
         </div>
+        @if($verificationMode === 'face_scan')
+        <button type="button" id="btn-face-scan-help" class="face-scan-info-button" aria-label="Buka panduan scan wajah">
+            <i class="bx bx-info-circle"></i>
+        </button>
+        @endif
     </div>
 </div>
 @endsection
