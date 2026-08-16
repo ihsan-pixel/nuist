@@ -1094,7 +1094,7 @@
         .face-scan-mode #selfie-video,
         .face-scan-mode #selfie-preview {
             object-fit: cover;
-            object-position: center 32%;
+            object-position: center center;
             transform: scaleX(-1) scale(1.32);
             transform-origin: center center;
         }
