@@ -120,13 +120,30 @@ class MonitoringController extends \App\Http\Controllers\Controller
         }
 
         $selectedMonth = $request->input('month', Carbon::now('Asia/Jakarta')->format('Y-m'));
+        $selectedClass = trim((string) $request->input('class_name', ''));
         $selectedMonthCarbon = Carbon::createFromFormat('Y-m', $selectedMonth, 'Asia/Jakarta');
         $startOfMonth = $selectedMonthCarbon->copy()->startOfMonth()->startOfDay();
         $endOfMonth = $selectedMonthCarbon->copy()->endOfMonth()->endOfDay();
         $today = Carbon::today('Asia/Jakarta')->endOfDay();
         $effectiveEnd = $endOfMonth->copy()->min($today);
 
-        $query = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school'])
+        $scheduleQuery = TeachingSchedule::with(['teacher'])
+            ->where('school_id', $user->madrasah_id);
+
+        if ($selectedClass !== '') {
+            $scheduleQuery->where(function ($q) use ($selectedClass) {
+                $q->whereRaw('LOWER(class_name) = ?', [mb_strtolower($selectedClass)])
+                    ->orWhereJsonContains('class_names', $selectedClass);
+            });
+        }
+
+        $schedules = $scheduleQuery
+            ->orderByRaw('LOWER(COALESCE(class_name, "")) ASC')
+            ->orderByRaw('LOWER(subject) ASC')
+            ->orderBy('start_time')
+            ->get();
+
+        $recordsQuery = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school'])
             ->whereHas('teachingSchedule', function ($q) use ($user) {
                 $q->where('school_id', $user->madrasah_id);
             })
@@ -134,17 +151,91 @@ class MonitoringController extends \App\Http\Controllers\Controller
             ->orderBy('tanggal', 'desc')
             ->orderBy('waktu', 'desc');
 
-        $records = $query->paginate(20, ['*'], 'jurnal_page')->withQueryString();
+        if ($selectedClass !== '') {
+            $recordsQuery->whereHas('teachingSchedule', function ($q) use ($selectedClass) {
+                $q->whereRaw('LOWER(class_name) = ?', [mb_strtolower($selectedClass)])
+                    ->orWhereJsonContains('class_names', $selectedClass);
+            });
+        }
+
+        $records = $recordsQuery->paginate(12, ['*'], 'jurnal_page')->withQueryString();
+
+        $expectedSessions = collect();
+        foreach ($schedules as $schedule) {
+            $dayName = strtolower(trim((string) $schedule->day));
+            $dayOfWeek = match ($dayName) {
+                'senin' => Carbon::MONDAY,
+                'selasa' => Carbon::TUESDAY,
+                'rabu' => Carbon::WEDNESDAY,
+                'kamis' => Carbon::THURSDAY,
+                'jumat' => Carbon::FRIDAY,
+                'sabtu' => Carbon::SATURDAY,
+                default => null,
+            };
+
+            if ($dayOfWeek === null) {
+                continue;
+            }
+
+            $cursor = $startOfMonth->copy();
+            while ($cursor <= $effectiveEnd) {
+                if ($cursor->dayOfWeek !== $dayOfWeek) {
+                    $cursor->addDay();
+                    continue;
+                }
+
+                $attendance = TeachingAttendance::query()
+                    ->where('teaching_schedule_id', $schedule->id)
+                    ->whereDate('tanggal', $cursor->toDateString())
+                    ->first();
+
+                $expectedSessions->push([
+                    'date' => $cursor->toDateString(),
+                    'teacher' => $schedule->teacher?->name ?? '-',
+                    'class_name' => $schedule->classNameLabel() ?: ($schedule->class_name ?? '-'),
+                    'subject' => $schedule->subject ?? '-',
+                    'time' => trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')),
+                    'attendance' => $attendance,
+                    'schedule' => $schedule,
+                ]);
+
+                $cursor->addDay();
+            }
+        }
+
+        $completedJournals = $expectedSessions->filter(fn ($item) => !is_null($item['attendance']))->values();
+        $missingJournals = $expectedSessions->filter(fn ($item) => is_null($item['attendance']))->values();
 
         $summary = [
-            'total_jurnal' => (clone $query)->count(),
+            'total_jurnal' => $records->total(),
+            'total_jadwal' => $expectedSessions->count(),
+            'total_belum_jurnal' => $missingJournals->count(),
             'total_guru' => User::where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
                 ->count(),
             'bulan' => $selectedMonthCarbon->locale('id')->isoFormat('MMMM YYYY'),
         ];
 
-        return view('mobile.monitor-jurnal-mengajar', compact('records', 'selectedMonth', 'summary'));
+        $availableClasses = $schedules
+            ->flatMap(function ($schedule) {
+                $names = $schedule->resolvedClassNames();
+                return empty($names) ? [trim((string) $schedule->class_name)] : $names;
+            })
+            ->map(fn ($className) => trim((string) $className))
+            ->filter()
+            ->unique(fn ($className) => mb_strtolower($className))
+            ->sort()
+            ->values();
+
+        return view('mobile.monitor-jurnal-mengajar', compact(
+            'records',
+            'selectedMonth',
+            'selectedClass',
+            'summary',
+            'completedJournals',
+            'missingJournals',
+            'availableClasses'
+        ));
     }
 
     /**

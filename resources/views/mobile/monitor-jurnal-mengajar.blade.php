@@ -109,25 +109,32 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start gap-3">
                 <div>
-                    <div class="fw-semibold" style="font-size: 16px;">{{ Auth::user()->madrasah->name ?? '-' }}</div>
-                    <div style="font-size: 12px; opacity: 0.85;">Periode {{ $summary['bulan'] }}</div>
+                    <div class="fw-semibold" style="font-size: 15px;">{{ Auth::user()->madrasah->name ?? '-' }}</div>
+                    <div style="font-size: 11px; opacity: 0.85;">Periode {{ $summary['bulan'] }}</div>
                 </div>
                 <div class="text-end">
                     <div style="font-size: 11px; opacity: 0.75;">Total jurnal</div>
-                    <div class="fw-bold" style="font-size: 24px; line-height: 1;">{{ $summary['total_jurnal'] }}</div>
+                    <div class="fw-bold" style="font-size: 22px; line-height: 1;">{{ $summary['total_jurnal'] }}</div>
                 </div>
             </div>
 
             <form method="GET" class="mt-3">
-                <div class="row g-2 align-items-end">
-                    <div class="col-8">
+                <div class="row g-2">
+                    <div class="col-6">
                         <label class="form-label mb-1" style="font-size: 11px; opacity: 0.85;">Bulan</label>
                         <input type="month" name="month" class="form-control form-control-sm" value="{{ $selectedMonth }}">
                     </div>
-                    <div class="col-4">
-                        <button type="submit" class="btn btn-light btn-sm w-100" style="font-weight: 600;">Terapkan</button>
+                    <div class="col-6">
+                        <label class="form-label mb-1" style="font-size: 11px; opacity: 0.85;">Kelas</label>
+                        <select name="class_name" class="form-select form-select-sm">
+                            <option value="">Semua</option>
+                            @foreach($availableClasses as $className)
+                                <option value="{{ $className }}" @selected($selectedClass === $className)>{{ $className }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
+                <button type="submit" class="btn btn-light btn-sm w-100 mt-2" style="font-weight: 600;">Terapkan</button>
             </form>
 
             <div class="stat-grid mt-3">
@@ -137,12 +144,21 @@
                 </div>
                 <div class="stat-box">
                     <small>Jurnal tampil</small>
-                    <strong>{{ $records->count() }}</strong>
+                    <strong>{{ $summary['total_jurnal'] }}</strong>
                 </div>
                 <div class="stat-box">
-                    <small>Halaman</small>
-                    <strong>{{ $records->currentPage() }}</strong>
+                    <small>Belum jurnal</small>
+                    <strong>{{ $summary['total_belum_jurnal'] }}</strong>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 mb-3">
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="fw-semibold">Jurnal sudah tercatat</div>
+                <span class="text-muted small">{{ $completedJournals->count() }}</span>
             </div>
         </div>
     </div>
@@ -156,18 +172,18 @@
             </div>
         </div>
     @else
-        <div class="d-grid gap-3">
+        <div class="d-grid gap-2">
             @foreach($records as $record)
                 @php
                     $schedule = $record->teachingSchedule;
                 @endphp
                 <div class="card border-0 journal-card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
                             <div>
-                                <div class="fw-semibold">{{ $schedule->teacher->name ?? '-' }}</div>
+                                <div class="fw-semibold" style="font-size: 13px;">{{ $schedule->teacher->name ?? '-' }}</div>
                                 <div class="journal-meta">
-                                    {{ \Carbon\Carbon::parse($record->tanggal)->format('d M Y') }}
+                                    {{ \Carbon\Carbon::parse($record->tanggal)->format('d M') }}
                                     {{ $record->waktu ? '• ' . \Carbon\Carbon::parse($record->waktu)->format('H:i') : '' }}
                                 </div>
                             </div>
@@ -176,46 +192,29 @@
                             </span>
                         </div>
 
-                        <div class="journal-detail">
+                        <div class="journal-detail mt-2">
                             <div class="journal-detail-row">
-                                <span>Kelas</span>
-                                <strong class="text-dark text-end">{{ $schedule->classNameLabel() ?? $schedule->class_name ?? '-' }}</strong>
-                            </div>
-                            <div class="journal-detail-row">
-                                <span>Mapel</span>
+                                <span>{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }}</span>
                                 <strong class="text-dark text-end">{{ $schedule->subject ?? '-' }}</strong>
                             </div>
                             <div class="journal-detail-row">
                                 <span>Jam</span>
-                                <strong class="text-dark text-end">
-                                    {{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}
-                                </strong>
+                                <strong class="text-dark text-end">{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</strong>
                             </div>
                             <div class="journal-detail-row">
                                 <span>Materi</span>
-                                <strong class="text-dark text-end" style="max-width: 65%; word-break: break-word;">
-                                    {{ $record->materi ?: '-' }}
-                                </strong>
+                                <strong class="text-dark text-end text-truncate" style="max-width: 62%;">{{ $record->materi ?: '-' }}</strong>
                             </div>
                             <div class="journal-detail-row">
                                 <span>Siswa</span>
                                 <strong class="text-dark text-end">
                                     @if(!is_null($record->present_students) && !is_null($record->class_total_students))
                                         {{ $record->present_students }}/{{ $record->class_total_students }}
-                                        @if(!is_null($record->student_attendance_percentage))
-                                            ({{ number_format($record->student_attendance_percentage, 1) }}%)
-                                        @endif
                                     @else
                                         -
                                     @endif
                                 </strong>
                             </div>
-                            @if($record->lokasi)
-                                <div class="journal-detail-row">
-                                    <span>Lokasi</span>
-                                    <strong class="text-dark text-end">{{ $record->lokasi }}</strong>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -224,6 +223,30 @@
 
         <div class="mt-3">
             {{ $records->links('vendor.pagination.bootstrap-5') }}
+        </div>
+    @endif
+
+    @if($missingJournals->isNotEmpty())
+        <div class="card border-0 mt-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-semibold">Belum jurnal</div>
+                    <span class="text-muted small">{{ $missingJournals->count() }}</span>
+                </div>
+                <div class="d-grid gap-2">
+                    @foreach($missingJournals->take(10) as $item)
+                        <div class="border rounded-3 px-2 py-2">
+                            <div class="d-flex justify-content-between gap-2">
+                                <div class="fw-semibold" style="font-size: 12px;">{{ $item['teacher'] }}</div>
+                                <div class="text-muted small">{{ \Carbon\Carbon::parse($item['date'])->format('d M') }}</div>
+                            </div>
+                            <div class="text-muted small">
+                                {{ $item['class_name'] }} · {{ $item['subject'] }} · {{ $item['time'] }}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         </div>
     @endif
 </div>
