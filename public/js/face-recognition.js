@@ -22,7 +22,6 @@ class FaceRecognition {
         this.enrollmentHoldMs = 320;
         this.challengeBlinkLeadMs = 850;
         this.challengeActionLeadMs = 1050;
-        this.attendanceChallengePool = ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'];
     }
 
     async loadModels() {
@@ -518,10 +517,10 @@ class FaceRecognition {
 
     async runAttendanceRiskScanSequence(videoElement, callbacks = {}) {
         const results = [];
-        const passiveSampleMs = 180;
-        const blinkTimeoutMs = 3200;
-        const steadyHoldMs = 120;
-        const steadyTimeoutMs = 1600;
+        const passiveSampleMs = 160;
+        const blinkTimeoutMs = 2600;
+        const steadyHoldMs = 90;
+        const steadyTimeoutMs = 1000;
 
         this.emit(callbacks.onInstruction, 'Posisikan wajah di dalam oval.');
         this.emit(callbacks.onChallengeState, 'align', 'active');
@@ -577,24 +576,10 @@ class FaceRecognition {
         });
         this.emit(callbacks.onChallengeState, 'blink', 'done');
 
-        const randomChallenge = this.pickRandomAttendanceChallenge();
-        this.emit(callbacks.onInstruction, 'Tahan wajah lurus. Sistem menyiapkan instruksi berikutnya.');
-        this.emit(callbacks.onStatus, 'Menyiapkan challenge berikutnya.');
-        this.emit(callbacks.onChallengeState, 'challenge', 'active');
-        const randomChallengeResult = await this.runRandomChallenge(videoElement, randomChallenge, callbacks);
-        results.push({
-            type: randomChallenge,
-            passed: true,
-            score: randomChallengeResult.score,
-            detail: randomChallengeResult.detail,
-            timestamp: Date.now(),
-        });
-        this.emit(callbacks.onChallengeState, 'challenge', 'done');
-
         const riskScore = this.calculateAttendanceRiskScore({
             passiveSignals,
             blinkScore: blinkResult.score,
-            randomChallengeScore: randomChallengeResult.score,
+            randomChallengeScore: blinkResult.score,
         });
 
         results.push({
@@ -616,7 +601,7 @@ class FaceRecognition {
             throw new Error('Scan terdeteksi berisiko seperti layar atau replay video. Gunakan wajah asli di depan kamera.');
         }
 
-        if (riskScore.overall_score < 0.78) {
+        if (riskScore.overall_score < 0.68) {
             throw new Error('Verifikasi wajah belum cukup aman. Ulangi scan dengan wajah asli dan ikuti arahan kamera.');
         }
 
@@ -883,39 +868,6 @@ class FaceRecognition {
         }
 
         throw new Error('Kedipan belum terbaca. Ulangi scan dan kedip satu kali dengan jelas.');
-    }
-
-    async runRandomChallenge(videoElement, challengeType, callbacks = {}) {
-        if (challengeType === 'turn_left' || challengeType === 'turn_right') {
-            return this.waitForHeadTurnChallenge(videoElement, challengeType, callbacks);
-        }
-
-        if (challengeType === 'look_up' || challengeType === 'look_down') {
-            return this.waitForVerticalLookChallenge(videoElement, challengeType, callbacks);
-        }
-
-        if (challengeType === 'mouth_open') {
-            return this.waitForMouthOpenChallenge(videoElement, callbacks);
-        }
-
-        throw new Error('Challenge wajah tidak dikenal.');
-    }
-
-    challengeInstruction(challengeType) {
-        const map = {
-            turn_left: 'Menengok sedikit ke kiri.',
-            turn_right: 'Menengok sedikit ke kanan.',
-            look_up: 'Menengok sedikit ke atas.',
-            look_down: 'Menengok sedikit ke bawah.',
-            mouth_open: 'Buka mulut sedikit sebentar.',
-        };
-
-        return map[challengeType] || 'Ikuti instruksi verifikasi wajah.';
-    }
-
-    pickRandomAttendanceChallenge() {
-        const index = Math.floor(Math.random() * this.attendanceChallengePool.length);
-        return this.attendanceChallengePool[index];
     }
 
     async presentTimedChallengeInstruction(callbacks = {}, instruction, leadMs = this.challengeActionLeadMs) {

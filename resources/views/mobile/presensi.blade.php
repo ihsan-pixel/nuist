@@ -2953,13 +2953,17 @@ window.addEventListener('load', function() {
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
 
-    function setFaceModelReadyState(ready) {
+    function setFaceModelReadyState(ready, progress = null) {
         faceModelWarmupReady = ready;
         if (!faceScanReadyBadge) {
             return;
         }
 
-        faceScanReadyBadge.textContent = ready ? 'Model siap' : 'Menyiapkan model...';
+        if (progress !== null && !ready) {
+            faceScanReadyBadge.textContent = `Menyiapkan model ${progress}%`;
+        } else {
+            faceScanReadyBadge.textContent = ready ? 'Model siap 100%' : 'Menyiapkan model...';
+        }
         faceScanReadyBadge.className = ready ? 'badge bg-success' : 'badge bg-secondary';
 
         const captureBtn = document.getElementById('btn-capture-selfie');
@@ -2972,19 +2976,20 @@ window.addEventListener('load', function() {
     }
 
     if (faceScanRequired) {
-        const warmupModels = () => {
-            Promise.all([
-                faceScanner.loadDetectionModels(),
-                faceScanner.loadRecognitionModel(),
-            ]).then(() => {
-                setFaceModelReadyState(true);
-            }).catch((error) => {
+        const warmupModels = async () => {
+            try {
+                setFaceModelReadyState(false, 0);
+                await faceScanner.loadDetectionModels();
+                setFaceModelReadyState(false, 50);
+                await faceScanner.loadRecognitionModel();
+                setFaceModelReadyState(true, 100);
+            } catch (error) {
                 console.warn('Face model warmup failed:', error);
-                setFaceModelReadyState(false);
-            });
+                setFaceModelReadyState(false, 0);
+            }
         };
 
-        setFaceModelReadyState(false);
+        setFaceModelReadyState(false, 0);
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(warmupModels, { timeout: 1500 });
         } else {
