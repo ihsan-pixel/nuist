@@ -519,8 +519,6 @@ class FaceRecognition {
         const results = [];
         const passiveSampleMs = 160;
         const blinkTimeoutMs = 3600;
-        const steadyHoldMs = 90;
-        const steadyTimeoutMs = 1000;
 
         this.emit(callbacks.onInstruction, 'Posisikan wajah di dalam oval.');
         this.emit(callbacks.onChallengeState, 'align', 'active');
@@ -604,10 +602,9 @@ class FaceRecognition {
             this.emit(callbacks.onStatus, 'Verifikasi selesai. Mengirim hasil presensi.');
         }
 
-        this.emit(callbacks.onInstruction, 'Challenge selesai. Menyelesaikan verifikasi.');
-        this.emit(callbacks.onStatus, 'Challenge wajah selesai. Menyelesaikan verifikasi.');
+        this.emit(callbacks.onInstruction, 'Verifikasi selesai. Mengirim presensi.');
+        this.emit(callbacks.onStatus, 'Verifikasi selesai. Mengirim presensi.');
         this.emit(callbacks.onChallengeState, 'done', 'active');
-        await this.waitForSteadyFaceHold(videoElement, callbacks, steadyHoldMs, steadyTimeoutMs);
         this.emit(callbacks.onChallengeState, 'done', 'done');
         results.push({
             type: 'face_captured',
