@@ -4138,7 +4138,6 @@ window.addEventListener('load', function() {
             const verificationRejected = faceScanRequired && (
                 isFaceMismatchRejection(errorMessage, error?.notes)
                 || error?.notes === 'liveness_below_threshold'
-                || error?.notes === 'challenge_payload_invalid'
             );
 
             if (!faceScanRequired) {
@@ -4155,14 +4154,6 @@ window.addEventListener('load', function() {
                 updateFaceInstruction('Scan diulang otomatis. Arahkan wajah ke tengah frame.');
             } else {
                 updateFaceInstruction('Ulangi pengambilan selfie.');
-            }
-
-            if (verificationRejected) {
-                updateSelfieGuideState({
-                    state: 'searching',
-                    message: 'Scan diulang otomatis. Arahkan wajah ke tengah frame.',
-                });
-                setFaceFrameState('searching');
             }
 
             if (faceScanRequired) {
@@ -4202,7 +4193,7 @@ window.addEventListener('load', function() {
                     updateFaceInstruction('Scan berjalan otomatis. Arahkan wajah ke dalam frame.');
                     setSelfieStatus('Scan berjalan otomatis. Arahkan wajah ke dalam frame.', 'info');
                     captureSelfie();
-                }, verificationRejected ? 420 : 520);
+                }, 520);
             }
         } finally {
             faceScanInProgress = false;

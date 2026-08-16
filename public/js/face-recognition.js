@@ -732,10 +732,10 @@ class FaceRecognition {
         }
 
         const baselineEar = this.median(baselineSamples) || 0.24;
-        const closedThreshold = Math.max(0.184, baselineEar - 0.012);
-        const reopenThreshold = Math.max(0.19, baselineEar - 0.005);
-        const minDrop = Math.max(0.006, baselineEar * 0.025);
-        const suddenDropThreshold = Math.max(0.004, baselineEar * 0.015);
+        const closedThreshold = Math.max(0.194, baselineEar - 0.008);
+        const reopenThreshold = Math.max(0.196, baselineEar - 0.003);
+        const minDrop = Math.max(0.004, baselineEar * 0.018);
+        const suddenDropThreshold = Math.max(0.003, baselineEar * 0.012);
         let blinkClosedSeen = false;
         let blinkReopenedSeen = false;
         let reopenedFrames = 0;
@@ -790,16 +790,16 @@ class FaceRecognition {
             if (!blinkClosedSeen) {
                 const quickBlinkSignal =
                     (suddenDrop >= suddenDropThreshold || suddenMinEyeDrop >= suddenDropThreshold)
-                    && (instantDrop >= (minDrop * 0.45) || minEyeEar <= (closedThreshold + 0.025));
+                    && (instantDrop >= (minDrop * 0.3) || minEyeEar <= (closedThreshold + 0.03));
                 const oneFrameBlinkSignal =
-                    minEyeEar <= (closedThreshold + 0.01)
-                    && instantDrop >= (minDrop * 0.32);
+                    minEyeEar <= (closedThreshold + 0.02)
+                    && instantDrop >= (minDrop * 0.2);
                 const blinkClosing =
-                    minEyeEar <= (closedThreshold - 0.001)
+                    minEyeEar <= (closedThreshold + 0.003)
                     || ear <= closedThreshold
-                    || smoothedEar <= (closedThreshold + 0.012)
-                    || instantDrop >= (minDrop * 0.72)
-                    || smoothedDrop >= (minDrop * 0.62)
+                    || smoothedEar <= (closedThreshold + 0.02)
+                    || instantDrop >= (minDrop * 0.45)
+                    || smoothedDrop >= (minDrop * 0.4)
                     || quickBlinkSignal
                     || oneFrameBlinkSignal;
 
@@ -818,14 +818,14 @@ class FaceRecognition {
             if (!blinkReopenedSeen) {
                 const reopenedNaturally =
                     ear >= reopenThreshold
-                    || smoothedEar >= (reopenThreshold - 0.004);
+                    || smoothedEar >= (reopenThreshold - 0.002);
                 const reopenedFromQuickBlink =
                     blinkCandidateAt !== null
-                    && (Date.now() - blinkCandidateAt) <= 1100
+                    && (Date.now() - blinkCandidateAt) <= 1300
                     && (
                         suddenDrop < 0
-                        || (instantDrop <= (minDrop * 0.9) && ear >= (baselineEar - (minDrop * 0.85)))
-                        || (minEyeEar >= (closedThreshold + 0.008) && smoothedEar >= (reopenThreshold - 0.016))
+                        || (instantDrop <= (minDrop * 1.05) && ear >= (baselineEar - (minDrop * 0.95)))
+                        || (minEyeEar >= (closedThreshold + 0.012) && smoothedEar >= (reopenThreshold - 0.012))
                     );
 
                 if (reopenedNaturally || reopenedFromQuickBlink) {
@@ -843,7 +843,7 @@ class FaceRecognition {
                 } else {
                     reopenedFrames = 0;
 
-                    if (blinkCandidateAt !== null && (Date.now() - blinkCandidateAt) > 1500) {
+                    if (blinkCandidateAt !== null && (Date.now() - blinkCandidateAt) > 1700) {
                         blinkClosedSeen = false;
                         blinkCandidateAt = null;
                         this.emit(callbacks.onStatus, 'Kedipan belum lengkap. Kedip satu kali lagi.');
