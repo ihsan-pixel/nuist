@@ -20,8 +20,8 @@ class FaceRecognition {
         this.enrollmentSharpnessThreshold = 0.13;
         this.enrollmentMotionThreshold = 0.05;
         this.enrollmentHoldMs = 520;
-        this.challengeBlinkLeadMs = 850;
-        this.challengeActionLeadMs = 1050;
+        this.challengeBlinkLeadMs = 350;
+        this.challengeActionLeadMs = 500;
     }
 
     async loadModels() {
@@ -811,7 +811,7 @@ class FaceRecognition {
 
                 previousEar = ear;
                 previousMinEyeEar = minEyeEar;
-                await this.delay(18);
+                await this.delay(8);
                 continue;
             }
 
@@ -821,7 +821,7 @@ class FaceRecognition {
                     || smoothedEar >= (reopenThreshold - 0.002);
                 const reopenedFromQuickBlink =
                     blinkCandidateAt !== null
-                    && (Date.now() - blinkCandidateAt) <= 1300
+                    && (Date.now() - blinkCandidateAt) <= 900
                     && (
                         suddenDrop < 0
                         || (instantDrop <= (minDrop * 1.05) && ear >= (baselineEar - (minDrop * 0.95)))
@@ -843,7 +843,7 @@ class FaceRecognition {
                 } else {
                     reopenedFrames = 0;
 
-                    if (blinkCandidateAt !== null && (Date.now() - blinkCandidateAt) > 1700) {
+                    if (blinkCandidateAt !== null && (Date.now() - blinkCandidateAt) > 1100) {
                         blinkClosedSeen = false;
                         blinkCandidateAt = null;
                         this.emit(callbacks.onStatus, 'Kedipan belum lengkap. Kedip satu kali lagi.');
@@ -853,7 +853,7 @@ class FaceRecognition {
 
             previousEar = ear;
             previousMinEyeEar = minEyeEar;
-                await this.delay(18);
+                await this.delay(8);
         }
 
         throw new Error('Kedipan belum terbaca. Ulangi scan dan kedip satu kali dengan jelas.');
@@ -1011,7 +1011,7 @@ class FaceRecognition {
                 recentEars.length = 0;
             }
 
-            await this.delay(55);
+            await this.delay(25);
         }
 
         const brightness = this.average(brightnessSamples) ?? 0;
