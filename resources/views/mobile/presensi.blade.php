@@ -2339,8 +2339,7 @@
                     <div class="selfie-progress">
                         <div class="selfie-progress-item" data-step="align">Posisikan</div>
                         <div class="selfie-progress-item" data-step="blink">Kedip</div>
-                        <div class="selfie-progress-item" data-step="challenge">Challenge</div>
-                        <div class="selfie-progress-item" data-step="done">Selesai</div>
+                        <div class="selfie-progress-item" data-step="done">Kirim</div>
                     </div>
                     @endif
                 </div>
@@ -3641,11 +3640,11 @@ window.addEventListener('load', function() {
         return payload;
     }
 
-    async function verifyFaceMatchBeforeChallenges(descriptor) {
+    async function verifyFaceMatchBeforeBlink(descriptor) {
         return requestFaceMatchVerification(descriptor, 1, []);
     }
 
-    async function verifyFaceMatchAfterChallenges(result) {
+    async function verifyFaceMatchAfterBlink(result) {
         updateSelfieGuideState({
             state: 'processing',
             message: 'Mencocokkan wajah dengan data terdaftar.',
@@ -4010,9 +4009,9 @@ window.addEventListener('load', function() {
                         setSelfieStatus(message, inferSelfieStatusType(message));
                     },
                     onGuideState: (payload) => updateSelfieGuideState(payload),
-                    onFaceMatchCheck: (descriptor) => verifyFaceMatchBeforeChallenges(descriptor),
+                    onFaceMatchCheck: (descriptor) => verifyFaceMatchBeforeBlink(descriptor),
                 });
-                await verifyFaceMatchAfterChallenges(faceVerificationResult);
+                await verifyFaceMatchAfterBlink(faceVerificationResult);
             } else {
                 await waitForVideoFrame(video);
                 const ctx = canvas.getContext('2d');

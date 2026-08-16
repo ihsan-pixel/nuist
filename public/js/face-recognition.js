@@ -291,10 +291,10 @@ class FaceRecognition {
                 throw new Error(verificationResult?.message || 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.');
             }
 
-            this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke challenge.');
+            this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke verifikasi blink.');
             this.emit(callbacks.onGuideState, {
                 state: 'success',
-                message: 'Wajah cocok. Lanjut ke challenge berikutnya.',
+                message: 'Wajah cocok. Lanjut ke verifikasi blink.',
             });
         }
 
@@ -331,10 +331,10 @@ class FaceRecognition {
                 throw new Error(verificationResult?.message || 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.');
             }
 
-            this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke challenge.');
+            this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke verifikasi blink.');
             this.emit(callbacks.onGuideState, {
                 state: 'success',
-                message: 'Wajah cocok. Lanjut ke challenge berikutnya.',
+                message: 'Wajah cocok. Lanjut ke verifikasi blink.',
             });
         }
 
@@ -522,7 +522,7 @@ class FaceRecognition {
 
         this.emit(callbacks.onInstruction, 'Posisikan wajah di dalam oval.');
         this.emit(callbacks.onChallengeState, 'align', 'active');
-        this.emit(callbacks.onStatus, 'Wajah terdeteksi. Sistem menyiapkan challenge kedip.');
+        this.emit(callbacks.onStatus, 'Wajah terdeteksi. Sistem menyiapkan verifikasi kedip.');
         results.push({
             type: 'face_aligned',
             passed: true,
@@ -554,11 +554,11 @@ class FaceRecognition {
         let blinkResult = passiveSignals.blink_result || null;
 
         if (!blinkResult) {
-            this.emit(callbacks.onInstruction, 'Tahan wajah lurus. Sistem menyiapkan deteksi kedip.');
+            this.emit(callbacks.onInstruction, 'Tahan wajah lurus. Sistem menyiapkan verifikasi kedip.');
             this.emit(callbacks.onStatus, 'Menyiapkan pembacaan kedip. Tahan posisi sebentar.');
             blinkResult = await this.waitForBlinkChallenge(videoElement, callbacks, blinkTimeoutMs);
         } else {
-            this.emit(callbacks.onInstruction, 'Kedipan sudah terbaca. Lanjut ke verifikasi berikutnya.');
+            this.emit(callbacks.onInstruction, 'Kedipan sudah terbaca. Siap mengirim presensi.');
             this.emit(callbacks.onStatus, 'Kedipan sudah terbaca otomatis.');
             this.emit(callbacks.onGuideState, {
                 state: 'success',
@@ -596,14 +596,8 @@ class FaceRecognition {
             timestamp: Date.now(),
         });
 
-        if (riskScore.screen_replay_risk > 0.55) {
-            this.emit(callbacks.onStatus, 'Verifikasi terbaca. Mengirim hasil presensi.');
-        } else {
-            this.emit(callbacks.onStatus, 'Verifikasi selesai. Mengirim hasil presensi.');
-        }
-
-        this.emit(callbacks.onInstruction, 'Verifikasi selesai. Mengirim presensi.');
-        this.emit(callbacks.onStatus, 'Verifikasi selesai. Mengirim presensi.');
+        this.emit(callbacks.onStatus, 'Verifikasi kedip selesai. Mengirim presensi.');
+        this.emit(callbacks.onInstruction, 'Verifikasi kedip selesai. Mengirim presensi.');
         this.emit(callbacks.onChallengeState, 'done', 'active');
         this.emit(callbacks.onChallengeState, 'done', 'done');
         results.push({
