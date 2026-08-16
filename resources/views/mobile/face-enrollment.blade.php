@@ -923,6 +923,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let cameraReady = false;
     let enrollmentResult = null;
     let onboardingAccepted = false;
+    let faceModelWarmupPromise = null;
     let captureProgress = 0;
     let currentProgress = 0;
     let targetProgress = 0;
@@ -1099,6 +1100,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function warmupFaceModels() {
+        if (!faceRecognition) {
+            return Promise.resolve();
+        }
+
+        if (!faceModelWarmupPromise) {
+            faceModelWarmupPromise = faceRecognition.loadModels().catch((error) => {
+                console.warn('Face enrollment warmup failed:', error);
+                return null;
+            });
+        }
+
+        return faceModelWarmupPromise;
+    }
+
     function resetEnrollmentState() {
         enrollmentResult = null;
         preview.src = '';
@@ -1123,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             setInstruction('Memuat kamera dan model wajah.');
             setStatus('Menyiapkan kamera.');
-            await faceRecognition.loadModels();
+            await warmupFaceModels();
             await faceRecognition.initializeCamera(video);
 
             cameraReady = true;
@@ -1294,8 +1310,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 startCameraButton.disabled = false;
                 startCameraButton.focus();
             }
+            warmupFaceModels();
         });
     }
+
+    warmupFaceModels();
 
     if (faceHelpButton) {
         faceHelpButton.addEventListener('click', function () {
