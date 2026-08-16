@@ -436,10 +436,6 @@
             background: linear-gradient(135deg, #003d3e 0%, #0c6a42 100%);
         }
 
-        #selfie-video {
-            transform: scaleX(-1); /* tampilan jadi seperti cermin */
-        }
-
         .status-detail-list {
             display: grid;
             gap: 10px;
@@ -1023,6 +1019,55 @@
             background: radial-gradient(circle at top, rgba(71, 85, 105, 0.46) 0%, rgba(30, 41, 59, 0.82) 100%);
             text-align: center;
             padding: 28px;
+        }
+
+        .face-loading-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(4, 10, 16, 0.64);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            z-index: 3;
+            transition: opacity 220ms ease, visibility 220ms ease;
+        }
+
+        .face-loading-overlay[hidden] {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .face-loading-spinner {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.18);
+            border-top-color: #4ade80;
+            animation: face-loading-spin 0.8s linear infinite;
+        }
+
+        .face-loading-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .face-loading-copy {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.82);
+            text-align: center;
+            max-width: 220px;
+            line-height: 1.45;
+        }
+
+        @keyframes face-loading-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .selfie-placeholder i {
@@ -2172,6 +2217,11 @@
                         <span>Izinkan akses kamera jika diminta.</span>
                         @endif
                     </div>
+                    <div class="face-loading-overlay" id="face-loading-overlay">
+                        <div class="face-loading-spinner" aria-hidden="true"></div>
+                        <div class="face-loading-title" id="face-loading-title">Menyiapkan sistem scan</div>
+                        <div class="face-loading-copy" id="face-loading-copy">Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.</div>
+                    </div>
                     <video id="selfie-video" autoplay playsinline style="display: none; object-fit: contain;"></video>
                     <canvas id="selfie-canvas" style="display: none;"></canvas>
                     <img id="selfie-preview" style="object-fit: contain; display: none;" alt="Preview Scan Wajah">
@@ -2809,6 +2859,9 @@ window.addEventListener('load', function() {
     const selfieGuideText = document.getElementById('selfie-guide-text');
     const selfieGuideInstruction = document.getElementById('selfie-guide-instruction');
     const selfieGuideDetail = document.getElementById('selfie-guide-detail');
+    const faceLoadingOverlay = document.getElementById('face-loading-overlay');
+    const faceLoadingTitle = document.getElementById('face-loading-title');
+    const faceLoadingCopy = document.getElementById('face-loading-copy');
     const selfieProgressItems = Array.from(document.querySelectorAll('.selfie-progress-item'));
     const selfieProgressFill = document.getElementById('selfie-progress-fill');
     const selfieProgressOrb = document.getElementById('selfie-progress-orb');
@@ -2820,6 +2873,22 @@ window.addEventListener('load', function() {
     let faceScanOnboardingAccepted = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
+
+    function setFaceLoadingState(active, title = 'Menyiapkan sistem scan', copy = 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.') {
+        if (!faceLoadingOverlay) {
+            return;
+        }
+
+        faceLoadingOverlay.hidden = !active;
+        if (active) {
+            if (faceLoadingTitle) {
+                faceLoadingTitle.textContent = title;
+            }
+            if (faceLoadingCopy) {
+                faceLoadingCopy.textContent = copy;
+            }
+        }
+    }
 
     function stopSelfieStream() {
         faceScanner.stopCamera(document.getElementById('selfie-video'));
@@ -3611,9 +3680,12 @@ window.addEventListener('load', function() {
             faceScanOnboarding.hidden = true;
         }
 
+        setFaceLoadingState(true);
+
         try {
             await initializeSelfieCamera();
         } catch (error) {
+            setFaceLoadingState(false);
             closeSelfieModal();
             showFormalErrorAlert(
                 'Akses Kamera Tidak Tersedia',
@@ -3630,6 +3702,7 @@ window.addEventListener('load', function() {
         } else {
             stopSelfieStream();
         }
+        setFaceLoadingState(false);
         selfieModal.classList.remove('show');
         selfieModal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('selfie-modal-open');
@@ -3676,6 +3749,7 @@ window.addEventListener('load', function() {
             stopSelfieStream();
 
             if (faceScanRequired) {
+                setFaceLoadingState(true, 'Menyiapkan kamera', 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.');
                 await faceScanner.initializeCamera(video);
                 video.style.display = 'block';
 
@@ -3707,6 +3781,7 @@ window.addEventListener('load', function() {
                 //updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
             }
             video.style.display = 'block';
+            setFaceLoadingState(false);
 
             const placeholder = container.querySelector('.selfie-placeholder');
             if (placeholder) {

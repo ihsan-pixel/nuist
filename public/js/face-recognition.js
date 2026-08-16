@@ -1400,9 +1400,7 @@ class FaceRecognition {
     }
 
     userFacingTurnRatio(landmarks) {
-        // Video selfie ditampilkan mirrored di UI, jadi rasio horizontal
-        // perlu dibalik agar kanan/kiri mengikuti sudut pandang user.
-        return -this.faceTurnRatio(landmarks);
+        return this.faceTurnRatio(landmarks);
     }
 
     mouthOpenRatio(landmarks) {
