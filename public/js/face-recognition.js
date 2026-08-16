@@ -518,12 +518,13 @@ class FaceRecognition {
     async runAttendanceRiskScanSequence(videoElement, callbacks = {}) {
         const results = [];
         const passiveSampleMs = 160;
-        const blinkTimeoutMs = 2600;
+        const blinkTimeoutMs = 3600;
         const steadyHoldMs = 90;
         const steadyTimeoutMs = 1000;
 
         this.emit(callbacks.onInstruction, 'Posisikan wajah di dalam oval.');
         this.emit(callbacks.onChallengeState, 'align', 'active');
+        this.emit(callbacks.onStatus, 'Wajah terdeteksi. Sistem menyiapkan challenge kedip.');
         results.push({
             type: 'face_aligned',
             passed: true,
@@ -705,7 +706,7 @@ class FaceRecognition {
     }
 
     async waitForBlinkChallenge(videoElement, callbacks = {}, timeoutMs = 3200) {
-        const calibrationDeadline = Date.now() + 1800;
+        const calibrationDeadline = Date.now() + 2200;
         const baselineSamples = [];
         const recentEars = [];
         const blinkHistory = [];
@@ -722,10 +723,10 @@ class FaceRecognition {
 
             if (!detection?.landmarks) {
                 missedFrames += 1;
-                if (missedFrames >= 3) {
+                if (missedFrames >= 2) {
                     this.emit(callbacks.onStatus, 'Wajah belum stabil. Hadapkan wajah lurus ke kamera.');
                 }
-                await this.delay(80);
+                await this.delay(55);
                 continue;
             }
 
@@ -735,7 +736,7 @@ class FaceRecognition {
                 baselineSamples.push(ear);
             }
 
-            await this.delay(28);
+            await this.delay(20);
         }
 
         if (baselineSamples.length < 4) {
@@ -743,10 +744,10 @@ class FaceRecognition {
         }
 
         const baselineEar = this.median(baselineSamples) || 0.24;
-        const closedThreshold = Math.max(0.162, baselineEar - 0.028);
-        const reopenThreshold = Math.max(0.175, baselineEar - 0.006);
-        const minDrop = Math.max(0.013, baselineEar * 0.055);
-        const suddenDropThreshold = Math.max(0.009, baselineEar * 0.035);
+        const closedThreshold = Math.max(0.166, baselineEar - 0.022);
+        const reopenThreshold = Math.max(0.17, baselineEar - 0.008);
+        const minDrop = Math.max(0.011, baselineEar * 0.045);
+        const suddenDropThreshold = Math.max(0.007, baselineEar * 0.028);
         let blinkClosedSeen = false;
         let blinkReopenedSeen = false;
         let reopenedFrames = 0;
@@ -760,7 +761,7 @@ class FaceRecognition {
             'Kedip satu kali untuk verifikasi.',
             this.challengeBlinkLeadMs,
         );
-        this.emit(callbacks.onStatus, 'Deteksi kedip aktif. Cukup kedip satu kali.');
+        this.emit(callbacks.onStatus, 'Deteksi kedip aktif. Cukup kedip satu kali dengan cepat.');
         const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
@@ -822,7 +823,7 @@ class FaceRecognition {
 
                 previousEar = ear;
                 previousMinEyeEar = minEyeEar;
-                await this.delay(45);
+                await this.delay(30);
                 continue;
             }
 
@@ -835,8 +836,8 @@ class FaceRecognition {
                     && (Date.now() - blinkCandidateAt) <= 850
                     && (
                         suddenDrop < 0
-                        || (instantDrop <= (minDrop * 0.55) && ear >= (baselineEar - (minDrop * 0.5)))
-                        || (minEyeEar >= (closedThreshold + 0.01) && smoothedEar >= (reopenThreshold - 0.01))
+                        || (instantDrop <= (minDrop * 0.7) && ear >= (baselineEar - (minDrop * 0.65)))
+                        || (minEyeEar >= (closedThreshold + 0.006) && smoothedEar >= (reopenThreshold - 0.012))
                     );
 
                 if (reopenedNaturally || reopenedFromQuickBlink) {
@@ -864,7 +865,7 @@ class FaceRecognition {
 
             previousEar = ear;
             previousMinEyeEar = minEyeEar;
-            await this.delay(45);
+                await this.delay(30);
         }
 
         throw new Error('Kedipan belum terbaca. Ulangi scan dan kedip satu kali dengan jelas.');

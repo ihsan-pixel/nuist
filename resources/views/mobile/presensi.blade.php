@@ -2335,7 +2335,7 @@
                 <div class="selfie-progress-fill" id="selfie-progress-fill"></div>
             </div>
             <button type="button" id="btn-capture-selfie" class="presensi-btn" style="display: none;">
-                <i class="bx {{ $verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera' }} me-1"></i>{{ $verificationMode === 'face_scan' ? 'Mulai Scan' : 'Ambil Foto' }}
+                <i class="bx {{ $verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera' }} me-1"></i>{{ $verificationMode === 'face_scan' ? 'Siap Scan' : 'Ambil Foto' }}
             </button>
             <button type="button" id="btn-submit-presensi"
                     class="presensi-btn"
@@ -2944,7 +2944,6 @@ window.addEventListener('load', function() {
     let currentSelfieProgress = 0;
     let targetSelfieProgress = 0;
     let selfieProgressAnimationFrame = null;
-    let faceScanReadyToStart = false;
     let faceScanOnboardingAccepted = false;
     let faceScanInProgress = false;
     let currentFaceInstructionIcon = 'bx-scan';
@@ -2964,13 +2963,6 @@ window.addEventListener('load', function() {
         }
         faceScanReadyBadge.className = ready ? 'badge bg-success' : 'badge bg-secondary';
 
-        const captureBtn = document.getElementById('btn-capture-selfie');
-        if (captureBtn && faceScanRequired && faceScanReadyToStart && !faceScanInProgress) {
-            captureBtn.disabled = !ready;
-            captureBtn.innerHTML = ready
-                ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
-                : '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan...';
-        }
     }
 
     if (faceScanRequired) {
@@ -3509,8 +3501,8 @@ window.addEventListener('load', function() {
 
         captureBtn.classList.remove('retry-scan');
         if (faceScanRequired) {
-            captureBtn.style.display = faceScanReadyToStart ? 'inline-flex' : 'none';
-            captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Mulai Scan';
+            captureBtn.style.display = 'none';
+            captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Siap Scan';
         } else {
             captureBtn.style.display = 'block';
             captureBtn.innerHTML = '<i class="bx bx-camera me-1"></i>Ambil Foto';
@@ -3687,7 +3679,7 @@ window.addEventListener('load', function() {
             captureBtn.style.display = faceScanRequired ? 'none' : 'block';
             captureBtn.disabled = false;
             captureBtn.innerHTML = faceScanRequired
-                ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+                ? '<i class="bx bx-scan me-1"></i>Siap Scan'
                 : '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
         }
         if (submitBtn) {
@@ -3716,7 +3708,6 @@ window.addEventListener('load', function() {
         pendingSelfieData = '';
         earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
-        faceScanReadyToStart = false;
         faceScanInProgress = false;
         faceScanOnboardingAccepted = !faceScanRequired;
         currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
@@ -3884,7 +3875,7 @@ window.addEventListener('load', function() {
                 setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
                 await faceScanner.loadModels();
                 setFaceLoadingState(false);
-                updateFaceInstruction('Kamera aktif. Tekan Mulai Scan untuk memulai pembacaan wajah.');
+                updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {
                 captureBtn.disabled = true;
                 captureBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
@@ -3917,17 +3908,21 @@ window.addEventListener('load', function() {
                     captureBtn.disabled = true;
                     return;
                 }
-                faceScanReadyToStart = true;
-                captureBtn.style.display = 'inline-flex';
-                captureBtn.disabled = false;
-                captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Mulai Scan';
-                setSelfieStatus('Kamera aktif. Tekan Mulai Scan saat wajah sudah siap.');
-                updateFaceInstruction('Kamera aktif. Tekan Mulai Scan untuk memulai pembacaan wajah.');
+                captureBtn.style.display = 'none';
+                captureBtn.disabled = true;
+                setSelfieStatus('Kamera aktif. Scan dimulai otomatis saat wajah siap.');
+                updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
                 updateSelfieGuideState({
                     state: 'searching',
-                    message: 'Tekan Mulai Scan saat wajah sudah siap.',
+                    message: 'Arahkan wajah ke tengah oval. Scan akan dimulai otomatis.',
                 });
                 hideFaceScanRetryButton();
+                window.setTimeout(() => {
+                    if (!selfieModal?.classList.contains('show') || presensiSubmitInFlight) {
+                        return;
+                    }
+                    captureSelfie();
+                }, 120);
             } else {
                 captureBtn.style.display = 'block';
                 captureBtn.disabled = false;
@@ -4143,9 +4138,8 @@ window.addEventListener('load', function() {
                         return;
                     }
 
-                    captureBtn.style.display = 'inline-flex';
-                    captureBtn.disabled = false;
-                    captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Mulai Scan';
+                    captureBtn.style.display = 'none';
+                    captureBtn.disabled = true;
                 }, 860);
             } else if (faceScanRequired) {
                 window.setTimeout(() => {
@@ -4154,8 +4148,8 @@ window.addEventListener('load', function() {
                     }
 
                     hideFaceScanRetryButton();
-                    updateFaceInstruction('Tekan Mulai Scan untuk memulai pembacaan wajah.');
-                    setSelfieStatus('Tekan Mulai Scan saat wajah sudah siap.', 'info');
+                    updateFaceInstruction('Scan akan dimulai otomatis saat wajah terdeteksi.');
+                    setSelfieStatus('Arahkan wajah ke tengah oval. Scan berjalan otomatis.', 'info');
                 }, 300);
             }
         } finally {
@@ -4164,7 +4158,7 @@ window.addEventListener('load', function() {
                 captureBtn.disabled = false;
                 if (!captureBtn.classList.contains('retry-scan')) {
                     captureBtn.innerHTML = faceScanRequired
-                        ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+                        ? '<i class="bx bx-scan me-1"></i>Siap Scan'
                         : '<i class="bx bx-camera me-1"></i>Ambil Foto';
                 }
             }
