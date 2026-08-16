@@ -3316,6 +3316,27 @@ window.addEventListener('load', function() {
             : '<i class="bx bx-camera me-1"></i>Ambil Foto';
     }
 
+    function setFaceFrameState(state = 'searching') {
+        if (!selfieContainer) {
+            return;
+        }
+
+        selfieContainer.dataset.guideState = state;
+        if (!faceScanRequired) {
+            return;
+        }
+
+        const retryStates = ['searching', 'too-far', 'too-close', 'tilted', 'off-center', 'warning'];
+        if (retryStates.includes(state)) {
+            showFaceScanRetryButton('Ulangi');
+            return;
+        }
+
+        if (state === 'success' || state === 'aligned' || state === 'steady' || state === 'processing') {
+            hideFaceScanRetryButton();
+        }
+    }
+
     function handleFaceScanVerificationRejection(message, notes = null) {
         if (!faceScanRequired) {
             return false;
@@ -3352,10 +3373,11 @@ window.addEventListener('load', function() {
             state: 'warning',
             message: rejectionMessage,
         });
+        setFaceFrameState('warning');
         setSelfieProgressOrbState('error');
         setSelfieStatus(rejectionMessage, 'error');
         updateFaceInstruction(rejectionMessage);
-        showFaceScanRetryButton('Scan Ulang');
+        showFaceScanRetryButton('Ulangi');
 
         $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
 
@@ -3615,6 +3637,7 @@ window.addEventListener('load', function() {
             updateSelfieQualityIndicators(payload.state);
             updateSelfieGuideTone(payload.state);
             updateSelfieProgressRing();
+            setFaceFrameState(payload.state);
         }
 
         if (selfieGuideText && payload.message) {
@@ -3684,11 +3707,11 @@ window.addEventListener('load', function() {
 
             if (faceScanRequired) {
                 captureBtn.style.display = 'none';
-                setSelfieStatus('Kamera aktif. Tahan posisi wajah sebentar.');
-                updateFaceInstruction('Posisikan wajah di dalam oval lalu ikuti arahan scan wajah.');
+                setSelfieStatus('Kamera aktif. Arahkan wajah ke dalam frame.');
+                updateFaceInstruction('Arahkan wajah ke dalam oval. Sistem akan membaca saat wajah masuk frame.');
                 updateSelfieGuideState({
-                    state: 'steady',
-                    message: 'Pusatkan wajah di dalam oval.',
+                    state: 'searching',
+                    message: 'Arahkan wajah ke dalam oval.',
                 });
 
                 if (!faceScanAutoStarted && selfieModal?.classList.contains('show')) {
@@ -3886,7 +3909,8 @@ window.addEventListener('load', function() {
                     state: 'warning',
                     message: errorMessage,
                 });
-                showFaceScanRetryButton('Scan Ulang');
+                setFaceFrameState('warning');
+                showFaceScanRetryButton('Ulangi');
             }
 
             if (shouldAutoRetry) {
@@ -3897,10 +3921,11 @@ window.addEventListener('load', function() {
 
                     resetSelfieProgress();
                     updateSelfieGuideState({
-                        state: 'steady',
+                        state: 'searching',
                         message: 'Pusatkan wajah di dalam oval.',
                     });
-                    updateFaceInstruction('Mengulang scan dari awal. Ikuti instruksi berikutnya.');
+                    setFaceFrameState('searching');
+                    updateFaceInstruction('Mengulang scan dari awal. Arahkan wajah ke dalam frame.');
                     setSelfieStatus('Scan diulang dari awal.', 'info');
                 }, 520);
 

@@ -225,7 +225,7 @@ class FaceRecognition {
             message: 'Pusatkan wajah di dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 9000);
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 1600, 1);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
@@ -471,7 +471,6 @@ class FaceRecognition {
 
         this.emit(callbacks.onInstruction, 'Posisikan wajah di dalam oval.');
         this.emit(callbacks.onChallengeState, 'align', 'active');
-        await this.waitForStableSingleFace(videoElement, callbacks, 3200);
         results.push({
             type: 'face_aligned',
             passed: true,
@@ -479,7 +478,7 @@ class FaceRecognition {
         });
         this.emit(callbacks.onChallengeState, 'align', 'done');
 
-        const passiveSignals = await this.collectPassiveSignals(videoElement, callbacks, 850);
+        const passiveSignals = await this.collectPassiveSignals(videoElement, callbacks, 460);
         results.push({
             type: 'lighting',
             passed: passiveSignals.lighting_passed,
@@ -584,8 +583,9 @@ class FaceRecognition {
         };
     }
 
-    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 3200) {
+    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 3200, stableHitsRequired = 1) {
         const startedAt = Date.now();
+        let stableHits = 0;
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks, {
@@ -594,16 +594,32 @@ class FaceRecognition {
             });
 
             if (detection) {
-                this.emit(callbacks.onStatus, 'Wajah terdeteksi. Pertahankan posisi di tengah oval.');
+                stableHits += 1;
+                this.emit(callbacks.onStatus, stableHits >= stableHitsRequired
+                    ? 'Wajah terdeteksi. Memulai pembacaan wajah.'
+                    : 'Wajah terdeteksi. Pertahankan posisi di tengah oval.');
                 this.emit(callbacks.onGuideState, {
-                    state: 'aligned',
-                    message: 'Posisi wajah sudah pas. Tahan sebentar.',
+                    state: stableHits >= stableHitsRequired ? 'success' : 'aligned',
+                    message: stableHits >= stableHitsRequired
+                        ? 'Wajah sudah masuk frame. Memulai scan.'
+                        : 'Posisi wajah sudah pas. Tahan sebentar.',
                 });
-                return detection;
+
+                if (stableHits >= stableHitsRequired) {
+                    return detection;
+                }
+
+                await this.delay(20);
+                continue;
             }
 
+            stableHits = 0;
+            this.emit(callbacks.onGuideState, {
+                state: 'searching',
+                message: 'Arahkan wajah ke dalam oval.',
+            });
             this.emit(callbacks.onStatus, 'Arahkan satu wajah ke tengah oval dan dekatkan sedikit ke kamera.');
-            await this.delay(35);
+            await this.delay(20);
         }
 
         throw new Error('Wajah tidak terdeteksi dengan stabil. Pastikan pencahayaan cukup dan hanya satu wajah di layar.');
