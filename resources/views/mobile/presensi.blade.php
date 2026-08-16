@@ -2999,9 +2999,9 @@ window.addEventListener('load', function() {
         const warmupModels = async () => {
             try {
                 setFaceModelReadyState(false, 0);
-                await faceScanner.loadDetectionModels();
+                const warmupPromise = faceScanner.loadModels();
                 setFaceModelReadyState(false, 50);
-                await faceScanner.loadRecognitionModel();
+                await warmupPromise;
                 setFaceModelReadyState(true, 100);
             } catch (error) {
                 console.warn('Face model warmup failed:', error);
