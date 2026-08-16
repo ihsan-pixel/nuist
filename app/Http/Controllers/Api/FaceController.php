@@ -13,7 +13,7 @@ class FaceController extends Controller
 {
     // Thresholds - adjust as needed or move to config
     private float $FACE_DISTANCE_THRESHOLD = 0.62;
-    private float $LIVENESS_THRESHOLD = 0.78;
+    private float $LIVENESS_THRESHOLD = 0.55;
 
     /**
      * Enroll face data for a user (admin or user self-enroll).
