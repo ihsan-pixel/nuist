@@ -1038,7 +1038,7 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .selfie-guide {
@@ -2164,9 +2164,9 @@
                         <span>Izinkan akses kamera jika diminta.</span>
                         @endif
                     </div>
-                    <video id="selfie-video" autoplay playsinline style="display: none; object-fit: cover;"></video>
+                    <video id="selfie-video" autoplay playsinline style="display: none; object-fit: contain;"></video>
                     <canvas id="selfie-canvas" style="display: none;"></canvas>
-                    <img id="selfie-preview" style="object-fit: cover; display: none;" alt="Preview Scan Wajah">
+                    <img id="selfie-preview" style="object-fit: contain; display: none;" alt="Preview Scan Wajah">
                 </div>
 
                 <div class="selfie-stage-copy">
