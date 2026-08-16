@@ -1528,12 +1528,36 @@
         }
 
         .selfie-progress {
-            display: none;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+            margin-top: 10px;
         }
 
         .selfie-progress-item,
         .selfie-quality-item {
-            display: none;
+            display: block;
+        }
+
+        .selfie-progress-item {
+            border-radius: 999px;
+            padding: 6px 8px;
+            background: rgba(15, 23, 42, 0.08);
+            color: #64748b;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .selfie-progress-item.active {
+            background: rgba(14, 133, 73, 0.16);
+            color: #0e8549;
+            font-weight: 600;
+        }
+
+        .selfie-progress-item.done {
+            background: rgba(14, 133, 73, 0.22);
+            color: #0e8549;
+            font-weight: 700;
         }
 
         .selfie-progress-meter {
@@ -4114,10 +4138,9 @@ window.addEventListener('load', function() {
                     message: errorMessage,
                 });
                 setFaceFrameState('warning');
-                showFaceScanRetryButton('Ulangi');
             }
 
-            if (shouldAutoRetry) {
+            if (faceScanRequired) {
                 window.setTimeout(() => {
                     if (!selfieModal?.classList.contains('show')) {
                         return;
@@ -4125,32 +4148,19 @@ window.addEventListener('load', function() {
 
                     resetSelfieProgress();
                     updateSelfieGuideState({
-                        state: 'idle',
-                        message: 'Pusatkan wajah di dalam oval.',
+                        state: 'searching',
+                        message: 'Arahkan wajah ke dalam oval. Scan akan diulang otomatis.',
                     });
-                    setFaceFrameState('idle');
-                    updateFaceInstruction('Mengulang scan dari awal. Arahkan wajah ke dalam frame.');
-                    setSelfieStatus('Scan diulang dari awal.', 'info');
-                }, 520);
-
-                window.setTimeout(() => {
-                    if (!selfieModal?.classList.contains('show') || !captureBtn) {
-                        return;
-                    }
-
-                    captureBtn.style.display = 'none';
-                    captureBtn.disabled = true;
-                }, 860);
-            } else if (faceScanRequired) {
-                window.setTimeout(() => {
-                    if (!selfieModal?.classList.contains('show')) {
-                        return;
-                    }
-
-                    hideFaceScanRetryButton();
-                    updateFaceInstruction('Scan akan dimulai otomatis saat wajah terdeteksi.');
-                    setSelfieStatus('Arahkan wajah ke tengah oval. Scan berjalan otomatis.', 'info');
-                }, 300);
+                    setFaceFrameState('searching');
+                    updateFaceInstruction('Scan diulang otomatis. Arahkan wajah ke dalam frame.');
+                    setSelfieStatus('Scan diulang otomatis.', 'info');
+                    captureSelfie();
+                }, verificationRejected ? 420 : 520);
+            } else {
+                showFormalErrorAlert(
+                    'Pengambilan Selfie Gagal',
+                    errorMessage || 'Selfie belum berhasil diambil. Silakan ulangi.'
+                );
             }
         } finally {
             faceScanInProgress = false;

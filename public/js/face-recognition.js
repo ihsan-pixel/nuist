@@ -705,8 +705,8 @@ class FaceRecognition {
         throw new Error('Wajah belum terbaca dengan stabil. Coba tahan posisi wajah lebih tenang.');
     }
 
-    async waitForBlinkChallenge(videoElement, callbacks = {}, timeoutMs = 3200) {
-        const calibrationDeadline = Date.now() + 2200;
+    async waitForBlinkChallenge(videoElement, callbacks = {}, timeoutMs = 4200) {
+        const calibrationDeadline = Date.now() + 2500;
         const baselineSamples = [];
         const recentEars = [];
         const blinkHistory = [];
@@ -726,7 +726,7 @@ class FaceRecognition {
                 if (missedFrames >= 2) {
                     this.emit(callbacks.onStatus, 'Wajah belum stabil. Hadapkan wajah lurus ke kamera.');
                 }
-                await this.delay(55);
+                await this.delay(35);
                 continue;
             }
 
@@ -744,10 +744,10 @@ class FaceRecognition {
         }
 
         const baselineEar = this.median(baselineSamples) || 0.24;
-        const closedThreshold = Math.max(0.166, baselineEar - 0.022);
-        const reopenThreshold = Math.max(0.17, baselineEar - 0.008);
-        const minDrop = Math.max(0.011, baselineEar * 0.045);
-        const suddenDropThreshold = Math.max(0.007, baselineEar * 0.028);
+        const closedThreshold = Math.max(0.172, baselineEar - 0.018);
+        const reopenThreshold = Math.max(0.176, baselineEar - 0.01);
+        const minDrop = Math.max(0.009, baselineEar * 0.038);
+        const suddenDropThreshold = Math.max(0.006, baselineEar * 0.022);
         let blinkClosedSeen = false;
         let blinkReopenedSeen = false;
         let reopenedFrames = 0;
@@ -823,7 +823,7 @@ class FaceRecognition {
 
                 previousEar = ear;
                 previousMinEyeEar = minEyeEar;
-                await this.delay(30);
+                await this.delay(18);
                 continue;
             }
 
@@ -836,8 +836,8 @@ class FaceRecognition {
                     && (Date.now() - blinkCandidateAt) <= 850
                     && (
                         suddenDrop < 0
-                        || (instantDrop <= (minDrop * 0.7) && ear >= (baselineEar - (minDrop * 0.65)))
-                        || (minEyeEar >= (closedThreshold + 0.006) && smoothedEar >= (reopenThreshold - 0.012))
+                        || (instantDrop <= (minDrop * 0.82) && ear >= (baselineEar - (minDrop * 0.7)))
+                        || (minEyeEar >= (closedThreshold + 0.004) && smoothedEar >= (reopenThreshold - 0.014))
                     );
 
                 if (reopenedNaturally || reopenedFromQuickBlink) {
@@ -865,7 +865,7 @@ class FaceRecognition {
 
             previousEar = ear;
             previousMinEyeEar = minEyeEar;
-                await this.delay(30);
+                await this.delay(18);
         }
 
         throw new Error('Kedipan belum terbaca. Ulangi scan dan kedip satu kali dengan jelas.');
