@@ -1048,29 +1048,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function resetEnrollmentState() {
         enrollmentResult = null;
-
         preview.src = '';
         preview.style.display = 'none';
-
         video.style.display = cameraReady ? 'block' : 'none';
-
         enrollButton.disabled = true;
         enrollButton.style.display = 'none';
-
         if (retryButton) {
-            // Ulangi selalu terlihat, tetapi belum bisa digunakan
             retryButton.disabled = true;
-            retryButton.style.display = 'block';
+            retryButton.style.display = 'none';
         }
-
         startCameraButton.style.display = 'block';
-
         resetProgress();
-
         if (faceStage) {
             faceStage.dataset.guideState = cameraReady ? 'steady' : 'searching';
         }
-
         updateGuideTone(cameraReady ? 'steady' : 'searching');
         updateProgressRing();
     }
