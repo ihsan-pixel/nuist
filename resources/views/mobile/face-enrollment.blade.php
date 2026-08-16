@@ -32,6 +32,9 @@
             height: 100dvh;
             background: #000;
             overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
         }
 
         .face-stage::before {
@@ -58,7 +61,8 @@
         }
 
         .face-camera-layer {
-            position: relative;
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             min-height: 100%;
@@ -216,7 +220,7 @@
             position: absolute;
             left: 16px;
             right: 16px;
-            bottom: 22px;
+            bottom: max(18px, env(safe-area-inset-bottom));
             z-index: 3;
             padding: 0;
             background: transparent;
@@ -663,7 +667,7 @@
         .face-help-button {
             position: absolute;
             right: 18px;
-            bottom: 116px;
+            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 84px);
             z-index: 8;
             width: 44px;
             height: 44px;
@@ -723,7 +727,7 @@
             }
 
             .face-help-button {
-                bottom: 108px;
+                bottom: calc(max(18px, env(safe-area-inset-bottom)) + 76px);
                 right: 14px;
             }
         }
