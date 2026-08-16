@@ -22,23 +22,25 @@
         .stat-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 10px;
+            gap: 8px;
         }
 
         .stat-box {
             background: rgba(255, 255, 255, 0.14);
             border-radius: 14px;
-            padding: 10px 12px;
+            padding: 8px 10px;
+            min-width: 0;
         }
 
         .stat-box small {
             display: block;
             opacity: 0.8;
-            font-size: 11px;
+            font-size: 10px;
+            line-height: 1.2;
         }
 
         .stat-box strong {
-            font-size: 18px;
+            font-size: 15px;
             line-height: 1.1;
         }
 
@@ -88,11 +90,6 @@
             background: #fff;
         }
 
-        @media (max-width: 576px) {
-            .stat-grid {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 
     <div class="d-flex align-items-center mb-3">
