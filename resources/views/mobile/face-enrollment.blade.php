@@ -15,6 +15,14 @@
             height: 100dvh;
         }
 
+        html,
+        body,
+        .container {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+        }
+
         .face-card {
             background: transparent;
             border-radius: 0;
@@ -23,6 +31,7 @@
             border: 0;
             margin-bottom: 0;
             color: #f8fafc;
+            height: 100%;
         }
 
         .face-stage {
@@ -220,7 +229,7 @@
             position: absolute;
             left: 16px;
             right: 16px;
-            bottom: max(18px, env(safe-area-inset-bottom));
+            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 4px);
             z-index: 3;
             padding: 0;
             background: transparent;
@@ -667,7 +676,7 @@
         .face-help-button {
             position: absolute;
             right: 18px;
-            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 84px);
+            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 88px);
             z-index: 8;
             width: 44px;
             height: 44px;
@@ -727,7 +736,7 @@
             }
 
             .face-help-button {
-                bottom: calc(max(18px, env(safe-area-inset-bottom)) + 76px);
+                bottom: calc(max(18px, env(safe-area-inset-bottom)) + 82px);
                 right: 14px;
             }
         }
