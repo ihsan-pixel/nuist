@@ -1400,7 +1400,9 @@ class FaceRecognition {
     }
 
     userFacingTurnRatio(landmarks) {
-        return this.faceTurnRatio(landmarks);
+        // Camera preview in face-scan mode is mirrored for the user, so flip the
+        // horizontal ratio to keep left/right instructions aligned with the UI.
+        return -this.faceTurnRatio(landmarks);
     }
 
     mouthOpenRatio(landmarks) {
