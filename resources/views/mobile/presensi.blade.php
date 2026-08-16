@@ -3645,9 +3645,18 @@ window.addEventListener('load', function() {
             stopSelfieStream();
 
             if (faceScanRequired) {
-                updateFaceInstruction('Memuat model scan wajah. Mohon tunggu sebentar.');
-                await faceScanner.loadModels();
                 await faceScanner.initializeCamera(video);
+                video.style.display = 'block';
+
+                const placeholder = container.querySelector('.selfie-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+
+                updateFaceInstruction('Memuat model scan wajah. Mohon tunggu sebentar.');
+                void faceScanner.loadModels().catch((error) => {
+                    console.error('Failed to preload face models:', error);
+                });
             } else {
                 captureBtn.disabled = true;
                 captureBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
