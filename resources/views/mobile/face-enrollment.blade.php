@@ -60,7 +60,8 @@
         .face-camera-layer {
             position: relative;
             width: 100%;
-            min-height: 100vh;
+            height: 100%;
+            min-height: 100%;
         }
 
         .face-placeholder,
@@ -119,9 +120,9 @@
         .face-guide-oval {
             position: absolute;
             left: 50%;
-            top: 13%;
-            width: min(74vw, 332px);
-            height: min(102vw, 448px);
+            top: 18%;
+            width: min(66vw, 286px);
+            height: min(90vw, 392px);
             transform: translateX(-50%);
             border: 3px solid rgba(255, 255, 255, 0.92);
             border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
@@ -263,7 +264,7 @@
             --progress-track: rgba(255, 255, 255, 0.16);
             position: absolute;
             left: 50%;
-            top: 73.5%;
+            top: 77%;
             transform: translateX(-50%);
             z-index: 3;
             width: 74px;
@@ -662,7 +663,7 @@
         .face-help-button {
             position: absolute;
             right: 18px;
-            bottom: 92px;
+            bottom: 116px;
             z-index: 8;
             width: 44px;
             height: 44px;
@@ -692,19 +693,19 @@
             }
 
             .face-guide-oval {
-                width: min(78vw, 286px);
-                height: min(104vw, 396px);
-                top: 15%;
+                width: min(70vw, 264px);
+                height: min(94vw, 352px);
+                top: 20%;
             }
 
             .face-progress-orb {
-                top: 76%;
+                top: 79%;
                 width: 68px;
                 height: 68px;
             }
 
             .face-guide-pill {
-                top: calc(76% + 84px);
+                top: calc(79% + 84px);
                 width: min(86vw, 314px);
                 padding: 12px 16px 14px;
             }
@@ -719,6 +720,11 @@
                 width: 48px;
                 height: 48px;
                 font-size: 14px;
+            }
+
+            .face-help-button {
+                bottom: 108px;
+                right: 14px;
             }
         }
     </style>
