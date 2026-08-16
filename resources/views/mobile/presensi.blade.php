@@ -2020,15 +2020,15 @@
             <div class="d-flex">
                 <i class="bx bx-scan text-warning me-2"></i>
                 <div>
-                    <strong>Scan wajah belum aktif</strong>
-                    <p class="mb-2 text-muted">Wajah Anda belum terdaftar. Presensi kehadiran sekarang memakai scan wajah sebagai pengganti selfie.</p>
+                    {{-- <strong>Scan wajah belum aktif</strong>
+                    <p class="mb-2 text-muted">Wajah Anda belum terdaftar. Presensi kehadiran sekarang memakai scan wajah sebagai pengganti selfie.</p> --}}
                     <a href="{{ route('mobile.face.enrollment') }}" class="btn-primary-custom">Daftar Wajah</a>
                 </div>
             </div>
         </div>
         @endif
 
-        <div class="alert-custom info">
+        {{-- <div class="alert-custom info">
             <div class="d-flex">
                 <i class="bx {{ $verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera' }} text-info me-2"></i>
                 <div>
@@ -2036,7 +2036,7 @@
                     <p class="mb-0 text-muted">{{ $faceVerificationState['description'] ?? '' }}</p>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="form-section">
             <button type="button" id="btn-presensi"
