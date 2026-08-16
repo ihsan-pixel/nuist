@@ -219,14 +219,14 @@ class FaceRecognition {
     async performAttendanceScan(videoElement, callbacks = {}) {
         await this.loadModels();
 
-        this.emit(callbacks.onStatus, 'Kamera aktif. Silakan sesuaikan posisi wajah di dalam frame.');
-        this.emit(callbacks.onInstruction, 'Pusatkan wajah di dalam oval. Sistem akan mulai setelah wajah masuk frame.');
+        this.emit(callbacks.onStatus, 'Kamera aktif. Pusatkan wajah di dalam oval.');
+        this.emit(callbacks.onInstruction, 'Arahkan wajah ke dalam oval. Jika wajah sudah ada, scan akan berjalan langsung.');
         this.emit(callbacks.onGuideState, {
             state: 'searching',
-            message: 'Pusatkan wajah di dalam oval.',
+            message: 'Menunggu wajah masuk ke dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 2200, 1, false);
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 4200, 1, false);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
@@ -587,6 +587,7 @@ class FaceRecognition {
     async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 3200, stableHitsRequired = 1, strict = true) {
         const startedAt = Date.now();
         let stableHits = 0;
+        let hadFaceVisible = false;
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks, {
@@ -595,6 +596,7 @@ class FaceRecognition {
             });
 
             if (detection) {
+                hadFaceVisible = true;
                 stableHits += 1;
                 this.emit(callbacks.onStatus, stableHits >= stableHitsRequired
                     ? 'Wajah terdeteksi. Memulai pembacaan wajah.'
@@ -616,10 +618,14 @@ class FaceRecognition {
 
             stableHits = 0;
             this.emit(callbacks.onGuideState, {
-                state: 'searching',
-                message: 'Arahkan wajah ke dalam oval.',
+                state: hadFaceVisible ? 'warning' : 'searching',
+                message: hadFaceVisible
+                    ? 'Wajah sempat hilang. Kembalikan ke tengah oval.'
+                    : 'Arahkan wajah ke dalam oval.',
             });
-            this.emit(callbacks.onStatus, 'Arahkan satu wajah ke tengah oval dan dekatkan sedikit ke kamera.');
+            this.emit(callbacks.onStatus, hadFaceVisible
+                ? 'Wajah keluar dari frame. Kembalikan ke tengah oval.'
+                : 'Arahkan satu wajah ke tengah oval dan dekatkan sedikit ke kamera.');
             await this.delay(60);
         }
 
