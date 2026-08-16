@@ -1,0 +1,200 @@
+@extends('layouts.master')
+
+@section('title', 'Monitoring Jurnal Mengajar')
+
+@section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard Admin @endslot
+    @slot('title') Monitoring Jurnal Mengajar @endslot
+@endcomponent
+
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);">
+            <div class="card-body p-4 text-white">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                    <div>
+                        <h4 class="mb-1 text-white">{{ Auth::user()->madrasah->name ?? '-' }}</h4>
+                        <p class="mb-0 text-white-50">Monitoring jurnal mengajar guru dan jadwal yang belum diisi</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-white-50">Periode</div>
+                        <div class="fw-semibold">{{ $summary['bulan'] }}</div>
+                    </div>
+                </div>
+
+                <form method="GET" class="mt-3">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-lg-3 col-md-4">
+                            <label class="form-label text-white-50 mb-1">Bulan</label>
+                            <input type="month" name="month" class="form-control form-control-sm" value="{{ $selectedMonth }}">
+                        </div>
+                        <div class="col-lg-3 col-md-4">
+                            <label class="form-label text-white-50 mb-1">Kelas</label>
+                            <select name="class_name" class="form-select form-select-sm">
+                                <option value="">Semua</option>
+                                @foreach($availableClasses as $className)
+                                    <option value="{{ $className }}" @selected($selectedClass === $className)>{{ $className }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <button type="submit" class="btn btn-light btn-sm w-100 fw-semibold">Terapkan</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row g-2 mt-3">
+                    <div class="col-md-3 col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <div class="small text-white-50">Guru aktif</div>
+                            <div class="fs-4 fw-bold">{{ $summary['total_guru'] }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <div class="small text-white-50">Jurnal tercatat</div>
+                            <div class="fs-4 fw-bold">{{ $summary['total_jurnal'] }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <div class="small text-white-50">Jadwal wajib</div>
+                            <div class="fs-4 fw-bold">{{ $summary['total_jadwal'] }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <div class="small text-white-50">Belum jurnal</div>
+                            <div class="fs-4 fw-bold">{{ $summary['total_belum_jurnal'] }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="mb-1 text-dark">Jurnal Sudah Tercatat</h5>
+                        <p class="mb-0 text-muted small">Data tampil berdasarkan bulan dan filter kelas</p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success">{{ $records->total() }}</span>
+                </div>
+
+                @if($records->isEmpty())
+                    <div class="text-center py-5 text-muted">
+                        <i class="mdi mdi-book-open-page-variant fs-1"></i>
+                        <div class="mt-2">Belum ada jurnal mengajar pada periode ini.</div>
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Guru</th>
+                                    <th>Kelas</th>
+                                    <th>Mapel</th>
+                                    <th>Jam</th>
+                                    <th>Materi</th>
+                                    <th>Siswa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($records as $record)
+                                    @php($schedule = $record->teachingSchedule)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($record->tanggal)->format('d M') }}</td>
+                                        <td>{{ $schedule->teacher->name ?? '-' }}</td>
+                                        <td>{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }}</td>
+                                        <td>{{ $schedule->subject ?? '-' }}</td>
+                                        <td>{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</td>
+                                        <td style="max-width: 240px;">{{ $record->materi ?: '-' }}</td>
+                                        <td>
+                                            @if(!is_null($record->present_students) && !is_null($record->class_total_students))
+                                                {{ $record->present_students }}/{{ $record->class_total_students }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        {{ $records->links('vendor.pagination.bootstrap-5') }}
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm mb-3" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="mb-1 text-dark">Belum Jurnal</h5>
+                        <p class="mb-0 text-muted small">Jadwal yang sudah ada tapi belum dicatat jurnalnya</p>
+                    </div>
+                    <span class="badge bg-warning-subtle text-warning">{{ $missingJournals->count() }}</span>
+                </div>
+
+                @if($missingJournals->isEmpty())
+                    <div class="text-center py-4 text-muted">Semua jadwal pada periode ini sudah punya jurnal.</div>
+                @else
+                    <div class="d-grid gap-2">
+                        @foreach($missingJournals->take(12) as $item)
+                            <div class="border rounded-3 p-3">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <div class="fw-semibold">{{ $item['teacher'] }}</div>
+                                    <div class="text-muted small">{{ \Carbon\Carbon::parse($item['date'])->format('d M') }}</div>
+                                </div>
+                                <div class="text-muted small mt-1">
+                                    {{ $item['class_name'] }} | {{ $item['subject'] }} | {{ $item['time'] }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="mb-1 text-dark">Jurnal Tercatat</h5>
+                        <p class="mb-0 text-muted small">Ringkasan entri yang sudah masuk</p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success">{{ $completedJournals->count() }}</span>
+                </div>
+
+                @if($completedJournals->isEmpty())
+                    <div class="text-center py-4 text-muted">Belum ada jurnal tercatat.</div>
+                @else
+                    <div class="d-grid gap-2">
+                        @foreach($completedJournals->take(8) as $item)
+                            <div class="border rounded-3 p-3">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <div class="fw-semibold">{{ $item['teacher'] }}</div>
+                                    <div class="text-muted small">{{ \Carbon\Carbon::parse($item['date'])->format('d M') }}</div>
+                                </div>
+                                <div class="text-muted small mt-1">
+                                    {{ $item['class_name'] }} | {{ $item['subject'] }} | {{ $item['time'] }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

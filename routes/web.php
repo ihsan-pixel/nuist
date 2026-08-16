@@ -1519,6 +1519,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,super_admin'])->group(fu
     Route::get('/face-enrollment/{userId}', [App\Http\Controllers\Admin\FaceEnrollmentController::class, 'show'])->name('face.enrollment');
     Route::delete('/face-enrollment/{userId}', [App\Http\Controllers\Admin\FaceEnrollmentController::class, 'destroy'])->name('face.enrollment.destroy');
     Route::post('/face-enrollment/{userId}/toggle-verification', [App\Http\Controllers\Admin\FaceEnrollmentController::class, 'toggleVerification'])->name('face.enrollment.toggle-verification');
+    Route::get('/monitor-jurnal-mengajar', [App\Http\Controllers\Admin\MonitorJurnalMengajarController::class, 'index'])->name('admin.monitor-jurnal-mengajar');
 });
 
 Auth::routes(['verify' => true]);
