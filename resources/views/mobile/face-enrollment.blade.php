@@ -97,30 +97,19 @@
 
         #face-video {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 88%;
-            height: 88%;
+            inset: 0;
             display: none;
             object-fit: cover;
-            transform: translate(-50%, -50%) scaleX(-1);
-            transform-origin: center;
-            border-radius: 24px;
+            transform: scaleX(-1);
             background: #111827;
             z-index: 0;
         }
 
         #face-preview {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 88%;
-            height: 88%;
+            inset: 0;
             display: none;
             object-fit: cover;
-            transform: translate(-50%, -50%);
-            transform-origin: center;
-            border-radius: 24px;
             background: #111827;
             z-index: 0;
         }
@@ -837,7 +826,7 @@
                     <button type="button" id="btn-enroll-face" class="btn-face" style="display:none;" disabled>
                         Kirim Wajah
                     </button>
-                    <button type="button" id="btn-retry-face" class="btn-face btn-face-secondary" style="display:none" disabled>
+                    <button type="button" id="btn-retry-face" class="btn-face btn-face-secondary" style="display:none;" disabled>
                         Ulangi
                     </button>
                 </div>
@@ -1059,29 +1048,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function resetEnrollmentState() {
         enrollmentResult = null;
-
         preview.src = '';
         preview.style.display = 'none';
-
         video.style.display = cameraReady ? 'block' : 'none';
-
         enrollButton.disabled = true;
         enrollButton.style.display = 'none';
-
         if (retryButton) {
-            // Ulangi selalu terlihat, tetapi belum bisa digunakan
             retryButton.disabled = true;
-            retryButton.style.display = 'block';
+            retryButton.style.display = 'none';
         }
-
         startCameraButton.style.display = 'block';
-
         resetProgress();
-
         if (faceStage) {
             faceStage.dataset.guideState = cameraReady ? 'steady' : 'searching';
         }
-
         updateGuideTone(cameraReady ? 'steady' : 'searching');
         updateProgressRing();
     }
