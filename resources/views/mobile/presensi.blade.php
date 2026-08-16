@@ -1041,6 +1041,14 @@
             object-fit: contain;
         }
 
+        .face-scan-mode #selfie-video,
+        .face-scan-mode #selfie-preview {
+            object-fit: cover;
+            object-position: center 18%;
+            transform: scale(1.12);
+            transform-origin: center center;
+        }
+
         .selfie-guide {
             position: absolute;
             inset: 0;
