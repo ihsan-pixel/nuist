@@ -218,12 +218,17 @@ class FaceRecognition {
     async performAttendanceScan(videoElement, callbacks = {}) {
         await this.loadModels();
 
-        this.emit(callbacks.onStatus, 'Kamera aktif. Memulai pembacaan wajah.');
-        this.emit(callbacks.onInstruction, 'Pusatkan wajah di dalam oval.');
+        this.emit(callbacks.onStatus, 'Kamera aktif. Silakan sesuaikan posisi wajah di dalam frame.');
+        this.emit(callbacks.onInstruction, 'Pusatkan wajah di dalam oval. Sistem akan mulai setelah wajah masuk frame.');
         this.emit(callbacks.onGuideState, {
-            state: 'processing',
-            message: 'Kamera aktif. Memulai pembacaan wajah.',
+            state: 'searching',
+            message: 'Pusatkan wajah di dalam oval.',
         });
+
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 9000);
+        if (!alignedFace) {
+            throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
+        }
 
         const initialDescriptor = await this.captureFaceDescriptor(videoElement, {
             strict: true,
