@@ -17,9 +17,9 @@ class FaceRecognition {
         };
         this.minimumFaceWidthRatio = 0.1;
         this.maximumEyeTiltDegrees = 22;
-        this.enrollmentSharpnessThreshold = 0.13;
-        this.enrollmentMotionThreshold = 0.05;
-        this.enrollmentHoldMs = 520;
+        this.enrollmentSharpnessThreshold = 0.12;
+        this.enrollmentMotionThreshold = 0.06;
+        this.enrollmentHoldMs = 260;
         this.challengeBlinkLeadMs = 350;
         this.challengeActionLeadMs = 500;
     }
@@ -377,7 +377,7 @@ class FaceRecognition {
         return results;
     }
 
-    async waitForPreciseEnrollmentAlignment(videoElement, callbacks = {}, timeoutMs = 10000) {
+    async waitForPreciseEnrollmentAlignment(videoElement, callbacks = {}, timeoutMs = 6500) {
         const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
@@ -396,13 +396,13 @@ class FaceRecognition {
             }
 
             this.emit(callbacks.onStatus, 'Pusatkan wajah tepat di dalam oval dan sesuaikan jaraknya.');
-            await this.delay(60);
+            await this.delay(30);
         }
 
         throw new Error('Wajah belum tepat di dalam oval. Dekatkan atau geser posisi wajah hingga pas pada bingkai.');
     }
 
-    async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 4200) {
+    async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 2800) {
         const startedAt = Date.now();
         let heldSince = null;
         let previousSignature = null;
@@ -439,7 +439,7 @@ class FaceRecognition {
                     motion: null,
                 });
                 this.emit(callbacks.onStatus, 'Posisi wajah berubah. Kembalikan wajah tepat ke oval.');
-                await this.delay(45);
+                await this.delay(24);
                 continue;
             }
 
@@ -467,7 +467,7 @@ class FaceRecognition {
                     this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah.');
                 }
 
-                await this.delay(40);
+                await this.delay(24);
                 continue;
             }
 
@@ -508,7 +508,7 @@ class FaceRecognition {
                 return true;
             }
 
-            await this.delay(35);
+            await this.delay(20);
         }
 
         throw new Error('Wajah belum cukup stabil di dalam oval. Tahan posisi wajah hingga sistem mengambil gambar otomatis.');
