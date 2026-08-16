@@ -29,7 +29,8 @@
             --scan-progress: 0%;
             position: relative;
             width: 100%;
-            height: 100dvh;
+            height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            min-height: 0;
             background: #000;
             overflow: hidden;
             display: flex;
