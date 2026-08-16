@@ -29,8 +29,7 @@
             --scan-progress: 0%;
             position: relative;
             width: 100%;
-            height: 100%;
-            min-height: 0;
+            height: 100dvh;
             background: #000;
             overflow: hidden;
             display: flex;
@@ -53,7 +52,6 @@
 
         .face-scan-status span {
             display: inline-block;
-            min-height: 0;
             padding: 0;
             border-radius: 0;
             background: transparent;
