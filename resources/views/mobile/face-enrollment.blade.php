@@ -7,7 +7,7 @@
 <div class="container py-0 px-0" style="max-width: 100%; margin: auto;">
     <style>
         body {
-            background: #000;
+            background: rgba(0, 0, 0, 0.82);
             font-family: 'Poppins', sans-serif;
             margin: 0;
             overflow: hidden;
@@ -24,36 +24,44 @@
         }
 
         .mobile-content {
-            padding-bottom: 0 !important;
+            padding: 12px !important;
             min-height: 100vh;
             min-height: 100dvh;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .mobile-content > .container-fluid {
             height: 100%;
             min-height: 100%;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .face-card {
-            background: transparent;
-            border-radius: 0;
+            background: #000;
+            border-radius: 24px;
             padding: 0;
-            box-shadow: none;
+            box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
             border: 0;
             margin-bottom: 0;
             color: #f8fafc;
-            height: 100%;
+            width: min(100%, 420px);
+            height: min(92vh, 760px);
+            max-height: 92vh;
+            overflow: hidden;
+            position: relative;
         }
 
         .face-stage {
             --scan-progress: 0%;
             position: relative;
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             min-height: 0;
             background: #000;
             overflow: hidden;
@@ -148,9 +156,9 @@
         .face-guide-oval {
             position: absolute;
             left: 50%;
-            top: 22%;
-            width: min(80vw, 364px);
-            height: min(110vw, 500px);
+            top: 18%;
+            width: min(66vw, 286px);
+            height: min(90vw, 392px);
             transform: translateX(-50%);
             border: 3px solid rgba(255, 255, 255, 0.92);
             border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
@@ -697,7 +705,7 @@
         .face-help-button {
             position: absolute;
             right: 18px;
-            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 92px);
+            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 88px);
             z-index: 8;
             width: 44px;
             height: 44px;
@@ -719,7 +727,7 @@
 
         @media (max-width: 380px) {
             .face-stage {
-                min-height: 100vh;
+                min-height: 0;
             }
 
             .face-feedback span {
@@ -727,19 +735,19 @@
             }
 
             .face-guide-oval {
-                width: min(82vw, 292px);
-                height: min(108vw, 404px);
-                top: 23%;
+                width: min(70vw, 264px);
+                height: min(94vw, 352px);
+                top: 20%;
             }
 
             .face-progress-orb {
-                top: 78%;
+                top: 79%;
                 width: 68px;
                 height: 68px;
             }
 
             .face-guide-pill {
-                top: calc(78% + 84px);
+                top: calc(79% + 84px);
                 width: min(86vw, 314px);
                 padding: 12px 16px 14px;
             }
@@ -757,7 +765,7 @@
             }
 
             .face-help-button {
-                bottom: calc(max(18px, env(safe-area-inset-bottom)) + 86px);
+                bottom: calc(max(18px, env(safe-area-inset-bottom)) + 82px);
                 right: 14px;
             }
         }
