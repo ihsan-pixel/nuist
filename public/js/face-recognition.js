@@ -218,9 +218,34 @@ class FaceRecognition {
     async performAttendanceScan(videoElement, callbacks = {}) {
         await this.loadModels();
 
-        const initialDescriptor = await this.verifyFaceMatchBeforeChallenges(videoElement, callbacks);
+        this.emit(callbacks.onStatus, 'Kamera aktif. Memulai pembacaan wajah.');
+        this.emit(callbacks.onInstruction, 'Pusatkan wajah di dalam oval.');
+        this.emit(callbacks.onGuideState, {
+            state: 'processing',
+            message: 'Kamera aktif. Memulai pembacaan wajah.',
+        });
+
+        const initialDescriptor = await this.captureFaceDescriptor(videoElement, {
+            strict: true,
+            allowFallback: false,
+        });
+
+        if (typeof callbacks.onFaceMatchCheck === 'function') {
+            const verificationResult = await callbacks.onFaceMatchCheck(Array.from(initialDescriptor));
+
+            if (!verificationResult?.face_verified) {
+                throw new Error(verificationResult?.message || 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.');
+            }
+
+            this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke challenge.');
+            this.emit(callbacks.onGuideState, {
+                state: 'aligned',
+                message: 'Wajah cocok. Lanjut ke challenge berikutnya.',
+            });
+        }
+
         const scanResult = await this.runAttendanceRiskScanSequence(videoElement, callbacks);
-        const descriptor = await this.captureFaceDescriptor(videoElement);
+        const descriptor = initialDescriptor;
 
         return {
             face_descriptor: Array.from(descriptor),
@@ -239,7 +264,7 @@ class FaceRecognition {
             message: 'Memeriksa kecocokan wajah dengan data terdaftar.',
         });
 
-        await this.waitForStableSingleFace(videoElement, callbacks, 8000);
+        await this.waitForStableSingleFace(videoElement, callbacks, 3200);
         const descriptor = await this.captureFaceDescriptor(videoElement, {
             strict: true,
             allowFallback: false,
@@ -441,7 +466,7 @@ class FaceRecognition {
 
         this.emit(callbacks.onInstruction, 'Posisikan wajah di dalam oval.');
         this.emit(callbacks.onChallengeState, 'align', 'active');
-        await this.waitForStableSingleFace(videoElement, callbacks);
+        await this.waitForStableSingleFace(videoElement, callbacks, 3200);
         results.push({
             type: 'face_aligned',
             passed: true,
@@ -554,7 +579,7 @@ class FaceRecognition {
         };
     }
 
-    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 9000) {
+    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 3200) {
         const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
@@ -573,7 +598,7 @@ class FaceRecognition {
             }
 
             this.emit(callbacks.onStatus, 'Arahkan satu wajah ke tengah oval dan dekatkan sedikit ke kamera.');
-            await this.delay(65);
+            await this.delay(35);
         }
 
         throw new Error('Wajah tidak terdeteksi dengan stabil. Pastikan pencahayaan cukup dan hanya satu wajah di layar.');

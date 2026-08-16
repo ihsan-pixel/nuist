@@ -3698,7 +3698,7 @@ window.addEventListener('load', function() {
                             return;
                         }
                         captureSelfie();
-                    }, 220);
+                    }, 0);
                 }
             } else {
                 captureBtn.style.display = 'block';
