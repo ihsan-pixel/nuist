@@ -9,10 +9,10 @@ class FaceRecognition {
         this.lastGeometryDetection = null;
         this.lastGeometryDetectedAt = 0;
         this.detectorOptions = {
-            inputSize: 224,
-            scoreThreshold: 0.35,
+            inputSize: 256,
+            scoreThreshold: 0.3,
         };
-        this.minimumFaceWidthRatio = 0.12;
+        this.minimumFaceWidthRatio = 0.1;
         this.maximumEyeTiltDegrees = 22;
         this.enrollmentSharpnessThreshold = 0.11;
         this.enrollmentMotionThreshold = 0.075;
@@ -105,8 +105,9 @@ class FaceRecognition {
             audio: false,
             video: {
                 facingMode: 'user',
-                width: { ideal: 640 },
-                height: { ideal: 840 },
+                width: { ideal: 720 },
+                height: { ideal: 960 },
+                aspectRatio: 3 / 4,
                 frameRate: { ideal: 24, max: 30 },
             },
         });
@@ -186,7 +187,7 @@ class FaceRecognition {
                     return detection;
                 }
 
-                await this.delay(45);
+                await this.delay(60);
                 continue;
             }
 
@@ -225,7 +226,7 @@ class FaceRecognition {
             message: 'Pusatkan wajah di dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 3000, 1, false);
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 2200, 1, false);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
@@ -318,7 +319,7 @@ class FaceRecognition {
         this.emit(callbacks.onInstruction, 'Wajah terbaca. Menyelesaikan scan.');
         this.emit(callbacks.onStatus, 'Scan wajah sedang diselesaikan.');
         this.emit(callbacks.onChallengeState, 'done', 'active');
-        await this.delay(240);
+        await this.delay(160);
         this.emit(callbacks.onChallengeState, 'done', 'done');
         results.push({
             type: 'face_captured',
@@ -348,7 +349,7 @@ class FaceRecognition {
             }
 
             this.emit(callbacks.onStatus, 'Pusatkan wajah tepat di dalam oval dan sesuaikan jaraknya.');
-            await this.delay(45);
+            await this.delay(60);
         }
 
         throw new Error('Wajah belum tepat di dalam oval. Dekatkan atau geser posisi wajah hingga pas pada bingkai.');
@@ -478,7 +479,7 @@ class FaceRecognition {
         });
         this.emit(callbacks.onChallengeState, 'align', 'done');
 
-        const passiveSignals = await this.collectPassiveSignals(videoElement, callbacks, 460);
+        const passiveSignals = await this.collectPassiveSignals(videoElement, callbacks, 620);
         results.push({
             type: 'lighting',
             passed: passiveSignals.lighting_passed,
@@ -503,7 +504,7 @@ class FaceRecognition {
 
         if (!blinkResult) {
             this.emit(callbacks.onInstruction, 'Tahan wajah lurus. Sistem menyiapkan deteksi kedip.');
-            this.emit(callbacks.onStatus, 'Menyiapkan pembacaan kedip.');
+            this.emit(callbacks.onStatus, 'Menyiapkan pembacaan kedip. Tahan posisi sebentar.');
             blinkResult = await this.waitForBlinkChallenge(videoElement, callbacks);
         } else {
             this.emit(callbacks.onInstruction, 'Kedipan sudah terbaca. Lanjut ke verifikasi berikutnya.');
@@ -609,7 +610,7 @@ class FaceRecognition {
                     return detection;
                 }
 
-                await this.delay(20);
+                await this.delay(60);
                 continue;
             }
 
@@ -619,7 +620,7 @@ class FaceRecognition {
                 message: 'Arahkan wajah ke dalam oval.',
             });
             this.emit(callbacks.onStatus, 'Arahkan satu wajah ke tengah oval dan dekatkan sedikit ke kamera.');
-            await this.delay(20);
+            await this.delay(60);
         }
 
         throw new Error('Wajah tidak terdeteksi dengan stabil. Pastikan pencahayaan cukup dan hanya satu wajah di layar.');
@@ -767,7 +768,7 @@ class FaceRecognition {
 
                 previousEar = ear;
                 previousMinEyeEar = minEyeEar;
-                await this.delay(28);
+                await this.delay(45);
                 continue;
             }
 
@@ -808,7 +809,7 @@ class FaceRecognition {
 
             previousEar = ear;
             previousMinEyeEar = minEyeEar;
-            await this.delay(28);
+            await this.delay(45);
         }
 
         throw new Error('Kedipan belum terbaca. Ulangi scan dan kedip satu kali dengan jelas.');
@@ -1066,7 +1067,7 @@ class FaceRecognition {
                 baselineVerticalSamples.push(this.verticalLookRatio(detection.landmarks));
                 baselineMouthSamples.push(this.mouthOpenRatio(detection.landmarks));
             }
-            await this.delay(75);
+            await this.delay(95);
         }
 
         const baseline = this.median(baselineSamples) || 0;
@@ -1085,7 +1086,7 @@ class FaceRecognition {
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
             if (!detection?.landmarks) {
-                await this.delay(85);
+                await this.delay(110);
                 continue;
             }
 
@@ -1111,7 +1112,7 @@ class FaceRecognition {
                 };
             }
 
-            await this.delay(65);
+            await this.delay(90);
         }
 
         throw new Error('Gerakan belum sesuai instruksi. Ulangi scan.');
@@ -1130,7 +1131,7 @@ class FaceRecognition {
                 baselineTurnSamples.push(this.faceTurnRatio(detection.landmarks));
                 baselineMouthSamples.push(this.mouthOpenRatio(detection.landmarks));
             }
-            await this.delay(75);
+            await this.delay(95);
         }
 
         const baseline = this.median(baselineSamples) || 0.94;
@@ -1149,7 +1150,7 @@ class FaceRecognition {
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
             if (!detection?.landmarks) {
-                await this.delay(85);
+                await this.delay(110);
                 continue;
             }
 
@@ -1175,7 +1176,7 @@ class FaceRecognition {
                 };
             }
 
-            await this.delay(65);
+            await this.delay(90);
         }
 
         throw new Error('Gerakan belum sesuai instruksi. Ulangi scan.');
@@ -1194,7 +1195,7 @@ class FaceRecognition {
                 baselineTurnSamples.push(this.faceTurnRatio(detection.landmarks));
                 baselineVerticalSamples.push(this.verticalLookRatio(detection.landmarks));
             }
-            await this.delay(75);
+            await this.delay(95);
         }
 
         const baseline = this.median(baselineSamples) || 0.28;
@@ -1209,7 +1210,7 @@ class FaceRecognition {
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
             if (!detection?.landmarks) {
-                await this.delay(85);
+                await this.delay(110);
                 continue;
             }
 

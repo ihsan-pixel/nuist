@@ -2869,8 +2869,9 @@ window.addEventListener('load', function() {
     let currentSelfieProgress = 0;
     let targetSelfieProgress = 0;
     let selfieProgressAnimationFrame = null;
-    let faceScanAutoStarted = false;
+    let faceScanReadyToStart = false;
     let faceScanOnboardingAccepted = false;
+    let faceScanInProgress = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
 
@@ -3387,10 +3388,13 @@ window.addEventListener('load', function() {
         }
 
         captureBtn.classList.remove('retry-scan');
-        captureBtn.style.display = faceScanRequired ? 'none' : 'block';
-        captureBtn.innerHTML = faceScanRequired
-            ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
-            : '<i class="bx bx-camera me-1"></i>Ambil Foto';
+        if (faceScanRequired) {
+            captureBtn.style.display = faceScanReadyToStart ? 'inline-flex' : 'none';
+            captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Mulai Scan';
+        } else {
+            captureBtn.style.display = 'block';
+            captureBtn.innerHTML = '<i class="bx bx-camera me-1"></i>Ambil Foto';
+        }
     }
 
     function setFaceFrameState(state = 'searching') {
@@ -3559,7 +3563,7 @@ window.addEventListener('load', function() {
         }
         if (captureBtn) {
             captureBtn.style.display = faceScanRequired ? 'none' : 'block';
-            captureBtn.disabled = !faceScanRequired;
+            captureBtn.disabled = false;
             captureBtn.innerHTML = faceScanRequired
                 ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
                 : '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
@@ -3590,7 +3594,8 @@ window.addEventListener('load', function() {
         pendingSelfieData = '';
         earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
-        faceScanAutoStarted = false;
+        faceScanReadyToStart = false;
+        faceScanInProgress = false;
         faceScanOnboardingAccepted = !faceScanRequired;
         currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
         if (faceScanOnboarding) {
@@ -3789,23 +3794,16 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
-                captureBtn.style.display = 'none';
-                setSelfieStatus('Kamera aktif. Arahkan wajah ke dalam frame.');
-                updateFaceInstruction('Arahkan wajah ke dalam oval. Sistem akan membaca saat wajah masuk frame.');
+                faceScanReadyToStart = true;
+                captureBtn.style.display = 'inline-flex';
+                captureBtn.disabled = false;
+                captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Mulai Scan';
+                setSelfieStatus('Kamera aktif. Tekan Mulai Scan saat wajah sudah siap.');
+                updateFaceInstruction('Kamera aktif. Tekan Mulai Scan untuk memulai pembacaan wajah.');
                 updateSelfieGuideState({
-                    state: 'idle',
-                    message: 'Arahkan wajah ke dalam oval.',
+                    state: 'searching',
+                    message: 'Tekan Mulai Scan saat wajah sudah siap.',
                 });
-
-                if (!faceScanAutoStarted && selfieModal?.classList.contains('show')) {
-                    faceScanAutoStarted = true;
-                    window.setTimeout(() => {
-                        if (!selfieModal?.classList.contains('show') || selfieCaptured) {
-                            return;
-                        }
-                        captureSelfie();
-                    }, 0);
-                }
             } else {
                 captureBtn.style.display = 'block';
                 captureBtn.disabled = false;
@@ -3840,6 +3838,9 @@ window.addEventListener('load', function() {
         }
 
         if (captureBtn) {
+            if (faceScanRequired && faceScanInProgress) {
+                return;
+            }
             captureBtn.disabled = true;
             captureBtn.innerHTML = faceScanRequired
                 ? '<i class="bx bx-loader-alt bx-spin me-1"></i>Memindai...'
@@ -3848,6 +3849,7 @@ window.addEventListener('load', function() {
 
         try {
             if (faceScanRequired) {
+                faceScanInProgress = true;
                 resetSelfieProgress();
                 setSelfieProgressOrbState('default');
                 faceVerificationResult = await faceScanner.performAttendanceScan(video, {
@@ -4017,10 +4019,13 @@ window.addEventListener('load', function() {
                         return;
                     }
 
-                    captureSelfie();
+                    captureBtn.style.display = 'inline-flex';
+                    captureBtn.disabled = false;
+                    captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Mulai Scan';
                 }, 860);
             }
         } finally {
+            faceScanInProgress = false;
             if (captureBtn) {
                 captureBtn.disabled = false;
                 if (!captureBtn.classList.contains('retry-scan')) {
