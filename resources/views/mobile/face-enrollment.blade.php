@@ -1139,8 +1139,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             setInstruction('Memuat kamera dan model wajah.');
             setStatus('Menyiapkan kamera.');
-            await warmupFaceModels();
-            await faceRecognition.initializeCamera(video);
+            await Promise.all([
+                warmupFaceModels(),
+                faceRecognition.initializeCamera(video),
+            ]);
 
             cameraReady = true;
             placeholder.style.display = 'none';
