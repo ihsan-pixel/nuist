@@ -1,25 +1,20 @@
-// When the app is served from a remote server (Capacitor server mode),
-// ES module imports won't resolve in the WebView. Use the global
-// `window.Capacitor.Plugins` when available. Otherwise, if you bundle
-// the site into `www` with a bundler, you can replace with imports.
-
 const Capacitor = window.Capacitor || { isNativePlatform: () => false };
 const Plugins = (window.Capacitor && window.Capacitor.Plugins) || {};
 const Geolocation = Plugins.Geolocation;
-const Camera = Plugins.Camera;
 const PushNotifications = Plugins.PushNotifications;
-// For Camera result types on global, some runtimes expose CameraResultType/CameraSource
-const CameraResultType = (window.Capacitor && window.CameraResultType) || { Base64: 'base64', Uri: 'uri' };
-const CameraSource = (window.Capacitor && window.CameraSource) || { Camera: 'CAMERA', Prompt: 'PROMPT' };
-
-// Production-ready presensi mobile helper
-// Usage: include this script in your Blade (type=module)
-// <meta name="csrf-token" content="{{ csrf_token() }}">
-// <script type="module" src="/js/presensi-mobile.js"></script>
 
 const DEFAULT_ENDPOINT = '/mobile/presensi';
 const PRESENSI_ENDPOINT = document.querySelector('meta[name="presensi-endpoint"]')?.content || DEFAULT_ENDPOINT;
 const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+function randomNonce(length = 24) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let out = '';
+  for (let i = 0; i < length; i += 1) {
+    out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}
 
 async function sleep(ms) {
   return new Promise((res) => setTimeout(res, ms));
@@ -27,7 +22,7 @@ async function sleep(ms) {
 
 async function collectLocationReadings(count = 4, intervalMs = 700, timeout = 10000) {
   const readings = [];
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < count; i += 1) {
     const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout });
     readings.push({
       latitude: pos.coords.latitude,
@@ -37,21 +32,17 @@ async function collectLocationReadings(count = 4, intervalMs = 700, timeout = 10
       speed: pos.coords.speed,
       timestamp: pos.timestamp,
     });
-
-    // small delay before next reading
-    if (i < count - 1) await sleep(intervalMs);
+    if (i < count - 1) {
+      await sleep(intervalMs);
+    }
   }
   return readings;
 }
 
 async function getLocation() {
-  // Request permission on demand
   await Geolocation.requestPermissions();
-
-  // Collect multiple readings for fake-gps detection
   const readings = await collectLocationReadings(4, 600);
   const latest = readings[readings.length - 1];
-
   return {
     latitude: latest.latitude,
     longitude: latest.longitude,
@@ -62,93 +53,106 @@ async function getLocation() {
   };
 }
 
-async function takePhoto() {
-  // Request camera permission on demand
-  if (Camera.requestPermissions) {
-    await Camera.requestPermissions();
-  }
-
-  const photo = await Camera.getPhoto({
-    quality: 80,
-    allowEditing: false,
-    resultType: CameraResultType.Base64,
-    source: CameraSource.Camera,
-  });
-
-  if (!photo?.base64String) {
-    throw new Error('Foto selfie tidak tersedia');
-  }
-
-  const format = (photo.format || 'jpeg').toLowerCase();
-
-  return `data:image/${format};base64,${photo.base64String}`;
-}
-
 async function registerPushIfNeeded() {
   try {
     const perm = await PushNotifications.requestPermissions();
-    // Only register when granted
     if (perm?.receive === 'granted' || perm?.value === 'granted' || perm?.display === 'granted') {
       await PushNotifications.register();
     }
   } catch (e) {
-    // Non-fatal
     console.warn('Push registration failed', e);
   }
 }
 
-// Initialize/ensure common permissions when the app opens (production-safe)
-export async function initPermissions() {
+function createHiddenVideo() {
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.muted = true;
+  video.playsInline = true;
+  video.setAttribute('autoplay', 'autoplay');
+  video.setAttribute('muted', 'muted');
+  video.setAttribute('playsinline', 'playsinline');
+  video.style.position = 'fixed';
+  video.style.left = '-9999px';
+  video.style.top = '0';
+  document.body.appendChild(video);
+  return video;
+}
+
+async function runFaceScan() {
+  const FaceRecognitionClass = window.FaceRecognition;
+  if (typeof FaceRecognitionClass !== 'function') {
+    throw new Error('Komponen scan wajah belum tersedia di halaman ini.');
+  }
+
+  const faceRecognition = new FaceRecognitionClass();
+  const video = createHiddenVideo();
+
+  try {
+    await faceRecognition.loadModels();
+    await faceRecognition.initializeCamera(video);
+    const scanResult = await faceRecognition.performAttendanceScan(video, {});
+    return scanResult;
+  } finally {
+    try {
+      faceRecognition.stopCamera(video);
+    } catch (_) {
+      // noop
+    }
+
+    if (video?.parentNode) {
+      video.parentNode.removeChild(video);
+    }
+  }
+}
+
+async function initPermissions() {
   if (!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())) {
-    return; // skip kalau bukan di app
+    return;
   }
 
   try {
-    // LOCATION
     const locPerm = await Geolocation.checkPermissions();
     if (locPerm.location !== 'granted') {
       await Geolocation.requestPermissions();
     }
 
-    // CAMERA
-    const camPerm = await Camera.checkPermissions();
-    if (camPerm.camera !== 'granted') {
-      await Camera.requestPermissions();
-    }
-
-    // NOTIFICATION
     const pushPerm = await PushNotifications.checkPermissions();
     if (pushPerm.receive !== 'granted') {
       await PushNotifications.requestPermissions();
     }
-
-    console.log('Permissions initialized');
   } catch (err) {
     console.warn('Permission init error', err);
   }
 }
 
-// Main entry called by button
 window.absenMobile = async function absenMobile(options = {}) {
-  // Best-effort guard: only run on native platforms
   if (!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())) {
     alert('Fitur hanya tersedia di aplikasi mobile');
-    return;
+    return false;
   }
 
   const endpoint = options.endpoint || PRESENSI_ENDPOINT;
+  const statusMessage = options.onStatus;
+
+  const emitStatus = (message) => {
+    if (typeof statusMessage === 'function') {
+      statusMessage(message);
+    }
+  };
 
   try {
-    // 1) Get reliable location (multiple readings)
-    if (!Geolocation) throw new Error('Geolocation plugin not available');
+    emitStatus('Memulai pemindaian wajah...');
     const lokasi = await getLocation();
 
-    // Optionally confirm location with user UI here (omitted)
+    emitStatus('Membuka kamera biometrik...');
+    const scanResult = await runFaceScan();
 
-    // 2) Take photo (ask camera permission now)
-    const fotoBase64 = await takePhoto();
+    if (!scanResult?.face_descriptor || !Array.isArray(scanResult.face_descriptor) || scanResult.face_descriptor.length < 32) {
+      throw new Error('Data biometrik wajah tidak valid.');
+    }
 
-    // 3) Prepare payload
+    emitStatus('Memverifikasi wajah...');
     const payload = {
       latitude: lokasi.latitude,
       longitude: lokasi.longitude,
@@ -158,10 +162,13 @@ window.absenMobile = async function absenMobile(options = {}) {
       speed: lokasi.speed || null,
       device_info: navigator.userAgent || null,
       location_readings: JSON.stringify(lokasi.readings || []),
-      selfie_data: fotoBase64,
+      face_descriptor: scanResult.face_descriptor,
+      liveness_score: scanResult.liveness_score,
+      liveness_challenges: scanResult.liveness_challenges,
+      verification_nonce: randomNonce(),
+      verification_timestamp: Date.now(),
     };
 
-    // 4) Send to server
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -173,12 +180,15 @@ window.absenMobile = async function absenMobile(options = {}) {
 
     if (!res.ok) {
       let data = null;
-      try { data = await res.json(); } catch (e) { /* ignore */ }
-      const msg = data?.message || 'Presensi gagal (server error)';
-      throw new Error(msg);
+      try {
+        data = await res.json();
+      } catch (_) {
+        // noop
+      }
+      throw new Error(data?.message || 'Presensi gagal (server error)');
     }
 
-    // success
+    emitStatus('Presensi berhasil.');
     alert('Presensi berhasil ✅');
     return true;
   } catch (err) {
@@ -188,10 +198,8 @@ window.absenMobile = async function absenMobile(options = {}) {
   }
 };
 
-// Export helper for optional push registration (call on login success)
 window.registerPushIfNeeded = registerPushIfNeeded;
 
-// Init permissions when DOM is ready (best-effort)
 document.addEventListener('DOMContentLoaded', () => {
   try {
     initPermissions();

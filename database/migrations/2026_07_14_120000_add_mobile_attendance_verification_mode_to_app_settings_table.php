@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('app_settings', function (Blueprint $table) {
             if (!Schema::hasColumn('app_settings', 'mobile_attendance_verification_mode')) {
                 $table->string('mobile_attendance_verification_mode', 30)
-                    ->default('selfie');
+                    ->default('face_scan');
             }
         });
     }

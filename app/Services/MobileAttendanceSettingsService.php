@@ -7,22 +7,16 @@ use App\Models\User;
 
 class MobileAttendanceSettingsService
 {
-    public const MODE_SELFIE = 'selfie';
     public const MODE_FACE_SCAN = 'face_scan';
 
     public function currentMode(): string
     {
-        $mode = AppSetting::getSettings()->mobile_attendance_verification_mode ?? self::MODE_SELFIE;
-
-        return in_array($mode, $this->availableModes(), true)
-            ? $mode
-            : self::MODE_SELFIE;
+        return self::MODE_FACE_SCAN;
     }
 
     public function availableModes(): array
     {
         return [
-            self::MODE_SELFIE,
             self::MODE_FACE_SCAN,
         ];
     }
@@ -30,10 +24,6 @@ class MobileAttendanceSettingsService
     public function modeOptions(): array
     {
         return [
-            self::MODE_SELFIE => [
-                'label' => 'Selfie',
-                'description' => 'Presensi mobile menggunakan foto selfie dari kamera depan.',
-            ],
             self::MODE_FACE_SCAN => [
                 'label' => 'Scan wajah',
                 'description' => 'Presensi mobile mewajibkan verifikasi wajah dengan liveness check.',
@@ -45,7 +35,7 @@ class MobileAttendanceSettingsService
     {
         $mode = $mode ?: $this->currentMode();
 
-        return $this->modeOptions()[$mode]['label'] ?? 'Selfie';
+        return $this->modeOptions()[$mode]['label'] ?? 'Scan wajah';
     }
 
     public function modeDescription(?string $mode = null): string
@@ -59,7 +49,7 @@ class MobileAttendanceSettingsService
     {
         $normalizedMode = in_array($mode, $this->availableModes(), true)
             ? $mode
-            : self::MODE_SELFIE;
+            : self::MODE_FACE_SCAN;
 
         AppSetting::getSettings()->update([
             'mobile_attendance_verification_mode' => $normalizedMode,

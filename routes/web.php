@@ -1284,8 +1284,6 @@ Route::domain('presensi.nuist.id')->group(function () {
             Route::get('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi']);
             Route::get('/data-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi']);
             Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi']);
-            Route::get('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi']);
-            Route::post('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi']);
             Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi']);
             Route::get('/riwayat-presensi/download', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'downloadRekapPresensi']);
             Route::get('/riwayat-presensi-alpha', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensiAlpha']);
@@ -1729,9 +1727,6 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::get('/data-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('data-presensi');
     Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi'])->name('presensi.store');
 
-    // Legacy selfie-presensi endpoints kept for backward compatibility
-    Route::get('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('selfie-presensi');
-    Route::post('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi'])->name('selfie-presensi.store');
     Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/riwayat-presensi/download', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'downloadRekapPresensi'])->name('riwayat-presensi.download');
     Route::get('/riwayat-presensi-alpha', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensiAlpha'])->name('riwayat-presensi-alpha');

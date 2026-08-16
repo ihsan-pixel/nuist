@@ -147,16 +147,10 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         $faceVerificationState = $this->mobileAttendanceSettingsService->runtimeStateForUser($user);
-        if ($faceVerificationState['requires_face_scan']) {
-            $faceVerificationState = array_merge(
-                $faceVerificationState,
-                $this->faceVerificationService->requirementState($user)
-            );
-        } else {
-            $faceVerificationState['required'] = false;
-            $faceVerificationState['enrolled'] = true;
-            $faceVerificationState['message'] = 'Presensi mobile saat ini menggunakan selfie.';
-        }
+        $faceVerificationState = array_merge(
+            $faceVerificationState,
+            $this->faceVerificationService->requirementState($user)
+        );
 
 
         $timeRanges = null;
@@ -191,33 +185,28 @@ class PresensiController extends \App\Http\Controllers\Controller
             'speed' => 'nullable|numeric',
             'device_info' => 'nullable|string',
             'location_readings' => 'nullable|string',
-            'selfie_data' => 'required|string|min:100',
-
+            'face_descriptor' => 'required|array|min:32',
+            'face_descriptor.*' => 'numeric',
+            'liveness_score' => 'required|numeric|min:0|max:1',
+            'liveness_challenges' => 'required|array|min:1',
+            'verification_nonce' => 'nullable|string|min:8',
+            'verification_timestamp' => 'nullable|integer',
         ]);
 
-        $verificationMode = $this->mobileAttendanceSettingsService->currentMode();
-
-        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
-            $request->validate([
-                'face_descriptor' => 'required|array|min:32',
-                'liveness_score' => 'required|numeric|min:0|max:1',
-                'liveness_challenges' => 'required|array|min:1',
-            ]);
-        }
-
-        if (!$this->isValidBase64Image($request->selfie_data)) {
-            return response()->json([
-                'success' => false,
-                'message' => $verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN
-                    ? 'Foto hasil scan wajah tidak valid. Silakan ulangi scan wajah.'
-                    : 'Foto selfie tidak valid. Silakan ambil ulang selfie.'
-            ], 400);
+        if ($request->filled('verification_timestamp')) {
+            $verificationTimestampMs = (int) $request->input('verification_timestamp');
+            $ageSeconds = abs(now('Asia/Jakarta')->timestamp - (int) floor($verificationTimestampMs / 1000));
+            if ($ageSeconds > 120) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sesi verifikasi wajah sudah kedaluwarsa. Ulangi scan wajah.'
+                ], 422);
+            }
         }
 
         $tanggal = Carbon::today()->toDateString();
         $now = Carbon::now('Asia/Jakarta');
-    // default flag to mark early checkout; will be set later if checkout-before-pulang_start
-    $isPulangAwal = false;
+        $isPulangAwal = false;
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $tanggal);
 
@@ -489,38 +478,25 @@ class PresensiController extends \App\Http\Controllers\Controller
             ], 400);
         }
 
-        $faceVerification = [
-            'success' => true,
-            'face_id_used' => null,
-            'similarity' => null,
-            'liveness_score' => null,
-            'challenges' => null,
-            'notes' => 'selfie_only',
-            'verified' => false,
-        ];
+        $faceVerification = $this->faceVerificationService->verifyForAttendance(
+            $user,
+            $request->input('face_descriptor'),
+            $request->input('liveness_score'),
+            $request->input('liveness_challenges', []),
+            true,
+        );
 
-        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
-            $faceVerification = $this->faceVerificationService->verifyForAttendance(
-                $user,
-                $request->input('face_descriptor'),
-                $request->input('liveness_score'),
-                $request->input('liveness_challenges', []),
-                true,
-            );
-
-            if (!$faceVerification['success']) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $faceVerification['message'],
-                    'notes' => $faceVerification['notes'] ?? null,
-                    'similarity' => $faceVerification['similarity'] ?? null,
-                ], 422);
-            }
-
-            $faceVerification['verified'] = true;
+        if (!$faceVerification['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $faceVerification['message'],
+                'notes' => $faceVerification['notes'] ?? null,
+                'similarity' => $faceVerification['similarity'] ?? null,
+                'face_distance' => $faceVerification['face_distance'] ?? null,
+            ], 422);
         }
 
-        $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
+        $faceVerification['verified'] = true;
 
         // Prevent double submission for masuk if already exists
         if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {
@@ -576,7 +552,6 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed' => $request->speed,
                 'device_info' => $request->device_info,
                 'location_readings' => $request->location_readings,
-                'selfie_masuk_path' => $selfiePath,
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 'is_fake_location' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis' => $locationValidation['analysis'] ?? null,
@@ -618,7 +593,6 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed_keluar' => $request->speed,
                 'device_info_keluar' => $request->device_info,
                 'location_readings_keluar' => $request->location_readings,
-                'selfie_keluar_path' => $selfiePath,
                 'keterangan' => $newKeterangan,
                 'is_fake_location_keluar' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,

@@ -51,6 +51,9 @@ class _SchoolDetailPageState extends State<_SchoolDetailPage> {
                 : null;
             final teachers = _updateItems(data['teachers']);
             final students = _updateItems(data['students']);
+            final teacherCount = (data['teacher_count'] as num?)?.toInt() ?? teachers.length;
+            final studentCount = (data['student_count'] as num?)?.toInt() ?? students.length;
+            final classSummary = _studentClassSummary(students);
             final name = school['name']?.toString() ?? 'Sekolah';
             final scod = school['scod']?.toString() ?? '-';
             final accreditation = school['akreditasi']?.toString() ?? '-';
@@ -171,6 +174,9 @@ class _SchoolDetailPageState extends State<_SchoolDetailPage> {
                               school: school,
                               status: status,
                               accreditation: accreditation,
+                              teacherCount: teacherCount,
+                              studentCount: studentCount,
+                              classSummary: classSummary,
                               headmaster: headmaster,
                               teachers: teachers,
                               students: students,
@@ -198,6 +204,9 @@ class _DetailTabContent extends StatelessWidget {
     required this.school,
     required this.status,
     required this.accreditation,
+    required this.teacherCount,
+    required this.studentCount,
+    required this.classSummary,
     required this.headmaster,
     required this.teachers,
     required this.students,
@@ -209,6 +218,9 @@ class _DetailTabContent extends StatelessWidget {
   final Map<String, dynamic> school;
   final String status;
   final String accreditation;
+  final int teacherCount;
+  final int studentCount;
+  final List<MapEntry<String, int>> classSummary;
   final Map<String, dynamic>? headmaster;
   final List<Map<String, dynamic>> teachers;
   final List<Map<String, dynamic>> students;
@@ -219,7 +231,7 @@ class _DetailTabContent extends StatelessWidget {
       case 1:
         return _TeacherStaffTab(headmaster: headmaster, teachers: teachers);
       case 2:
-        return _StudentTab(students: students);
+        return _StudentTab(students: students, classSummary: classSummary, studentCount: studentCount);
       case 3:
         return _ContactTab(name: name, scod: scod, school: school);
       default:
@@ -229,6 +241,9 @@ class _DetailTabContent extends StatelessWidget {
           school: school,
           status: status,
           accreditation: accreditation,
+          teacherCount: teacherCount,
+          studentCount: studentCount,
+          classSummary: classSummary,
         );
     }
   }
@@ -499,6 +514,9 @@ class _SchoolInfoTab extends StatelessWidget {
     required this.school,
     required this.status,
     required this.accreditation,
+    required this.teacherCount,
+    required this.studentCount,
+    required this.classSummary,
   });
 
   final String name;
@@ -506,44 +524,107 @@ class _SchoolInfoTab extends StatelessWidget {
   final Map<String, dynamic> school;
   final String status;
   final String accreditation;
+  final int teacherCount;
+  final int studentCount;
+  final List<MapEntry<String, int>> classSummary;
 
   @override
   Widget build(BuildContext context) {
-    return _InfoCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _InfoRow(icon: Icons.school_outlined, label: 'Nama Sekolah', value: name),
-          _InfoRow(icon: Icons.qr_code_rounded, label: 'SCOD', value: scod),
-          _InfoRow(
-            icon: Icons.location_city_outlined,
-            label: 'Kabupaten',
-            value: school['kabupaten']?.toString() ?? '-',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ringkasan',
+          style: const TextStyle(
+            color: Color(0xFF172A24),
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
           ),
-          _InfoRow(
-            icon: Icons.apartment_outlined,
-            label: 'Kecamatan',
-            value: school['kecamatan']?.toString() ?? '-',
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _SummaryCard(
+                icon: Icons.badge_outlined,
+                title: 'Guru & Pegawai',
+                value: '$teacherCount',
+                subtitle: 'Orang',
+                accent: const Color(0xFF0E8F6E),
+                tint: const Color(0xFFEAF7F1),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _SummaryCard(
+                icon: Icons.school_outlined,
+                title: 'Siswa',
+                value: '$studentCount',
+                subtitle: 'Siswa',
+                accent: const Color(0xFF2F6FD6),
+                tint: const Color(0xFFEAF1FF),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _SummaryCard(
+                icon: Icons.apartment_outlined,
+                title: 'Kelas',
+                value: '${classSummary.length}',
+                subtitle: 'Kelas',
+                accent: const Color(0xFFC89200),
+                tint: const Color(0xFFFFF4DD),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        _InfoCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Informasi Sekolah',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF172A24),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _InfoRow(icon: Icons.school_outlined, label: 'Nama Sekolah', value: name),
+              _InfoRow(icon: Icons.qr_code_rounded, label: 'SCOD', value: scod),
+              _InfoRow(
+                icon: Icons.location_city_outlined,
+                label: 'Kabupaten',
+                value: school['kabupaten']?.toString() ?? '-',
+              ),
+              _InfoRow(
+                icon: Icons.apartment_outlined,
+                label: 'Kecamatan',
+                value: school['kecamatan']?.toString() ?? '-',
+              ),
+              _InfoRow(
+                icon: Icons.location_on_outlined,
+                label: 'Alamat',
+                value: school['alamat']?.toString() ?? 'Alamat belum tersedia',
+                multiline: true,
+              ),
+              _InfoRow(
+                icon: Icons.verified_outlined,
+                label: 'Status',
+                value: status,
+                valueChip: true,
+              ),
+              _InfoRow(
+                icon: Icons.verified_rounded,
+                label: 'Akreditasi',
+                value: accreditation,
+              ),
+            ],
           ),
-          _InfoRow(
-            icon: Icons.location_on_outlined,
-            label: 'Alamat',
-            value: school['alamat']?.toString() ?? 'Alamat belum tersedia',
-            multiline: true,
-          ),
-          _InfoRow(
-            icon: Icons.verified_outlined,
-            label: 'Status',
-            value: status,
-            valueChip: true,
-          ),
-          _InfoRow(
-            icon: Icons.verified_rounded,
-            label: 'Akreditasi',
-            value: accreditation,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -567,21 +648,120 @@ class _TeacherStaffTab extends StatelessWidget {
 }
 
 class _StudentTab extends StatelessWidget {
-  const _StudentTab({required this.students});
+  const _StudentTab({
+    required this.students,
+    required this.classSummary,
+    required this.studentCount,
+  });
   final List<Map<String, dynamic>> students;
+  final List<MapEntry<String, int>> classSummary;
+  final int studentCount;
   @override
   Widget build(BuildContext context) {
-    if (students.isEmpty) {
+    if (students.isEmpty || classSummary.isEmpty) {
       return const _DetailEmpty(label: 'Data siswa belum tersedia.');
     }
-    return _SchoolDataTable(
-      headers: const ['NAMA SISWA', 'KELAS'],
-      rows: students
-          .map((student) => [
-                student['name']?.toString() ?? '-',
-                student['class']?.toString().isNotEmpty == true ? student['class'].toString() : '-',
-              ])
-          .toList(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Siswa',
+                style: TextStyle(
+                  color: Color(0xFF172A24),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            Text(
+              'Lihat semua',
+              style: const TextStyle(
+                color: Color(0xFF0E8F6E),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            children: classSummary.asMap().entries.map((entry) {
+              final item = entry.value;
+              final isLast = entry.key == classSummary.length - 1;
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: isLast ? null : const Border(bottom: BorderSide(color: Color(0xFFE7ECEA))),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE4F7ED),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(Icons.people_alt_outlined, color: Color(0xFF0E8F6E), size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        item.key,
+                        style: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${item.value}',
+                          style: const TextStyle(
+                            color: Color(0xFF172A24),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Siswa',
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 22),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -599,35 +779,12 @@ class _ContactTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _InfoCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _InfoRow(
-            icon: Icons.school_outlined,
-            label: 'Nama Sekolah',
-            value: name,
-          ),
-          _InfoRow(icon: Icons.qr_code_rounded, label: 'SCOD', value: scod),
-          _InfoRow(
-            icon: Icons.location_on_outlined,
-            label: 'Alamat',
-            value: school['alamat']?.toString() ?? 'Alamat belum tersedia',
-            multiline: true,
-          ),
-          _InfoRow(
-            icon: Icons.phone_outlined,
-            label: 'Telepon',
-            value: school['phone']?.toString() ?? '-',
-          ),
-          _InfoRow(
-            icon: Icons.mail_outline,
-            label: 'Email',
-            value: school['email']?.toString() ?? '-',
-            multiline: true,
-          ),
-        ],
-      ),
+    return _ContactCard(
+      title: 'Kontak Operator',
+      subtitle: 'Admin/Operator NUIST Sekolah',
+      description: 'Hubungi admin/operator untuk bantuan teknis dan informasi terkait NUIST.',
+      phone: school['phone']?.toString() ?? '-',
+      email: school['email']?.toString() ?? '-',
     );
   }
 }
@@ -938,13 +1095,20 @@ Future<void> _openTeacherSheet(
         builder: (context, scrollController) {
           return Container(
             decoration: const BoxDecoration(
-              color: Color(0xFFF7F9FC),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFFFFFFFF),
+                  Color(0xFFF5FAF7),
+                ],
+              ),
               borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
             child: SingleChildScrollView(
               controller: scrollController,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -959,65 +1123,130 @@ Future<void> _openTeacherSheet(
                         ),
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Color(0xFF0E8F6E),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Color(0xFF0E8F6E),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 6),
                     Center(
                       child: Column(
                         children: [
-                          _TeacherAvatar(teacher: teacher),
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.08),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: _TeacherAvatar(teacher: teacher),
+                          ),
+                          const SizedBox(height: 14),
+                          _Pill(
+                            text: 'Guru / Pegawai',
+                            background: const Color(0xFFDDF1E7),
+                            foreground: const Color(0xFF0E6F57),
+                          ),
                           const SizedBox(height: 14),
                           Text(
                             _teacherName(teacher),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF172A24),
-                              height: 1.2,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0F3D32),
+                              height: 1.15,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           Text(
-                            _teacherValue(teacher, ['nuist_id']),
+                            _teacherValue(teacher, ['nuist_id', 'details.nuist_id']),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF6B7280),
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _TeacherInfoSection(
+                    _TeacherProfileCard(
                       title: 'Informasi Data Guru/Pegawai',
-                      items: [
-                        _TeacherInfoItem('NIPM', _teacherValue(teacher, ['nip', 'nipm', 'nip_ma_arif'])),
-                        _TeacherInfoItem('NUPTK', _teacherValue(teacher, ['nuptk'])),
-                        _TeacherInfoItem('Kartanu', _teacherValue(teacher, ['kartanu', 'nomor_kartanu'])),
-                        _TeacherInfoItem(
-                          'Tempat/Tanggal lahir',
-                          _combineTeacherValues(
+                      rows: [
+                        _TeacherProfileRow(
+                          icon: Icons.badge_outlined,
+                          label: 'NIPM',
+                          value: _teacherValue(teacher, ['nip', 'nipm', 'nip_ma_arif', 'details.nip', 'details.nipm', 'details.nip_ma_arif']),
+                        ),
+                        _TeacherProfileRow(
+                          icon: Icons.badge_rounded,
+                          label: 'NUPTK',
+                          value: _teacherValue(teacher, ['nuptk', 'details.nuptk']),
+                        ),
+                        _TeacherProfileRow(
+                          icon: Icons.credit_card_outlined,
+                          label: 'Kartanu',
+                          value: _teacherValue(teacher, ['kartanu', 'nomor_kartanu', 'details.kartanu', 'details.nomor_kartanu']),
+                        ),
+                        _TeacherProfileRow(
+                          icon: Icons.location_city_outlined,
+                          label: 'Tempat / Tanggal lahir',
+                          value: _combineTeacherValues(
                             teacher,
                             [
-                              ['place_of_birth', 'tempat_lahir'],
-                              ['date_of_birth', 'tanggal_lahir'],
+                              ['place_of_birth', 'tempat_lahir', 'details.place_of_birth', 'details.tempat_lahir'],
+                              ['date_of_birth', 'tanggal_lahir', 'details.date_of_birth', 'details.tanggal_lahir'],
                             ],
                             separator: ', ',
                           ),
                         ),
-                        _TeacherInfoItem('TMT pertama', _teacherValue(teacher, ['tmt', 'tmt_pertama'])),
-                        _TeacherInfoItem('Pendidikan', _teacherValue(teacher, ['last_education', 'pendidikan_terakhir'])),
-                        _TeacherInfoItem('Tahun lulus', _teacherValue(teacher, ['tahun_lulus'])),
-                        _TeacherInfoItem('Program studi', _teacherValue(teacher, ['study_program', 'program_studi'])),
-                        _TeacherInfoItem('Masa kerja', _teacherValue(teacher, ['masa_kerja'])),
-                        _TeacherInfoItem('Mengajar/Ketugasan', _teacherValue(teacher, ['mengajar', 'mapel_tugas_yang_diampu', 'ketugasan'])),
+                        _TeacherProfileRow(
+                          icon: Icons.school_outlined,
+                          label: 'Pendidikan terakhir',
+                          value: _teacherValue(teacher, ['last_education', 'pendidikan_terakhir', 'details.last_education', 'details.pendidikan_terakhir']),
+                        ),
+                        _TeacherProfileRow(
+                          icon: Icons.workspace_premium_outlined,
+                          label: 'Tahun lulus',
+                          value: _teacherValue(teacher, ['tahun_lulus', 'details.tahun_lulus']),
+                        ),
+                        _TeacherProfileRow(
+                          icon: Icons.menu_book_outlined,
+                          label: 'Program studi',
+                          value: _teacherValue(teacher, ['study_program', 'program_studi', 'details.study_program', 'details.program_studi']),
+                        ),
+                        _TeacherProfileRow(
+                          icon: Icons.person_outline,
+                          label: 'Mengajar / Ketugasan',
+                          value: _teacherValue(teacher, ['mengajar', 'mapel_tugas_yang_diampu', 'ketugasan', 'details.mengajar', 'details.mapel_tugas_yang_diampu', 'details.ketugasan']),
+                        ),
                       ],
+                    ),
+                    const SizedBox(height: 16),
+                    _TeacherFooterNote(
+                      text: 'Data ini bersumber dari sistem kepegawaian. Jika ada kesalahan, hubungi administrator.',
                     ),
                   ],
                 ),
@@ -1030,43 +1259,135 @@ Future<void> _openTeacherSheet(
   );
 }
 
-class _TeacherInfoSection extends StatelessWidget {
-  const _TeacherInfoSection({
+class _TeacherProfileCard extends StatelessWidget {
+  const _TeacherProfileCard({
     required this.title,
-    required this.items,
+    required this.rows,
   });
 
   final String title;
-  final List<_TeacherInfoItem> items;
+  final List<_TeacherProfileRow> rows;
 
   @override
   Widget build(BuildContext context) {
-    final visibleItems = items.where((item) => item.value != '-').toList();
-    if (visibleItems.isEmpty) return const SizedBox.shrink();
+    final visibleRows = rows.where((row) => row.value != '-').toList();
+    if (visibleRows.isEmpty) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF172A24),
+          Row(
+            children: [
+              const Icon(Icons.badge_outlined, color: Color(0xFF0E8F6E), size: 15),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F3D32),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          ...List.generate(visibleRows.length, (index) {
+            final row = visibleRows[index];
+            return Column(
+              children: [
+                _TeacherProfileLine(row: row),
+                if (index != visibleRows.length - 1)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 48),
+                    child: Divider(height: 1, thickness: 1, color: Color(0xFFE9EEEC)),
+                  ),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _TeacherProfileRow {
+  const _TeacherProfileRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+}
+
+class _TeacherProfileLine extends StatelessWidget {
+  const _TeacherProfileLine({required this.row});
+
+  final _TeacherProfileRow row;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAF6F1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(row.icon, size: 15, color: const Color(0xFF0E8F6E)),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                row.label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF6B7280),
+                  height: 1.25,
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          ...visibleItems.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _TeacherMetaRow(label: item.label, value: item.value),
+          const SizedBox(width: 12),
+          Flexible(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                row.value,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF172A24),
+                  fontWeight: FontWeight.w700,
+                  height: 1.25,
+                ),
+              ),
             ),
           ),
         ],
@@ -1075,52 +1396,261 @@ class _TeacherInfoSection extends StatelessWidget {
   }
 }
 
-class _TeacherInfoItem {
-  const _TeacherInfoItem(this.label, this.value);
-  final String label;
-  final String value;
-}
+class _TeacherFooterNote extends StatelessWidget {
+  const _TeacherFooterNote({required this.text});
 
-class _TeacherMetaRow extends StatelessWidget {
-  const _TeacherMetaRow({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 3,
-          child: Text(
-            label,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F7FB),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5EBF0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.verified_outlined, color: Color(0xFF5FC35F), size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF51606B),
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.accent,
+    required this.tint,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+  final String subtitle;
+  final Color accent;
+  final Color tint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: tint),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: tint,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: accent, size: 22),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF3F4A57),
+              fontWeight: FontWeight.w600,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              color: accent,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          Text(
+            subtitle,
             style: const TextStyle(
               fontSize: 12,
               color: Color(0xFF6B7280),
+              fontWeight: FontWeight.w500,
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 4,
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF172A24),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
+}
+
+class _ContactCard extends StatelessWidget {
+  const _ContactCard({
+    required this.title,
+    required this.subtitle,
+    required this.description,
+    required this.phone,
+    required this.email,
+  });
+
+  final String title;
+  final String subtitle;
+  final String description;
+  final String phone;
+  final String email;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: Color(0xFFEAF6F1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.headset_mic_outlined, color: Color(0xFF0E8F6E), size: 28),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF172A24),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF0E8F6E),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF6B7280),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            width: 150,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAF6F1),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.phone_outlined, size: 18, color: Color(0xFF0E8F6E)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        phone,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF172A24),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.mail_outline, size: 18, color: Color(0xFF0E8F6E)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        email,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF172A24),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+List<MapEntry<String, int>> _studentClassSummary(List<Map<String, dynamic>> students) {
+  final counts = <String, int>{};
+  for (final student in students) {
+    final rawClass = student['class']?.toString().trim();
+    if (rawClass == null || rawClass.isEmpty || rawClass == '-') continue;
+    counts[rawClass] = (counts[rawClass] ?? 0) + 1;
+  }
+  final entries = counts.entries.toList()
+    ..sort((a, b) => a.key.compareTo(b.key));
+  return entries;
 }
 
 String _teacherName(Map<String, dynamic> teacher) {
@@ -1134,7 +1664,7 @@ String _teacherPosition(Map<String, dynamic> teacher) {
 }
 
 String _teacherStatus(Map<String, dynamic> teacher) {
-  return _teacherValue(teacher, ['status_kepegawaian', 'employment_status', 'status_kepegawaian_label']);
+  return _teacherValue(teacher, ['status_kepegawaian', 'employment_status', 'status_kepegawaian_label', 'details.status_kepegawaian', 'details.employment_status']);
 }
 
 String _combineTeacherValues(
@@ -1188,90 +1718,4 @@ String? _resolveTeacherValue(Map<String, dynamic> teacher, String key) {
     current = current[part];
   }
   return current?.toString();
-}
-
-class _SchoolDataTable extends StatelessWidget {
-  const _SchoolDataTable({
-    required this.headers,
-    required this.rows,
-  });
-  final List<String> headers;
-  final List<List<String>> rows;
-  @override
-  Widget build(BuildContext context) {
-    return AppSectionCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: const BoxDecoration(
-              color: Color(0xFFE5F5F0),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(23)),
-            ),
-            child: _SchoolDataRow(values: headers, isHeader: true),
-          ),
-          ...rows.asMap().entries.map(
-                (entry) => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    border: entry.key == rows.length - 1
-                        ? null
-                        : const Border(
-                            bottom: BorderSide(color: Color(0xFFDCE7E3)),
-                          ),
-                  ),
-                  child: _SchoolDataRow(values: entry.value),
-                ),
-              ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SchoolDataRow extends StatelessWidget {
-  const _SchoolDataRow({
-    required this.values,
-    this.isHeader = false,
-  });
-
-  final List<String> values;
-  final bool isHeader;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = TextStyle(
-      color: isHeader ? const Color(0xFF00553F) : _pengurusText,
-      fontSize: 14,
-      fontWeight: isHeader ? FontWeight.w800 : FontWeight.w700,
-      height: 1.25,
-    );
-
-    return Row(
-      children: [
-        Expanded(
-          flex: 3,
-          child: Text(
-            values.isNotEmpty ? values.first : '-',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: style,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          flex: 2,
-          child: Text(
-            values.length > 1 ? values[1] : '-',
-            textAlign: TextAlign.right,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: style,
-          ),
-        ),
-      ],
-    );
-  }
 }
