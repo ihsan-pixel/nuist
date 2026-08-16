@@ -2971,6 +2971,7 @@ window.addEventListener('load', function() {
     let faceScanInProgress = false;
     let faceScanRetryTimer = null;
     let faceScanSessionId = 0;
+    let faceScanCompleted = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
@@ -3734,6 +3735,7 @@ window.addEventListener('load', function() {
         stopSelfieStream();
         selfieCaptured = false;
         pendingSelfieData = '';
+        faceScanCompleted = false;
         earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
         faceScanInProgress = false;
@@ -4097,6 +4099,7 @@ window.addEventListener('load', function() {
             stopSelfieStream();
             selfieCaptured = true;
             if (faceScanRequired) {
+                faceScanCompleted = true;
                 if (faceScanRetryTimer) {
                     window.clearTimeout(faceScanRetryTimer);
                     faceScanRetryTimer = null;
@@ -4162,6 +4165,10 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
+                if (faceScanCompleted) {
+                    return;
+                }
+
                 if (faceScanRetryTimer) {
                     window.clearTimeout(faceScanRetryTimer);
                 }
