@@ -1099,6 +1099,11 @@ class FaceRecognition {
         await this.presentTimedChallengeInstruction(callbacks, instruction);
         this.emit(callbacks.onStatus, 'Membaca gerakan kepala sesuai instruksi.');
         const startedAt = Date.now();
+        const validTurnThreshold = 0.042;
+        const strongTurnThreshold = 0.12;
+        const oppositeTurnThreshold = 0.072;
+        const verticalTolerance = 0.04;
+        const mouthTolerance = 0.085;
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
@@ -1114,17 +1119,25 @@ class FaceRecognition {
             const mouthDelta = this.mouthOpenRatio(detection.landmarks) - baselineMouth;
             bestTurn = Math.max(bestTurn, directionalTurn);
 
-            if (oppositeTurn >= 0.075) {
+            if (oppositeTurn >= oppositeTurnThreshold) {
                 throw new Error('Gerakan tidak sesuai instruksi. Ulangi scan.');
             }
 
-            if (verticalDelta >= 0.035 || mouthDelta >= 0.08) {
+            if (verticalDelta >= verticalTolerance || mouthDelta >= mouthTolerance) {
                 throw new Error('Gerakan tidak sesuai instruksi. Ulangi scan.');
             }
 
-            if (directionalTurn >= 0.105 && verticalDelta < 0.03 && mouthDelta < 0.06) {
+            if (directionalTurn >= validTurnThreshold) {
+                const turnScore = this.clamp(
+                    0.66
+                        + ((directionalTurn - validTurnThreshold) * 1.55)
+                        + (this.clamp(directionalTurn - strongTurnThreshold, 0, 0.09) * 1.4),
+                    0.66,
+                    0.97,
+                );
+
                 return {
-                    score: this.clamp(0.66 + ((directionalTurn - 0.105) * 1.9), 0.66, 0.95),
+                    score: turnScore,
                     detail: direction,
                 };
             }
@@ -1163,6 +1176,11 @@ class FaceRecognition {
         await this.presentTimedChallengeInstruction(callbacks, instruction);
         this.emit(callbacks.onStatus, 'Membaca arah pandangan sesuai instruksi.');
         const startedAt = Date.now();
+        const validMoveThreshold = 0.035;
+        const strongMoveThreshold = 0.095;
+        const oppositeMoveThreshold = 0.052;
+        const horizontalTolerance = 0.045;
+        const mouthTolerance = 0.085;
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
@@ -1178,17 +1196,25 @@ class FaceRecognition {
             const mouthDelta = this.mouthOpenRatio(detection.landmarks) - baselineMouth;
             bestMove = Math.max(bestMove, directionalMove);
 
-            if (oppositeMove >= 0.055) {
+            if (oppositeMove >= oppositeMoveThreshold) {
                 throw new Error('Gerakan tidak sesuai instruksi. Ulangi scan.');
             }
 
-            if (horizontalDelta >= 0.045 || mouthDelta >= 0.08) {
+            if (horizontalDelta >= horizontalTolerance || mouthDelta >= mouthTolerance) {
                 throw new Error('Gerakan tidak sesuai instruksi. Ulangi scan.');
             }
 
-            if (directionalMove >= 0.07 && horizontalDelta < 0.035 && mouthDelta < 0.06) {
+            if (directionalMove >= validMoveThreshold) {
+                const moveScore = this.clamp(
+                    0.66
+                        + ((directionalMove - validMoveThreshold) * 1.7)
+                        + (this.clamp(directionalMove - strongMoveThreshold, 0, 0.1) * 1.35),
+                    0.66,
+                    0.97,
+                );
+
                 return {
-                    score: this.clamp(0.66 + (directionalMove * 1.7), 0.66, 0.94),
+                    score: moveScore,
                     detail: direction,
                 };
             }
