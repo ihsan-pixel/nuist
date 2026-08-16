@@ -293,7 +293,7 @@ class FaceRecognition {
 
             this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke challenge.');
             this.emit(callbacks.onGuideState, {
-                state: 'aligned',
+                state: 'success',
                 message: 'Wajah cocok. Lanjut ke challenge berikutnya.',
             });
         }
@@ -333,7 +333,7 @@ class FaceRecognition {
 
             this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke challenge.');
             this.emit(callbacks.onGuideState, {
-                state: 'aligned',
+                state: 'success',
                 message: 'Wajah cocok. Lanjut ke challenge berikutnya.',
             });
         }
@@ -637,12 +637,12 @@ class FaceRecognition {
                 hadFaceVisible = true;
                 stableHits += 1;
                 this.emit(callbacks.onStatus, stableHits >= stableHitsRequired
-                    ? 'Wajah terdeteksi. Memulai pembacaan wajah.'
+                    ? 'Wajah terdeteksi. Menunggu verifikasi selesai.'
                     : 'Wajah terdeteksi. Pertahankan posisi di tengah oval.');
                 this.emit(callbacks.onGuideState, {
-                    state: stableHits >= stableHitsRequired ? 'success' : 'aligned',
+                    state: 'aligned',
                     message: stableHits >= stableHitsRequired
-                        ? 'Wajah sudah masuk frame. Memulai scan.'
+                        ? 'Wajah sudah masuk frame. Lanjutkan verifikasi.'
                         : 'Posisi wajah sudah pas. Tahan sebentar.',
                 });
 
