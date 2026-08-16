@@ -17,9 +17,9 @@ class FaceRecognition {
         };
         this.minimumFaceWidthRatio = 0.1;
         this.maximumEyeTiltDegrees = 22;
-        this.enrollmentSharpnessThreshold = 0.11;
-        this.enrollmentMotionThreshold = 0.075;
-        this.enrollmentHoldMs = 320;
+        this.enrollmentSharpnessThreshold = 0.13;
+        this.enrollmentMotionThreshold = 0.05;
+        this.enrollmentHoldMs = 520;
         this.challengeBlinkLeadMs = 850;
         this.challengeActionLeadMs = 1050;
     }
@@ -256,7 +256,7 @@ class FaceRecognition {
 
         return {
             face_descriptor: Array.from(descriptor),
-            liveness_score: 1,
+            liveness_score: 0.96,
             liveness_challenges: livenessChallenges,
             captured_image: this.captureFrame(videoElement),
         };

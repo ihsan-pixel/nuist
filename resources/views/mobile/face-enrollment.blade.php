@@ -9,6 +9,10 @@
         body {
             background: #000;
             font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
         }
 
         .face-card {
@@ -24,7 +28,8 @@
         .face-stage {
             --scan-progress: 0%;
             position: relative;
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
             background: #000;
             overflow: hidden;
         }
@@ -495,11 +500,16 @@
         }
 
         .btn-face-secondary {
-            display: none !important;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: none;
         }
 
         .face-actions {
             margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         .face-onboarding {
@@ -804,7 +814,10 @@
                         Mulai Scan
                     </button>
                     <button type="button" id="btn-enroll-face" class="btn-face" style="display:none;" disabled>
-                        Simpan Wajah
+                        Kirim Wajah
+                    </button>
+                    <button type="button" id="btn-retry-face" class="btn-face btn-face-secondary" style="display:none;" disabled>
+                        Ulangi
                     </button>
                 </div>
             </div>
@@ -833,6 +846,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const instruction = document.getElementById('face-instruction');
     const startCameraButton = document.getElementById('btn-start-face-camera');
     const enrollButton = document.getElementById('btn-enroll-face');
+    const retryButton = document.getElementById('btn-retry-face');
     const progressItems = Array.from(document.querySelectorAll('.face-progress-item'));
     const faceStage = document.getElementById('face-stage');
     const faceGuideText = document.getElementById('face-guide-text');
@@ -1029,6 +1043,10 @@ document.addEventListener('DOMContentLoaded', function () {
         video.style.display = cameraReady ? 'block' : 'none';
         enrollButton.disabled = true;
         enrollButton.style.display = 'none';
+        if (retryButton) {
+            retryButton.disabled = true;
+            retryButton.style.display = 'none';
+        }
         startCameraButton.style.display = 'block';
         resetProgress();
         if (faceStage) {
@@ -1101,8 +1119,12 @@ document.addEventListener('DOMContentLoaded', function () {
             faceRecognition.stopCamera(video);
             cameraReady = false;
             enrollButton.disabled = false;
-            setInstruction('Wajah sudah diambil otomatis. Periksa hasilnya lalu tekan Simpan Wajah.');
-            setStatus('Wajah berhasil diambil. Konfirmasi simpan wajah.');
+            if (retryButton) {
+                retryButton.disabled = false;
+                retryButton.style.display = 'block';
+            }
+            setInstruction('Wajah sudah diambil otomatis. Periksa hasilnya lalu tekan Kirim Wajah.');
+            setStatus('Wajah berhasil diambil. Gunakan ulangi jika perlu atau kirim wajah.');
             updateGuideState({
                 state: 'success',
                 message: 'Wajah berhasil diambil otomatis.',
@@ -1126,6 +1148,10 @@ document.addEventListener('DOMContentLoaded', function () {
             setProgressOrbState('error');
             startCameraButton.style.display = 'block';
             startCameraButton.textContent = 'Mulai Scan';
+            if (retryButton) {
+                retryButton.style.display = 'none';
+                retryButton.disabled = true;
+            }
         } finally {
             startCameraButton.disabled = false;
             if (startCameraButton.style.display !== 'none') {
@@ -1140,7 +1166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         enrollButton.disabled = true;
-        enrollButton.textContent = 'Menyimpan...';
+        enrollButton.textContent = 'Mengirim...';
 
         try {
             const response = await fetch(enrollUrl, {
@@ -1173,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1200);
         } catch (error) {
             enrollButton.disabled = false;
-            enrollButton.textContent = 'Simpan Wajah';
+            enrollButton.textContent = 'Kirim Wajah';
             setStatus(error.message || 'Pendaftaran wajah gagal disimpan.', 'error');
             showSimpleAlert(error.message || 'Pendaftaran wajah gagal disimpan.', 'error');
         }
@@ -1222,6 +1248,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     enrollButton.addEventListener('click', submitEnrollment);
+    if (retryButton) {
+        retryButton.addEventListener('click', function () {
+            resetEnrollmentState();
+            if (onboarding) {
+                onboarding.hidden = false;
+            }
+            if (startCameraButton) {
+                startCameraButton.disabled = false;
+                startCameraButton.textContent = 'Mulai Scan';
+                startCameraButton.focus();
+            }
+        });
+    }
 
     updateGuideTone('searching');
     updateProgressRing();
