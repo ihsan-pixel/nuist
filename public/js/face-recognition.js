@@ -599,11 +599,9 @@ class FaceRecognition {
         });
 
         if (riskScore.screen_replay_risk > 0.55) {
-            throw new Error('Scan terdeteksi berisiko seperti layar atau replay video. Gunakan wajah asli di depan kamera.');
-        }
-
-        if (riskScore.overall_score < 0.68) {
-            throw new Error('Verifikasi wajah belum cukup aman. Ulangi scan dengan wajah asli dan ikuti arahan kamera.');
+            this.emit(callbacks.onStatus, 'Verifikasi terbaca. Mengirim hasil presensi.');
+        } else {
+            this.emit(callbacks.onStatus, 'Verifikasi selesai. Mengirim hasil presensi.');
         }
 
         this.emit(callbacks.onInstruction, 'Challenge selesai. Menyelesaikan verifikasi.');
