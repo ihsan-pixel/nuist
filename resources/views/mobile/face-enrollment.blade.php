@@ -23,6 +23,20 @@
             min-height: 100%;
         }
 
+        .mobile-content {
+            padding-bottom: 0 !important;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+        }
+
+        .mobile-content > .container-fluid {
+            height: 100%;
+            min-height: 100%;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
         .face-card {
             background: transparent;
             border-radius: 0;
@@ -38,7 +52,8 @@
             --scan-progress: 0%;
             position: relative;
             width: 100%;
-            height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            height: 100vh;
+            height: 100dvh;
             min-height: 0;
             background: #000;
             overflow: hidden;
