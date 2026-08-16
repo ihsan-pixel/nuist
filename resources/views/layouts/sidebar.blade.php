@@ -251,6 +251,12 @@
                         <span>Data Presensi</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.monitor-jurnal-mengajar') }}" class="waves-effect">
+                        <i class="bx bx-book-open"></i>
+                        <span>Monitoring Jurnal</span>
+                    </a>
+                </li>
                 @elseif($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah')
                 <li>
                     <a href="{{ route('presensi_admin.index') }}" class="waves-effect">

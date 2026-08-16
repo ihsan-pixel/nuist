@@ -418,21 +418,6 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
-            <div class="card-body p-4">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    <div>
-                        <h5 class="mb-1 text-dark">Monitoring Jurnal Mengajar</h5>
-                        <p class="mb-0 text-muted">Lihat jurnal yang sudah tercatat dan jadwal yang belum diisi jurnal.</p>
-                    </div>
-                    <a href="{{ route('admin.monitor-jurnal-mengajar') }}" class="btn btn-success">
-                        <i class="mdi mdi-book-open-variant me-1"></i>
-                        Buka Monitoring
-                    </a>
-                </div>
-            </div>
-        </div>
-
         {{-- Employment Status Breakdown --}}
         <div class="card border-0 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4">
