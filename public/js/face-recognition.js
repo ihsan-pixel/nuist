@@ -10,9 +10,9 @@ class FaceRecognition {
         this.lastGeometryDetectedAt = 0;
         this.detectorOptions = {
             inputSize: 224,
-            scoreThreshold: 0.4,
+            scoreThreshold: 0.35,
         };
-        this.minimumFaceWidthRatio = 0.16;
+        this.minimumFaceWidthRatio = 0.12;
         this.maximumEyeTiltDegrees = 22;
         this.enrollmentSharpnessThreshold = 0.11;
         this.enrollmentMotionThreshold = 0.075;
@@ -225,7 +225,7 @@ class FaceRecognition {
             message: 'Pusatkan wajah di dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 1600, 1);
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 3000, 1, false);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
@@ -583,13 +583,13 @@ class FaceRecognition {
         };
     }
 
-    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 3200, stableHitsRequired = 1) {
+    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 3200, stableHitsRequired = 1, strict = true) {
         const startedAt = Date.now();
         let stableHits = 0;
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks, {
-                strict: true,
+                strict,
                 allowFallback: false,
             });
 

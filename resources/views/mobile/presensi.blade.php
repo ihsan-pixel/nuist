@@ -3710,7 +3710,7 @@ window.addEventListener('load', function() {
                 setSelfieStatus('Kamera aktif. Arahkan wajah ke dalam frame.');
                 updateFaceInstruction('Arahkan wajah ke dalam oval. Sistem akan membaca saat wajah masuk frame.');
                 updateSelfieGuideState({
-                    state: 'searching',
+                    state: 'idle',
                     message: 'Arahkan wajah ke dalam oval.',
                 });
 
@@ -3921,10 +3921,10 @@ window.addEventListener('load', function() {
 
                     resetSelfieProgress();
                     updateSelfieGuideState({
-                        state: 'searching',
+                        state: 'idle',
                         message: 'Pusatkan wajah di dalam oval.',
                     });
-                    setFaceFrameState('searching');
+                    setFaceFrameState('idle');
                     updateFaceInstruction('Mengulang scan dari awal. Arahkan wajah ke dalam frame.');
                     setSelfieStatus('Scan diulang dari awal.', 'info');
                 }, 520);
