@@ -167,9 +167,9 @@
         .face-guide-oval {
             position: absolute;
             left: 50%;
-            top: 18%;
-            width: min(66vw, 286px);
-            height: min(90vw, 392px);
+            top: 14%;
+            width: min(74vw, 336px);
+            height: min(102vw, 456px);
             transform: translateX(-50%);
             border: 3px solid rgba(255, 255, 255, 0.92);
             border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
@@ -750,9 +750,9 @@
             }
 
             .face-guide-oval {
-                width: min(70vw, 264px);
-                height: min(94vw, 352px);
-                top: 20%;
+                width: min(78vw, 292px);
+                height: min(108vw, 404px);
+                top: 16%;
             }
 
             .face-progress-orb {
