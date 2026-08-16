@@ -258,7 +258,7 @@ class FaceRecognition {
             face_descriptor: Array.from(descriptor),
             liveness_score: 0.96,
             liveness_challenges: livenessChallenges,
-            captured_image: this.captureFrame(videoElement),
+            captured_image: this.captureFrame(videoElement, { mirror: false }),
         };
     }
 
@@ -1284,13 +1284,21 @@ class FaceRecognition {
         return detection.descriptor;
     }
 
-    captureFrame(videoElement) {
+    captureFrame(videoElement, options = {}) {
         const canvas = document.createElement('canvas');
         canvas.width = videoElement.videoWidth || 480;
         canvas.height = videoElement.videoHeight || 640;
 
         const context = canvas.getContext('2d');
-        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        if (options.mirror === false) {
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        } else {
+            context.save();
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            context.restore();
+        }
 
         return canvas.toDataURL('image/jpeg', 0.85);
     }
