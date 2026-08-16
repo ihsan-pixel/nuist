@@ -2018,7 +2018,7 @@
         @if($faceEnrollmentRequired && !$faceEnrollmentReady)
         <div class="alert-custom warning">
             <div class="d-flex">
-                <i class="bx bx-scan text-warning me-2"></i>
+                {{-- <i class="bx bx-scan text-warning me-2"></i> --}}
                 <div>
                     {{-- <strong>Scan wajah belum aktif</strong>
                     <p class="mb-2 text-muted">Wajah Anda belum terdaftar. Presensi kehadiran sekarang memakai scan wajah sebagai pengganti selfie.</p> --}}
