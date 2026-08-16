@@ -2945,7 +2945,7 @@ window.addEventListener('load', function() {
     const faceScanOnboarding = document.getElementById('face-scan-onboarding');
     const faceScanOnboardingContinue = document.getElementById('btn-face-scan-onboarding-continue');
     const faceScanHelpButton = document.getElementById('btn-face-scan-help');
-    const faceScanner = new window.FaceRecognition();
+    const faceScanner = window.FaceRecognition ? new window.FaceRecognition() : null;
     let faceVerificationResult = null;
     const verificationMode = @json($faceVerificationState['mode'] ?? 'selfie');
     const verificationLabel = @json($faceVerificationState['label'] ?? 'Selfie');
@@ -3029,6 +3029,9 @@ window.addEventListener('load', function() {
     }
 
     function stopSelfieStream() {
+        if (!faceScanner) {
+            return;
+        }
         faceScanner.stopCamera(document.getElementById('selfie-video'));
         if (selfieStream && typeof selfieStream.getTracks === 'function') {
             selfieStream.getTracks().forEach(track => track.stop());
@@ -3877,6 +3880,9 @@ window.addEventListener('load', function() {
     // Initialize face scan camera
     async function initializeSelfieCamera() {
         try {
+            if (!faceScanner) {
+                throw new Error('Script face-recognition.js tidak termuat atau path asset salah.');
+            }
             const video = document.getElementById('selfie-video');
             const container = document.getElementById('selfie-container');
             const captureBtn = document.getElementById('btn-capture-selfie');
@@ -3963,6 +3969,14 @@ window.addEventListener('load', function() {
     }
 
     async function captureSelfie() {
+        if (faceScanRequired && !faceScanner) {
+            showFormalErrorAlert(
+                'Library Scan Wajah Tidak Tersedia',
+                'File face-recognition.js belum termuat di halaman. Pastikan file ada di public root hosting dan URL /js/face-recognition.js bisa diakses.'
+            );
+            return;
+        }
+
         const currentSessionId = ++faceScanSessionId;
         const video = document.getElementById('selfie-video');
         const canvas = document.getElementById('selfie-canvas');
