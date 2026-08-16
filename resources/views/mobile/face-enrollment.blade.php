@@ -4,7 +4,7 @@
 @section('subtitle', 'Aktifkan Scan Wajah')
 
 @section('content')
-<div class="container py-0 px-0" style="max-width: 100%; margin: auto;">
+<div class="container py-0 px-0 face-enrollment-shell" style="max-width: 100%; margin: auto;">
     <style>
         body {
             background: rgba(0, 0, 0, 0.82);
@@ -24,7 +24,7 @@
         }
 
         .mobile-content {
-            padding: 12px !important;
+            padding: 0 !important;
             min-height: 100vh;
             min-height: 100dvh;
             overflow: hidden;
@@ -55,6 +55,17 @@
             max-height: 92vh;
             overflow: hidden;
             position: relative;
+        }
+
+        .face-enrollment-shell {
+            position: fixed;
+            inset: 0;
+            z-index: 2200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.82);
         }
 
         .face-stage {
@@ -726,6 +737,10 @@
         }
 
         @media (max-width: 380px) {
+            .face-enrollment-shell {
+                padding: 10px;
+            }
+
             .face-stage {
                 min-height: 0;
             }
