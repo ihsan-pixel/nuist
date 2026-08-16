@@ -1044,8 +1044,8 @@
         .face-scan-mode #selfie-video,
         .face-scan-mode #selfie-preview {
             object-fit: cover;
-            object-position: center 18%;
-            transform: scale(1.12);
+            object-position: center 38%;
+            transform: scale(1.06) translateY(2%);
             transform-origin: center center;
         }
 
