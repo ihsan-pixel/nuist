@@ -536,9 +536,15 @@
 
         .face-actions {
             margin-top: 14px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
+            width: 100%;
+        }
+
+        .face-actions .btn-face {
+            width: 100%;
+            display: block;
         }
 
         .face-onboarding {
@@ -1117,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', function () {
         startCameraButton.style.display = 'block';
         enrollButton.style.display = 'none';
         startCameraButton.disabled = true;
-        startCameraButton.textContent = 'Memindai...';
+        startCameraButton.textContent = 'menyiapkan...';
 
         if (!cameraReady) {
             await activateCamera();
