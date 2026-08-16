@@ -3,6 +3,9 @@ class FaceRecognition {
         this.modelsLoaded = false;
         this.detectionModelsLoaded = false;
         this.recognitionModelsLoaded = false;
+        this.modelLoadPromise = null;
+        this.detectionModelLoadPromise = null;
+        this.recognitionModelLoadPromise = null;
         this.activeStream = null;
         this.modelBaseUri = '/models';
         this.recentDetectionMemoryMs = 450;
@@ -27,28 +30,23 @@ class FaceRecognition {
             return true;
         }
 
-        await this.loadDetectionModels();
-
-        try {
-            await faceapi.nets.faceRecognitionNet.loadFromUri(this.modelBaseUri);
-        } catch (error) {
-            const rawMessage = String(error?.message || error || '');
-
-            if (
-                rawMessage.includes('Based on the provided shape')
-                || rawMessage.includes('tensor should have')
-                || rawMessage.includes('Failed to fetch')
-                || rawMessage.includes('404')
-            ) {
-                throw new Error('File model scan wajah di server tidak lengkap atau rusak. Hubungi admin untuk memperbarui model wajah.');
-            }
-
-            throw error;
+        if (this.modelLoadPromise) {
+            return this.modelLoadPromise;
         }
 
-        this.recognitionModelsLoaded = true;
-        this.modelsLoaded = true;
-        return true;
+        this.modelLoadPromise = (async () => {
+            await this.loadDetectionModels();
+            await this.loadRecognitionModel();
+            this.recognitionModelsLoaded = true;
+            this.modelsLoaded = true;
+            return true;
+        })();
+
+        try {
+            return await this.modelLoadPromise;
+        } finally {
+            this.modelLoadPromise = null;
+        }
     }
 
     async loadDetectionModels() {
@@ -57,33 +55,82 @@ class FaceRecognition {
             return true;
         }
 
+        if (this.detectionModelLoadPromise) {
+            return this.detectionModelLoadPromise;
+        }
+
         if (typeof faceapi === 'undefined') {
             throw new Error('Library scan wajah belum tersedia.');
         }
 
-        try {
-            await Promise.all([
-                faceapi.nets.tinyFaceDetector.loadFromUri(this.modelBaseUri),
-                faceapi.nets.faceLandmark68Net.loadFromUri(this.modelBaseUri),
-            ]);
-        } catch (error) {
-            const rawMessage = String(error?.message || error || '');
+        this.detectionModelLoadPromise = (async () => {
+            try {
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(this.modelBaseUri),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(this.modelBaseUri),
+                ]);
+            } catch (error) {
+                const rawMessage = String(error?.message || error || '');
 
-            if (
-                rawMessage.includes('Based on the provided shape')
-                || rawMessage.includes('tensor should have')
-                || rawMessage.includes('Failed to fetch')
-                || rawMessage.includes('404')
-            ) {
-                throw new Error('File model scan wajah di server tidak lengkap atau rusak. Hubungi admin untuk memperbarui model wajah.');
+                if (
+                    rawMessage.includes('Based on the provided shape')
+                    || rawMessage.includes('tensor should have')
+                    || rawMessage.includes('Failed to fetch')
+                    || rawMessage.includes('404')
+                ) {
+                    throw new Error('File model scan wajah di server tidak lengkap atau rusak. Hubungi admin untuk memperbarui model wajah.');
+                }
+
+                throw error;
             }
 
-            throw error;
+            this.detectionModelsLoaded = true;
+            this.modelsLoaded = this.recognitionModelsLoaded;
+            return true;
+        })();
+
+        try {
+            return await this.detectionModelLoadPromise;
+        } finally {
+            this.detectionModelLoadPromise = null;
+        }
+    }
+
+    async loadRecognitionModel() {
+        if (this.recognitionModelsLoaded) {
+            return true;
         }
 
-        this.detectionModelsLoaded = true;
-        this.modelsLoaded = this.recognitionModelsLoaded;
-        return true;
+        if (this.recognitionModelLoadPromise) {
+            return this.recognitionModelLoadPromise;
+        }
+
+        this.recognitionModelLoadPromise = (async () => {
+            try {
+                await faceapi.nets.faceRecognitionNet.loadFromUri(this.modelBaseUri);
+            } catch (error) {
+                const rawMessage = String(error?.message || error || '');
+
+                if (
+                    rawMessage.includes('Based on the provided shape')
+                    || rawMessage.includes('tensor should have')
+                    || rawMessage.includes('Failed to fetch')
+                    || rawMessage.includes('404')
+                ) {
+                    throw new Error('File model scan wajah di server tidak lengkap atau rusak. Hubungi admin untuk memperbarui model wajah.');
+                }
+
+                throw error;
+            }
+
+            return true;
+        })();
+
+        try {
+            return await this.recognitionModelLoadPromise;
+        } finally {
+            this.recognitionModelLoadPromise = null;
+        }
     }
 
     async initializeCamera(videoElement) {
@@ -217,7 +264,7 @@ class FaceRecognition {
     }
 
     async performAttendanceScan(videoElement, callbacks = {}) {
-        await this.loadModels();
+        await this.loadDetectionModels();
 
         this.emit(callbacks.onStatus, 'Kamera aktif. Pusatkan wajah di dalam oval.');
         this.emit(callbacks.onInstruction, 'Arahkan wajah ke dalam oval. Jika wajah sudah ada, scan akan berjalan langsung.');
@@ -226,10 +273,12 @@ class FaceRecognition {
             message: 'Menunggu wajah masuk ke dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 4200, 1, false);
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 800, 1, false);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
+
+        await this.loadRecognitionModel();
 
         const initialDescriptor = await this.captureFaceDescriptor(videoElement, {
             strict: true,
@@ -469,6 +518,10 @@ class FaceRecognition {
 
     async runAttendanceRiskScanSequence(videoElement, callbacks = {}) {
         const results = [];
+        const passiveSampleMs = 180;
+        const blinkTimeoutMs = 3200;
+        const steadyHoldMs = 120;
+        const steadyTimeoutMs = 1600;
 
         this.emit(callbacks.onInstruction, 'Posisikan wajah di dalam oval.');
         this.emit(callbacks.onChallengeState, 'align', 'active');
@@ -479,7 +532,7 @@ class FaceRecognition {
         });
         this.emit(callbacks.onChallengeState, 'align', 'done');
 
-        const passiveSignals = await this.collectPassiveSignals(videoElement, callbacks, 620);
+        const passiveSignals = await this.collectPassiveSignals(videoElement, callbacks, passiveSampleMs);
         results.push({
             type: 'lighting',
             passed: passiveSignals.lighting_passed,
@@ -505,7 +558,7 @@ class FaceRecognition {
         if (!blinkResult) {
             this.emit(callbacks.onInstruction, 'Tahan wajah lurus. Sistem menyiapkan deteksi kedip.');
             this.emit(callbacks.onStatus, 'Menyiapkan pembacaan kedip. Tahan posisi sebentar.');
-            blinkResult = await this.waitForBlinkChallenge(videoElement, callbacks);
+            blinkResult = await this.waitForBlinkChallenge(videoElement, callbacks, blinkTimeoutMs);
         } else {
             this.emit(callbacks.onInstruction, 'Kedipan sudah terbaca. Lanjut ke verifikasi berikutnya.');
             this.emit(callbacks.onStatus, 'Kedipan sudah terbaca otomatis.');
@@ -570,7 +623,7 @@ class FaceRecognition {
         this.emit(callbacks.onInstruction, 'Challenge selesai. Menyelesaikan verifikasi.');
         this.emit(callbacks.onStatus, 'Challenge wajah selesai. Menyelesaikan verifikasi.');
         this.emit(callbacks.onChallengeState, 'done', 'active');
-        await this.waitForSteadyFaceHold(videoElement, callbacks, 260, 1800);
+        await this.waitForSteadyFaceHold(videoElement, callbacks, steadyHoldMs, steadyTimeoutMs);
         this.emit(callbacks.onChallengeState, 'done', 'done');
         results.push({
             type: 'face_captured',
@@ -666,7 +719,7 @@ class FaceRecognition {
         throw new Error('Wajah belum terbaca dengan stabil. Coba tahan posisi wajah lebih tenang.');
     }
 
-    async waitForBlinkChallenge(videoElement, callbacks = {}, timeoutMs = 8000) {
+    async waitForBlinkChallenge(videoElement, callbacks = {}, timeoutMs = 3200) {
         const calibrationDeadline = Date.now() + 1800;
         const baselineSamples = [];
         const recentEars = [];

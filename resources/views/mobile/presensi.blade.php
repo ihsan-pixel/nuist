@@ -1370,7 +1370,7 @@
         }
 
         .selfie-stage[data-guide-state="steady"] .selfie-guide-oval {
-            transform: translateX(-50%) scale(0.996);
+            transform: translate(-50%, -50%) scale(0.996);
         }
 
         .selfie-stage[data-guide-state="success"] .selfie-guide-oval {
@@ -1379,15 +1379,15 @@
 
         @keyframes selfie-oval-pulse {
             0% {
-                transform: translateX(-50%) scale(0.98);
+                transform: translate(-50%, -50%) scale(0.98);
             }
 
             55% {
-                transform: translateX(-50%) scale(1.02);
+                transform: translate(-50%, -50%) scale(1.02);
             }
 
             100% {
-                transform: translateX(-50%) scale(1);
+                transform: translate(-50%, -50%) scale(1);
             }
         }
 
@@ -2255,6 +2255,12 @@
                 <span>{{ $verificationMode === 'face_scan' ? 'Kamera akan aktif otomatis saat modal dibuka.' : 'Kamera akan aktif otomatis saat modal dibuka.' }}</span>
             </div>
 
+            @if($verificationMode === 'face_scan')
+            <div class="text-center mb-2">
+                <span id="face-scan-ready-badge" class="badge bg-secondary">Menyiapkan model...</span>
+            </div>
+            @endif
+
             <div id="selfie-container" class="selfie-stage" data-guide-state="searching">
                 @if($verificationMode === 'face_scan')
                 <div class="selfie-guide">
@@ -2932,6 +2938,7 @@ window.addEventListener('load', function() {
     const faceLoadingOverlay = document.getElementById('face-loading-overlay');
     const faceLoadingTitle = document.getElementById('face-loading-title');
     const faceLoadingCopy = document.getElementById('face-loading-copy');
+    const faceScanReadyBadge = document.getElementById('face-scan-ready-badge');
     const selfieProgressItems = Array.from(document.querySelectorAll('.selfie-progress-item'));
     const selfieProgressFill = document.getElementById('selfie-progress-fill');
     const selfieProgressOrb = document.getElementById('selfie-progress-orb');
@@ -2944,6 +2951,46 @@ window.addEventListener('load', function() {
     let faceScanInProgress = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
+    let faceModelWarmupReady = false;
+
+    function setFaceModelReadyState(ready) {
+        faceModelWarmupReady = ready;
+        if (!faceScanReadyBadge) {
+            return;
+        }
+
+        faceScanReadyBadge.textContent = ready ? 'Model siap' : 'Menyiapkan model...';
+        faceScanReadyBadge.className = ready ? 'badge bg-success' : 'badge bg-secondary';
+
+        const captureBtn = document.getElementById('btn-capture-selfie');
+        if (captureBtn && faceScanRequired && faceScanReadyToStart && !faceScanInProgress) {
+            captureBtn.disabled = !ready;
+            captureBtn.innerHTML = ready
+                ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+                : '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan...';
+        }
+    }
+
+    if (faceScanRequired) {
+        const warmupModels = () => {
+            Promise.all([
+                faceScanner.loadDetectionModels(),
+                faceScanner.loadRecognitionModel(),
+            ]).then(() => {
+                setFaceModelReadyState(true);
+            }).catch((error) => {
+                console.warn('Face model warmup failed:', error);
+                setFaceModelReadyState(false);
+            });
+        };
+
+        setFaceModelReadyState(false);
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(warmupModels, { timeout: 1500 });
+        } else {
+            window.setTimeout(warmupModels, 300);
+        }
+    }
 
     function setFaceLoadingState(active, title = 'Menyiapkan sistem scan', copy = 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.') {
         if (!faceLoadingOverlay) {
@@ -3862,6 +3909,11 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
+                if (!faceModelWarmupReady) {
+                    setSelfieStatus('Model wajah masih disiapkan. Tunggu sebentar lalu coba lagi.');
+                    captureBtn.disabled = true;
+                    return;
+                }
                 faceScanReadyToStart = true;
                 captureBtn.style.display = 'inline-flex';
                 captureBtn.disabled = false;
