@@ -826,7 +826,7 @@
                     <button type="button" id="btn-enroll-face" class="btn-face" style="display:none;" disabled>
                         Kirim Wajah
                     </button>
-                    <button type="button" id="btn-retry-face" class="btn-face btn-face-secondary" style="display:none;" disabled>
+                    <button type="button" id="btn-retry-face" class="btn-face btn-face-secondary" disabled>
                         Ulangi
                     </button>
                 </div>
