@@ -2991,7 +2991,11 @@ window.addEventListener('load', function() {
 
     }
 
-    if (faceScanRequired) {
+    function warmupFaceModels() {
+        if (!faceScanner) {
+            return;
+        }
+
         const warmupModels = async () => {
             try {
                 setFaceModelReadyState(false, 0);
@@ -3012,6 +3016,8 @@ window.addEventListener('load', function() {
             window.setTimeout(warmupModels, 300);
         }
     }
+
+    warmupFaceModels();
 
     function setFaceLoadingState(active, title = 'Menyiapkan sistem scan', copy = 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.') {
         if (!faceLoadingOverlay) {
@@ -3900,9 +3906,11 @@ window.addEventListener('load', function() {
 
             stopSelfieStream();
 
-        if (faceScanRequired) {
-            await faceScanner.initializeCamera(video);
-            video.style.display = 'block';
+            await faceScanner.loadModels();
+
+            if (faceScanRequired) {
+                await faceScanner.initializeCamera(video);
+                video.style.display = 'block';
 
                 const placeholder = container.querySelector('.selfie-placeholder');
                 if (placeholder) {
