@@ -2972,6 +2972,7 @@ window.addEventListener('load', function() {
     let faceScanRetryTimer = null;
     let faceScanSessionId = 0;
     let faceScanCompleted = false;
+    let faceScanReadyToSubmit = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
@@ -3677,6 +3678,7 @@ window.addEventListener('load', function() {
         });
         updateFaceInstruction('Wajah cocok dengan data terdaftar.');
         setSelfieStatus('Wajah cocok. Presensi sedang dikirim.', 'success');
+        faceScanReadyToSubmit = true;
 
         return verification;
     }
@@ -3736,6 +3738,7 @@ window.addEventListener('load', function() {
         selfieCaptured = false;
         pendingSelfieData = '';
         faceScanCompleted = false;
+        faceScanReadyToSubmit = false;
         earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
         faceScanInProgress = false;
@@ -4100,6 +4103,7 @@ window.addEventListener('load', function() {
             selfieCaptured = true;
             if (faceScanRequired) {
                 faceScanCompleted = true;
+                faceScanReadyToSubmit = true;
                 if (faceScanRetryTimer) {
                     window.clearTimeout(faceScanRetryTimer);
                     faceScanRetryTimer = null;
@@ -4124,10 +4128,10 @@ window.addEventListener('load', function() {
             submitPresensiBtn.prop('disabled', false);
             if (faceScanRequired) {
                 window.setTimeout(() => {
-                    if (!presensiSubmitInFlight) {
+                    if (!presensiSubmitInFlight && faceScanReadyToSubmit) {
                         submitPresensiBtn.trigger('click');
                     }
-                }, 260);
+                }, 80);
             } else {
                 submitPresensiBtn.show();
             }
@@ -4313,7 +4317,7 @@ window.addEventListener('load', function() {
         const livenessScoreValue = document.getElementById('liveness-score').value;
         const livenessChallengesValue = document.getElementById('liveness-challenges').value;
 
-        const faceDataIncomplete = faceScanRequired && (!faceDescriptorValue || !livenessScoreValue || !livenessChallengesValue);
+        const faceDataIncomplete = faceScanRequired && (!faceDescriptorValue || !livenessScoreValue);
         if (!selfieDataValue || selfieDataValue.length < 100 || faceDataIncomplete) {
             presensiSubmitInFlight = false;
             submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
@@ -4370,7 +4374,7 @@ window.addEventListener('load', function() {
                 if (faceScanRequired) {
                     postData.face_descriptor = JSON.parse(faceDescriptorValue);
                     postData.liveness_score = parseFloat(livenessScoreValue);
-                    postData.liveness_challenges = JSON.parse(livenessChallengesValue);
+                    postData.liveness_challenges = livenessChallengesValue ? JSON.parse(livenessChallengesValue) : [];
                 }
 
                 // Update UI with final location data
