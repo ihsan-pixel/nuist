@@ -434,10 +434,6 @@
             background: linear-gradient(135deg, #003d3e 0%, #0c6a42 100%);
         }
 
-        #selfie-video {
-            transform: scaleX(-1); /* tampilan jadi seperti cermin */
-        }
-
         .status-detail-list {
             display: grid;
             gap: 10px;
@@ -683,7 +679,7 @@
             border: 0;
             background: transparent;
             border-radius: 0;
-            color: #34d399;
+            color: #60a5fa;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -966,6 +962,11 @@
             justify-content: center;
         }
 
+        .face-scan-mode .selfie-stage {
+            min-height: 100vh;
+            padding-bottom: 132px;
+        }
+
         .face-scan-mode .selfie-status-banner {
             display: none;
         }
@@ -1023,6 +1024,55 @@
             padding: 28px;
         }
 
+        .face-loading-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(4, 10, 16, 0.64);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            z-index: 3;
+            transition: opacity 220ms ease, visibility 220ms ease;
+        }
+
+        .face-loading-overlay[hidden] {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .face-loading-spinner {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.18);
+            border-top-color: #4ade80;
+            animation: face-loading-spin 0.8s linear infinite;
+        }
+
+        .face-loading-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .face-loading-copy {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.82);
+            text-align: center;
+            max-width: 220px;
+            line-height: 1.45;
+        }
+
+        @keyframes face-loading-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .selfie-placeholder i {
             font-size: 42px;
             margin-bottom: 10px;
@@ -1036,7 +1086,34 @@
             inset: 0;
             width: 100%;
             height: 100%;
+            object-fit: contain;
+        }
+
+        .face-scan-mode #selfie-video,
+        .face-scan-mode #selfie-preview {
             object-fit: cover;
+            object-position: center center;
+            transform: scaleX(-1) scale(1.5);
+            transform-origin: center center;
+        }
+
+        .face-scan-mode .selfie-guide-oval {
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: min(82vw, 352px);
+            height: min(110vw, 472px);
+        }
+
+        .face-scan-mode .selfie-guide-pill {
+            top: calc(50% - 282px);
+        }
+
+        .face-scan-mode .selfie-progress-orb {
+            top: 76%;
+        }
+
+        .face-scan-mode .selfie-guide-detail {
+            top: calc(76% + 92px);
         }
 
         .selfie-guide {
@@ -1050,8 +1127,8 @@
             position: absolute;
             left: 50%;
             top: 22%;
-            width: min(74vw, 332px);
-            height: min(102vw, 448px);
+            width: min(80vw, 364px);
+            height: min(110vw, 500px);
             transform: translateX(-50%);
             border: 3px solid rgba(255, 255, 255, 0.92);
             border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
@@ -1190,6 +1267,10 @@
             text-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
         }
 
+        .selfie-stage-copy {
+            margin-bottom: 10px;
+        }
+
         .selfie-progress-value,
         .selfie-progress-success,
         .selfie-progress-error {
@@ -1265,7 +1346,6 @@
         }
 
         .selfie-stage[data-guide-state="steady"] .selfie-guide-oval,
-        .selfie-stage[data-guide-state="aligned"] .selfie-guide-oval,
         .selfie-stage[data-guide-state="success"] .selfie-guide-oval {
             border-color: #4ade80;
             box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.34), 0 0 34px rgba(74, 222, 128, 0.26);
@@ -1281,13 +1361,12 @@
         }
 
         .selfie-stage[data-guide-state="steady"] .selfie-guide-pill,
-        .selfie-stage[data-guide-state="aligned"] .selfie-guide-pill,
         .selfie-stage[data-guide-state="success"] .selfie-guide-pill {
             color: rgba(220, 252, 231, 0.98);
         }
 
         .selfie-stage[data-guide-state="steady"] .selfie-guide-oval {
-            transform: translateX(-50%) scale(0.996);
+            transform: translate(-50%, -50%) scale(0.996);
         }
 
         .selfie-stage[data-guide-state="success"] .selfie-guide-oval {
@@ -1296,15 +1375,15 @@
 
         @keyframes selfie-oval-pulse {
             0% {
-                transform: translateX(-50%) scale(0.98);
+                transform: translate(-50%, -50%) scale(0.98);
             }
 
             55% {
-                transform: translateX(-50%) scale(1.02);
+                transform: translate(-50%, -50%) scale(1.02);
             }
 
             100% {
-                transform: translateX(-50%) scale(1);
+                transform: translate(-50%, -50%) scale(1);
             }
         }
 
@@ -1447,12 +1526,36 @@
         }
 
         .selfie-progress {
-            display: none;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+            margin-top: 10px;
         }
 
         .selfie-progress-item,
         .selfie-quality-item {
-            display: none;
+            display: block;
+        }
+
+        .selfie-progress-item {
+            border-radius: 999px;
+            padding: 6px 8px;
+            background: rgba(15, 23, 42, 0.08);
+            color: #64748b;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .selfie-progress-item.active {
+            background: rgba(14, 133, 73, 0.16);
+            color: #0e8549;
+            font-weight: 600;
+        }
+
+        .selfie-progress-item.done {
+            background: rgba(14, 133, 73, 0.22);
+            color: #0e8549;
+            font-weight: 700;
         }
 
         .selfie-progress-meter {
@@ -1503,7 +1606,7 @@
             padding: 0;
             background: transparent;
             backdrop-filter: none;
-            gap: 12px;
+            gap: 14px;
         }
 
         .selfie-footer-title,
@@ -1515,6 +1618,28 @@
 
         .face-scan-mode #btn-submit-presensi {
             display: none !important;
+        }
+
+        .face-scan-info-button {
+            position: absolute;
+            right: 18px;
+            bottom: 92px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(15, 23, 42, 0.72);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 8;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+            backdrop-filter: blur(12px);
+        }
+
+        .face-scan-info-button:active {
+            transform: scale(0.96);
         }
 
         .swal2-container {
@@ -1558,15 +1683,29 @@
                 top: 23%;
             }
 
+            .face-scan-mode .selfie-guide-oval {
+                top: 50%;
+                width: min(82vw, 292px);
+                height: min(108vw, 404px);
+            }
+
             .selfie-progress-orb {
                 top: 81%;
                 width: 68px;
                 height: 68px;
             }
 
+            .face-scan-mode .selfie-progress-orb {
+                top: 78%;
+            }
+
             .selfie-guide-pill {
                 top: calc(23% - 100px);
                 width: min(84vw, 286px);
+            }
+
+            .face-scan-mode .selfie-guide-pill {
+                top: calc(50% - 250px);
             }
 
             .selfie-guide-pill i {
@@ -1593,6 +1732,10 @@
                 top: calc(81% + 82px);
                 width: min(88vw, 292px);
                 font-size: 10px;
+            }
+
+            .face-scan-mode .selfie-guide-detail {
+                top: calc(78% + 82px);
             }
         }
     </style>
@@ -1851,25 +1994,16 @@
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($faceEnrollmentRequired && !$faceEnrollmentReady): ?>
         <div class="alert-custom warning">
             <div class="d-flex">
-                <i class="bx bx-scan text-warning me-2"></i>
+                
                 <div>
-                    <strong>Scan wajah belum aktif</strong>
-                    <p class="mb-2 text-muted">Wajah Anda belum terdaftar. Presensi kehadiran sekarang memakai scan wajah sebagai pengganti selfie.</p>
+                    
                     <a href="<?php echo e(route('mobile.face.enrollment')); ?>" class="btn-primary-custom">Daftar Wajah</a>
                 </div>
             </div>
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <div class="alert-custom info">
-            <div class="d-flex">
-                <i class="bx <?php echo e($verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera'); ?> text-info me-2"></i>
-                <div>
-                    <strong>Metode verifikasi mobile aktif: <?php echo e($verificationLabel); ?></strong>
-                    <p class="mb-0 text-muted"><?php echo e($faceVerificationState['description'] ?? ''); ?></p>
-                </div>
-            </div>
-        </div>
+        
 
         <div class="form-section">
             <button type="button" id="btn-presensi"
@@ -1888,76 +2022,7 @@
     </div>
 
     <!-- Time Information -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPenjagaSekolah): ?>
-    <div class="schedule-section">
-        <div class="compact-section-head">
-            <h6 class="section-title">Jadwal Presensi</h6>
-        </div>
-        <div class="schedule-item pulang">
-            <h6 class="text-success mb-1">Penjaga Sekolah</h6>
-            <p>24 Jam</p>
-            <small>Masuk dan keluar dapat dilakukan kapan saja.</small>
-        </div>
-    </div>
-    <?php elseif(isset($timeRanges) && $timeRanges): ?>
-    <div class="schedule-section">
-        <div class="compact-section-head">
-            <h6 class="section-title">Jadwal Presensi</h6>
-        </div>
-        <?php
-            // prefer madrasah-specific values when present
-            $ms = $user->madrasah ?? null;
-            $masukStart = $ms && $ms->presensi_masuk_start ? \Carbon\Carbon::parse($ms->presensi_masuk_start)->format('H:i') : ($timeRanges['masuk_start'] ? \Carbon\Carbon::parse($timeRanges['masuk_start'])->format('H:i') : '-');
-            $masukEnd = $ms && $ms->presensi_masuk_end ? \Carbon\Carbon::parse($ms->presensi_masuk_end)->format('H:i') : '07:00';
-            $pulangStart = null;
-            $pulangEnd = $ms && $ms->presensi_pulang_end ? \Carbon\Carbon::parse($ms->presensi_pulang_end)->format('H:i') : ($timeRanges['pulang_end'] ? \Carbon\Carbon::parse($timeRanges['pulang_end'])->format('H:i') : '22:00');
-
-            // Day specific overrides
-            $dayOfWeek = \Carbon\Carbon::parse($selectedDate)->dayOfWeek; // 0=Sun,5=Fri,6=Sat
-            if ($ms) {
-                if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
-                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i');
-                } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
-                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i');
-                } elseif ($ms->presensi_pulang_start) {
-                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_start)->format('H:i');
-                }
-            }
-
-            // fallback to controller-provided range if still null
-            if (!$pulangStart) {
-                $pulangStart = $timeRanges['pulang_start'] ? \Carbon\Carbon::parse($timeRanges['pulang_start'])->format('H:i') : '-';
-            }
-        ?>
-
-        <div class="schedule-grid">
-            <div class="schedule-item masuk">
-                <h6 class="text-primary">Masuk</h6>
-                <p><?php echo e($masukStart); ?> - <?php echo e($masukEnd); ?></p>
-                <small>Terlambat setelah 07:00</small>
-            </div>
-            <div class="schedule-item pulang">
-                <h6 class="text-success">Pulang</h6>
-                <p><?php echo e($pulangStart); ?> - <?php echo e($pulangEnd); ?></p>
-                <small>Mulai pukul <?php echo e($pulangStart); ?></small>
-            </div>
-        </div>
-        <div class="compact-note">
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ms && $ms->hari_kbm == '6' && $dayOfWeek == 6 && !$ms->presensi_pulang_sabtu): ?>
-                Jam pulang Sabtu belum diatur pada data madrasah.
-            <?php elseif($ms && $ms->hari_kbm == '6' && $dayOfWeek == 5 && !$ms->presensi_pulang_jumat): ?>
-                Jam pulang Jumat masih memakai pengaturan umum.
-            <?php else: ?>
-                Jadwal ditampilkan sesuai pengaturan madrasah untuk hari ini.
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        </div>
-    </div>
-    <?php else: ?>
-    <div class="alert-custom warning">
-        <i class="bx bx-info-circle me-1"></i>
-        <strong>Pengaturan Presensi:</strong> Hari KBM belum diatur. Hubungi admin.
-    </div>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    
 
 
 
@@ -2000,9 +2065,11 @@
                 </div>
             </div>
             <div class="selfie-modal-actions">
-                <button type="button" id="btn-retry-selfie-modal" class="selfie-modal-retry" aria-label="Ulangi scan" <?php echo e($verificationMode === 'face_scan' ? '' : 'hidden'); ?>>
-                    <i class="bx bx-refresh"></i>Ulangi
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($verificationMode === 'face_scan'): ?>
+                <button type="button" id="btn-retry-selfie-modal" class="selfie-modal-retry" aria-label="Panduan scan wajah">
+                    <i class="bx bx-info-circle"></i>
                 </button>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
 
@@ -2054,6 +2121,12 @@
                 <span><?php echo e($verificationMode === 'face_scan' ? 'Kamera akan aktif otomatis saat modal dibuka.' : 'Kamera akan aktif otomatis saat modal dibuka.'); ?></span>
             </div>
 
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($verificationMode === 'face_scan'): ?>
+            <div class="text-center mb-2">
+                <span id="face-scan-ready-badge" class="badge bg-secondary">Menyiapkan model...</span>
+            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
             <div id="selfie-container" class="selfie-stage" data-guide-state="searching">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($verificationMode === 'face_scan'): ?>
                 <div class="selfie-guide">
@@ -2086,9 +2159,14 @@
                         <span>Izinkan akses kamera jika diminta.</span>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
-                    <video id="selfie-video" autoplay playsinline style="display: none; object-fit: cover;"></video>
+                    <div class="face-loading-overlay" id="face-loading-overlay">
+                        <div class="face-loading-spinner" aria-hidden="true"></div>
+                        <div class="face-loading-title" id="face-loading-title">Menyiapkan sistem scan</div>
+                        <div class="face-loading-copy" id="face-loading-copy">Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.</div>
+                    </div>
+                    <video id="selfie-video" autoplay playsinline style="display: none; object-fit: contain;"></video>
                     <canvas id="selfie-canvas" style="display: none;"></canvas>
-                    <img id="selfie-preview" style="object-fit: cover; display: none;" alt="Preview Scan Wajah">
+                    <img id="selfie-preview" style="object-fit: contain; display: none;" alt="Preview Scan Wajah">
                 </div>
 
                 <div class="selfie-stage-copy">
@@ -2106,23 +2184,16 @@
                     <div class="selfie-progress">
                         <div class="selfie-progress-item" data-step="align">Posisikan</div>
                         <div class="selfie-progress-item" data-step="blink">Kedip</div>
-                        <div class="selfie-progress-item" data-step="challenge">Challenge</div>
-                        <div class="selfie-progress-item" data-step="done">Selesai</div>
+                        <div class="selfie-progress-item" data-step="done">Kirim</div>
                     </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($verificationMode === 'face_scan'): ?>
-                <button type="button" id="btn-face-scan-help" class="face-scan-help-button" aria-label="Buka panduan scan wajah">
-                    <i class="bx bx-info-circle"></i>
-                </button>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
             <input type="hidden" id="selfie-data" name="selfie_data">
             <input type="hidden" id="face-descriptor" name="face_descriptor">
             <input type="hidden" id="liveness-score" name="liveness_score">
-            <input type="hidden" id="liveness-challenges" name="liveness_challenges">
         </div>
 
         <div class="selfie-modal-footer">
@@ -2131,7 +2202,7 @@
                 <div class="selfie-progress-fill" id="selfie-progress-fill"></div>
             </div>
             <button type="button" id="btn-capture-selfie" class="presensi-btn" style="display: none;">
-                <i class="bx <?php echo e($verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera'); ?> me-1"></i><?php echo e($verificationMode === 'face_scan' ? 'Mulai Scan' : 'Ambil Foto'); ?>
+                <i class="bx <?php echo e($verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera'); ?> me-1"></i><?php echo e($verificationMode === 'face_scan' ? 'Siap Scan' : 'Ambil Foto'); ?>
 
             </button>
             <button type="button" id="btn-submit-presensi"
@@ -2141,6 +2212,11 @@
                 Kirim Presensi
             </button>
         </div>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($verificationMode === 'face_scan'): ?>
+        <button type="button" id="btn-face-scan-help" class="face-scan-info-button" aria-label="Buka panduan scan wajah">
+            <i class="bx bx-info-circle"></i>
+        </button>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </div>
 <?php $__env->stopSection(); ?>
@@ -2714,7 +2790,7 @@ window.addEventListener('load', function() {
     const faceScanOnboarding = document.getElementById('face-scan-onboarding');
     const faceScanOnboardingContinue = document.getElementById('btn-face-scan-onboarding-continue');
     const faceScanHelpButton = document.getElementById('btn-face-scan-help');
-    const faceScanner = new window.FaceRecognition();
+    const faceScanner = window.FaceRecognition ? new window.FaceRecognition() : null;
     let faceVerificationResult = null;
     const verificationMode = <?php echo json_encode($faceVerificationState['mode'] ?? 'selfie', 15, 512) ?>;
     const verificationLabel = <?php echo json_encode($faceVerificationState['label'] ?? 'Selfie', 15, 512) ?>;
@@ -2725,6 +2801,10 @@ window.addEventListener('load', function() {
     const selfieGuideText = document.getElementById('selfie-guide-text');
     const selfieGuideInstruction = document.getElementById('selfie-guide-instruction');
     const selfieGuideDetail = document.getElementById('selfie-guide-detail');
+    const faceLoadingOverlay = document.getElementById('face-loading-overlay');
+    const faceLoadingTitle = document.getElementById('face-loading-title');
+    const faceLoadingCopy = document.getElementById('face-loading-copy');
+    const faceScanReadyBadge = document.getElementById('face-scan-ready-badge');
     const selfieProgressItems = Array.from(document.querySelectorAll('.selfie-progress-item'));
     const selfieProgressFill = document.getElementById('selfie-progress-fill');
     const selfieProgressOrb = document.getElementById('selfie-progress-orb');
@@ -2732,12 +2812,79 @@ window.addEventListener('load', function() {
     let currentSelfieProgress = 0;
     let targetSelfieProgress = 0;
     let selfieProgressAnimationFrame = null;
-    let faceScanAutoStarted = false;
     let faceScanOnboardingAccepted = false;
+    let faceScanInProgress = false;
+    let faceScanRetryTimer = null;
+    let faceScanSessionId = 0;
+    let faceScanCompleted = false;
+    let faceScanReadyToSubmit = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
+    let faceModelWarmupReady = false;
+
+    function setFaceModelReadyState(ready, progress = null) {
+        faceModelWarmupReady = ready;
+        if (!faceScanReadyBadge) {
+            return;
+        }
+
+        if (progress !== null && !ready) {
+            faceScanReadyBadge.textContent = `Menyiapkan model ${progress}%`;
+        } else {
+            faceScanReadyBadge.textContent = ready ? 'Model siap 100%' : 'Menyiapkan model...';
+        }
+        faceScanReadyBadge.className = ready ? 'badge bg-success' : 'badge bg-secondary';
+
+    }
+
+    function warmupFaceModels() {
+        if (!faceScanner) {
+            return;
+        }
+
+        const warmupModels = async () => {
+            try {
+                setFaceModelReadyState(false, 0);
+                const warmupPromise = faceScanner.loadModels();
+                setFaceModelReadyState(false, 50);
+                await warmupPromise;
+                setFaceModelReadyState(true, 100);
+            } catch (error) {
+                console.warn('Face model warmup failed:', error);
+                setFaceModelReadyState(false, 0);
+            }
+        };
+
+        setFaceModelReadyState(false, 0);
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(warmupModels, { timeout: 1500 });
+        } else {
+            window.setTimeout(warmupModels, 300);
+        }
+    }
+
+    warmupFaceModels();
+
+    function setFaceLoadingState(active, title = 'Menyiapkan sistem scan', copy = 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.') {
+        if (!faceLoadingOverlay) {
+            return;
+        }
+
+        faceLoadingOverlay.hidden = !active;
+        if (active) {
+            if (faceLoadingTitle) {
+                faceLoadingTitle.textContent = title;
+            }
+            if (faceLoadingCopy) {
+                faceLoadingCopy.textContent = copy;
+            }
+        }
+    }
 
     function stopSelfieStream() {
+        if (!faceScanner) {
+            return;
+        }
         faceScanner.stopCamera(document.getElementById('selfie-video'));
         if (selfieStream && typeof selfieStream.getTracks === 'function') {
             selfieStream.getTracks().forEach(track => track.stop());
@@ -2877,6 +3024,16 @@ window.addEventListener('load', function() {
 
         return normalizedNotes === 'face_similarity_below_threshold'
             || normalizedMessage.includes('wajah tidak cocok');
+    }
+
+    function closeSelfieAndReturnToPage(resetState = true) {
+        closeSelfieModal(resetState);
+        window.setTimeout(() => {
+            const presensiButton = document.getElementById('btn-presensi');
+            if (presensiButton) {
+                presensiButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 120);
     }
 
     function resolveFaceInstructionMeta(message = '') {
@@ -3224,7 +3381,7 @@ window.addEventListener('load', function() {
         captureBtn.disabled = false;
         captureBtn.classList.add('retry-scan');
         captureBtn.style.display = 'inline-flex';
-        captureBtn.innerHTML = `<i class="bx bx-refresh me-1"></i>${label}`;
+        captureBtn.innerHTML = `<i class="bx bx-error-circle me-1"></i>${label}`;
     }
 
     function hideFaceScanRetryButton() {
@@ -3234,10 +3391,36 @@ window.addEventListener('load', function() {
         }
 
         captureBtn.classList.remove('retry-scan');
-        captureBtn.style.display = faceScanRequired ? 'none' : 'block';
-        captureBtn.innerHTML = faceScanRequired
-            ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
-            : '<i class="bx bx-camera me-1"></i>Ambil Foto';
+        if (faceScanRequired) {
+            captureBtn.style.display = 'none';
+            captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Siap Scan';
+        } else {
+            captureBtn.style.display = 'block';
+            captureBtn.innerHTML = '<i class="bx bx-camera me-1"></i>Ambil Foto';
+        }
+    }
+
+    function setFaceFrameState(state = 'searching') {
+        if (!selfieContainer) {
+            return;
+        }
+
+        selfieContainer.dataset.guideState = state;
+        if (!faceScanRequired) {
+            return;
+        }
+
+        if (state === 'success' || state === 'aligned' || state === 'steady' || state === 'processing') {
+            hideFaceScanRetryButton();
+            return;
+        }
+
+        if (state === 'warning' || state === 'error') {
+            showFaceScanRetryButton('Ulangi');
+            return;
+        }
+
+        hideFaceScanRetryButton();
     }
 
     function handleFaceScanVerificationRejection(message, notes = null) {
@@ -3257,7 +3440,6 @@ window.addEventListener('load', function() {
         const selfieDataInput = document.getElementById('selfie-data');
         const faceDescriptorInput = document.getElementById('face-descriptor');
         const livenessScoreInput = document.getElementById('liveness-score');
-        const livenessChallengesInput = document.getElementById('liveness-challenges');
 
         if (selfieDataInput) {
             selfieDataInput.value = '';
@@ -3268,18 +3450,15 @@ window.addEventListener('load', function() {
         if (livenessScoreInput) {
             livenessScoreInput.value = '';
         }
-        if (livenessChallengesInput) {
-            livenessChallengesInput.value = '';
-        }
-
         updateSelfieGuideState({
             state: 'warning',
             message: rejectionMessage,
         });
+        setFaceFrameState('warning');
         setSelfieProgressOrbState('error');
         setSelfieStatus(rejectionMessage, 'error');
         updateFaceInstruction(rejectionMessage);
-        showFaceScanRetryButton('Scan Ulang');
+        showFaceScanRetryButton('Ulangi');
 
         $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
 
@@ -3322,11 +3501,11 @@ window.addEventListener('load', function() {
         return payload;
     }
 
-    async function verifyFaceMatchBeforeChallenges(descriptor) {
+    async function verifyFaceMatchBeforeBlink(descriptor) {
         return requestFaceMatchVerification(descriptor, 1, []);
     }
 
-    async function verifyFaceMatchAfterChallenges(result) {
+    async function verifyFaceMatchAfterBlink(result) {
         updateSelfieGuideState({
             state: 'processing',
             message: 'Mencocokkan wajah dengan data terdaftar.',
@@ -3346,6 +3525,7 @@ window.addEventListener('load', function() {
             const error = new Error(message);
             error.notes = verification?.notes || 'face_similarity_below_threshold';
             error.similarity = verification?.similarity ?? null;
+            error.fatal = true;
             throw error;
         }
 
@@ -3355,6 +3535,7 @@ window.addEventListener('load', function() {
         });
         updateFaceInstruction('Wajah cocok dengan data terdaftar.');
         setSelfieStatus('Wajah cocok. Presensi sedang dikirim.', 'success');
+        faceScanReadyToSubmit = true;
 
         return verification;
     }
@@ -3368,7 +3549,6 @@ window.addEventListener('load', function() {
         const selfieDataInput = document.getElementById('selfie-data');
         const faceDescriptorInput = document.getElementById('face-descriptor');
         const livenessScoreInput = document.getElementById('liveness-score');
-        const livenessChallengesInput = document.getElementById('liveness-challenges');
         const placeholder = document.querySelector('#selfie-container .selfie-placeholder');
 
         if (video) {
@@ -3384,9 +3564,9 @@ window.addEventListener('load', function() {
         }
         if (captureBtn) {
             captureBtn.style.display = faceScanRequired ? 'none' : 'block';
-            captureBtn.disabled = !faceScanRequired;
+            captureBtn.disabled = false;
             captureBtn.innerHTML = faceScanRequired
-                ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+                ? '<i class="bx bx-scan me-1"></i>Siap Scan'
                 : '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
         }
         if (submitBtn) {
@@ -3403,9 +3583,6 @@ window.addEventListener('load', function() {
         if (livenessScoreInput) {
             livenessScoreInput.value = '';
         }
-        if (livenessChallengesInput) {
-            livenessChallengesInput.value = '';
-        }
         if (placeholder) {
             placeholder.style.display = 'flex';
         }
@@ -3413,9 +3590,11 @@ window.addEventListener('load', function() {
         stopSelfieStream();
         selfieCaptured = false;
         pendingSelfieData = '';
+        faceScanCompleted = false;
+        faceScanReadyToSubmit = false;
         earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
-        faceScanAutoStarted = false;
+        faceScanInProgress = false;
         faceScanOnboardingAccepted = !faceScanRequired;
         currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
         if (faceScanOnboarding) {
@@ -3524,6 +3703,7 @@ window.addEventListener('load', function() {
         } else {
             stopSelfieStream();
         }
+        setFaceLoadingState(false);
         selfieModal.classList.remove('show');
         selfieModal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('selfie-modal-open');
@@ -3539,6 +3719,7 @@ window.addEventListener('load', function() {
             updateSelfieQualityIndicators(payload.state);
             updateSelfieGuideTone(payload.state);
             updateSelfieProgressRing();
+            setFaceFrameState(payload.state);
         }
 
         if (selfieGuideText && payload.message) {
@@ -3557,6 +3738,9 @@ window.addEventListener('load', function() {
     // Initialize face scan camera
     async function initializeSelfieCamera() {
         try {
+            if (!faceScanner) {
+                throw new Error('Script face-recognition.js tidak termuat atau path asset salah.');
+            }
             const video = document.getElementById('selfie-video');
             const container = document.getElementById('selfie-container');
             const captureBtn = document.getElementById('btn-capture-selfie');
@@ -3568,10 +3752,21 @@ window.addEventListener('load', function() {
 
             stopSelfieStream();
 
+            await faceScanner.loadModels();
+
             if (faceScanRequired) {
-                updateFaceInstruction('Memuat model scan wajah. Mohon tunggu sebentar.');
-                await faceScanner.loadModels();
                 await faceScanner.initializeCamera(video);
+                video.style.display = 'block';
+
+                const placeholder = container.querySelector('.selfie-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+
+                setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
+                await faceScanner.loadModels();
+                setFaceLoadingState(false);
+                updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {
                 captureBtn.disabled = true;
                 captureBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
@@ -3591,6 +3786,7 @@ window.addEventListener('load', function() {
                 //updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
             }
             video.style.display = 'block';
+            setFaceLoadingState(false);
 
             const placeholder = container.querySelector('.selfie-placeholder');
             if (placeholder) {
@@ -3598,23 +3794,26 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
-                captureBtn.style.display = 'none';
-                setSelfieStatus('Kamera aktif. Tahan posisi wajah sebentar.');
-                updateFaceInstruction('Posisikan wajah di dalam oval lalu ikuti arahan scan wajah.');
-                updateSelfieGuideState({
-                    state: 'steady',
-                    message: 'Pusatkan wajah di dalam oval.',
-                });
-
-                if (!faceScanAutoStarted && selfieModal?.classList.contains('show')) {
-                    faceScanAutoStarted = true;
-                    window.setTimeout(() => {
-                        if (!selfieModal?.classList.contains('show') || selfieCaptured) {
-                            return;
-                        }
-                        captureSelfie();
-                    }, 220);
+                if (!faceModelWarmupReady) {
+                    setSelfieStatus('Model wajah masih disiapkan. Tunggu sebentar lalu coba lagi.');
+                    captureBtn.disabled = true;
+                    return;
                 }
+                captureBtn.style.display = 'none';
+                captureBtn.disabled = true;
+                setSelfieStatus('Kamera aktif. Scan dimulai otomatis saat wajah siap.');
+                updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
+                updateSelfieGuideState({
+                    state: 'searching',
+                    message: 'Arahkan wajah ke tengah oval. Scan akan dimulai otomatis.',
+                });
+                hideFaceScanRetryButton();
+                window.setTimeout(() => {
+                    if (!selfieModal?.classList.contains('show') || presensiSubmitInFlight) {
+                        return;
+                    }
+                    captureSelfie();
+                }, 120);
             } else {
                 captureBtn.style.display = 'block';
                 captureBtn.disabled = false;
@@ -3630,17 +3829,30 @@ window.addEventListener('load', function() {
     }
 
     async function captureSelfie() {
+        if (faceScanRequired && !faceScanner) {
+            showFormalErrorAlert(
+                'Library Scan Wajah Tidak Tersedia',
+                'File face-recognition.js belum termuat di halaman. Pastikan file ada di public root hosting dan URL /js/face-recognition.js bisa diakses.'
+            );
+            return;
+        }
+
+        const currentSessionId = ++faceScanSessionId;
         const video = document.getElementById('selfie-video');
         const canvas = document.getElementById('selfie-canvas');
         const selfieDataInput = document.getElementById('selfie-data');
         const faceDescriptorInput = document.getElementById('face-descriptor');
         const livenessScoreInput = document.getElementById('liveness-score');
-        const livenessChallengesInput = document.getElementById('liveness-challenges');
         const selfiePreview = document.getElementById('selfie-preview');
         const captureBtn = document.getElementById('btn-capture-selfie');
 
         if (faceScanRequired) {
             hideFaceScanRetryButton();
+        }
+
+        if (faceScanRetryTimer) {
+            window.clearTimeout(faceScanRetryTimer);
+            faceScanRetryTimer = null;
         }
 
         if (!faceScanRequired && selfieCaptured && pendingSelfieData.length >= 100) {
@@ -3649,14 +3861,18 @@ window.addEventListener('load', function() {
         }
 
         if (captureBtn) {
+            if (faceScanRequired && faceScanInProgress) {
+                return;
+            }
             captureBtn.disabled = true;
             captureBtn.innerHTML = faceScanRequired
-                ? '<i class="bx bx-loader-alt bx-spin me-1"></i>Memindai...'
+                ? '<i class="bx bx-scan me-1"></i>Siap Scan'
                 : '<i class="bx bx-loader-alt bx-spin me-1"></i>Mengambil...';
         }
 
         try {
             if (faceScanRequired) {
+                faceScanInProgress = true;
                 resetSelfieProgress();
                 setSelfieProgressOrbState('default');
                 faceVerificationResult = await faceScanner.performAttendanceScan(video, {
@@ -3666,9 +3882,9 @@ window.addEventListener('load', function() {
                         setSelfieStatus(message, inferSelfieStatusType(message));
                     },
                     onGuideState: (payload) => updateSelfieGuideState(payload),
-                    onFaceMatchCheck: (descriptor) => verifyFaceMatchBeforeChallenges(descriptor),
+                    onFaceMatchCheck: (descriptor) => verifyFaceMatchBeforeBlink(descriptor),
                 });
-                await verifyFaceMatchAfterChallenges(faceVerificationResult);
+                await verifyFaceMatchAfterBlink(faceVerificationResult);
             } else {
                 await waitForVideoFrame(video);
                 const ctx = canvas.getContext('2d');
@@ -3718,9 +3934,6 @@ window.addEventListener('load', function() {
             if (livenessScoreInput) {
                 livenessScoreInput.value = faceVerificationResult.liveness_score !== null ? String(faceVerificationResult.liveness_score) : '';
             }
-            if (livenessChallengesInput) {
-                livenessChallengesInput.value = faceVerificationResult.liveness_challenges ? JSON.stringify(faceVerificationResult.liveness_challenges) : '';
-            }
 
             if (selfiePreview) {
                 selfiePreview.src = faceVerificationResult.captured_image;
@@ -3740,6 +3953,12 @@ window.addEventListener('load', function() {
             stopSelfieStream();
             selfieCaptured = true;
             if (faceScanRequired) {
+                faceScanCompleted = true;
+                faceScanReadyToSubmit = true;
+                if (faceScanRetryTimer) {
+                    window.clearTimeout(faceScanRetryTimer);
+                    faceScanRetryTimer = null;
+                }
                 updateSelfieGuideState({
                     state: 'success',
                     message: 'Wajah cocok. Mengirim presensi.',
@@ -3760,21 +3979,19 @@ window.addEventListener('load', function() {
             submitPresensiBtn.prop('disabled', false);
             if (faceScanRequired) {
                 window.setTimeout(() => {
-                    if (!presensiSubmitInFlight) {
+                    if (!presensiSubmitInFlight && faceScanReadyToSubmit) {
                         submitPresensiBtn.trigger('click');
                     }
-                }, 260);
+                }, 80);
             } else {
                 submitPresensiBtn.show();
             }
         } catch (error) {
             console.error('Face scan failed:', error);
             const errorMessage = error?.message || (faceScanRequired ? 'Scan wajah belum berhasil.' : 'Selfie belum berhasil diambil.');
-            const shouldAutoRetry = faceScanRequired && isRetryableFaceScanError(errorMessage);
             const verificationRejected = faceScanRequired && (
                 isFaceMismatchRejection(errorMessage, error?.notes)
                 || error?.notes === 'liveness_below_threshold'
-                || error?.notes === 'challenge_payload_invalid'
             );
 
             if (!faceScanRequired) {
@@ -3783,56 +4000,62 @@ window.addEventListener('load', function() {
                     errorMessage || 'Selfie belum berhasil diambil. Silakan ulangi.'
                 );
             }
-            setSelfieStatus(
-                shouldAutoRetry
-                    ? 'Instruksi salah. Scan diulang dari awal.'
-                    : errorMessage,
-                'error'
-            );
-            if (faceScanRequired) {
+            if (!faceScanRequired) {
+                setSelfieStatus(errorMessage, 'error');
                 setSelfieProgressOrbState('error');
             }
-            updateFaceInstruction(faceScanRequired
-                ? (shouldAutoRetry ? 'Instruksi salah. Mengulang scan dari awal.' : errorMessage)
-                : 'Ulangi pengambilan selfie.');
-
-            if (verificationRejected) {
-                updateSelfieGuideState({
-                    state: 'warning',
-                    message: errorMessage,
-                });
-                showFaceScanRetryButton('Scan Ulang');
+            if (faceScanRequired) {
+                updateFaceInstruction('Scan diulang otomatis. Arahkan wajah ke tengah frame.');
+            } else {
+                updateFaceInstruction('Ulangi pengambilan selfie.');
             }
 
-            if (shouldAutoRetry) {
-                window.setTimeout(() => {
+            if (faceScanRequired) {
+                if (error?.fatal || verificationRejected) {
+                    setSelfieStatus(errorMessage, 'error');
+                    showFormalErrorAlert(
+                        'Wajah Tidak Cocok',
+                        showFormalRejectMessage(errorMessage, 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.')
+                    ).then(() => {
+                        closeSelfieAndReturnToPage();
+                    });
+                    return;
+                }
+
+                if (faceScanCompleted) {
+                    return;
+                }
+
+                if (faceScanRetryTimer) {
+                    window.clearTimeout(faceScanRetryTimer);
+                }
+
+                faceScanRetryTimer = window.setTimeout(() => {
+                    if (currentSessionId !== faceScanSessionId) {
+                        return;
+                    }
                     if (!selfieModal?.classList.contains('show')) {
                         return;
                     }
 
                     resetSelfieProgress();
                     updateSelfieGuideState({
-                        state: 'steady',
-                        message: 'Pusatkan wajah di dalam oval.',
+                        state: 'searching',
+                        message: 'Arahkan wajah ke dalam oval. Scan akan diulang otomatis.',
                     });
-                    updateFaceInstruction('Mengulang scan dari awal. Ikuti instruksi berikutnya.');
-                    setSelfieStatus('Scan diulang dari awal.', 'info');
-                }, 520);
-
-                window.setTimeout(() => {
-                    if (!selfieModal?.classList.contains('show') || !captureBtn) {
-                        return;
-                    }
-
+                    setFaceFrameState('searching');
+                    updateFaceInstruction('Scan berjalan otomatis. Arahkan wajah ke dalam frame.');
+                    setSelfieStatus('Scan berjalan otomatis. Arahkan wajah ke dalam frame.', 'info');
                     captureSelfie();
-                }, 860);
+                }, 520);
             }
         } finally {
+            faceScanInProgress = false;
             if (captureBtn) {
                 captureBtn.disabled = false;
                 if (!captureBtn.classList.contains('retry-scan')) {
                     captureBtn.innerHTML = faceScanRequired
-                        ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+                        ? '<i class="bx bx-scan me-1"></i>Siap Scan'
                         : '<i class="bx bx-camera me-1"></i>Ambil Foto';
                 }
             }
@@ -3945,9 +4168,7 @@ window.addEventListener('load', function() {
         const selfieDataValue = pendingSelfieData || document.getElementById('selfie-data').value;
         const faceDescriptorValue = document.getElementById('face-descriptor').value;
         const livenessScoreValue = document.getElementById('liveness-score').value;
-        const livenessChallengesValue = document.getElementById('liveness-challenges').value;
-
-        const faceDataIncomplete = faceScanRequired && (!faceDescriptorValue || !livenessScoreValue || !livenessChallengesValue);
+        const faceDataIncomplete = faceScanRequired && (!faceDescriptorValue || !livenessScoreValue);
         if (!selfieDataValue || selfieDataValue.length < 100 || faceDataIncomplete) {
             presensiSubmitInFlight = false;
             submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
@@ -4004,7 +4225,6 @@ window.addEventListener('load', function() {
                 if (faceScanRequired) {
                     postData.face_descriptor = JSON.parse(faceDescriptorValue);
                     postData.liveness_score = parseFloat(livenessScoreValue);
-                    postData.liveness_challenges = JSON.parse(livenessChallengesValue);
                 }
 
                 // Update UI with final location data

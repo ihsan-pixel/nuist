@@ -2,29 +2,81 @@
 <?php $__env->startSection('subtitle', 'Aktifkan Scan Wajah'); ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="container py-0 px-0" style="max-width: 100%; margin: auto;">
+<div class="container py-0 px-0 face-enrollment-shell" style="max-width: 100%; margin: auto;">
     <style>
         body {
-            background: #000;
+            background: rgba(0, 0, 0, 0.82);
             font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        html,
+        body,
+        .container {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+        }
+
+        .mobile-content {
+            padding: 0 !important;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-content > .container-fluid {
+            height: 100%;
+            min-height: 100%;
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .face-card {
-            background: transparent;
-            border-radius: 0;
+            background: #000;
+            border-radius: 24px;
             padding: 0;
-            box-shadow: none;
+            box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
             border: 0;
             margin-bottom: 0;
             color: #f8fafc;
+            width: min(100%, 420px);
+            height: min(92vh, 760px);
+            max-height: 92vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .face-enrollment-shell {
+            position: fixed;
+            inset: 0;
+            z-index: 2200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.82);
         }
 
         .face-stage {
             --scan-progress: 0%;
             position: relative;
-            min-height: 100vh;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
             background: #000;
             overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
         }
 
         .face-stage::before {
@@ -42,7 +94,6 @@
 
         .face-scan-status span {
             display: inline-block;
-            min-height: 0;
             padding: 0;
             border-radius: 0;
             background: transparent;
@@ -51,9 +102,11 @@
         }
 
         .face-camera-layer {
-            position: relative;
+            position: absolute;
+            inset: 0;
             width: 100%;
-            min-height: 100vh;
+            height: 100%;
+            min-height: 100%;
         }
 
         .face-placeholder,
@@ -112,9 +165,9 @@
         .face-guide-oval {
             position: absolute;
             left: 50%;
-            top: 13%;
-            width: min(74vw, 332px);
-            height: min(102vw, 448px);
+            top: 14%;
+            width: min(74vw, 336px);
+            height: min(102vw, 456px);
             transform: translateX(-50%);
             border: 3px solid rgba(255, 255, 255, 0.92);
             border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
@@ -208,7 +261,7 @@
             position: absolute;
             left: 16px;
             right: 16px;
-            bottom: 22px;
+            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 4px);
             z-index: 3;
             padding: 0;
             background: transparent;
@@ -256,7 +309,7 @@
             --progress-track: rgba(255, 255, 255, 0.16);
             position: absolute;
             left: 50%;
-            top: 73.5%;
+            top: 79%;
             transform: translateX(-50%);
             z-index: 3;
             width: 74px;
@@ -493,11 +546,22 @@
         }
 
         .btn-face-secondary {
-            display: none !important;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: none;
         }
 
         .face-actions {
             margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .face-actions .btn-face {
+            width: 100%;
+            display: block;
         }
 
         .face-onboarding {
@@ -650,7 +714,7 @@
         .face-help-button {
             position: absolute;
             right: 18px;
-            bottom: 92px;
+            bottom: calc(max(18px, env(safe-area-inset-bottom)) + 88px);
             z-index: 8;
             width: 44px;
             height: 44px;
@@ -671,8 +735,12 @@
         }
 
         @media (max-width: 380px) {
+            .face-enrollment-shell {
+                padding: 10px;
+            }
+
             .face-stage {
-                min-height: 100vh;
+                min-height: 0;
             }
 
             .face-feedback span {
@@ -680,19 +748,19 @@
             }
 
             .face-guide-oval {
-                width: min(78vw, 286px);
-                height: min(104vw, 396px);
-                top: 15%;
+                width: min(78vw, 292px);
+                height: min(108vw, 404px);
+                top: 16%;
             }
 
             .face-progress-orb {
-                top: 76%;
+                top: 79%;
                 width: 68px;
                 height: 68px;
             }
 
             .face-guide-pill {
-                top: calc(76% + 84px);
+                top: calc(79% + 84px);
                 width: min(86vw, 314px);
                 padding: 12px 16px 14px;
             }
@@ -707,6 +775,11 @@
                 width: 48px;
                 height: 48px;
                 font-size: 14px;
+            }
+
+            .face-help-button {
+                bottom: calc(max(18px, env(safe-area-inset-bottom)) + 82px);
+                right: 14px;
             }
         }
     </style>
@@ -802,7 +875,10 @@
                         Mulai Scan
                     </button>
                     <button type="button" id="btn-enroll-face" class="btn-face" style="display:none;" disabled>
-                        Simpan Wajah
+                        Kirim Wajah
+                    </button>
+                    <button type="button" id="btn-retry-face" class="btn-face btn-face-secondary" style="display:none;" disabled>
+                        Ulangi
                     </button>
                 </div>
             </div>
@@ -831,6 +907,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const instruction = document.getElementById('face-instruction');
     const startCameraButton = document.getElementById('btn-start-face-camera');
     const enrollButton = document.getElementById('btn-enroll-face');
+    const retryButton = document.getElementById('btn-retry-face');
     const progressItems = Array.from(document.querySelectorAll('.face-progress-item'));
     const faceStage = document.getElementById('face-stage');
     const faceGuideText = document.getElementById('face-guide-text');
@@ -844,6 +921,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let cameraReady = false;
     let enrollmentResult = null;
     let onboardingAccepted = false;
+    let faceModelWarmupPromise = null;
     let captureProgress = 0;
     let currentProgress = 0;
     let targetProgress = 0;
@@ -1020,6 +1098,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function warmupFaceModels() {
+        if (!faceRecognition) {
+            return Promise.resolve();
+        }
+
+        if (!faceModelWarmupPromise) {
+            faceModelWarmupPromise = faceRecognition.loadModels().catch((error) => {
+                console.warn('Face enrollment warmup failed:', error);
+                return null;
+            });
+        }
+
+        return faceModelWarmupPromise;
+    }
+
     function resetEnrollmentState() {
         enrollmentResult = null;
         preview.src = '';
@@ -1027,6 +1120,10 @@ document.addEventListener('DOMContentLoaded', function () {
         video.style.display = cameraReady ? 'block' : 'none';
         enrollButton.disabled = true;
         enrollButton.style.display = 'none';
+        if (retryButton) {
+            retryButton.disabled = true;
+            retryButton.style.display = 'none';
+        }
         startCameraButton.style.display = 'block';
         resetProgress();
         if (faceStage) {
@@ -1040,8 +1137,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             setInstruction('Memuat kamera dan model wajah.');
             setStatus('Menyiapkan kamera.');
-            await faceRecognition.loadModels();
-            await faceRecognition.initializeCamera(video);
+            await Promise.all([
+                warmupFaceModels(),
+                faceRecognition.initializeCamera(video),
+            ]);
 
             cameraReady = true;
             placeholder.style.display = 'none';
@@ -1063,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', function () {
         startCameraButton.style.display = 'block';
         enrollButton.style.display = 'none';
         startCameraButton.disabled = true;
-        startCameraButton.textContent = 'Memindai...';
+        startCameraButton.textContent = 'menyiapkan...';
 
         if (!cameraReady) {
             await activateCamera();
@@ -1099,8 +1198,12 @@ document.addEventListener('DOMContentLoaded', function () {
             faceRecognition.stopCamera(video);
             cameraReady = false;
             enrollButton.disabled = false;
-            setInstruction('Wajah sudah diambil otomatis. Periksa hasilnya lalu tekan Simpan Wajah.');
-            setStatus('Wajah berhasil diambil. Konfirmasi simpan wajah.');
+            if (retryButton) {
+                retryButton.disabled = false;
+                retryButton.style.display = 'block';
+            }
+            setInstruction('Wajah sudah diambil otomatis. Periksa hasilnya lalu tekan Kirim Wajah.');
+            setStatus('Wajah berhasil diambil. Gunakan ulangi jika perlu atau kirim wajah.');
             updateGuideState({
                 state: 'success',
                 message: 'Wajah berhasil diambil otomatis.',
@@ -1124,6 +1227,10 @@ document.addEventListener('DOMContentLoaded', function () {
             setProgressOrbState('error');
             startCameraButton.style.display = 'block';
             startCameraButton.textContent = 'Mulai Scan';
+            if (retryButton) {
+                retryButton.style.display = 'none';
+                retryButton.disabled = true;
+            }
         } finally {
             startCameraButton.disabled = false;
             if (startCameraButton.style.display !== 'none') {
@@ -1138,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         enrollButton.disabled = true;
-        enrollButton.textContent = 'Menyimpan...';
+        enrollButton.textContent = 'Mengirim...';
 
         try {
             const response = await fetch(enrollUrl, {
@@ -1171,7 +1278,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1200);
         } catch (error) {
             enrollButton.disabled = false;
-            enrollButton.textContent = 'Simpan Wajah';
+            enrollButton.textContent = 'Kirim Wajah';
             setStatus(error.message || 'Pendaftaran wajah gagal disimpan.', 'error');
             showSimpleAlert(error.message || 'Pendaftaran wajah gagal disimpan.', 'error');
         }
@@ -1203,8 +1310,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 startCameraButton.disabled = false;
                 startCameraButton.focus();
             }
+            warmupFaceModels();
         });
     }
+
+    warmupFaceModels();
 
     if (faceHelpButton) {
         faceHelpButton.addEventListener('click', function () {
@@ -1220,6 +1330,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     enrollButton.addEventListener('click', submitEnrollment);
+    if (retryButton) {
+        retryButton.addEventListener('click', function () {
+            resetEnrollmentState();
+            if (onboarding) {
+                onboarding.hidden = false;
+            }
+            if (startCameraButton) {
+                startCameraButton.disabled = false;
+                startCameraButton.textContent = 'Mulai Scan';
+                startCameraButton.focus();
+            }
+        });
+    }
 
     updateGuideTone('searching');
     updateProgressRing();

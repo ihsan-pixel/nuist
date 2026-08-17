@@ -236,6 +236,18 @@
                         <span>Data Presensi</span>
                     </a>
                 </li>
+                <li>
+                    <a href="<?php echo e(route('presensi_admin.kiosk_devices', ['madrasah_id' => auth()->user()->madrasah_id])); ?>" class="waves-effect">
+                        <i class="bx bx-devices"></i>
+                        <span>Perangkat Kiosk</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo e(route('admin.monitor-jurnal-mengajar')); ?>" class="waves-effect">
+                        <i class="bx bx-book-open"></i>
+                        <span>Monitoring Jurnal</span>
+                    </a>
+                </li>
                 <?php elseif($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'): ?>
                 <li>
                     <a href="<?php echo e(route('presensi_admin.index')); ?>" class="waves-effect">

@@ -99,7 +99,6 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                 </div>
 
                 <div class="action-stack">
-                    <a class="action-btn action-btn-primary" href="<?php echo e(route('mobile.register')); ?>">Sign Up</a>
                     <button
                         type="button"
                         class="action-btn action-btn-secondary"

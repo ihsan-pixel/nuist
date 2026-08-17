@@ -195,42 +195,42 @@
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('kiosk_registration')): ?>
-                    <?php ($registration = session('kiosk_registration')); ?>
+                    <?php($registration = session('kiosk_registration'))
                         <div class="alert alert-info">
                             <div class="fw-semibold mb-2">Perangkat baru berhasil didaftarkan</div>
                             <div class="small text-muted mb-2">
-                            Komputer ini sudah terhubung ke perangkat <strong><?php echo e($registration['device_name']); ?></strong> untuk <?php echo e($registration['madrasah_name']); ?>.
+                            Komputer ini sudah terhubung ke perangkat <strong>{{ $registration['device_name'] }}</strong> untuk {{ $registration['madrasah_name'] }}.
                             </div>
-                            <div class="token-box"><?php echo e($registration['plain_token']); ?></div>
+                            <div class="token-box">{{ $registration['plain_token'] }}</div>
                             <div class="small mt-2 mb-0 text-muted">
                                 Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
                             </div>
                     </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                @endif
 
                 <div class="row g-3 mb-4">
                     <div class="col-md-6 col-xl-3">
                         <div class="summary-box">
                             <div class="summary-label">Total Perangkat</div>
-                            <div class="summary-value"><?php echo e($stats['total_devices']); ?></div>
+                            <div class="summary-value">{{ $stats['total_devices'] }}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="summary-box">
                             <div class="summary-label">Perangkat Aktif</div>
-                            <div class="summary-value"><?php echo e($stats['active_devices']); ?></div>
+                            <div class="summary-value">{{ $stats['active_devices'] }}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="summary-box">
                             <div class="summary-label">Submit Berhasil Hari Ini</div>
-                            <div class="summary-value"><?php echo e($stats['submit_success_today']); ?></div>
+                            <div class="summary-value">{{ $stats['submit_success_today'] }}</div>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="summary-box">
                             <div class="summary-label">Akses Ditolak Hari Ini</div>
-                            <div class="summary-value"><?php echo e($stats['access_denied_today']); ?></div>
+                            <div class="summary-value">{{ $stats['access_denied_today'] }}</div>
                         </div>
                     </div>
                 </div>
@@ -242,42 +242,41 @@
                                 <div class="kiosk-title">Daftarkan Komputer</div>
                                 <p class="kiosk-subtitle mb-4">Pendaftaran dilakukan dari komputer yang akan dijadikan kiosk presensi.</p>
 
-                                <form method="POST" action="<?php echo e(route('presensi_admin.kiosk_devices.store')); ?>">
-                                    <?php echo csrf_field(); ?>
+                                <form method="POST" action="{{ route('presensi_admin.kiosk_devices.store') }}">
+                                    @csrf
 
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canChooseMadrasah): ?>
+                                    @if($canChooseMadrasah)
                                         <div class="mb-3">
                                             <label class="form-label">Madrasah</label>
                                             <select name="madrasah_id" class="form-select" required>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $school): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                                    <option value="<?php echo e($school->id); ?>" <?php echo e((int) old('madrasah_id', $selectedMadrasahId) === (int) $school->id ? 'selected' : ''); ?>>
-                                                        <?php echo e($school->name); ?>
-
+                                                @foreach($schools as $school)
+                                                    <option value="{{ $school->id }}" {{ (int) old('madrasah_id', $selectedMadrasahId) === (int) $school->id ? 'selected' : '' }}>
+                                                        {{ $school->name }}
                                                     </option>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                @endforeach
                                             </select>
                                         </div>
-                                    <?php else: ?>
-                                        <input type="hidden" name="madrasah_id" value="<?php echo e($selectedMadrasahId); ?>">
+                                    @else
+                                        <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
                                         <div class="mb-3">
                                             <label class="form-label">Madrasah</label>
                                             <input
                                                 type="text"
                                                 class="form-control"
-                                                value="<?php echo e(optional($schools->firstWhere('id', $selectedMadrasahId))->name ?? 'Madrasah'); ?>"
+                                                value="{{ optional($schools->firstWhere('id', $selectedMadrasahId))->name ?? 'Madrasah' }}"
                                                 readonly
                                             >
                                         </div>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    @endif
 
                                     <div class="mb-3">
                                         <label class="form-label">Nama Komputer</label>
-                                        <input type="text" name="name" class="form-control" placeholder="Contoh: Front Office Kiosk 1" value="<?php echo e(old('name')); ?>" required>
+                                        <input type="text" name="name" class="form-control" placeholder="Contoh: Front Office Kiosk 1" value="{{ old('name') }}" required>
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">IP yang Diizinkan</label>
-                                        <textarea name="allowed_ip_addresses" class="form-control" rows="3" placeholder="Kosongkan untuk memakai IP saat ini"><?php echo e(old('allowed_ip_addresses', $currentIp)); ?></textarea>
+                                        <textarea name="allowed_ip_addresses" class="form-control" rows="3" placeholder="Kosongkan untuk memakai IP saat ini">{{ old('allowed_ip_addresses', $currentIp) }}</textarea>
                                         <div class="form-text">Pisahkan lebih dari satu IP dengan koma atau baris baru.</div>
                                     </div>
 
@@ -303,18 +302,17 @@
                                         <p class="kiosk-subtitle">Daftar komputer presensi yang sudah diizinkan untuk sekolah terpilih.</p>
                                     </div>
 
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canChooseMadrasah): ?>
-                                        <form method="GET" action="<?php echo e(route('presensi_admin.kiosk_devices')); ?>">
+                                    @if($canChooseMadrasah)
+                                        <form method="GET" action="{{ route('presensi_admin.kiosk_devices') }}">
                                             <select name="madrasah_id" class="form-select" onchange="this.form.submit()">
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $school): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                                    <option value="<?php echo e($school->id); ?>" <?php echo e((int) $selectedMadrasahId === (int) $school->id ? 'selected' : ''); ?>>
-                                                        <?php echo e($school->name); ?>
-
+                                                @foreach($schools as $school)
+                                                    <option value="{{ $school->id }}" {{ (int) $selectedMadrasahId === (int) $school->id ? 'selected' : '' }}>
+                                                        {{ $school->name }}
                                                     </option>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                @endforeach
                                             </select>
                                         </form>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    @endif
                                 </div>
 
                                 <div class="table-responsive">
@@ -330,42 +328,48 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $devices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $device): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                            @forelse($devices as $device)
                                                 <tr>
                                                     <td>
-                                                        <div class="device-name"><?php echo e($device->name); ?></div>
+                                                        <div class="device-name">{{ $device->name }}</div>
                                                         <div class="device-meta">
-                                                            Didaftarkan oleh <?php echo e($device->registeredBy?->name ?? '-'); ?>
-
+                                                            Didaftarkan oleh {{ $device->registeredBy?->name ?? '-' }}
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div class="device-name"><?php echo e($device->madrasah?->name ?? '-'); ?></div>
+                                                        <div class="device-name">{{ $device->madrasah?->name ?? '-' }}</div>
                                                         <div class="device-meta">
-                                                            <?php echo e($device->madrasah?->kabupaten ?: 'Kabupaten belum diatur'); ?>
-
-                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($device->madrasah?->scod): ?>
-                                                                • SCOD <?php echo e($device->madrasah->scod); ?>
-
-                                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                            {{ $device->madrasah?->kabupaten ?: 'Kabupaten belum diatur' }}
+                                                            @if($device->madrasah?->scod)
+                                                                • SCOD {{ $device->madrasah->scod }}
+                                                            @endif
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div><?php echo e(collect($device->allowed_ip_addresses ?? [])->join(', ') ?: '-'); ?></div>
-                                                        <div class="device-meta">Terakhir: <?php echo e($device->last_ip_address ?: '-'); ?></div>
+                                                        <div>{{ collect($device->allowed_ip_addresses ?? [])->join(', ') ?: '-' }}</div>
+                                                        <div class="device-meta">Terakhir: {{ $device->last_ip_address ?: '-' }}</div>
                                                     </td>
                                                     <td>
-                                                        <div><?php echo e($device->last_seen_at?->format('d/m/Y H:i') ?: '-'); ?></div>
+                                                        <div>{{ $device->last_seen_at?->format('d/m/Y H:i') ?: '-' }}</div>
                                                         <div class="device-meta text-truncate" style="max-width: 180px;">
-                                                            <?php echo e($device->last_user_agent ?: '-'); ?>
-
+                                                            {{ $device->last_user_agent ?: '-' }}
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <span class="badge <?php echo e($device->is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'); ?>">
-                                                            <?php echo e($device->is_active ? 'Aktif' : 'Nonaktif'); ?>
+                                                        @php
+                                                            $deviceAllowedIps = collect($device->allowed_ip_addresses ?? [])->filter()->values();
+                                                            $ipMatches = $deviceAllowedIps->contains((string) $currentIp);
+                                                        ?>
+                                                        <div class="d-flex flex-column gap-2">
+                                                            <span class="badge <?php echo e($device->is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'); ?>">
+                                                                <?php echo e($device->is_active ? 'Aktif' : 'Nonaktif'); ?>
 
-                                                        </span>
+                                                            </span>
+                                                            <span class="badge <?php echo e($ipMatches ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'); ?>">
+                                                                <?php echo e($ipMatches ? 'IP Sesuai' : 'IP Belum Sesuai'); ?>
+
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                     <td class="text-end">
                                                         <div class="d-inline-flex gap-2">
@@ -383,6 +387,15 @@
 
                                                                 </button>
                                                             </form>
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($device->is_active && $ipMatches): ?>
+                                                                <a href="<?php echo e(route('school-kiosk.index')); ?>" class="btn btn-sm btn-primary">
+                                                                    Buka Mode Kiosk
+                                                                </a>
+                                                            <?php else: ?>
+                                                                <button type="button" class="btn btn-sm btn-primary" disabled>
+                                                                    Buka Mode Kiosk
+                                                                </button>
+                                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                             <form method="POST" action="<?php echo e(route('presensi_admin.kiosk_devices.destroy', $device)); ?>" onsubmit="return confirm('Hapus perangkat <?php echo e(addslashes($device->name)); ?>?');">
                                                                 <?php echo csrf_field(); ?>
                                                                 <?php echo method_field('DELETE'); ?>
@@ -393,7 +406,7 @@
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_0): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                                 <tr>
                                                     <td colspan="6" class="text-center text-muted py-4">
                                                         Belum ada komputer presensi yang terdaftar.
@@ -428,7 +441,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $logs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $log): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_0 = true; $__currentLoopData = $logs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $log): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_0 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                         <tr>
                                             <td><?php echo e($log->created_at?->format('d/m/Y H:i') ?: '-'); ?></td>
                                             <td><?php echo e(str_replace('_', ' ', $log->action)); ?></td>
@@ -447,7 +460,7 @@
 
                                             </td>
                                         </tr>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_0): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                         <tr>
                                             <td colspan="8" class="text-center text-muted py-4">
                                                 Belum ada aktivitas kiosk yang tercatat.

@@ -18,7 +18,7 @@
                             <h5 class="text-white">Selamat Datang!</h5>
                             <p class="mb-0 text-white-50">Aplikasi NUIST</p>
                         </div>
-                    </div>s
+                    </div>
                     <div class="col-4 text-end">
                         
                     </div>
@@ -1142,6 +1142,5 @@
     });
 </script>
 <?php $__env->stopSection(); ?>
-
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/dashboard/index.blade.php ENDPATH**/ ?>
