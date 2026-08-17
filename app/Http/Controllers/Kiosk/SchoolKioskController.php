@@ -100,7 +100,7 @@ class SchoolKioskController extends Controller
             'accessMessage' => $accessMessage,
             'teacherCount' => $teachers->count(),
             'teachers' => $teachers,
-            'teachersPayload' => $teachers->map(function ($teacher) {
+            'teachersPayload' => $teachers->map(function ($teacher) use ($device) {
                 return [
                     'id' => $teacher->id,
                     'name' => $teacher->name,
