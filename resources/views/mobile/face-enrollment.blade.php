@@ -1029,10 +1029,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const activeIndex = progressItems.findIndex((item) => item.classList.contains('active'));
         let progress = doneCount / totalSteps;
 
-        if (activeIndex === 1) {
-            progress = Math.max(progress, (1 + (captureProgress * 2)) / totalSteps);
+        if (activeIndex === 0) {
+            progress = Math.max(progress, 0.12);
+        } else if (activeIndex === 1) {
+            progress = Math.max(progress, 0.34 + (captureProgress * 0.38));
         } else if (activeIndex >= 0 && doneCount < totalSteps) {
-            progress = Math.max(progress, (activeIndex + 0.5) / totalSteps);
+            progress = Math.max(progress, 0.78);
         }
 
         if (faceStage?.dataset.guideState === 'success') {
