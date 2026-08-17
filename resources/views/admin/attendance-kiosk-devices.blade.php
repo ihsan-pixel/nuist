@@ -4,29 +4,85 @@
 
 @section('css')
 <style>
+    :root {
+        --kiosk-bg: #f5f7fb;
+        --kiosk-card: #ffffff;
+        --kiosk-border: #e5eaf2;
+        --kiosk-text: #0f172a;
+        --kiosk-muted: #64748b;
+        --kiosk-primary: #2563eb;
+        --kiosk-success: #16a34a;
+    }
+
+    .kiosk-page {
+        background:
+            radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30%),
+            linear-gradient(180deg, #ffffff 0%, var(--kiosk-bg) 100%);
+        min-height: 100vh;
+        padding-bottom: 24px;
+    }
+
     .kiosk-shell {
         border: 0;
-        border-radius: 20px;
-        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        border-radius: 22px;
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
     }
 
     .kiosk-section {
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--kiosk-border);
         border-radius: 18px;
-        background: #fff;
+        background: var(--kiosk-card);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.03);
     }
 
     .kiosk-title {
-        font-size: 17px;
+        font-size: 18px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--kiosk-text);
         margin-bottom: 4px;
     }
 
     .kiosk-subtitle {
         font-size: 13px;
-        color: #64748b;
+        color: var(--kiosk-muted);
         margin-bottom: 0;
+    }
+
+    .kiosk-header {
+        padding: 22px 22px 10px;
+    }
+
+    .kiosk-header-card {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(22, 163, 74, 0.06));
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 18px;
+        padding: 18px 20px;
+    }
+
+    .kiosk-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .kiosk-actions .btn {
+        min-height: 44px;
+        padding-inline: 16px;
+        border-radius: 12px;
+    }
+
+    .quick-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #fff;
+        border: 1px solid var(--kiosk-border);
+        color: var(--kiosk-muted);
+        font-size: 12px;
+        font-weight: 600;
     }
 
     .device-table th {
@@ -59,10 +115,11 @@
         color: #e2e8f0;
         font-size: 12px;
         word-break: break-all;
+        user-select: all;
     }
 
     .summary-box {
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--kiosk-border);
         border-radius: 16px;
         background: #fff;
         padding: 16px;
@@ -76,10 +133,41 @@
     }
 
     .summary-value {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--kiosk-text);
         line-height: 1;
+    }
+
+    .compact-table td,
+    .compact-table th {
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .action-group .btn {
+        border-radius: 10px;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .section-note {
+        color: var(--kiosk-muted);
+        font-size: 12px;
     }
 
     .log-table th {
@@ -158,28 +246,39 @@
     @slot('title') Komputer Presensi Sekolah @endslot
 @endcomponent
 
+<div class="kiosk-page">
 <div class="row">
     <div class="col-12">
         <div class="card kiosk-shell">
-            <div class="card-body p-4">
-                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-                    <div>
-                        <h4 class="mb-1 fw-semibold">
-                            <i class="bx bx-desktop me-2"></i>Komputer Presensi Sekolah
-                        </h4>
-                        <p class="text-muted mb-0 small">
-                            Daftarkan komputer sekolah agar hanya perangkat dan IP yang diizinkan yang bisa dipakai untuk presensi guru.
-                        </p>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('presensi_admin.settings') }}" class="btn btn-light">
-                            <i class="bx bx-arrow-back me-1"></i>Kembali ke Pengaturan
-                        </a>
-                        <a href="{{ route('school-kiosk.index') }}" class="btn btn-primary">
-                            <i class="bx bx-right-arrow-alt me-1"></i>Buka Mode Kiosk
-                        </a>
+            <div class="kiosk-header">
+                <div class="kiosk-header-card">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                        <div class="me-lg-4">
+                            <h4 class="mb-1 fw-semibold">
+                                <i class="bx bx-desktop me-2"></i>Komputer Presensi Sekolah
+                            </h4>
+                            <p class="kiosk-subtitle mb-3">
+                                Kelola komputer kiosk, sinkronkan IP, lalu buka mode presensi dari perangkat yang diizinkan.
+                            </p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="quick-chip"><i class="bx bx-shield-quarter"></i>IP tervalidasi</span>
+                                <span class="quick-chip"><i class="bx bx-id-card"></i>Token perangkat</span>
+                                <span class="quick-chip"><i class="bx bx-face"></i>Scan wajah</span>
+                            </div>
+                        </div>
+                        <div class="kiosk-actions">
+                            <a href="{{ route('presensi_admin.settings') }}" class="btn btn-light">
+                                <i class="bx bx-arrow-back me-1"></i>Pengaturan
+                            </a>
+                            <a href="{{ route('school-kiosk.index') }}" class="btn btn-primary">
+                                <i class="bx bx-right-arrow-alt me-1"></i>Buka Kiosk
+                            </a>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="card-body p-4 pt-0">
 
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -242,7 +341,7 @@
                         <div class="kiosk-section h-100">
                             <div class="card-body p-4">
                                 <div class="kiosk-title">Daftarkan Komputer</div>
-                                <p class="kiosk-subtitle mb-4">Pendaftaran dilakukan dari komputer yang akan dijadikan kiosk presensi.</p>
+                                <p class="kiosk-subtitle mb-4">Gunakan komputer yang akan dipakai presensi. Isi seperlunya saja.</p>
 
                                 <form method="POST" action="{{ route('presensi_admin.kiosk_devices.store') }}">
                                     @csrf
@@ -284,7 +383,7 @@
 
                                     <div class="alert alert-warning small mb-3">
                                         <i class="bx bx-info-circle me-1"></i>
-                                        Gunakan form ini dari komputer yang benar-benar akan dipakai untuk presensi.
+                                        Simpan IP sesuai perangkat yang dipakai agar tombol buka kiosk aktif.
                                     </div>
 
                                     <button type="submit" class="btn btn-primary w-100">
@@ -298,15 +397,15 @@
                     <div class="col-xl-8">
                         <div class="kiosk-section">
                             <div class="card-body p-4">
-                                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                                <div class="section-heading">
                                     <div>
                                         <div class="kiosk-title">Perangkat Terdaftar</div>
-                                        <p class="kiosk-subtitle">Daftar komputer presensi yang sudah diizinkan untuk sekolah terpilih.</p>
+                                        <div class="section-note">Klik sinkron IP jika perangkat pindah jaringan, lalu buka kiosk.</div>
                                     </div>
 
                                     @if($canChooseMadrasah)
                                         <form method="GET" action="{{ route('presensi_admin.kiosk_devices') }}">
-                                            <select name="madrasah_id" class="form-select" onchange="this.form.submit()">
+                                            <select name="madrasah_id" class="form-select form-select-sm" onchange="this.form.submit()">
                                                 @foreach($schools as $school)
                                                     <option value="{{ $school->id }}" {{ (int) $selectedMadrasahId === (int) $school->id ? 'selected' : '' }}>
                                                         {{ $school->name }}
@@ -318,7 +417,7 @@
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table table-sm align-middle mb-0 device-table">
+                                    <table class="table table-sm align-middle mb-0 device-table compact-table">
                                         <thead>
                                             <tr>
                                                 <th>Perangkat</th>
@@ -372,7 +471,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="text-end">
-                                                        <div class="d-inline-flex gap-2">
+                                                        <div class="action-group">
                                                             <form method="POST" action="{{ route('presensi_admin.kiosk_devices.sync_ip', $device) }}">
                                                                 @csrf
                                                                 <button type="submit" class="btn btn-sm btn-light">
@@ -422,8 +521,12 @@
 
                 <div class="kiosk-section mt-4">
                     <div class="card-body p-4">
-                        <div class="kiosk-title">Aktivitas Kiosk Terbaru</div>
-                        <p class="kiosk-subtitle mb-3">Riwayat akses perangkat dan submit presensi dari komputer sekolah.</p>
+                        <div class="section-heading">
+                            <div>
+                                <div class="kiosk-title">Aktivitas Kiosk Terbaru</div>
+                                <div class="section-note">Log terbaru untuk memantau akses, verifikasi, dan hasil presensi.</div>
+                            </div>
+                        </div>
 
                         <div class="table-responsive">
                             <table class="table table-sm align-middle mb-0 log-table">
@@ -509,5 +612,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
