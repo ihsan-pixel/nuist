@@ -557,53 +557,6 @@
 
     <!-- Mobile-specific scripts -->
     <script>
-        window.MobileFaceModelWarmup = window.MobileFaceModelWarmup || {
-            promise: null,
-            ready: false,
-            error: null,
-            progress: 0,
-            start: function () {
-                if (this.ready) {
-                    this.progress = 100;
-                    return Promise.resolve(true);
-                }
-
-                if (this.promise) {
-                    return this.promise;
-                }
-
-                if (typeof window.FaceRecognition !== 'function' || typeof faceapi === 'undefined') {
-                    return Promise.resolve(false);
-                }
-
-                var scanner = window.MobileFaceScanner || (window.MobileFaceScanner = new window.FaceRecognition());
-                this.progress = 0;
-                this.promise = scanner.loadModels(function (progress) {
-                    window.MobileFaceModelWarmup.progress = Math.max(0, Math.min(100, Math.round(progress)));
-                })
-                    .then(function () {
-                        window.MobileFaceModelWarmup.ready = true;
-                        window.MobileFaceModelWarmup.error = null;
-                        window.MobileFaceModelWarmup.progress = 100;
-                        return true;
-                    })
-                    .catch(function (error) {
-                        window.MobileFaceModelWarmup.error = error;
-                        window.MobileFaceModelWarmup.ready = false;
-                        return false;
-                    })
-                    .finally(function () {
-                        window.MobileFaceModelWarmup.promise = null;
-                    });
-
-                return this.promise;
-            }
-        };
-
-        if (!window.MobileFaceModelWarmup.ready && !window.MobileFaceModelWarmup.promise) {
-            window.MobileFaceModelWarmup.start();
-        }
-
         // PWA Install Prompt
         // let deferredPrompt;
         // const installPrompt = document.getElementById('pwa-install-prompt');

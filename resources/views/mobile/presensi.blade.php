@@ -2384,7 +2384,7 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('load', function() {
     function updateRealtimeClock() {
         const clockEl = document.getElementById('realtimeClock');
         if (!clockEl) return;
@@ -2944,8 +2944,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const faceScanOnboarding = document.getElementById('face-scan-onboarding');
     const faceScanOnboardingContinue = document.getElementById('btn-face-scan-onboarding-continue');
     const faceScanHelpButton = document.getElementById('btn-face-scan-help');
-    const faceScanner = window.MobileFaceScanner || (window.FaceRecognition ? new window.FaceRecognition() : null);
-    window.MobileFaceScanner = faceScanner;
+    const faceScanner = window.FaceRecognition ? new window.FaceRecognition() : null;
     let faceVerificationResult = null;
     const verificationMode = @json($faceVerificationState['mode'] ?? 'selfie');
     const verificationLabel = @json($faceVerificationState['label'] ?? 'Selfie');
@@ -2976,7 +2975,6 @@ window.addEventListener('DOMContentLoaded', function() {
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
-    let faceModelWarmupPromise = null;
 
     function setFaceModelReadyState(ready, progress = null) {
         faceModelWarmupReady = ready;
@@ -2995,55 +2993,28 @@ window.addEventListener('DOMContentLoaded', function() {
 
     function warmupFaceModels() {
         if (!faceScanner) {
-            return Promise.resolve(false);
-        }
-
-        if (faceModelWarmupPromise) {
-            return faceModelWarmupPromise;
-        }
-
-        if (window.MobileFaceModelWarmup) {
-            const warmupState = window.MobileFaceModelWarmup;
-            if (warmupState.ready) {
-                setFaceModelReadyState(true, 100);
-                faceModelWarmupPromise = Promise.resolve(true);
-                return faceModelWarmupPromise;
-            }
-
-            if (Number.isFinite(warmupState.progress)) {
-                setFaceModelReadyState(false, warmupState.progress);
-            }
-        } else {
-            setFaceModelReadyState(false, 0);
+            return;
         }
 
         const warmupModels = async () => {
             try {
-                if (window.MobileFaceModelWarmup) {
-                    await window.MobileFaceModelWarmup.start();
-                }
-
-                const warmupPromise = faceScanner.loadModels((progress) => {
-                    setFaceModelReadyState(progress >= 100, progress);
-                    if (window.MobileFaceModelWarmup) {
-                        window.MobileFaceModelWarmup.progress = progress;
-                    }
-                });
+                setFaceModelReadyState(false, 0);
+                const warmupPromise = faceScanner.loadModels();
+                setFaceModelReadyState(false, 50);
                 await warmupPromise;
                 setFaceModelReadyState(true, 100);
-                return true;
             } catch (error) {
                 console.warn('Face model warmup failed:', error);
                 setFaceModelReadyState(false, 0);
-                return false;
-            } finally {
-                faceModelWarmupPromise = null;
             }
         };
 
-        faceModelWarmupPromise = warmupModels();
-
-        return faceModelWarmupPromise;
+        setFaceModelReadyState(false, 0);
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(warmupModels, { timeout: 1500 });
+        } else {
+            window.setTimeout(warmupModels, 300);
+        }
     }
 
     warmupFaceModels();
@@ -3935,8 +3906,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
             stopSelfieStream();
 
+            await faceScanner.loadModels();
+
             if (faceScanRequired) {
-                await warmupFaceModels();
                 await faceScanner.initializeCamera(video);
                 video.style.display = 'block';
 
@@ -3946,6 +3918,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 }
 
                 setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
+                await faceScanner.loadModels();
                 setFaceLoadingState(false);
                 updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {

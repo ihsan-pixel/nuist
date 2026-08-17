@@ -919,8 +919,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const onboardingContinueButton = document.getElementById('btn-face-onboarding-continue');
     const faceHelpButton = document.getElementById('btn-face-help');
 
-    const faceRecognition = window.MobileFaceScanner || (window.FaceRecognition ? new window.FaceRecognition() : null);
-    window.MobileFaceScanner = faceRecognition;
+    const faceRecognition = new window.FaceRecognition();
     let cameraReady = false;
     let enrollmentResult = null;
     let onboardingAccepted = false;
@@ -1029,12 +1028,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const activeIndex = progressItems.findIndex((item) => item.classList.contains('active'));
         let progress = doneCount / totalSteps;
 
-        if (activeIndex === 0) {
-            progress = Math.max(progress, 0.12);
-        } else if (activeIndex === 1) {
-            progress = Math.max(progress, 0.34 + (captureProgress * 0.38));
+        if (activeIndex === 1) {
+            progress = Math.max(progress, (1 + (captureProgress * 2)) / totalSteps);
         } else if (activeIndex >= 0 && doneCount < totalSteps) {
-            progress = Math.max(progress, 0.78);
+            progress = Math.max(progress, (activeIndex + 0.5) / totalSteps);
         }
 
         if (faceStage?.dataset.guideState === 'success') {
@@ -1109,19 +1106,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!faceModelWarmupPromise) {
-            if (window.MobileFaceModelWarmup) {
-                faceModelWarmupPromise = window.MobileFaceModelWarmup.ready
-                    ? Promise.resolve(true)
-                    : window.MobileFaceModelWarmup.start();
-            } else {
-                faceModelWarmupPromise = faceRecognition.loadModels((progress) => {
-                    if (faceStage) {
-                        faceStage.dataset.guideState = progress >= 100 ? 'success' : 'processing';
-                    }
-                });
-            }
-
-            faceModelWarmupPromise = Promise.resolve(faceModelWarmupPromise).catch((error) => {
+            faceModelWarmupPromise = faceRecognition.loadModels().catch((error) => {
                 console.warn('Face enrollment warmup failed:', error);
                 return null;
             });
