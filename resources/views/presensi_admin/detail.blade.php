@@ -1038,11 +1038,11 @@
                     <!-- Summary Stats -->
                     <div class="attendance-summary" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                         <div style="background: rgba(14, 133, 73, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
-                            <div style="font-weight: 600; font-size: 14px; color: #0e8549;">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</div>
+                            <div id="attendance-present-count" style="font-weight: 600; font-size: 14px; color: #0e8549;">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</div>
                             <small style="font-size: 10px; color: #0e8549;">Sudah Presensi</small>
                         </div>
                         <div style="background: rgba(220, 53, 69, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
-                            <div style="font-weight: 600; font-size: 14px; color: #dc3545;">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</div>
+                            <div id="attendance-absent-count" style="font-weight: 600; font-size: 14px; color: #dc3545;">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</div>
                             <small style="font-size: 10px; color: #dc3545;">Belum Presensi</small>
                         </div>
                     </div>
@@ -1147,11 +1147,11 @@
 
                                 <!-- Tampilan Search -->
                                 <div class="mb-3">
-                                    <h5 class="card-title mb-3">
-                                        <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
-                                        <span class="badge bg-primary ms-2">{{ $tenagaPendidik->total() }} Orang</span>
-                                    </h5>
-                                </div>
+                                        <h5 class="card-title mb-3">
+                                            <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
+                                        <span id="attendance-total-count" class="badge bg-primary ms-2">{{ $tenagaPendidik->total() }} Orang</span>
+                                        </h5>
+                                    </div>
 
                                 <!-- Table Responsive -->
                                 <div class="table-responsive">
@@ -1466,6 +1466,41 @@ $(document).ready(function() {
         table.buttons().container()
             .appendTo('#attendance-datatable_wrapper .col-md-6:eq(0)');
     }
+
+    const selectedDate = '{{ $selectedDate->format('Y-m-d') }}';
+    const detailUrl = '{{ route('presensi_admin.madrasah_detail', $madrasah->id) }}';
+
+    function refreshAttendanceSummary() {
+        $.ajax({
+            url: detailUrl,
+            type: 'GET',
+            dataType: 'json',
+            data: { date: selectedDate },
+            success: function(response) {
+                const rows = Array.isArray(response.tenaga_pendidik) ? response.tenaga_pendidik : [];
+                let presentCount = 0;
+                let absentCount = 0;
+
+                rows.forEach(function(item) {
+                    if (item.status === 'hadir' || item.status === 'terlambat') {
+                        presentCount++;
+                    } else if (item.status === 'tidak_hadir') {
+                        absentCount++;
+                    }
+                });
+
+                $('#attendance-present-count').text(presentCount);
+                $('#attendance-absent-count').text(absentCount);
+                $('#attendance-total-count').text(rows.length + ' Orang');
+            },
+            error: function(xhr, status, error) {
+                console.log('Error refreshing madrasah summary:', error);
+            }
+        });
+    }
+
+    refreshAttendanceSummary();
+    window.madrasahAttendanceInterval = setInterval(refreshAttendanceSummary, 20000);
 });
 </script>
 

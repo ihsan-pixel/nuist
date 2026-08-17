@@ -660,7 +660,11 @@ class PresensiAdminController extends Controller
     public function getMadrasahDetail($madrasahId, Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($user->role === 'admin' && (int) $user->madrasah_id !== (int) $madrasahId) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -751,119 +755,138 @@ class PresensiAdminController extends Controller
             ? Carbon::createFromFormat('Y-m', $request->month, 'Asia/Jakarta')->startOfMonth()
             : $today->copy()->startOfMonth();
 
-        $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
+        $cacheKey = implode(':', [
+            'presensi-admin-madrasah-detail',
+            $madrasahId,
+            $user->role,
+            $user->madrasah_id ?? 'all',
+            $selectedDate->format('Y-m-d'),
+            md5(json_encode([
+                'search' => $search,
+                'page' => $page,
+                'summary_period' => $summaryPeriod,
+                'week' => $request->input('week'),
+                'month' => $request->input('month'),
+            ])),
+        ]);
 
-        // Build query with search functionality
-        $query = User::where('role', 'tenaga_pendidik')
-            ->where('madrasah_id', $madrasahId)
-            ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
-                $q->whereDate('tanggal', $selectedDate);
-            }]);
+        $cached = Cache::remember($cacheKey, now()->addSeconds(90), function () use ($madrasahId, $selectedDate, $search, $page, $summaryPeriod, $selectedWeek, $selectedMonth, $today, $request) {
+            $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
 
-        // Apply search filter
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('nip', 'like', '%' . $search . '%')
-                  ->orWhere('nuptk', 'like', '%' . $search . '%');
-            });
-        }
+            // Build query with search functionality
+            $query = User::where('role', 'tenaga_pendidik')
+                ->where('madrasah_id', $madrasahId)
+                ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
+                    $q->whereDate('tanggal', $selectedDate);
+                }]);
 
-        // Calculate total matched records and paginate them all on one page so the view shows everything
-        $totalMatched = $query->count();
-        $perPage = $totalMatched > 0 ? $totalMatched : 1;
+            // Apply search filter
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('nip', 'like', '%' . $search . '%')
+                      ->orWhere('nuptk', 'like', '%' . $search . '%');
+                });
+            }
 
-        // Get paginated results (all rows in one page)
-        $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
+            // Calculate total matched records and paginate them all on one page so the view shows everything
+            $totalMatched = $query->count();
+            $perPage = $totalMatched > 0 ? $totalMatched : 1;
 
-        $tenagaPendidikData = $tenagaPendidik->map(function($tp) use ($selectedDate) {
-            $presensi = $tp->presensis->first();
-            $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
-            return [
-                'id' => $tp->id,
-                'nama' => $tp->name,
-                'nip' => $tp->nip,
-                'nuptk' => $tp->nuptk,
-                'status_kepegawaian' => $tp->statusKepegawaian ? $tp->statusKepegawaian->name : '-',
-                'status' => $dailyPresensi['status'],
-                'waktu_masuk' => $dailyPresensi['waktu_masuk'] ? $dailyPresensi['waktu_masuk']->format('H:i:s') : null,
-                'waktu_keluar' => $dailyPresensi['waktu_keluar'] ? $dailyPresensi['waktu_keluar']->format('H:i:s') : null,
-                'latitude' => $dailyPresensi['latitude'],
-                'longitude' => $dailyPresensi['longitude'],
-                'lokasi' => $dailyPresensi['lokasi'],
-                'keterangan' => $dailyPresensi['keterangan'],
-                'is_fake_location' => $dailyPresensi['is_fake_location'],
-                'accuracy' => $dailyPresensi['accuracy'],
-                'created_at' => $dailyPresensi['created_at'] ? $dailyPresensi['created_at']->format('Y-m-d H:i:s') : null,
-                'face_verified' => $dailyPresensi['face_verified'],
-                'face_similarity_score' => $dailyPresensi['face_similarity_score'],
-                'liveness_score' => $dailyPresensi['liveness_score'],
-                'foto_masuk_url' => $this->buildAttendancePhotoUrl($presensi, 'masuk'),
-                'foto_keluar_url' => $this->buildAttendancePhotoUrl($presensi, 'keluar'),
-            ];
-        });
+            // Get paginated results (all rows in one page)
+            $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
 
-        $summaryStartDate = $summaryPeriod === 'month'
-            ? $selectedMonth->copy()->startOfMonth()
-            : $selectedWeek->copy()->startOfWeek(Carbon::MONDAY);
-        $summaryEndDate = $summaryPeriod === 'month'
-            ? $selectedMonth->copy()->endOfMonth()
-            : $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY);
-        $summaryLabel = $summaryPeriod === 'month'
-            ? 'Bulanan'
-            : 'Mingguan';
-
-        $attendancePercentageRows = $tenagaPendidik->getCollection()
-            ->map(function ($tp) use ($madrasah, $summaryStartDate, $summaryEndDate, $today) {
-                $summary = $this->buildTeacherAttendanceSummary(
-                    $tp->id,
-                    $madrasah->hari_kbm,
-                    $summaryStartDate,
-                    $summaryEndDate,
-                    $today
-                );
-
+            $tenagaPendidikData = $tenagaPendidik->map(function($tp) use ($selectedDate) {
+                $presensi = $tp->presensis->first();
+                $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
                 return [
                     'id' => $tp->id,
                     'nama' => $tp->name,
                     'nip' => $tp->nip,
                     'nuptk' => $tp->nuptk,
-                    'status_kepegawaian' => $tp->statusKepegawaian?->name ?? '-',
-                    'total_hari_kerja' => $summary['total_hari_kerja'],
-                    'total_hadir' => $summary['total_hadir'],
-                    'total_izin' => $summary['total_izin'],
-                    'total_belum_hadir' => $summary['total_belum_hadir'],
-                    'persentase_kehadiran' => $summary['persentase_kehadiran'],
+                    'status_kepegawaian' => $tp->statusKepegawaian ? $tp->statusKepegawaian->name : '-',
+                    'status' => $dailyPresensi['status'],
+                    'waktu_masuk' => $dailyPresensi['waktu_masuk'] ? $dailyPresensi['waktu_masuk']->format('H:i:s') : null,
+                    'waktu_keluar' => $dailyPresensi['waktu_keluar'] ? $dailyPresensi['waktu_keluar']->format('H:i:s') : null,
+                    'latitude' => $dailyPresensi['latitude'],
+                    'longitude' => $dailyPresensi['longitude'],
+                    'lokasi' => $dailyPresensi['lokasi'],
+                    'keterangan' => $dailyPresensi['keterangan'],
+                    'is_fake_location' => $dailyPresensi['is_fake_location'],
+                    'accuracy' => $dailyPresensi['accuracy'],
+                    'created_at' => $dailyPresensi['created_at'] ? $dailyPresensi['created_at']->format('Y-m-d H:i:s') : null,
+                    'face_verified' => $dailyPresensi['face_verified'],
+                    'face_similarity_score' => $dailyPresensi['face_similarity_score'],
+                    'liveness_score' => $dailyPresensi['liveness_score'],
+                    'foto_masuk_url' => $this->buildAttendancePhotoUrl($presensi, 'masuk'),
+                    'foto_keluar_url' => $this->buildAttendancePhotoUrl($presensi, 'keluar'),
                 ];
-            })
-            ->sortBy([
-                ['persentase_kehadiran', 'desc'],
-                ['nama', 'asc'],
-            ])
-            ->values();
+            });
 
-        $bulanTersedia = DB::table('presensis')
-            ->join('users', 'presensis.user_id', '=', 'users.id')
-            ->selectRaw("MONTH(presensis.tanggal) AS bulan, DATE_FORMAT(presensis.tanggal, '%M %Y') AS nama_bulan")
-            ->where(function ($q) use ($madrasah) {
-                $q->where('presensis.madrasah_id', $madrasah->id)
-                  ->orWhere(function ($subQ) use ($madrasah) {
-                      $subQ->whereNull('presensis.madrasah_id')
-                           ->where('users.madrasah_id', $madrasah->id)
-                           ->where('users.role', 'tenaga_pendidik');
-                  });
-            })
-            ->groupBy('bulan', 'nama_bulan')
-            ->orderBy('bulan', 'asc')
-            ->get();
+            $summaryStartDate = $summaryPeriod === 'month'
+                ? $selectedMonth->copy()->startOfMonth()
+                : $selectedWeek->copy()->startOfWeek(Carbon::MONDAY);
+            $summaryEndDate = $summaryPeriod === 'month'
+                ? $selectedMonth->copy()->endOfMonth()
+                : $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY);
+            $summaryLabel = $summaryPeriod === 'month'
+                ? 'Bulanan'
+                : 'Mingguan';
 
-        return view('presensi_admin.detail', compact(
-            'madrasah', 'tenagaPendidik', 'tenagaPendidikData',
-            'selectedDate', 'user', 'search', 'bulanTersedia',
-            'summaryPeriod', 'selectedWeek', 'selectedMonth',
-            'summaryLabel', 'summaryStartDate', 'summaryEndDate',
-            'attendancePercentageRows'
-        ));
+            $attendancePercentageRows = $tenagaPendidik->getCollection()
+                ->map(function ($tp) use ($madrasah, $summaryStartDate, $summaryEndDate, $today) {
+                    $summary = $this->buildTeacherAttendanceSummary(
+                        $tp->id,
+                        $madrasah->hari_kbm,
+                        $summaryStartDate,
+                        $summaryEndDate,
+                        $today
+                    );
+
+                    return [
+                        'id' => $tp->id,
+                        'nama' => $tp->name,
+                        'nip' => $tp->nip,
+                        'nuptk' => $tp->nuptk,
+                        'status_kepegawaian' => $tp->statusKepegawaian?->name ?? '-',
+                        'total_hari_kerja' => $summary['total_hari_kerja'],
+                        'total_hadir' => $summary['total_hadir'],
+                        'total_izin' => $summary['total_izin'],
+                        'total_belum_hadir' => $summary['total_belum_hadir'],
+                        'persentase_kehadiran' => $summary['persentase_kehadiran'],
+                    ];
+                })
+                ->sortBy([
+                    ['persentase_kehadiran', 'desc'],
+                    ['nama', 'asc'],
+                ])
+                ->values();
+
+            $bulanTersedia = DB::table('presensis')
+                ->join('users', 'presensis.user_id', '=', 'users.id')
+                ->selectRaw("MONTH(presensis.tanggal) AS bulan, DATE_FORMAT(presensis.tanggal, '%M %Y') AS nama_bulan")
+                ->where(function ($q) use ($madrasah) {
+                    $q->where('presensis.madrasah_id', $madrasah->id)
+                      ->orWhere(function ($subQ) use ($madrasah) {
+                          $subQ->whereNull('presensis.madrasah_id')
+                               ->where('users.madrasah_id', $madrasah->id)
+                               ->where('users.role', 'tenaga_pendidik');
+                      });
+                })
+                ->groupBy('bulan', 'nama_bulan')
+                ->orderBy('bulan', 'asc')
+                ->get();
+
+            return compact(
+                'madrasah', 'tenagaPendidik', 'tenagaPendidikData',
+                'selectedDate', 'user', 'search', 'bulanTersedia',
+                'summaryPeriod', 'selectedWeek', 'selectedMonth',
+                'summaryLabel', 'summaryStartDate', 'summaryEndDate',
+                'attendancePercentageRows'
+            );
+        });
+
+        return view('presensi_admin.detail', $cached);
     }
 
     public function resetMadrasahUserFace($madrasahId, $userId)
