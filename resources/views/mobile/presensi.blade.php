@@ -2384,7 +2384,7 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-window.addEventListener('load', function() {
+window.addEventListener('DOMContentLoaded', function() {
     function updateRealtimeClock() {
         const clockEl = document.getElementById('realtimeClock');
         if (!clockEl) return;
@@ -3018,15 +3018,7 @@ window.addEventListener('load', function() {
             }
         };
 
-        faceModelWarmupPromise = new Promise((resolve) => {
-            const runWarmup = async () => resolve(await warmupModels());
-
-            if ('requestIdleCallback' in window) {
-                window.requestIdleCallback(runWarmup, { timeout: 1500 });
-            } else {
-                window.setTimeout(runWarmup, 300);
-            }
-        });
+        faceModelWarmupPromise = warmupModels();
 
         return faceModelWarmupPromise;
     }
