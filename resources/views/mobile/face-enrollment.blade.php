@@ -919,7 +919,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const onboardingContinueButton = document.getElementById('btn-face-onboarding-continue');
     const faceHelpButton = document.getElementById('btn-face-help');
 
-    const faceRecognition = new window.FaceRecognition({ preset: 'mobile' });
+    const faceRecognition = new window.FaceRecognition();
     let cameraReady = false;
     let enrollmentResult = null;
     let onboardingAccepted = false;
