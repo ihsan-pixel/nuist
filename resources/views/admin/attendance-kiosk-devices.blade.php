@@ -406,6 +406,7 @@
                                     @if($canChooseMadrasah)
                                         <form method="GET" action="{{ route('presensi_admin.kiosk_devices') }}">
                                             <select name="madrasah_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                <option value="" {{ blank($selectedMadrasahId) ? 'selected' : '' }}>Semua Sekolah</option>
                                                 @foreach($schools as $school)
                                                     <option value="{{ $school->id }}" {{ (int) $selectedMadrasahId === (int) $school->id ? 'selected' : '' }}>
                                                         {{ $school->name }}
