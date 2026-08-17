@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PresensiPerBulanExport;
@@ -343,11 +344,35 @@ class PresensiAdminController extends Controller
 
         // Get selected date or default to today
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
-        $threeMonthAbsenceData = $this->getThreeMonthAbsenceData($selectedDate, $user);
-        $teacherAbsenceRecapData = $this->getTeacherAbsenceRecapData($request, $user);
+        $cacheKeyBase = implode(':', [
+            'presensi-admin-index',
+            $user->role ?? 'guest',
+            $user->madrasah_id ?? 'all',
+            $selectedDate->format('Y-m-d'),
+            md5(json_encode([
+                'date' => $request->input('date'),
+                'absence_recap_period' => $request->input('absence_recap_period'),
+                'absence_recap_week' => $request->input('absence_recap_week'),
+                'absence_recap_month' => $request->input('absence_recap_month'),
+                'search' => $request->input('search'),
+                'page' => $request->input('page'),
+                'summary_period' => $request->input('summary_period'),
+                'week' => $request->input('week'),
+                'month' => $request->input('month'),
+            ])),
+        ]);
 
-        // Calculate summary metrics
-        $summary = $this->calculatePresensiSummary($selectedDate, $user);
+        $cachedPayload = Cache::remember($cacheKeyBase, now()->addSeconds(45), function () use ($request, $user, $selectedDate) {
+            $threeMonthAbsenceData = $this->getThreeMonthAbsenceData($selectedDate, $user);
+            $teacherAbsenceRecapData = $this->getTeacherAbsenceRecapData($request, $user);
+            $summary = $this->calculatePresensiSummary($selectedDate, $user);
+
+            return compact('threeMonthAbsenceData', 'teacherAbsenceRecapData', 'summary');
+        });
+
+        $threeMonthAbsenceData = $cachedPayload['threeMonthAbsenceData'];
+        $teacherAbsenceRecapData = $cachedPayload['teacherAbsenceRecapData'];
+        $summary = $cachedPayload['summary'];
 
         if (in_array($user->role, ['super_admin', 'pengurus'])) {
             // For super_admin and pengurus, show all madrasah tables (5 per row)
@@ -359,56 +384,74 @@ class PresensiAdminController extends Controller
                 'Kota Yogyakarta'
             ];
 
-            $madrasahData = [];
-            foreach ($kabupatenOrder as $kabupaten) {
-                $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
-                    ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
-                    ->get();
+            $madrasahData = Cache::remember(
+                $cacheKeyBase . ':madrasah-data',
+                now()->addSeconds(45),
+                function () use ($kabupatenOrder, $selectedDate) {
+                    $madrasahData = [];
 
-            foreach ($madrasahs as $madrasah) {
-                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $madrasah->id)
-                    ->with(['presensis' => function ($q) use ($selectedDate) {
-                        $q->whereDate('tanggal', $selectedDate);
-                    }])
-                    ->get();
+                    $madrasahsByKabupaten = Madrasah::query()
+                        ->select(['id', 'name', 'kabupaten', 'scod'])
+                        ->whereIn('kabupaten', $kabupatenOrder)
+                        ->orderByRaw("FIELD(kabupaten, 'Kabupaten Gunungkidul', 'Kabupaten Bantul', 'Kabupaten Kulon Progo', 'Kabupaten Sleman', 'Kota Yogyakarta')")
+                        ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                        ->get()
+                        ->groupBy('kabupaten');
 
-                $presensiData = [];
-                foreach ($tenagaPendidik as $tp) {
-                    $presensi = $tp->presensis->first();
-                    $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
-                    $presensiData[] = [
-                        'user_id' => $tp->id,
-                        'nama' => $tp->name,
-                        'status' => $dailyPresensi['status'],
-                        'waktu_masuk' => $dailyPresensi['waktu_masuk'],
-                        'waktu_keluar' => $dailyPresensi['waktu_keluar'],
-                        'keterangan' => $dailyPresensi['keterangan'],
-                        'is_fake_location' => $dailyPresensi['is_fake_location'],
-                    ];
+                    foreach ($kabupatenOrder as $kabupaten) {
+                        foreach ($madrasahsByKabupaten->get($kabupaten, collect()) as $madrasah) {
+                            $tenagaPendidik = User::query()
+                                ->select(['id', 'name', 'madrasah_id', 'status_kepegawaian_id'])
+                                ->where('role', 'tenaga_pendidik')
+                                ->where('madrasah_id', $madrasah->id)
+                                ->with([
+                                    'presensis' => function ($q) use ($selectedDate) {
+                                        $q->select(['id', 'user_id', 'tanggal', 'status', 'waktu_masuk', 'waktu_keluar', 'keterangan', 'is_fake_location'])
+                                            ->whereDate('tanggal', $selectedDate);
+                                    },
+                                ])
+                                ->get();
+
+                            $presensiData = [];
+                            foreach ($tenagaPendidik as $tp) {
+                                $presensi = $tp->presensis->first();
+                                $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
+                                $presensiData[] = [
+                                    'user_id' => $tp->id,
+                                    'nama' => $tp->name,
+                                    'status' => $dailyPresensi['status'],
+                                    'waktu_masuk' => $dailyPresensi['waktu_masuk'],
+                                    'waktu_keluar' => $dailyPresensi['waktu_keluar'],
+                                    'keterangan' => $dailyPresensi['keterangan'],
+                                    'is_fake_location' => $dailyPresensi['is_fake_location'],
+                                ];
+                            }
+
+                            $presensiCollection = collect($presensiData);
+                            $obligatedCount = $presensiCollection->reject(function ($item) {
+                                return $item['status'] === 'tidak_wajib_presensi';
+                            })->count();
+                            $presentCount = $presensiCollection->filter(function ($item) {
+                                return in_array($item['status'], ['hadir', 'terlambat'], true);
+                            })->count();
+                            $notRequiredCount = $presensiCollection->where('status', 'tidak_wajib_presensi')->count();
+
+                            $madrasahData[] = [
+                                'madrasah' => $madrasah,
+                                'presensi' => $presensiData,
+                                'obligated_count' => $obligatedCount,
+                                'present_count' => $presentCount,
+                                'not_required_count' => $notRequiredCount,
+                                'attendance_percentage' => $obligatedCount > 0
+                                    ? round(($presentCount / $obligatedCount) * 100)
+                                    : 0,
+                            ];
+                        }
+                    }
+
+                    return $madrasahData;
                 }
-
-                $presensiCollection = collect($presensiData);
-                $obligatedCount = $presensiCollection->reject(function ($item) {
-                    return $item['status'] === 'tidak_wajib_presensi';
-                })->count();
-                $presentCount = $presensiCollection->filter(function ($item) {
-                    return in_array($item['status'], ['hadir', 'terlambat'], true);
-                })->count();
-                $notRequiredCount = $presensiCollection->where('status', 'tidak_wajib_presensi')->count();
-
-                $madrasahData[] = [
-                    'madrasah' => $madrasah,
-                    'presensi' => $presensiData,
-                    'obligated_count' => $obligatedCount,
-                    'present_count' => $presentCount,
-                    'not_required_count' => $notRequiredCount,
-                    'attendance_percentage' => $obligatedCount > 0
-                        ? round(($presentCount / $obligatedCount) * 100)
-                        : 0,
-                ];
-            }
-            }
+            );
 
             return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData', 'teacherAbsenceRecapData'));
         } elseif ($user->role === 'admin' && $user->madrasah_id) {
