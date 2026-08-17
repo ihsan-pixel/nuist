@@ -1422,6 +1422,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/presensi-admin/settings', [PresensiAdminController::class, 'updateSettings'])->name('presensi_admin.updateSettings');
     Route::get('/presensi-admin/kiosk-devices', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'index'])->name('presensi_admin.kiosk_devices');
     Route::post('/presensi-admin/kiosk-devices', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'store'])->name('presensi_admin.kiosk_devices.store');
+    Route::get('/presensi-admin/kiosk-devices/{device}/open', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'openKiosk'])->name('presensi_admin.kiosk_devices.open');
     Route::delete('/presensi-admin/kiosk-devices/{device}', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'destroy'])->name('presensi_admin.kiosk_devices.destroy');
     Route::patch('/presensi-admin/kiosk-devices/{device}/toggle', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'toggle'])->name('presensi_admin.kiosk_devices.toggle');
     Route::post('/presensi-admin/kiosk-devices/{device}/sync-ip', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'syncCurrentIp'])->name('presensi_admin.kiosk_devices.sync_ip');

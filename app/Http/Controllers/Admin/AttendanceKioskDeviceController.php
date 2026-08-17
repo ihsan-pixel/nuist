@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 
 class AttendanceKioskDeviceController extends Controller
@@ -214,6 +215,29 @@ class AttendanceKioskDeviceController extends Controller
         return redirect()
             ->route('presensi_admin.kiosk_devices', ['madrasah_id' => $device->madrasah_id])
             ->with('success', "IP aktif untuk \"{$device->name}\" berhasil disinkronkan ke {$request->ip()}.");
+    }
+
+    public function openKiosk(Request $request, RegisteredAttendanceDevice $device): RedirectResponse
+    {
+        $this->authorizeDeviceSchool(Auth::user(), $device);
+
+        if (!$device->is_active) {
+            return redirect()
+                ->route('presensi_admin.kiosk_devices', ['madrasah_id' => $device->madrasah_id])
+                ->with('error', "Perangkat \"{$device->name}\" sedang nonaktif.");
+        }
+
+        if (!collect($device->allowed_ip_addresses ?? [])->filter()->contains((string) $request->ip())) {
+            return redirect()
+                ->route('presensi_admin.kiosk_devices', ['madrasah_id' => $device->madrasah_id])
+                ->with('error', "IP saat ini belum diizinkan untuk \"{$device->name}\".");
+        }
+
+        $request->session()->put('nuist_kiosk_device_id', $device->id);
+        $request->session()->put('nuist_kiosk_device_opened_by', Auth::id());
+        $request->session()->put('nuist_kiosk_device_opened_at', now()->toIso8601String());
+
+        return redirect()->route('school-kiosk.index');
     }
 
     private function accessibleSchoolsQuery(User $user): Builder

@@ -54,7 +54,7 @@ class SchoolKioskController extends Controller
     public function index(Request $request)
     {
         $operator = Auth::user();
-        $device = $this->attendanceKioskAccessService->resolveDeviceByToken($request->cookie('nuist_kiosk_token'));
+        $device = $this->resolveDeviceFromRequestContext($request);
         $accessGranted = false;
         $accessMessage = 'Komputer presensi belum tervalidasi.';
         $teachers = collect();
@@ -712,9 +712,25 @@ class SchoolKioskController extends Controller
 
     private function resolveAuthorizedDevice(Request $request, User $operator): RegisteredAttendanceDevice
     {
-        $device = $this->attendanceKioskAccessService->resolveDeviceByToken($request->cookie('nuist_kiosk_token'));
+        $device = $this->resolveDeviceFromRequestContext($request);
 
         return $this->attendanceKioskAccessService->authorizeSchoolKioskAccess($request, $operator, $device);
+    }
+
+    private function resolveDeviceFromRequestContext(Request $request): ?RegisteredAttendanceDevice
+    {
+        $device = $this->attendanceKioskAccessService->resolveDeviceByToken($request->cookie('nuist_kiosk_token'));
+
+        if ($device) {
+            return $device;
+        }
+
+        $sessionDeviceId = $request->session()->get('nuist_kiosk_device_id');
+        if (!$sessionDeviceId) {
+            return null;
+        }
+
+        return RegisteredAttendanceDevice::query()->find($sessionDeviceId);
     }
 
     private function teachersQuery(RegisteredAttendanceDevice $device): Builder

@@ -387,7 +387,7 @@
                                                                 </button>
                                                             </form>
                                                             @if($device->is_active && $ipMatches)
-                                                                <a href="{{ route('school-kiosk.index') }}" class="btn btn-sm btn-primary">
+                                                                <a href="{{ route('presensi_admin.kiosk_devices.open', $device) }}" class="btn btn-sm btn-primary">
                                                                     Buka Mode Kiosk
                                                                 </a>
                                                             @else
