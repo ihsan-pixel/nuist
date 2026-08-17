@@ -1543,9 +1543,9 @@
 
                                 <div class="camera-panel-header">
                                     <div class="camera-panel-copy-wrap">
-                                        <div class="camera-panel-title">Kiosk Kamera Presensi Kehadiran</div>
+                                        <div class="camera-panel-title">Kiosk Scan Wajah Sekolah</div>
                                         <p class="camera-panel-copy" id="cameraPanelCopy">
-                                            Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
+                                            Alur di kiosk ini mengikuti pola yang sama seperti mobile: daftar wajah, verifikasi identitas, lalu presensi masuk atau pulang.
                                         </p>
                                         <div class="camera-summary-brand">
                                             <div class="camera-summary-logo">
@@ -1591,7 +1591,7 @@
                                 <div class="camera-panel-footer">
                                     <div class="camera-panel-actions">
                                         <button type="button" class="camera-panel-button" id="openEnrollmentRefreshButton">
-                                            <i class="bx bx-refresh"></i>Registrasi Ulang
+                                            <i class="bx bx-refresh"></i>Daftar Wajah
                                         </button>
                                         <div class="scan-badge" id="scanBadge">
                                             <i class="bx bx-loader-circle"></i>
@@ -1602,9 +1602,9 @@
 
                                 <div class="camera-placeholder" id="cameraPlaceholder">
                                     <i class="bx bx-camera-off"></i>
-                                    <strong>Kamera akan aktif otomatis</strong>
+                                    <strong>Kamera siap untuk scan wajah</strong>
                                     <span>
-                                        Sistem sedang mempersiapkan lokasi dan kamera. Jika semua izin diberikan, kiosk akan langsung masuk ke mode siaga.
+                                        Sistem sedang mempersiapkan lokasi dan kamera. Jika semua izin diberikan, kiosk akan langsung masuk ke mode scan seperti pada mobile.
                                     </span>
                                 </div>
 
@@ -1621,9 +1621,9 @@
                                     </div>
                                     <div class="camera-guide-pill" id="cameraGuidePill">
                                         <div class="camera-guide-copy">
-                                            <span class="camera-guide-label" id="cameraGuideLabel">Instruksi</span>
+                                            <span class="camera-guide-label" id="cameraGuideLabel">Scan Wajah</span>
                                             <i class="bx bx-scan"></i>
-                                            <span class="camera-guide-text" id="cameraGuideText">Menyiapkan School Kiosk.</span>
+                                            <span class="camera-guide-text" id="cameraGuideText">Menyiapkan kiosk scan wajah.</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1631,7 +1631,7 @@
                                 <aside class="camera-activity-panel">
                                     <div class="camera-activity-header">
                                         <div>
-                                            <div class="camera-activity-title">Data Presensi Hari Ini</div>
+                                            <div class="camera-activity-title">Presensi Hari Ini</div>
                                             {{-- <p class="camera-activity-subtitle">Guru yang sudah berhasil presensi masuk atau pulang.</p> --}}
                                         </div>
                                         <div class="camera-activity-count" id="cameraActivityCount">0</div>
@@ -1641,14 +1641,14 @@
                             </div>
 
                             <div class="enrollment-banner" id="enrollmentBanner" @if($teachersWithoutFaceCount === 0) hidden @endif>
-                                <div class="enrollment-banner-title">Registrasi wajah guru tersedia</div>
+                                <div class="enrollment-banner-title">Daftar wajah tersedia</div>
                                 <div class="enrollment-banner-copy" id="enrollmentBannerCopy">
                                     Terdapat {{ $teachersWithoutFaceCount }} guru yang belum memiliki data wajah. Daftarkan wajah sekali saja,
-                                    lalu guru bisa langsung presensi dari kiosk ini tanpa pindah halaman.
+                                    lalu guru dapat presensi lewat kiosk dengan alur yang sama seperti mobile.
                                 </div>
                                 <div class="enrollment-actions">
                                     <button type="button" class="btn btn-warning btn-sm" id="openEnrollmentModalButton">
-                                        <i class="bx bx-user-plus me-1"></i>Registrasi Wajah Guru
+                                        <i class="bx bx-user-plus me-1"></i>Daftar Wajah Guru
                                     </button>
                                 </div>
                             </div>
@@ -1664,8 +1664,8 @@
 
                             <div class="d-none" aria-hidden="true">
                                 <div class="primary-notice mt-3" id="primaryNotice">
-                                    <strong>Menyiapkan School Kiosk</strong>
-                                    <span>Meminta izin lokasi dan kamera, lalu sistem akan masuk ke mode siaga otomatis.</span>
+                                    <strong>Menyiapkan Kiosk Scan Wajah</strong>
+                                    <span>Meminta izin lokasi dan kamera, lalu sistem akan masuk ke mode scan seperti pada mobile.</span>
                                 </div>
 
                                 <div class="attendance-result" id="attendanceResultCard" hidden>
@@ -1676,28 +1676,28 @@
                                 <div class="status-step" data-stage="camera_permission">
                                     <div class="status-step-dot"></div>
                                     <div>
-                                        <div class="status-step-title">Meminta izin kamera</div>
+                                        <div class="status-step-title">Izin kamera</div>
                                         <div class="status-step-copy">Menunggu akses kamera perangkat.</div>
                                     </div>
                                 </div>
                                 <div class="status-step" data-stage="location_permission">
                                     <div class="status-step-dot"></div>
                                     <div>
-                                        <div class="status-step-title">Mengambil lokasi</div>
+                                        <div class="status-step-title">Izin lokasi</div>
                                         <div class="status-step-copy">Koordinat GPS diminta otomatis saat halaman dibuka.</div>
                                     </div>
                                 </div>
                                 <div class="status-step" data-stage="location_validation">
                                     <div class="status-step-dot"></div>
                                     <div>
-                                        <div class="status-step-title">Memvalidasi lokasi</div>
+                                        <div class="status-step-title">Validasi lokasi</div>
                                         <div class="status-step-copy">Sistem memeriksa apakah perangkat berada di area sekolah.</div>
                                     </div>
                                 </div>
                                 <div class="status-step" data-stage="waiting_user">
                                     <div class="status-step-dot"></div>
                                     <div>
-                                        <div class="status-step-title">Menunggu pengguna</div>
+                                        <div class="status-step-title">Menunggu wajah</div>
                                         <div class="status-step-copy">Kamera siap dan menunggu wajah masuk ke bingkai.</div>
                                     </div>
                                 </div>
@@ -1705,13 +1705,13 @@
                                     <div class="status-step-dot"></div>
                                     <div>
                                         <div class="status-step-title">Mendeteksi wajah</div>
-                                        <div class="status-step-copy">Kiosk menjalankan challenge liveness secara realtime.</div>
+                                        <div class="status-step-copy">Kiosk menjalankan challenge liveness seperti alur mobile.</div>
                                     </div>
                                 </div>
                                 <div class="status-step" data-stage="verifying_identity">
                                     <div class="status-step-dot"></div>
                                     <div>
-                                        <div class="status-step-title">Memverifikasi identitas</div>
+                                        <div class="status-step-title">Verifikasi identitas</div>
                                         <div class="status-step-copy">Descriptor wajah dicocokkan dengan data guru terdaftar.</div>
                                     </div>
                                 </div>
@@ -1719,13 +1719,13 @@
                                     <div class="status-step-dot"></div>
                                     <div>
                                         <div class="status-step-title">Memproses presensi</div>
-                                        <div class="status-step-copy">Mode masuk atau keluar ditentukan otomatis oleh sistem.</div>
+                                        <div class="status-step-copy">Mode masuk atau keluar ditentukan otomatis seperti pada mobile.</div>
                                     </div>
                                 </div>
                                 <div class="status-step" data-stage="attendance_success">
                                     <div class="status-step-dot"></div>
                                     <div>
-                                        <div class="status-step-title">Presensi berhasil</div>
+                                        <div class="status-step-title">Presensi selesai</div>
                                         <div class="status-step-copy">Hasil presensi dan status harian ditampilkan di sini.</div>
                                     </div>
                                 </div>
@@ -1790,8 +1790,8 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <div>
-                                    <h5 class="modal-title mb-1">Registrasi Wajah Guru</h5>
-                                    <div class="text-muted small">Pilih guru, lihat kamera, lalu scan dan simpan wajah.</div>
+                                    <h5 class="modal-title mb-1">Daftar Wajah Guru</h5>
+                                    <div class="text-muted small">Pilih guru, lihat kamera, lalu scan dan simpan wajah seperti pada mobile enrollment.</div>
                                 </div>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
@@ -1799,7 +1799,7 @@
                                 <div class="enroll-controls">
                                     <div class="teacher-picker-card">
                                         <h6>Pilih Guru</h6>
-                                        <p>Pilih guru yang akan didaftarkan atau diperbarui wajahnya.</p>
+                                        <p>Pilih guru yang akan didaftarkan atau diperbarui wajahnya. Alurnya sama dengan daftar wajah di mobile.</p>
 
                                         <div class="mb-3">
                                             <label class="form-label">Cari guru</label>
@@ -1833,7 +1833,7 @@
 
                                         <div class="enroll-compact-note">
                                             <i class="bx bx-info-circle"></i>
-                                            <span>Pastikan satu wajah saja terlihat, cahaya cukup, dan wajah berada di dalam oval.</span>
+                                            <span>Pastikan satu wajah saja terlihat, cahaya cukup, dan wajah berada di dalam oval seperti saat daftar wajah di mobile.</span>
                                         </div>
                                     </div>
 
@@ -1857,13 +1857,13 @@
                                                 <div class="camera-oval"></div>
                                                 <div class="camera-guide-pill" id="enrollmentGuidePill">
                                                     <i class="bx bx-scan"></i>
-                                                    <span id="enrollmentGuideText">Pilih guru lalu mulai registrasi wajah.</span>
+                                                <span id="enrollmentGuideText">Pilih guru lalu mulai daftar wajah.</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="enroll-status-box">
-                                            <div class="enroll-status-title" id="enrollmentStatusTitle">Status Registrasi</div>
+                                            <div class="enroll-status-title" id="enrollmentStatusTitle">Status Daftar Wajah</div>
                                             <div class="enroll-status-copy" id="enrollmentStatusCopy">
                                                 Kamera pendaftaran sedang disiapkan. Pilih guru lalu mulai scan wajah.
                                             </div>
@@ -1890,10 +1890,10 @@
 
                                         <div class="enroll-actions">
                                             <button type="button" class="btn btn-primary" id="startEnrollmentButton">
-                                                <i class="bx bx-camera me-1"></i>Mulai Scan
+                                                <i class="bx bx-camera me-1"></i>Mulai Scan Wajah
                                             </button>
                                             <button type="button" class="btn btn-success" id="saveEnrollmentButton" hidden disabled>
-                                                <i class="bx bx-save me-1"></i>Simpan Wajah
+                                                <i class="bx bx-save me-1"></i>Simpan Data Wajah
                                             </button>
                                             <button type="button" class="btn btn-outline-secondary" id="closeEnrollmentButton" data-bs-dismiss="modal">
                                                 Tutup
@@ -2310,7 +2310,7 @@
             if (saveEnrollmentButton) {
                 saveEnrollmentButton.hidden = true;
                 saveEnrollmentButton.disabled = true;
-                saveEnrollmentButton.innerHTML = '<i class="bx bx-save me-1"></i>Simpan Wajah';
+                saveEnrollmentButton.innerHTML = '<i class="bx bx-save me-1"></i>Simpan Data Wajah';
             }
         }
 
@@ -2816,8 +2816,8 @@
                 if (!detection) {
                     hideMatchHud();
                     setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
-                    setPrimaryNotice('Menunggu pengguna', 'Kiosk siaga. Pencocokan baru dimulai saat wajah masuk ke dalam oval.');
-                    setScanBadge('Menunggu pengguna', 'warning');
+                    setPrimaryNotice('Menunggu wajah', 'Kiosk siaga. Pencocokan baru dimulai saat wajah masuk ke dalam oval.');
+                    setScanBadge('Menunggu wajah', 'warning');
                     scheduleNextScan(120);
                     return;
                 }
@@ -2940,7 +2940,7 @@
                 await prepareBrowserFaceScan();
                 cameraReady = true;
                 setPrimaryNotice('Kamera aktif', 'Guru cukup berdiri di depan kamera lalu mengikuti scan wajah singkat seperti pada presensi mobile.');
-                setScanBadge('Menunggu pengguna', 'warning');
+                setScanBadge('Menunggu wajah', 'warning');
                 setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
                 setCameraGuide('Arahkan satu wajah ke dalam oval untuk memulai scan wajah otomatis.', 'bx-user-check');
             } catch (error) {
@@ -2966,13 +2966,13 @@
             );
             setStageState('verifying_identity', 'active', 'Mencocokkan wajah dengan data guru terdaftar.');
             setPrimaryNotice(
-                'Memverifikasi identitas',
+                'Verifikasi identitas',
                 faceEngineUsesPython
                     ? `Frame wajah sedang dianalisis oleh ${faceEngineLabel} untuk deteksi, liveness, dan pengenalan identitas.`
                     : 'Descriptor wajah sedang dicocokkan dengan data guru yang terdaftar di sekolah ini.'
             );
             setScanBadge('Verifikasi identitas', 'info');
-            setCameraGuide('Memverifikasi identitas guru.', 'bx-shield-quarter');
+            setCameraGuide('Verifikasi identitas guru.', 'bx-shield-quarter');
 
             const payload = {
                 latitude: activeLocation.latitude,
@@ -3061,12 +3061,12 @@
             setStageState('processing_attendance', 'idle');
             setStageState('attendance_success', 'idle');
             setPrimaryNotice(
-                startedFromOval ? 'Memulai scan wajah' : 'Menunggu pengguna',
+                startedFromOval ? 'Memulai scan wajah' : 'Menunggu wajah',
                 startedFromOval
                     ? 'Wajah sudah sesuai. Sistem langsung menjalankan scan wajah dan verifikasi.'
                     : 'Guru cukup berdiri di depan kamera. Begitu wajah stabil, verifikasi akan berjalan otomatis.'
             );
-            setScanBadge(startedFromOval ? 'Memulai scan' : 'Menunggu pengguna', startedFromOval ? 'info' : 'warning');
+            setScanBadge(startedFromOval ? 'Memulai scan' : 'Menunggu wajah', startedFromOval ? 'info' : 'warning');
             setCameraGuide(
                 startedFromOval ? 'Scan wajah dimulai. Ikuti arahan singkat.' : 'Arahkan satu wajah ke dalam oval untuk memulai scan.',
                 startedFromOval ? 'bx-scan' : 'bx-user-voice'
