@@ -7,6 +7,7 @@ use App\Models\User;
 class FaceVerificationService
 {
     private const FACE_DISTANCE_THRESHOLD = 0.62;
+    private const FACE_DISTANCE_MARGIN_THRESHOLD = 0.04;
     private const LIVENESS_THRESHOLD = 0.55;
     private const REQUIRED_ATTENDANCE_CHALLENGE = 'blink';
     private const REQUIRED_DYNAMIC_CHALLENGES = ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'];
@@ -72,16 +73,37 @@ class FaceVerificationService
         }
 
         $bestDistance = null;
+        $secondBestDistance = null;
 
         foreach ($storedDescriptors as $storedDescriptor) {
             $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
             if ($bestDistance === null || $distance < $bestDistance) {
+                $secondBestDistance = $bestDistance;
                 $bestDistance = $distance;
+            } elseif ($secondBestDistance === null || $distance < $secondBestDistance) {
+                $secondBestDistance = $distance;
             }
         }
 
         $bestDistance ??= INF;
         $bestSimilarity = $this->distanceToSimilarity($bestDistance);
+
+        if ($secondBestDistance !== null) {
+            $distanceGap = $secondBestDistance - $bestDistance;
+            if ($distanceGap < self::FACE_DISTANCE_MARGIN_THRESHOLD) {
+                return [
+                    'success' => false,
+                    'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
+                    'similarity' => round($bestSimilarity, 4),
+                    'face_distance' => is_finite($bestDistance) ? round($bestDistance, 4) : null,
+                    'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                    'face_distance_gap' => round($distanceGap, 4),
+                    'face_distance_gap_threshold' => self::FACE_DISTANCE_MARGIN_THRESHOLD,
+                    'liveness_score' => round($normalizedLivenessScore, 4),
+                    'notes' => 'face_ambiguous_match',
+                ];
+            }
+        }
 
         if ($normalizedLivenessScore < self::LIVENESS_THRESHOLD) {
             return [
@@ -156,6 +178,7 @@ class FaceVerificationService
 
         $bestUser = null;
         $bestDistance = null;
+        $secondBestDistance = null;
 
         foreach ($users as $user) {
             if (!$user instanceof User) {
@@ -170,8 +193,11 @@ class FaceVerificationService
             foreach ($storedDescriptors as $storedDescriptor) {
                 $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
                 if ($bestDistance === null || $distance < $bestDistance) {
+                    $secondBestDistance = $bestDistance;
                     $bestDistance = $distance;
                     $bestUser = $user;
+                } elseif ($secondBestDistance === null || $distance < $secondBestDistance) {
+                    $secondBestDistance = $distance;
                 }
             }
         }
@@ -186,6 +212,22 @@ class FaceVerificationService
         }
 
         $bestSimilarity = $this->distanceToSimilarity($bestDistance);
+        if ($secondBestDistance !== null) {
+            $distanceGap = $secondBestDistance - $bestDistance;
+            if ($distanceGap < self::FACE_DISTANCE_MARGIN_THRESHOLD) {
+                return [
+                    'success' => false,
+                    'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
+                    'similarity' => round($bestSimilarity, 4),
+                    'face_distance' => round($bestDistance, 4),
+                    'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                    'face_distance_gap' => round($distanceGap, 4),
+                    'face_distance_gap_threshold' => self::FACE_DISTANCE_MARGIN_THRESHOLD,
+                    'liveness_score' => round($normalizedLivenessScore, 4),
+                    'notes' => 'face_ambiguous_match',
+                ];
+            }
+        }
         if ($bestDistance > self::FACE_DISTANCE_THRESHOLD) {
             return [
                 'success' => false,
@@ -225,6 +267,7 @@ class FaceVerificationService
 
         $bestUser = null;
         $bestDistance = null;
+        $secondBestDistance = null;
 
         foreach ($users as $user) {
             if (!$user instanceof User) {
@@ -239,8 +282,11 @@ class FaceVerificationService
             foreach ($storedDescriptors as $storedDescriptor) {
                 $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
                 if ($bestDistance === null || $distance < $bestDistance) {
+                    $secondBestDistance = $bestDistance;
                     $bestDistance = $distance;
                     $bestUser = $user;
+                } elseif ($secondBestDistance === null || $distance < $secondBestDistance) {
+                    $secondBestDistance = $distance;
                 }
             }
         }
@@ -255,6 +301,22 @@ class FaceVerificationService
         }
 
         $bestSimilarity = $this->distanceToSimilarity($bestDistance);
+        if ($secondBestDistance !== null) {
+            $distanceGap = $secondBestDistance - $bestDistance;
+            if ($distanceGap < self::FACE_DISTANCE_MARGIN_THRESHOLD) {
+                return [
+                    'success' => false,
+                    'face_verified' => false,
+                    'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
+                    'similarity' => round($bestSimilarity, 4),
+                    'face_distance' => round($bestDistance, 4),
+                    'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                    'face_distance_gap' => round($distanceGap, 4),
+                    'face_distance_gap_threshold' => self::FACE_DISTANCE_MARGIN_THRESHOLD,
+                    'notes' => 'face_ambiguous_match',
+                ];
+            }
+        }
         if ($bestDistance > self::FACE_DISTANCE_THRESHOLD) {
             return [
                 'success' => false,

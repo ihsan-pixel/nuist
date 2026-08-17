@@ -3233,6 +3233,42 @@
                     scheduleNextScan(successScanDelayMs);
                     return;
                 }
+                if (error.statusCode === 'face_not_enrolled' || error.statusCode === 'no_enrolled_teachers') {
+                    finishMatchHud(false, 'Belum terdaftar');
+                    clearCameraGuideLock();
+                    setStageState('detecting_face', 'error', message);
+                    setPrimaryNotice('Wajah belum terdaftar', 'Guru ini belum memiliki data wajah aktif di sistem. Silakan daftarkan wajah terlebih dahulu.');
+                    setScanBadge('Belum terdaftar', 'danger');
+                    setCameraGuide('Wajah belum terdaftar. Silakan lakukan pendaftaran wajah.', 'bx-user-x', { force: true });
+                    showFlashModal({
+                        tone: 'warning',
+                        title: 'Wajah Belum Terdaftar',
+                        copy: message,
+                        meta: 'Silakan daftar wajah terlebih dahulu sebelum presensi.',
+                        duration: 3200,
+                    });
+                    showAttendanceResult('Wajah belum terdaftar', message);
+                    scheduleNextScan(retryScanDelayMs);
+                    return;
+                }
+                if (error.statusCode === 'face_ambiguous_match') {
+                    finishMatchHud(false, 'Kurang yakin');
+                    clearCameraGuideLock();
+                    setStageState('detecting_face', 'error', message);
+                    setPrimaryNotice('Wajah belum cukup yakin', 'Coba posisikan wajah lebih tegak, dekat, dan pastikan hanya satu wajah terlihat.');
+                    setScanBadge('Perlu ulang', 'warning');
+                    setCameraGuide('Wajah belum cukup yakin. Ulangi dengan posisi lebih stabil.', 'bx-refresh', { force: true });
+                    showFlashModal({
+                        tone: 'warning',
+                        title: 'Wajah Belum Yakin',
+                        copy: message,
+                        meta: 'Perbaiki posisi wajah dan pencahayaan lalu coba lagi.',
+                        duration: 2800,
+                    });
+                    showAttendanceResult('Wajah belum cukup yakin', message);
+                    scheduleNextScan(retryScanDelayMs);
+                    return;
+                }
                 if (cameraMatchHud?.classList.contains('is-visible')) {
                     finishMatchHud(false, 'Gagal');
                 }
