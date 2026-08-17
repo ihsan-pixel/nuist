@@ -2944,7 +2944,7 @@ window.addEventListener('load', function() {
     const faceScanOnboarding = document.getElementById('face-scan-onboarding');
     const faceScanOnboardingContinue = document.getElementById('btn-face-scan-onboarding-continue');
     const faceScanHelpButton = document.getElementById('btn-face-scan-help');
-    const faceScanner = window.FaceRecognition ? new window.FaceRecognition() : null;
+    const faceScanner = window.FaceRecognition ? new window.FaceRecognition({ preset: 'mobile' }) : null;
     let faceVerificationResult = null;
     const verificationMode = @json($faceVerificationState['mode'] ?? 'selfie');
     const verificationLabel = @json($faceVerificationState['label'] ?? 'Selfie');

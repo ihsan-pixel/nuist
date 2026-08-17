@@ -1,5 +1,6 @@
 class FaceRecognition {
-    constructor() {
+    constructor(options = {}) {
+        this.options = this.resolveOptions(options);
         this.modelsLoaded = false;
         this.detectionModelsLoaded = false;
         this.recognitionModelsLoaded = false;
@@ -11,17 +12,48 @@ class FaceRecognition {
         this.recentDetectionMemoryMs = 450;
         this.lastGeometryDetection = null;
         this.lastGeometryDetectedAt = 0;
-        this.detectorOptions = {
-            inputSize: 256,
-            scoreThreshold: 0.3,
+        this.detectorOptions = this.options.detectorOptions;
+        this.minimumFaceWidthRatio = this.options.minimumFaceWidthRatio;
+        this.maximumEyeTiltDegrees = this.options.maximumEyeTiltDegrees;
+        this.enrollmentSharpnessThreshold = this.options.enrollmentSharpnessThreshold;
+        this.enrollmentMotionThreshold = this.options.enrollmentMotionThreshold;
+        this.enrollmentHoldMs = this.options.enrollmentHoldMs;
+        this.challengeBlinkLeadMs = this.options.challengeBlinkLeadMs;
+        this.challengeActionLeadMs = this.options.challengeActionLeadMs;
+    }
+
+    resolveOptions(options = {}) {
+        const preset = options.preset === 'mobile' ? 'mobile' : 'default';
+
+        const defaults = {
+            detectorOptions: {
+                inputSize: 256,
+                scoreThreshold: 0.3,
+            },
+            minimumFaceWidthRatio: 0.1,
+            maximumEyeTiltDegrees: 22,
+            enrollmentSharpnessThreshold: 0.12,
+            enrollmentMotionThreshold: 0.06,
+            enrollmentHoldMs: 260,
+            challengeBlinkLeadMs: 350,
+            challengeActionLeadMs: 500,
         };
-        this.minimumFaceWidthRatio = 0.1;
-        this.maximumEyeTiltDegrees = 22;
-        this.enrollmentSharpnessThreshold = 0.12;
-        this.enrollmentMotionThreshold = 0.06;
-        this.enrollmentHoldMs = 260;
-        this.challengeBlinkLeadMs = 350;
-        this.challengeActionLeadMs = 500;
+
+        const mobile = {
+            detectorOptions: {
+                inputSize: 192,
+                scoreThreshold: 0.28,
+            },
+            minimumFaceWidthRatio: 0.085,
+            maximumEyeTiltDegrees: 24,
+            enrollmentSharpnessThreshold: 0.1,
+            enrollmentMotionThreshold: 0.08,
+            enrollmentHoldMs: 220,
+            challengeBlinkLeadMs: 320,
+            challengeActionLeadMs: 420,
+        };
+
+        return preset === 'mobile' ? mobile : defaults;
     }
 
     async loadModels() {
@@ -149,13 +181,21 @@ class FaceRecognition {
 
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
-            video: {
-                facingMode: 'user',
-                width: { ideal: 720 },
-                height: { ideal: 960 },
-                aspectRatio: 3 / 4,
-                frameRate: { ideal: 24, max: 30 },
-            },
+            video: this.options.preset === 'mobile'
+                ? {
+                    facingMode: 'user',
+                    width: { ideal: 640, max: 960 },
+                    height: { ideal: 853, max: 1280 },
+                    aspectRatio: 3 / 4,
+                    frameRate: { ideal: 20, max: 24 },
+                }
+                : {
+                    facingMode: 'user',
+                    width: { ideal: 720 },
+                    height: { ideal: 960 },
+                    aspectRatio: 3 / 4,
+                    frameRate: { ideal: 24, max: 30 },
+                },
         });
 
         this.activeStream = stream;
