@@ -2975,6 +2975,7 @@ window.addEventListener('load', function() {
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
+    let faceModelWarmupPromise = null;
 
     function setFaceModelReadyState(ready, progress = null) {
         faceModelWarmupReady = ready;
@@ -2993,28 +2994,41 @@ window.addEventListener('load', function() {
 
     function warmupFaceModels() {
         if (!faceScanner) {
-            return;
+            return Promise.resolve(false);
         }
 
+        if (faceModelWarmupPromise) {
+            return faceModelWarmupPromise;
+        }
+
+        setFaceModelReadyState(false, 0);
         const warmupModels = async () => {
             try {
-                setFaceModelReadyState(false, 0);
                 const warmupPromise = faceScanner.loadModels();
                 setFaceModelReadyState(false, 50);
                 await warmupPromise;
                 setFaceModelReadyState(true, 100);
+                return true;
             } catch (error) {
                 console.warn('Face model warmup failed:', error);
                 setFaceModelReadyState(false, 0);
+                return false;
+            } finally {
+                faceModelWarmupPromise = null;
             }
         };
 
-        setFaceModelReadyState(false, 0);
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(warmupModels, { timeout: 1500 });
-        } else {
-            window.setTimeout(warmupModels, 300);
-        }
+        faceModelWarmupPromise = new Promise((resolve) => {
+            const runWarmup = async () => resolve(await warmupModels());
+
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(runWarmup, { timeout: 1500 });
+            } else {
+                window.setTimeout(runWarmup, 300);
+            }
+        });
+
+        return faceModelWarmupPromise;
     }
 
     warmupFaceModels();
@@ -3906,9 +3920,8 @@ window.addEventListener('load', function() {
 
             stopSelfieStream();
 
-            await faceScanner.loadModels();
-
             if (faceScanRequired) {
+                await warmupFaceModels();
                 await faceScanner.initializeCamera(video);
                 video.style.display = 'block';
 
@@ -3918,7 +3931,6 @@ window.addEventListener('load', function() {
                 }
 
                 setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
-                await faceScanner.loadModels();
                 setFaceLoadingState(false);
                 updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {
