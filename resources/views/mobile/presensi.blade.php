@@ -2944,7 +2944,8 @@ window.addEventListener('DOMContentLoaded', function() {
     const faceScanOnboarding = document.getElementById('face-scan-onboarding');
     const faceScanOnboardingContinue = document.getElementById('btn-face-scan-onboarding-continue');
     const faceScanHelpButton = document.getElementById('btn-face-scan-help');
-    const faceScanner = window.FaceRecognition ? new window.FaceRecognition() : null;
+    const faceScanner = window.MobileFaceScanner || (window.FaceRecognition ? new window.FaceRecognition() : null);
+    window.MobileFaceScanner = faceScanner;
     let faceVerificationResult = null;
     const verificationMode = @json($faceVerificationState['mode'] ?? 'selfie');
     const verificationLabel = @json($faceVerificationState['label'] ?? 'Selfie');
@@ -3001,15 +3002,33 @@ window.addEventListener('DOMContentLoaded', function() {
             return faceModelWarmupPromise;
         }
 
-        setFaceModelReadyState(false, 0);
+        if (window.MobileFaceModelWarmup) {
+            const warmupState = window.MobileFaceModelWarmup;
+            if (warmupState.ready) {
+                setFaceModelReadyState(true, 100);
+                faceModelWarmupPromise = Promise.resolve(true);
+                return faceModelWarmupPromise;
+            }
+
+            if (Number.isFinite(warmupState.progress)) {
+                setFaceModelReadyState(false, warmupState.progress);
+            }
+        } else {
+            setFaceModelReadyState(false, 0);
+        }
+
         const warmupModels = async () => {
             try {
                 if (window.MobileFaceModelWarmup) {
                     await window.MobileFaceModelWarmup.start();
                 }
 
-                const warmupPromise = faceScanner.loadModels();
-                setFaceModelReadyState(false, 50);
+                const warmupPromise = faceScanner.loadModels((progress) => {
+                    setFaceModelReadyState(progress >= 100, progress);
+                    if (window.MobileFaceModelWarmup) {
+                        window.MobileFaceModelWarmup.progress = progress;
+                    }
+                });
                 await warmupPromise;
                 setFaceModelReadyState(true, 100);
                 return true;

@@ -24,8 +24,11 @@ class FaceRecognition {
         this.challengeActionLeadMs = 500;
     }
 
-    async loadModels() {
+    async loadModels(onProgress = null) {
         if (this.recognitionModelsLoaded) {
+            if (typeof onProgress === 'function') {
+                onProgress(100);
+            }
             return true;
         }
 
@@ -34,10 +37,27 @@ class FaceRecognition {
         }
 
         this.modelLoadPromise = (async () => {
-            await this.loadDetectionModels();
-            await this.loadRecognitionModel();
+            if (typeof onProgress === 'function') {
+                onProgress(0);
+            }
+
+            await this.loadDetectionModels((progress) => {
+                if (typeof onProgress === 'function') {
+                    onProgress(progress);
+                }
+            });
+
+            await this.loadRecognitionModel((progress) => {
+                if (typeof onProgress === 'function') {
+                    onProgress(progress);
+                }
+            });
+
             this.recognitionModelsLoaded = true;
             this.modelsLoaded = true;
+            if (typeof onProgress === 'function') {
+                onProgress(100);
+            }
             return true;
         })();
 
@@ -48,9 +68,12 @@ class FaceRecognition {
         }
     }
 
-    async loadDetectionModels() {
+    async loadDetectionModels(onProgress = null) {
         if (this.detectionModelsLoaded) {
             this.modelsLoaded = this.recognitionModelsLoaded;
+            if (typeof onProgress === 'function') {
+                onProgress(this.recognitionModelsLoaded ? 100 : 66);
+            }
             return true;
         }
 
@@ -64,10 +87,15 @@ class FaceRecognition {
 
         this.detectionModelLoadPromise = (async () => {
             try {
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(this.modelBaseUri),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(this.modelBaseUri),
-                ]);
+                await faceapi.nets.tinyFaceDetector.loadFromUri(this.modelBaseUri);
+                if (typeof onProgress === 'function') {
+                    onProgress(33);
+                }
+
+                await faceapi.nets.faceLandmark68Net.loadFromUri(this.modelBaseUri);
+                if (typeof onProgress === 'function') {
+                    onProgress(66);
+                }
             } catch (error) {
                 const rawMessage = String(error?.message || error || '');
 
@@ -95,8 +123,11 @@ class FaceRecognition {
         }
     }
 
-    async loadRecognitionModel() {
+    async loadRecognitionModel(onProgress = null) {
         if (this.recognitionModelsLoaded) {
+            if (typeof onProgress === 'function') {
+                onProgress(100);
+            }
             return true;
         }
 
@@ -107,6 +138,9 @@ class FaceRecognition {
         this.recognitionModelLoadPromise = (async () => {
             try {
                 await faceapi.nets.faceRecognitionNet.loadFromUri(this.modelBaseUri);
+                if (typeof onProgress === 'function') {
+                    onProgress(100);
+                }
             } catch (error) {
                 const rawMessage = String(error?.message || error || '');
 

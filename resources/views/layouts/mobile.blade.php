@@ -561,8 +561,10 @@
             promise: null,
             ready: false,
             error: null,
+            progress: 0,
             start: function () {
                 if (this.ready) {
+                    this.progress = 100;
                     return Promise.resolve(true);
                 }
 
@@ -574,11 +576,15 @@
                     return Promise.resolve(false);
                 }
 
-                var scanner = new window.FaceRecognition();
-                this.promise = scanner.loadModels()
+                var scanner = window.MobileFaceScanner || (window.MobileFaceScanner = new window.FaceRecognition());
+                this.progress = 0;
+                this.promise = scanner.loadModels(function (progress) {
+                    window.MobileFaceModelWarmup.progress = Math.max(0, Math.min(100, Math.round(progress)));
+                })
                     .then(function () {
                         window.MobileFaceModelWarmup.ready = true;
                         window.MobileFaceModelWarmup.error = null;
+                        window.MobileFaceModelWarmup.progress = 100;
                         return true;
                     })
                     .catch(function (error) {
@@ -595,15 +601,7 @@
         };
 
         if (!window.MobileFaceModelWarmup.ready && !window.MobileFaceModelWarmup.promise) {
-            if ('requestIdleCallback' in window) {
-                window.requestIdleCallback(function () {
-                    window.MobileFaceModelWarmup.start();
-                }, { timeout: 1000 });
-            } else {
-                window.setTimeout(function () {
-                    window.MobileFaceModelWarmup.start();
-                }, 0);
-            }
+            window.MobileFaceModelWarmup.start();
         }
 
         // PWA Install Prompt
