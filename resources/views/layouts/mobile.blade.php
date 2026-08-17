@@ -557,6 +557,55 @@
 
     <!-- Mobile-specific scripts -->
     <script>
+        window.MobileFaceModelWarmup = window.MobileFaceModelWarmup || {
+            promise: null,
+            ready: false,
+            error: null,
+            start: function () {
+                if (this.ready) {
+                    return Promise.resolve(true);
+                }
+
+                if (this.promise) {
+                    return this.promise;
+                }
+
+                if (typeof window.FaceRecognition !== 'function' || typeof faceapi === 'undefined') {
+                    return Promise.resolve(false);
+                }
+
+                var scanner = new window.FaceRecognition();
+                this.promise = scanner.loadModels()
+                    .then(function () {
+                        window.MobileFaceModelWarmup.ready = true;
+                        window.MobileFaceModelWarmup.error = null;
+                        return true;
+                    })
+                    .catch(function (error) {
+                        window.MobileFaceModelWarmup.error = error;
+                        window.MobileFaceModelWarmup.ready = false;
+                        return false;
+                    })
+                    .finally(function () {
+                        window.MobileFaceModelWarmup.promise = null;
+                    });
+
+                return this.promise;
+            }
+        };
+
+        if (!window.MobileFaceModelWarmup.ready && !window.MobileFaceModelWarmup.promise) {
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(function () {
+                    window.MobileFaceModelWarmup.start();
+                }, { timeout: 1000 });
+            } else {
+                window.setTimeout(function () {
+                    window.MobileFaceModelWarmup.start();
+                }, 0);
+            }
+        }
+
         // PWA Install Prompt
         // let deferredPrompt;
         // const installPrompt = document.getElementById('pwa-install-prompt');

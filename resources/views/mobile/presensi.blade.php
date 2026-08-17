@@ -3004,6 +3004,10 @@ window.addEventListener('DOMContentLoaded', function() {
         setFaceModelReadyState(false, 0);
         const warmupModels = async () => {
             try {
+                if (window.MobileFaceModelWarmup) {
+                    await window.MobileFaceModelWarmup.start();
+                }
+
                 const warmupPromise = faceScanner.loadModels();
                 setFaceModelReadyState(false, 50);
                 await warmupPromise;
