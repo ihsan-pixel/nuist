@@ -98,7 +98,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #014d4e 0%, #0e8549 100%);
             border: none;
             border-radius: 8px;
             font-weight: 600;
