@@ -393,6 +393,7 @@ class SchoolKioskController extends Controller
                     'name' => $teacher->name,
                     'nip' => $teacher->nip,
                     'nuptk' => $teacher->nuptk,
+                    'has_open_attendance' => $this->currentTeacherHasOpenAttendance($teacher, $device->madrasah_id),
                 ],
             ]);
         } catch (ValidationException $exception) {
