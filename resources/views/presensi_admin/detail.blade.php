@@ -1169,6 +1169,7 @@
                                                 <th>Foto Keluar</th>
                                                 <th>Lokasi</th>
                                                 <th>Keterangan</th>
+                                                <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1225,10 +1226,20 @@
                                                     @endif
                                                 </td>
                                                 <td><small>{{ $tp['keterangan'] ?? '-' }}</small></td>
+                                                <td class="text-center">
+                                                    <form method="POST"
+                                                          action="{{ route('presensi_admin.reset_face', ['madrasahId' => $madrasah->id, 'userId' => $tp['id']]) }}"
+                                                          onsubmit="return confirm('Reset data wajah {{ $tp['nama'] }}? User harus mendaftar wajah ulang.');">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            <i class="mdi mdi-refresh me-1"></i>Reset Wajah
+                                                        </button>
+                                                    </form>
+                                                </td>
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="11" class="text-center p-4">
+                                                <td colspan="12" class="text-center p-4">
                                                     <div class="alert alert-info d-inline-block text-center" role="alert">
                                                         <i class="bx bx-info-circle bx-lg me-2"></i>
                                                         <strong>Belum ada data Tenaga Pendidik</strong><br>

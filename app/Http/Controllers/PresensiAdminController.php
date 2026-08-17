@@ -823,6 +823,37 @@ class PresensiAdminController extends Controller
         ));
     }
 
+    public function resetMadrasahUserFace($madrasahId, $userId)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($user->role === 'admin' && (int) $user->madrasah_id !== (int) $madrasahId) {
+            abort(403, 'Unauthorized');
+        }
+
+        $targetMadrasah = Madrasah::findOrFail($madrasahId);
+        $targetUser = User::where('id', $userId)
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $targetMadrasah->id)
+            ->firstOrFail();
+
+        $targetUser->update([
+            'face_data' => null,
+            'face_id' => null,
+            'face_registered_at' => null,
+            'face_verification_required' => true,
+        ]);
+
+        return redirect()
+            ->route('presensi_admin.show_detail', [
+                'madrasahId' => $madrasahId,
+            ])
+            ->with('success', 'Data wajah pengguna berhasil direset. Pengguna dapat mendaftar wajah ulang.');
+    }
+
     // Export presensi data to Excel
     public function export(Request $request)
     {
