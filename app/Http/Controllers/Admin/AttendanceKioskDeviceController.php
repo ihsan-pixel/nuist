@@ -263,7 +263,7 @@ class AttendanceKioskDeviceController extends Controller
             return $requested;
         }
 
-        return $schools->first()?->id;
+        return null;
     }
 
     private function canChooseMadrasah(User $user): bool

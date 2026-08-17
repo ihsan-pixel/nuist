@@ -110,6 +110,12 @@
                         <span>Pending Registrations</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('presensi_admin.kiosk_devices') }}" class="waves-effect">
+                        <i class="bx bx-devices"></i>
+                        <span>Perangkat Kiosk</span>
+                    </a>
+                </li>
                 @endif
 
 
