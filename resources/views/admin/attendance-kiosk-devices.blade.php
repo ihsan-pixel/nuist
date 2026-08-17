@@ -356,9 +356,18 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <span class="badge {{ $device->is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle' }}">
-                                                            {{ $device->is_active ? 'Aktif' : 'Nonaktif' }}
-                                                        </span>
+                                                        @php
+                                                            $deviceAllowedIps = collect($device->allowed_ip_addresses ?? [])->filter()->values();
+                                                            $ipMatches = $deviceAllowedIps->contains((string) $currentIp);
+                                                        @endphp
+                                                        <div class="d-flex flex-column gap-2">
+                                                            <span class="badge {{ $device->is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle' }}">
+                                                                {{ $device->is_active ? 'Aktif' : 'Nonaktif' }}
+                                                            </span>
+                                                            <span class="badge {{ $ipMatches ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle' }}">
+                                                                {{ $ipMatches ? 'IP Sesuai' : 'IP Belum Sesuai' }}
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                     <td class="text-end">
                                                         <div class="d-inline-flex gap-2">
@@ -375,6 +384,15 @@
                                                                     {{ $device->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
                                                                 </button>
                                                             </form>
+                                                            @if($device->is_active && $ipMatches)
+                                                                <a href="{{ route('school-kiosk.index') }}" class="btn btn-sm btn-primary">
+                                                                    Buka Mode Kiosk
+                                                                </a>
+                                                            @else
+                                                                <button type="button" class="btn btn-sm btn-primary" disabled>
+                                                                    Buka Mode Kiosk
+                                                                </button>
+                                                            @endif
                                                             <form method="POST" action="{{ route('presensi_admin.kiosk_devices.destroy', $device) }}" onsubmit="return confirm('Hapus perangkat {{ addslashes($device->name) }}?');">
                                                                 @csrf
                                                                 @method('DELETE')
