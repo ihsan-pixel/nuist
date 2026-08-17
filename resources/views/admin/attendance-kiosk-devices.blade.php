@@ -205,7 +205,7 @@
                             <div class="small mt-2 mb-0 text-muted">
                                 Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
                             </div>
-                    </div>
+                        </div>
                 @endif
 
                 <div class="row g-3 mb-4">
