@@ -40,6 +40,22 @@ class AttendanceKioskDeviceController extends Controller
     {
         $user = Auth::user();
         $schools = $this->accessibleSchoolsQuery($user)->get(['id', 'name', 'kabupaten', 'scod']);
+        if ($schools->isEmpty()) {
+            return view('admin.attendance-kiosk-devices', [
+                'schools' => collect(),
+                'devices' => collect(),
+                'logs' => collect([]),
+                'stats' => [
+                    'total_devices' => 0,
+                    'active_devices' => 0,
+                    'submit_success_today' => 0,
+                    'access_denied_today' => 0,
+                ],
+                'selectedMadrasahId' => null,
+                'canChooseMadrasah' => $this->canChooseMadrasah($user),
+                'currentIp' => $request->ip(),
+            ]);
+        }
         $selectedMadrasahId = $this->resolveSelectedMadrasahId($request, $user, $schools);
 
         $devicesQuery = RegisteredAttendanceDevice::query()

@@ -195,17 +195,19 @@
                 @endif
 
                 @if(session('kiosk_registration'))
-                    @php($registration = session('kiosk_registration'))
-                        <div class="alert alert-info">
-                            <div class="fw-semibold mb-2">Perangkat baru berhasil didaftarkan</div>
-                            <div class="small text-muted mb-2">
-                            Komputer ini sudah terhubung ke perangkat <strong>{{ $registration['device_name'] }}</strong> untuk {{ $registration['madrasah_name'] }}.
-                            </div>
-                            <div class="token-box">{{ $registration['plain_token'] }}</div>
-                            <div class="small mt-2 mb-0 text-muted">
-                                Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
-                            </div>
+                    @php
+                        $registration = session('kiosk_registration');
+                    @endphp
+                    <div class="alert alert-info">
+                        <div class="fw-semibold mb-2">Perangkat baru berhasil didaftarkan</div>
+                        <div class="small text-muted mb-2">
+                            Komputer ini sudah terhubung ke perangkat <strong>{{ $registration['device_name'] ?? '-' }}</strong> untuk {{ $registration['madrasah_name'] ?? '-' }}.
                         </div>
+                        <div class="token-box">{{ $registration['plain_token'] ?? '-' }}</div>
+                        <div class="small mt-2 mb-0 text-muted">
+                            Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
+                        </div>
+                    </div>
                 @endif
 
                 <div class="row g-3 mb-4">
