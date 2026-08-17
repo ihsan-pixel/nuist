@@ -362,7 +362,7 @@ class PresensiAdminController extends Controller
             ])),
         ]);
 
-        $cachedPayload = Cache::remember($cacheKeyBase, now()->addSeconds(45), function () use ($request, $user, $selectedDate) {
+        $cachedPayload = Cache::remember($cacheKeyBase, now()->addSeconds(120), function () use ($request, $user, $selectedDate) {
             $threeMonthAbsenceData = $this->getThreeMonthAbsenceData($selectedDate, $user);
             $teacherAbsenceRecapData = $this->getTeacherAbsenceRecapData($request, $user);
             $summary = $this->calculatePresensiSummary($selectedDate, $user);
@@ -613,7 +613,7 @@ class PresensiAdminController extends Controller
         $user = Auth::user();
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        $summary = $this->calculatePresensiSummary($selectedDate, $user);
+                $summary = $this->calculatePresensiSummary($selectedDate, $user);
 
         return response()->json($summary);
     }

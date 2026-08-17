@@ -1236,7 +1236,7 @@
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['users_presensi']) }}</h3>
+                                <h3 id="summary-users-presensi" class="text-white mb-1" style="color: white !important;">{{ number_format($summary['users_presensi']) }}</h3>
                                 <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Presensi (Hadir)</p>
                             </div>
                             <div class="avatar-md">
@@ -1259,7 +1259,7 @@
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['users_izin']) }}</h3>
+                                <h3 id="summary-users-izin" class="text-white mb-1" style="color: white !important;">{{ number_format($summary['users_izin']) }}</h3>
                                 <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Izin</p>
                             </div>
                             <div class="avatar-md">
@@ -1282,7 +1282,7 @@
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['sekolah_presensi']) }}</h3>
+                                <h3 id="summary-sekolah-presensi" class="text-white mb-1" style="color: white !important;">{{ number_format($summary['sekolah_presensi']) }}</h3>
                                 <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Sekolah Presensi</p>
                             </div>
                             <div class="avatar-md">
@@ -1305,7 +1305,7 @@
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['guru_tidak_presensi']) }}</h3>
+                                <h3 id="summary-guru-tidak-presensi" class="text-white mb-1" style="color: white !important;">{{ number_format($summary['guru_tidak_presensi']) }}</h3>
                                 <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Belum Presensi (Tidak Hadir)</p>
                             </div>
                             <div class="avatar-md">
@@ -1567,7 +1567,7 @@
                         <i class="bx bx-user-check"></i>
                     </span>
                     <div>
-                        <div class="h5 mb-1 fw-bold">{{ $summary['users_presensi'] }}</div>
+                        <div id="summary-users-presensi" class="h5 mb-1 fw-bold">{{ $summary['users_presensi'] }}</div>
                         <small class="text-muted d-block">Users Presensi</small>
                     </div>
                 </div>
@@ -1578,7 +1578,7 @@
                 <div class="card-body text-center py-2">
                     <div class="d-flex align-items-center justify-content-center">
                         <i class="bx bx-building bx-sm text-success me-2"></i>
-                        <span class="h5 mb-0 text-success fw-bold">{{ $summary['sekolah_presensi'] }}</span>
+                        <span id="summary-sekolah-presensi" class="h5 mb-0 text-success fw-bold">{{ $summary['sekolah_presensi'] }}</span>
                     </div>
                     <small class="text-muted d-block mt-1">Sekolah Presensi</small>
                 </div>
@@ -1591,7 +1591,7 @@
                         <i class="bx bx-user-x"></i>
                     </span>
                     <div>
-                        <div class="h5 mb-1 fw-bold">{{ $summary['guru_tidak_presensi'] }}</div>
+                        <div id="summary-guru-tidak-presensi" class="h5 mb-1 fw-bold">{{ $summary['guru_tidak_presensi'] }}</div>
                         <small class="text-muted d-block">Guru Belum Presensi</small>
                     </div>
                 </div>
@@ -2012,24 +2012,9 @@ $(document).ready(function () {
 
 
 
-    // Real-time update for super admin
+    // Real-time update for summary cards only.
     let currentDate = '{{ $selectedDate->format('Y-m-d') }}';
     let updateInterval;
-
-    function updatePresensiData() {
-        $.ajax({
-            url: '{{ route('presensi_admin.data') }}',
-            type: 'GET',
-            data: { date: currentDate },
-            success: function(data) {
-                // Update summary cards
-                updateSummaryCards();
-            },
-            error: function(xhr, status, error) {
-                console.log('Error updating data:', error);
-            }
-        });
-    }
 
     function updateSummaryCards() {
         $.ajax({
@@ -2037,10 +2022,15 @@ $(document).ready(function () {
             type: 'GET',
             data: { date: currentDate },
             success: function(data) {
-    // Update summary cards with JSON data
-                $('.row.mb-4 .card .h5').eq(0).text(data.users_presensi);
-                $('.row.mb-4 .card .h5').eq(1).text(data.sekolah_presensi);
-                $('.row.mb-4 .card .h5').eq(2).text(data.guru_tidak_presensi);
+                const usersPresensi = data.users_presensi ?? 0;
+                const usersIzin = data.users_izin ?? 0;
+                const sekolahPresensi = data.sekolah_presensi ?? 0;
+                const guruTidakPresensi = data.guru_tidak_presensi ?? 0;
+
+                $('#summary-users-presensi').text(usersPresensi);
+                $('#summary-users-izin').text(usersIzin);
+                $('#summary-sekolah-presensi').text(sekolahPresensi);
+                $('#summary-guru-tidak-presensi').text(guruTidakPresensi);
             },
             error: function(xhr, status, error) {
                 console.log('Error updating summary:', error);
@@ -2369,8 +2359,9 @@ $(document).ready(function () {
         return `<span class="badge ${badgeClass} px-3 py-2 fs-6"><i class="mdi ${iconClass} me-1"></i>${statusText}</span>`;
     }
 
-    // Update data every 30 seconds
-    updateInterval = setInterval(updatePresensiData, 30000);
+    // Update summary every 15 seconds without reloading the whole dataset.
+    updateSummaryCards();
+    updateInterval = setInterval(updateSummaryCards, 15000);
 
     // Handle date change
     $('input[type="date"]').on('change', function(e) {
@@ -2378,13 +2369,13 @@ $(document).ready(function () {
         // Update export link
         let exportLink = '{{ route('presensi_admin.export', ['date' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', currentDate);
         $('a[href*="presensi_admin.export"]').attr('href', exportLink);
-        updatePresensiData();
+        updateSummaryCards();
     });
 
     // Handle refresh button
     window.refreshData = function() {
         currentDate = $('input[type="date"]').val();
-        updatePresensiData();
+        updateSummaryCards();
         // Show success message
         Swal.fire({
             icon: 'success',
@@ -2424,7 +2415,7 @@ $(document).ready(function () {
     });
 
     // Initial update
-    updatePresensiData();
+    updateSummaryCards();
 
 
 
