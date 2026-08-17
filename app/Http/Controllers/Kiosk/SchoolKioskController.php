@@ -117,7 +117,9 @@ class SchoolKioskController extends Controller
             'teachersWithoutFaceCount' => $teachers->whereNull('face_registered_at')->count(),
             'attendanceActivities' => $attendanceActivities,
             'attendanceSummary' => $attendanceSummary,
-            'schoolPulangStart' => $this->attendanceWorkflowService->resolvePulangStart($device->madrasah, now('Asia/Jakarta')),
+            'schoolPulangStart' => $device?->madrasah
+                ? $this->attendanceWorkflowService->resolvePulangStart($device->madrasah, now('Asia/Jakarta'))
+                : null,
             'faceEngineDriver' => $this->kioskFaceEngineService->driver(),
             'faceEngineLabel' => $this->kioskFaceEngineService->displayLabel(),
             'faceEngineUsesPython' => $this->kioskFaceEngineService->usesPython(),
