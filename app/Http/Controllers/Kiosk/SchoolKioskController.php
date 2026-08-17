@@ -8,6 +8,7 @@ use App\Models\RegisteredAttendanceDevice;
 use App\Models\User;
 use App\Services\AttendanceKioskAccessService;
 use App\Services\AttendanceValidationService;
+use App\Services\AttendanceWorkflowService;
 use App\Services\FaceVerificationService;
 use App\Services\KioskFaceEngineService;
 use App\Services\MobileAttendanceSettingsService;
@@ -30,6 +31,7 @@ class SchoolKioskController extends Controller
         private SchoolKioskAttendanceService $schoolKioskAttendanceService,
         private FaceVerificationService $faceVerificationService,
         private AttendanceValidationService $attendanceValidationService,
+        private AttendanceWorkflowService $attendanceWorkflowService,
         private KioskFaceEngineService $kioskFaceEngineService,
     ) {
         $this->middleware(['auth']);
@@ -107,6 +109,7 @@ class SchoolKioskController extends Controller
                     'ketugasan' => $teacher->ketugasan,
                     'face_registered_at' => optional($teacher->face_registered_at)?->toIso8601String(),
                     'has_face' => (bool) $teacher->face_registered_at,
+                    'has_open_attendance' => $this->currentTeacherHasOpenAttendance($teacher, $device->madrasah_id),
                 ];
             })->values()->all(),
             'verificationMode' => $this->mobileAttendanceSettingsService->currentMode(),
@@ -114,6 +117,7 @@ class SchoolKioskController extends Controller
             'teachersWithoutFaceCount' => $teachers->whereNull('face_registered_at')->count(),
             'attendanceActivities' => $attendanceActivities,
             'attendanceSummary' => $attendanceSummary,
+            'schoolPulangStart' => $this->attendanceWorkflowService->resolvePulangStart($device->madrasah, now('Asia/Jakarta')),
             'faceEngineDriver' => $this->kioskFaceEngineService->driver(),
             'faceEngineLabel' => $this->kioskFaceEngineService->displayLabel(),
             'faceEngineUsesPython' => $this->kioskFaceEngineService->usesPython(),
@@ -791,6 +795,17 @@ class SchoolKioskController extends Controller
         ];
     }
 
+    private function currentTeacherHasOpenAttendance(User $teacher, int $madrasahId): bool
+    {
+        return Presensi::query()
+            ->where('user_id', $teacher->id)
+            ->where('madrasah_id', $madrasahId)
+            ->whereDate('tanggal', Carbon::today('Asia/Jakarta')->toDateString())
+            ->whereNotNull('waktu_masuk')
+            ->whereNull('waktu_keluar')
+            ->exists();
+    }
+
     private function resolveSchoolLogoUrl(?\App\Models\Madrasah $school): ?string
     {
         $logoPath = trim((string) ($school?->logo ?? ''));
@@ -876,6 +891,7 @@ class SchoolKioskController extends Controller
             ],
             'note' => $note !== '' ? $note : 'Presensi tercatat.',
             'timestamp' => $timestamp?->timestamp ?? now('Asia/Jakarta')->timestamp,
+            'has_open_attendance' => (bool) ($masuk && !$keluar),
         ];
     }
 

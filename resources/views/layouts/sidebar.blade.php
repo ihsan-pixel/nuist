@@ -252,6 +252,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('presensi_admin.kiosk_devices', ['madrasah_id' => auth()->user()->madrasah_id]) }}" class="waves-effect">
+                        <i class="bx bx-devices"></i>
+                        <span>Perangkat Kiosk</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.monitor-jurnal-mengajar') }}" class="waves-effect">
                         <i class="bx bx-book-open"></i>
                         <span>Monitoring Jurnal</span>

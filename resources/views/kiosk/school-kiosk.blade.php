@@ -1921,6 +1921,7 @@
         const teachers = @json($teachersPayload);
         const initialAttendanceActivities = @json($attendanceActivities);
         const initialAttendanceSummary = @json($attendanceSummary);
+        const schoolPulangStart = @json($schoolPulangStart);
         const summaryLottieData = @json(json_decode(file_get_contents(public_path('animations/school-kiosk-face-scan.json')), true));
         const verificationMode = @json($verificationMode);
         const faceEngineDriver = @json($faceEngineDriver);
@@ -2266,6 +2267,45 @@
             attendanceResultCard.hidden = false;
             attendanceResultTitle.textContent = title;
             attendanceResultCopy.textContent = message;
+        }
+
+        function isEarlyCheckoutTime(referenceDate = new Date()) {
+            const pulangStart = String(schoolPulangStart || '').trim();
+            if (!pulangStart) {
+                return false;
+            }
+
+            const [hours, minutes, seconds] = pulangStart.split(':').map((value) => Number.parseInt(value, 10));
+            if ([hours, minutes, seconds].some((value) => Number.isNaN(value))) {
+                return false;
+            }
+
+            const cutoff = new Date(referenceDate);
+            cutoff.setHours(hours, minutes, seconds || 0, 0);
+
+            return referenceDate < cutoff;
+        }
+
+        function confirmEarlyCheckoutIfNeeded(teacherName) {
+            if (!isEarlyCheckoutTime()) {
+                return true;
+            }
+
+            const pulangStartLabel = String(schoolPulangStart || '').slice(0, 5);
+            const answer = window.confirm(
+                `${teacherName || 'Guru'} belum masuk jam pulang (${pulangStartLabel}). Setujukah melakukan presensi pulang awal?`
+            );
+
+            if (!answer) {
+                setPrimaryNotice('Presensi pulang dibatalkan', 'Operator memilih untuk tidak mengirim presensi pulang awal.');
+                setScanBadge('Dibatalkan', 'warning');
+                showAttendanceResult(
+                    'Presensi pulang dibatalkan',
+                    'Presensi tidak dikirim karena operator memilih tidak menyetujui presensi pulang awal.'
+                );
+            }
+
+            return answer;
         }
 
         function hideAttendanceResult() {
@@ -2956,6 +2996,22 @@
         }
 
         async function submitAutomaticAttendance(scanResult) {
+            const teacherName = matchedTeacherCandidate?.name || 'Guru';
+            const isCheckoutCandidate = Boolean(matchedTeacherCandidate?.has_open_attendance);
+            if (isCheckoutCandidate && isEarlyCheckoutTime()) {
+                const confirmed = confirmEarlyCheckoutIfNeeded(teacherName);
+                if (!confirmed) {
+                    finishMatchHud(false, 'Dibatalkan');
+                    clearCameraGuideLock();
+                    setStageState('verifying_identity', 'done', `Presensi pulang dibatalkan untuk ${teacherName}.`);
+                    setStageState('processing_attendance', 'idle');
+                    setStageState('attendance_success', 'idle');
+                    scanInProgress = false;
+                    scheduleNextScan(retryScanDelayMs);
+                    return;
+                }
+            }
+
             startMatchHud('Mencocokkan data guru');
             setStageState(
                 'detecting_face',
