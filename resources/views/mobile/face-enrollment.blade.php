@@ -919,7 +919,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const onboardingContinueButton = document.getElementById('btn-face-onboarding-continue');
     const faceHelpButton = document.getElementById('btn-face-help');
 
-    const faceRecognition = new window.FaceRecognition();
+    const faceRecognition = window.MobileFaceScanner || (window.FaceRecognition ? new window.FaceRecognition() : null);
+    window.MobileFaceScanner = faceRecognition;
     let cameraReady = false;
     let enrollmentResult = null;
     let onboardingAccepted = false;
@@ -1106,7 +1107,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!faceModelWarmupPromise) {
-            faceModelWarmupPromise = faceRecognition.loadModels().catch((error) => {
+            if (window.MobileFaceModelWarmup) {
+                faceModelWarmupPromise = window.MobileFaceModelWarmup.ready
+                    ? Promise.resolve(true)
+                    : window.MobileFaceModelWarmup.start();
+            } else {
+                faceModelWarmupPromise = faceRecognition.loadModels((progress) => {
+                    if (faceStage) {
+                        faceStage.dataset.guideState = progress >= 100 ? 'success' : 'processing';
+                    }
+                });
+            }
+
+            faceModelWarmupPromise = Promise.resolve(faceModelWarmupPromise).catch((error) => {
                 console.warn('Face enrollment warmup failed:', error);
                 return null;
             });
