@@ -770,7 +770,7 @@ class PresensiAdminController extends Controller
             ])),
         ]);
 
-        $cached = Cache::remember($cacheKey, now()->addSeconds(90), function () use ($madrasahId, $selectedDate, $search, $page, $summaryPeriod, $selectedWeek, $selectedMonth, $today, $request) {
+        $cached = Cache::remember($cacheKey, now()->addSeconds(90), function () use ($madrasahId, $user, $selectedDate, $search, $page, $summaryPeriod, $selectedWeek, $selectedMonth, $today, $request) {
             $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
 
             // Build query with search functionality
