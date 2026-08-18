@@ -6,9 +6,9 @@ use App\Models\User;
 
 class FaceVerificationService
 {
-    private const FACE_DISTANCE_THRESHOLD = 0.62;
-    private const FACE_DISTANCE_MARGIN_THRESHOLD = 0.04;
-    private const LIVENESS_THRESHOLD = 0.55;
+    private const FACE_DISTANCE_THRESHOLD = 0.68;
+    private const FACE_DISTANCE_MARGIN_THRESHOLD = 0.03;
+    private const LIVENESS_THRESHOLD = 0.45;
     private const REQUIRED_ATTENDANCE_CHALLENGE = 'blink';
     private const REQUIRED_DYNAMIC_CHALLENGES = ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'];
     private const SCREEN_REPLAY_RISK_THRESHOLD = 0.55;

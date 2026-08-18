@@ -1701,14 +1701,16 @@
                 top: 78%;
             }
 
-            .selfie-guide-pill {
-                top: calc(23% - 100px);
-                width: min(84vw, 286px);
-            }
+        .selfie-guide-pill {
+            top: calc(18% - 92px);
+            width: min(84vw, 286px);
+        }
 
-            .face-scan-mode .selfie-guide-pill {
-                top: calc(50% - 250px);
-            }
+        .face-scan-mode .selfie-guide-pill {
+            top: calc(42% - 230px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
 
             .selfie-guide-pill i {
                 width: auto;
@@ -1730,15 +1732,17 @@
                 font-size: 14px;
             }
 
-            .selfie-guide-detail {
-                top: calc(81% + 82px);
-                width: min(88vw, 292px);
-                font-size: 10px;
-            }
+        .selfie-guide-detail {
+            top: calc(76% + 62px);
+            width: min(88vw, 292px);
+            font-size: 10px;
+        }
 
-            .face-scan-mode .selfie-guide-detail {
-                top: calc(78% + 82px);
-            }
+        .face-scan-mode .selfie-guide-detail {
+            top: calc(70% + 58px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
         }
     </style>
 
@@ -4036,7 +4040,7 @@ window.addEventListener('load', function() {
                         setSelfieStatus(message, inferSelfieStatusType(message));
                     },
                     onGuideState: (payload) => updateSelfieGuideState(payload),
-                    onFaceMatchCheck: (descriptor) => verifyFaceMatchBeforeBlink(descriptor),
+                    skipPreMatchCheck: true,
                 });
                 await verifyFaceMatchAfterBlink(faceVerificationResult);
             } else {

@@ -12,16 +12,16 @@ class FaceRecognition {
         this.lastGeometryDetection = null;
         this.lastGeometryDetectedAt = 0;
         this.detectorOptions = {
-            inputSize: 256,
-            scoreThreshold: 0.3,
+            inputSize: 160,
+            scoreThreshold: 0.22,
         };
-        this.minimumFaceWidthRatio = 0.1;
-        this.maximumEyeTiltDegrees = 22;
-        this.enrollmentSharpnessThreshold = 0.12;
-        this.enrollmentMotionThreshold = 0.06;
-        this.enrollmentHoldMs = 260;
-        this.challengeBlinkLeadMs = 350;
-        this.challengeActionLeadMs = 500;
+        this.minimumFaceWidthRatio = 0.085;
+        this.maximumEyeTiltDegrees = 26;
+        this.enrollmentSharpnessThreshold = 0.1;
+        this.enrollmentMotionThreshold = 0.08;
+        this.enrollmentHoldMs = 180;
+        this.challengeBlinkLeadMs = 240;
+        this.challengeActionLeadMs = 360;
     }
 
     async loadModels() {
@@ -151,10 +151,10 @@ class FaceRecognition {
             audio: false,
             video: {
                 facingMode: 'user',
-                width: { ideal: 720 },
-                height: { ideal: 960 },
+                width: { ideal: 480 },
+                height: { ideal: 640 },
                 aspectRatio: 3 / 4,
-                frameRate: { ideal: 24, max: 30 },
+                frameRate: { ideal: 15, max: 24 },
             },
         });
 
@@ -272,7 +272,7 @@ class FaceRecognition {
             message: 'Menunggu wajah masuk ke dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 800, 1, false);
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 600, 1, false);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
@@ -284,7 +284,7 @@ class FaceRecognition {
             allowFallback: false,
         });
 
-        if (typeof callbacks.onFaceMatchCheck === 'function') {
+        if (typeof callbacks.onFaceMatchCheck === 'function' && callbacks.skipPreMatchCheck !== true) {
             const verificationResult = await callbacks.onFaceMatchCheck(Array.from(initialDescriptor));
 
             if (!verificationResult?.face_verified) {
@@ -317,7 +317,7 @@ class FaceRecognition {
             message: 'Memeriksa kecocokan wajah dengan data terdaftar.',
         });
 
-        await this.waitForStableSingleFace(videoElement, callbacks, 3200);
+        await this.waitForStableSingleFace(videoElement, callbacks, 1800);
         const descriptor = await this.captureFaceDescriptor(videoElement, {
             strict: true,
             allowFallback: false,
