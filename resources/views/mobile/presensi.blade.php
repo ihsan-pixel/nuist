@@ -756,9 +756,9 @@
             inset: 0;
             z-index: 12;
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
-            padding: 18px;
+            padding: 16px;
             background: rgba(0, 0, 0, 0.72);
             backdrop-filter: blur(10px);
         }
@@ -774,6 +774,9 @@
             color: #0f172a;
             padding: 20px;
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+            max-height: min(84vh, 680px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .face-scan-onboarding-title {
@@ -896,6 +899,20 @@
             background: linear-gradient(135deg, #10b981 0%, #16a34a 100%);
             font-weight: 700;
             box-shadow: 0 14px 28px rgba(22, 163, 74, 0.24);
+            position: sticky;
+            bottom: 0;
+        }
+
+        @media (max-height: 760px) {
+            .face-scan-onboarding {
+                align-items: flex-start;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+
+            .face-scan-onboarding-panel {
+                max-height: calc(100vh - 20px);
+            }
         }
 
         .face-scan-help-button {
@@ -1701,16 +1718,16 @@
                 top: 78%;
             }
 
-        .selfie-guide-pill {
-            top: calc(18% - 92px);
-            width: min(84vw, 286px);
-        }
+            .selfie-guide-pill {
+                top: calc(18% - 92px);
+                width: min(84vw, 286px);
+            }
 
-        .face-scan-mode .selfie-guide-pill {
-            top: calc(42% - 230px);
-            left: 50%;
-            transform: translateX(-50%);
-        }
+            .face-scan-mode .selfie-guide-pill {
+                top: calc(42% - 230px);
+                left: 50%;
+                transform: translateX(-50%);
+            }
 
             .selfie-guide-pill i {
                 width: auto;
@@ -1732,17 +1749,17 @@
                 font-size: 14px;
             }
 
-        .selfie-guide-detail {
-            top: calc(76% + 62px);
-            width: min(88vw, 292px);
-            font-size: 10px;
-        }
+            .selfie-guide-detail {
+                top: calc(76% + 62px);
+                width: min(88vw, 292px);
+                font-size: 10px;
+            }
 
-        .face-scan-mode .selfie-guide-detail {
-            top: calc(70% + 58px);
-            left: 50%;
-            transform: translateX(-50%);
-        }
+            .face-scan-mode .selfie-guide-detail {
+                top: calc(70% + 58px);
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
     </style>
 
