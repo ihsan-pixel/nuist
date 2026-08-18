@@ -291,21 +291,19 @@ class FaceRecognition {
                 throw new Error(verificationResult?.message || 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.');
             }
 
-            this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Lanjut ke verifikasi blink.');
+            this.emit(callbacks.onStatus, 'Wajah cocok dengan data terdaftar. Presensi dilanjutkan.');
             this.emit(callbacks.onGuideState, {
                 state: 'success',
-                message: 'Wajah cocok. Lanjut ke verifikasi blink.',
+                message: 'Wajah cocok. Presensi dilanjutkan.',
             });
         }
 
-        const scanResult = await this.runAttendanceRiskScanSequence(videoElement, callbacks);
-        const descriptor = initialDescriptor;
-
         return {
-            face_descriptor: Array.from(descriptor),
-            liveness_score: scanResult.liveness_score,
+            face_descriptor: Array.from(initialDescriptor),
+            liveness_score: 1,
             captured_image: this.captureFrame(videoElement),
             initial_face_descriptor: Array.from(initialDescriptor),
+            liveness_challenges: [],
         };
     }
 

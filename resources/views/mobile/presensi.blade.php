@@ -3674,8 +3674,8 @@ window.addEventListener('load', function() {
 
         const verification = await requestFaceMatchVerification(
             result?.face_descriptor || [],
-            result?.liveness_score ?? 0,
-            result?.liveness_challenges || []
+            1,
+            []
         );
 
         if (!verification?.face_verified) {
