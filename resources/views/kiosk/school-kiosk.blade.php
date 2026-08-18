@@ -2974,7 +2974,7 @@
             const payload = {
                 latitude: null,
                 longitude: null,
-                lokasi: 'Mode kiosk tanpa lokasi',
+                lokasi: 'Mode kiosk Presensi',
                 accuracy: null,
                 altitude: null,
                 speed: null,
