@@ -1604,7 +1604,7 @@
                                     <i class="bx bx-camera-off"></i>
                                     <strong>Kamera siap untuk scan wajah</strong>
                                     <span>
-                                        Sistem sedang mempersiapkan lokasi dan kamera. Jika semua izin diberikan, kiosk akan langsung masuk ke mode scan seperti pada mobile.
+                                        Sistem langsung menyalakan kamera dan masuk ke mode scan wajah tanpa meminta izin lokasi.
                                     </span>
                                 </div>
 
@@ -1665,7 +1665,7 @@
                             <div class="d-none" aria-hidden="true">
                                 <div class="primary-notice mt-3" id="primaryNotice">
                                     <strong>Menyiapkan Kiosk Scan Wajah</strong>
-                                    <span>Meminta izin lokasi dan kamera, lalu sistem akan masuk ke mode scan seperti pada mobile.</span>
+                                    <span>Mode kiosk langsung menyalakan kamera lalu masuk ke scan wajah tanpa geolokasi.</span>
                                 </div>
 
                                 <div class="attendance-result" id="attendanceResultCard" hidden>
@@ -1683,15 +1683,15 @@
                                 <div class="status-step" data-stage="location_permission">
                                     <div class="status-step-dot"></div>
                                     <div>
-                                        <div class="status-step-title">Izin lokasi</div>
-                                        <div class="status-step-copy">Koordinat GPS diminta otomatis saat halaman dibuka.</div>
+                                        <div class="status-step-title">Lokasi dilewati</div>
+                                        <div class="status-step-copy">Kiosk tidak meminta izin lokasi dan langsung masuk ke kamera.</div>
                                     </div>
                                 </div>
                                 <div class="status-step" data-stage="location_validation">
                                     <div class="status-step-dot"></div>
                                     <div>
                                         <div class="status-step-title">Validasi lokasi</div>
-                                        <div class="status-step-copy">Sistem memeriksa apakah perangkat berada di area sekolah.</div>
+                                        <div class="status-step-copy">Langkah ini dinonaktifkan untuk mode kiosk scan wajah.</div>
                                     </div>
                                 </div>
                                 <div class="status-step" data-stage="waiting_user">
@@ -2817,7 +2817,7 @@
         }
 
         async function waitForFaceInOval() {
-            if (!cameraReady || scanInProgress || enrollmentBusy || !activeLocation) {
+            if (!cameraReady || scanInProgress || enrollmentBusy) {
                 return;
             }
 
@@ -2886,74 +2886,15 @@
 
         async function requestLocationAndValidate() {
             retryLocationButton.hidden = true;
-            setStageState('location_permission', 'active', 'Meminta izin lokasi perangkat.');
-            setPrimaryNotice('Mengambil lokasi', 'Sistem sedang meminta izin GPS dan mengambil koordinat perangkat.');
-            setScanBadge('Mengambil lokasi', 'info');
+            activeLocation = null;
+            locationReadings = [];
 
-            try {
-                const first = await getLocationReading();
-                const second = await getLocationReading();
-                const active = second || first;
-
-                locationReadings = [first, second]
-                    .filter(Boolean)
-                    .map((position) => ({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy,
-                        timestamp: Date.now(),
-                    }));
-
-                activeLocation = {
-                    latitude: active.coords.latitude,
-                    longitude: active.coords.longitude,
-                    accuracy: active.coords.accuracy || null,
-                    altitude: active.coords.altitude || null,
-                    speed: active.coords.speed || null,
-                };
-
-                setStageState('location_permission', 'done', 'Koordinat GPS berhasil diambil dari perangkat ini.');
-                setStageState('location_validation', 'active', 'Memeriksa apakah lokasi berada di dalam area sekolah.');
-                setPrimaryNotice('Memvalidasi lokasi', 'Koordinat GPS sedang dibandingkan dengan area sekolah yang diizinkan.');
-                setScanBadge('Validasi lokasi', 'info');
-
-                const response = await fetch(locationCheckUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        latitude: activeLocation.latitude,
-                        longitude: activeLocation.longitude,
-                        accuracy: activeLocation.accuracy,
-                        location_readings: JSON.stringify(locationReadings),
-                    }),
-                });
-
-                const payload = await response.json();
-                if (!response.ok || !payload.success) {
-                    throw new Error(payload.message || 'Lokasi tidak valid.');
-                }
-
-                setStageState('location_validation', 'done', payload.message || 'Lokasi tervalidasi berada di area sekolah.');
-                setPrimaryNotice('Lokasi valid', 'Perangkat berada di area sekolah. Kamera akan diaktifkan otomatis.');
-                setScanBadge('Lokasi valid', 'success');
-                cameraPanelCopy.textContent = 'Lokasi sudah valid. Kamera akan tetap siaga untuk mengenali guru berikutnya secara otomatis.';
-                return true;
-            } catch (error) {
-                setStageState('location_permission', 'error', error.message || 'Akses lokasi tidak tersedia.');
-                setStageState('location_validation', 'error', error.message || 'Lokasi belum bisa divalidasi.');
-                resetStagesAfter('location_permission');
-                setPrimaryNotice('Lokasi belum siap', error.message || 'Presensi tidak dapat dilanjutkan sampai lokasi valid.');
-                setScanBadge('Lokasi gagal', 'danger');
-                setCameraGuide('Presensi belum dapat dilanjutkan sampai lokasi valid.', 'bx-map-pin');
-                retryLocationButton.hidden = false;
-                showAttendanceResult('Lokasi belum valid', error.message || 'Presensi tidak dapat dilakukan karena lokasi belum tervalidasi.');
-                throw error;
-            }
+            setStageState('location_permission', 'done', 'Validasi lokasi dinonaktifkan untuk mode kiosk.');
+            setStageState('location_validation', 'done', 'Kiosk langsung masuk ke mode scan wajah.');
+            setPrimaryNotice('Mode kiosk siap', 'Lokasi tidak diminta. Sistem langsung menyalakan kamera dan memulai scan wajah.');
+            setScanBadge('Scan wajah langsung', 'success');
+            cameraPanelCopy.textContent = 'Lokasi dinonaktifkan untuk kiosk. Kamera akan langsung siaga untuk scan wajah.';
+            return true;
         }
 
         async function startAttendanceCamera() {
@@ -3031,14 +2972,15 @@
             setCameraGuide('Verifikasi identitas guru.', 'bx-shield-quarter');
 
             const payload = {
-                latitude: activeLocation.latitude,
-                longitude: activeLocation.longitude,
-                lokasi: `${activeLocation.latitude}, ${activeLocation.longitude}`,
-                accuracy: activeLocation.accuracy,
-                altitude: activeLocation.altitude,
-                speed: activeLocation.speed,
+                latitude: null,
+                longitude: null,
+                lokasi: 'Mode kiosk tanpa lokasi',
+                accuracy: null,
+                altitude: null,
+                speed: null,
                 device_info: navigator.userAgent || '',
-                location_readings: JSON.stringify(locationReadings),
+                location_readings: null,
+                skip_location_validation: true,
                 selfie_data: scanResult.captured_image,
                 selfie_frames: scanResult.selfie_frames || [],
                 face_descriptor: scanResult.face_descriptor || [],
@@ -3097,7 +3039,7 @@
         }
 
         async function runAutomaticFaceScan(options = {}) {
-            if (!cameraReady || scanInProgress || enrollmentBusy || !activeLocation) {
+            if (!cameraReady || scanInProgress || enrollmentBusy) {
                 return;
             }
 

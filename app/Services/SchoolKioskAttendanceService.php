@@ -50,14 +50,20 @@ class SchoolKioskAttendanceService
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($teacher, $today);
 
         $this->ensureDayAllowed($teacher, $today);
-        $this->ensureLocationInsideSchool($school, (float) $payload['latitude'], (float) $payload['longitude']);
+
+        $skipLocationValidation = (bool) ($payload['skip_location_validation'] ?? false);
+        if (!$skipLocationValidation) {
+            $this->ensureLocationInsideSchool($school, (float) $payload['latitude'], (float) $payload['longitude']);
+        }
 
         $existingPresensi = $this->findExistingPresensi($teacher, $school);
         $this->ensureNoPendingLatePermit($teacher, $today);
         $this->ensureModeAllowed($mode, $existingPresensi);
         $this->ensureAttendanceTimeAllowed($teacher, $school, $mode, $now, $existingPresensi, $payload);
 
-        $locationValidation = $this->validateLocationForFakeGps($payload, $teacher, $mode === 'masuk', $existingPresensi);
+        $locationValidation = $skipLocationValidation
+            ? ['is_fake' => false, 'message' => null, 'analysis' => null]
+            : $this->validateLocationForFakeGps($payload, $teacher, $mode === 'masuk', $existingPresensi);
         if ($locationValidation['is_fake']) {
             throw ValidationException::withMessages([
                 'attendance' => $locationValidation['message'],
