@@ -421,14 +421,15 @@ class SchoolKioskController extends Controller
         try {
             $device = $this->resolveAuthorizedDevice($request, $operator);
             $validated = $request->validate([
-                'latitude' => ['required', 'numeric'],
-                'longitude' => ['required', 'numeric'],
+                'latitude' => ['nullable', 'numeric'],
+                'longitude' => ['nullable', 'numeric'],
                 'lokasi' => ['nullable', 'string'],
                 'accuracy' => ['nullable', 'numeric'],
                 'altitude' => ['nullable', 'numeric'],
                 'speed' => ['nullable', 'numeric'],
                 'device_info' => ['nullable', 'string'],
                 'location_readings' => ['nullable', 'string'],
+                'skip_location_validation' => ['nullable', 'boolean'],
                 'selfie_data' => ['required', 'string', 'min:100'],
                 'selfie_frames' => ['nullable', 'array', 'max:8'],
                 'selfie_frames.*' => ['string', 'min:100'],
@@ -438,7 +439,11 @@ class SchoolKioskController extends Controller
                 'liveness_challenges' => ['nullable', 'array'],
             ]);
 
-            if (!$this->attendanceValidationService->schoolContainsPoint($device->madrasah, (float) $validated['latitude'], (float) $validated['longitude'])) {
+            if (
+                empty($validated['skip_location_validation'])
+                && isset($validated['latitude'], $validated['longitude'])
+                && !$this->attendanceValidationService->schoolContainsPoint($device->madrasah, (float) $validated['latitude'], (float) $validated['longitude'])
+            ) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Presensi tidak dapat dilakukan karena berada di luar area sekolah.',
@@ -628,14 +633,15 @@ class SchoolKioskController extends Controller
             $validated = $request->validate([
                 'teacher_id' => ['required', 'integer'],
                 'presensi_mode' => ['nullable', 'in:masuk,keluar'],
-                'latitude' => ['required', 'numeric'],
-                'longitude' => ['required', 'numeric'],
+                'latitude' => ['nullable', 'numeric'],
+                'longitude' => ['nullable', 'numeric'],
                 'lokasi' => ['nullable', 'string'],
                 'accuracy' => ['nullable', 'numeric'],
                 'altitude' => ['nullable', 'numeric'],
                 'speed' => ['nullable', 'numeric'],
                 'device_info' => ['nullable', 'string'],
                 'location_readings' => ['nullable', 'string'],
+                'skip_location_validation' => ['nullable', 'boolean'],
                 'selfie_data' => ['required', 'string', 'min:100'],
                 'face_descriptor' => ['nullable', 'array'],
                 'face_descriptor.*' => ['numeric'],
