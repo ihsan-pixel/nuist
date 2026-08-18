@@ -4184,28 +4184,15 @@ window.addEventListener('load', function() {
                     return;
                 }
 
-                if (faceScanRetryTimer) {
-                    window.clearTimeout(faceScanRetryTimer);
-                }
-
-                faceScanRetryTimer = window.setTimeout(() => {
-                    if (currentSessionId !== faceScanSessionId) {
-                        return;
-                    }
-                    if (!selfieModal?.classList.contains('show')) {
-                        return;
-                    }
-
-                    resetSelfieProgress();
-                    updateSelfieGuideState({
-                        state: 'searching',
-                        message: 'Arahkan wajah ke dalam oval. Scan akan diulang otomatis.',
-                    });
-                    setFaceFrameState('searching');
-                    updateFaceInstruction('Scan berjalan otomatis. Arahkan wajah ke dalam frame.');
-                    setSelfieStatus('Scan berjalan otomatis. Arahkan wajah ke dalam frame.', 'info');
-                    captureSelfie();
-                }, 520);
+                setSelfieStatus(
+                    errorMessage || 'Scan wajah belum stabil. Tahan wajah lebih tenang lalu kedip sekali lagi.',
+                    'warning'
+                );
+                updateSelfieGuideState({
+                    state: 'warning',
+                    message: 'Scan belum stabil. Tahan wajah lebih tenang lalu kedip sekali lagi.',
+                });
+                setFaceFrameState('warning');
             }
         } finally {
             faceScanInProgress = false;
