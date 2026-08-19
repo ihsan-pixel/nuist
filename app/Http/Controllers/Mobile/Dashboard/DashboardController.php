@@ -86,6 +86,12 @@ class DashboardController extends \App\Http\Controllers\Controller
         $today = Carbon::today('Asia/Jakarta');
         $statuses = [];
 
+        ApprovedIzinSyncService::syncApprovedIzinPresensiInRange(
+            $user,
+            Carbon::create($currentYear, $currentMonth, 1)->startOfMonth(),
+            Carbon::create($currentYear, $currentMonth, 1)->endOfMonth()
+        );
+
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($currentYear, $currentMonth, $day, 0, 0, 0, 'Asia/Jakarta');
             $dateKey = $date->toDateString();
@@ -97,6 +103,11 @@ class DashboardController extends \App\Http\Controllers\Controller
 
             if (in_array($presensiStatus, ['hadir', 'izin'], true)) {
                 $statuses[$dateKey] = $presensiStatus;
+                continue;
+            }
+
+            if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)) {
+                $statuses[$dateKey] = 'izin';
                 continue;
             }
 
