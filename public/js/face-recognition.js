@@ -15,11 +15,6 @@ class FaceRecognition {
             inputSize: 160,
             scoreThreshold: 0.22,
         };
-        this.attendanceDetectorProfiles = [
-            { inputSize: 224, scoreThreshold: 0.18 },
-            { inputSize: 160, scoreThreshold: 0.16 },
-            { inputSize: 128, scoreThreshold: 0.12 },
-        ];
         this.minimumFaceWidthRatio = 0.085;
         this.maximumEyeTiltDegrees = 26;
         this.enrollmentSharpnessThreshold = 0.1;
@@ -277,37 +272,17 @@ class FaceRecognition {
             message: 'Menunggu wajah masuk ke dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 1200, 1, false);
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 600, 1, false);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
 
         await this.loadRecognitionModel();
 
-        let initialDescriptor = null;
-        let lastCaptureError = null;
-        const captureAttempts = [
-            { strict: false, allowFallback: true, profile: 'attendance' },
-            { strict: false, allowFallback: true, profile: 'default' },
-            { strict: true, allowFallback: true, profile: 'attendance' },
-        ];
-
-        for (const options of captureAttempts) {
-            try {
-                initialDescriptor = await this.captureFaceDescriptor(videoElement, options);
-                if (initialDescriptor) {
-                    break;
-                }
-            } catch (error) {
-                lastCaptureError = error;
-            }
-
-            await this.delay(80);
-        }
-
-        if (!initialDescriptor) {
-            throw lastCaptureError || new Error('Descriptor wajah tidak dapat diambil. Ulangi scan wajah.');
-        }
+        const initialDescriptor = await this.captureFaceDescriptor(videoElement, {
+            strict: true,
+            allowFallback: false,
+        });
 
         if (typeof callbacks.onFaceMatchCheck === 'function' && callbacks.skipPreMatchCheck !== true) {
             const verificationResult = await callbacks.onFaceMatchCheck(Array.from(initialDescriptor));
@@ -1376,10 +1351,10 @@ class FaceRecognition {
             throw new Error('Model scan wajah belum dimuat.');
         }
 
-        const detection = await this.detectSingleFaceWithFallback(videoElement, {
-            withDescriptor: true,
-            options,
-        });
+        const detection = await faceapi
+            .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions(this.detectorOptions))
+            .withFaceLandmarks()
+            .withFaceDescriptor();
 
         const quality = this.evaluateDetectionQuality(detection, videoElement, options);
 
@@ -1395,10 +1370,9 @@ class FaceRecognition {
             throw new Error('Model scan wajah belum dimuat.');
         }
 
-        const detection = await this.detectSingleFaceWithFallback(videoElement, {
-            withLandmarks: true,
-            options,
-        });
+        const detection = await faceapi
+            .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions(this.detectorOptions))
+            .withFaceLandmarks();
 
         const quality = this.evaluateDetectionQuality(detection, videoElement, options);
         this.emit(callbacks.onGuideState, this.buildGuideStatePayload(quality));
@@ -1423,65 +1397,6 @@ class FaceRecognition {
         }
 
         return null;
-    }
-
-    async detectSingleFaceWithFallback(videoElement, config = {}) {
-        const withDescriptor = config.withDescriptor === true;
-        const withLandmarks = config.withLandmarks !== false;
-        const options = config.options || {};
-        const profiles = this.getDetectionProfiles(options);
-        let lastError = null;
-
-        for (const profile of profiles) {
-            try {
-                let detection = faceapi.detectSingleFace(
-                    videoElement,
-                    new faceapi.TinyFaceDetectorOptions(profile),
-                );
-
-                if (withLandmarks) {
-                    detection = detection.withFaceLandmarks();
-                }
-
-                if (withDescriptor) {
-                    detection = detection.withFaceDescriptor();
-                }
-
-                const result = await detection;
-                if (result) {
-                    return result;
-                }
-            } catch (error) {
-                lastError = error;
-            }
-        }
-
-        if (lastError) {
-            const rawMessage = String(lastError?.message || lastError || '');
-            if (
-                rawMessage.includes('tensor should have')
-                || rawMessage.includes('The provided tensor')
-                || rawMessage.includes('Failed to fetch')
-            ) {
-                throw new Error('Model scan wajah di browser gagal diproses. Muat ulang halaman lalu coba lagi.');
-            }
-        }
-
-        return null;
-    }
-
-    getDetectionProfiles(options = {}) {
-        const baseProfile = {
-            inputSize: this.detectorOptions.inputSize,
-            scoreThreshold: this.detectorOptions.scoreThreshold,
-        };
-        const isAttendance = options.profile === 'attendance';
-
-        if (!isAttendance) {
-            return [baseProfile];
-        }
-
-        return [baseProfile, ...this.attendanceDetectorProfiles];
     }
 
     eyeTiltDegrees(landmarks) {
@@ -1621,11 +1536,9 @@ class FaceRecognition {
         const faceWidthRatio = videoWidth > 0 ? box.width / videoWidth : 0;
         const faceHeightRatio = videoHeight > 0 ? box.height / videoHeight : 0;
         const eyeTilt = this.eyeTiltDegrees(landmarks);
-        const tooSmall = videoWidth > 0 && faceWidthRatio < (profile === 'attendance' ? Math.min(this.minimumFaceWidthRatio, 0.07) : this.minimumFaceWidthRatio);
+        const tooSmall = videoWidth > 0 && faceWidthRatio < this.minimumFaceWidthRatio;
         const tooTilted = eyeTilt > this.maximumEyeTiltDegrees;
-        const tooOffCenter = horizontalOffsetRatio > (profile === 'attendance' ? 0.42 : 0.34)
-            || verticalOffsetRatio > (profile === 'attendance' ? 0.44 : 0.36);
-        const attendanceTooClose = profile === 'attendance' && (faceWidthRatio > 0.54 || faceHeightRatio > 0.82);
+        const tooOffCenter = horizontalOffsetRatio > 0.34 || verticalOffsetRatio > 0.36;
         const enrollmentTooWide = profile === 'enrollment' && faceWidthRatio > 0.46;
         const enrollmentTooTall = profile === 'enrollment' && faceHeightRatio > 0.72;
         const enrollmentTooLow = profile === 'enrollment' && verticalOffsetRatio > 0.28;
@@ -1634,7 +1547,6 @@ class FaceRecognition {
         const usable = !tooSmall
             && !tooTilted
             && !(strict && tooOffCenter)
-            && !attendanceTooClose
             && !enrollmentTooWide
             && !enrollmentTooTall
             && !enrollmentTooLow
@@ -1663,14 +1575,6 @@ class FaceRecognition {
                     usable: false,
                     state: 'tilted',
                     message: 'Luruskan kepala agar sejajar dengan bingkai.',
-                };
-            }
-
-            if (attendanceTooClose) {
-                return {
-                    usable: false,
-                    state: 'too-close',
-                    message: 'Jauhkan wajah sedikit dari kamera.',
                 };
             }
 
