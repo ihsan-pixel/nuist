@@ -1663,6 +1663,9 @@
 
         .face-scan-manual-trigger {
             display: inline-flex !important;
+            position: relative;
+            z-index: 20 !important;
+            pointer-events: auto !important;
             align-items: center;
             justify-content: center;
             gap: 6px;
