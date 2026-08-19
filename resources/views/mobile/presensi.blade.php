@@ -3029,6 +3029,8 @@ window.addEventListener('load', function() {
     let faceScanCompleted = false;
     let faceScanReadyToSubmit = false;
     let faceScanAutoStartTimer = null;
+    let faceScanStatusStallTimer = null;
+    let faceScanLastStatusMessage = '';
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
@@ -3343,6 +3345,46 @@ window.addEventListener('load', function() {
         }
 
         manualFaceScanButton.setAttribute('aria-hidden', 'true');
+    }
+
+    function watchManualFaceScanTrigger(message = '') {
+        if (!faceScanRequired || !manualFaceScanButton) {
+            return;
+        }
+
+        const normalized = String(message || '').toLowerCase();
+        const shouldWatch = normalized.includes('menunggu wajah masuk')
+            || normalized.includes('belum ada wajah di frame')
+            || normalized.includes('a rahkan wajah')
+            || normalized.includes('arahkan wajah')
+            || normalized.includes('wajah sempat hilang');
+
+        if (!shouldWatch) {
+            faceScanLastStatusMessage = message || '';
+            if (faceScanStatusStallTimer) {
+                window.clearTimeout(faceScanStatusStallTimer);
+                faceScanStatusStallTimer = null;
+            }
+            hideManualFaceScanButton();
+            return;
+        }
+
+        if (message && message === faceScanLastStatusMessage) {
+            return;
+        }
+
+        faceScanLastStatusMessage = message || '';
+        if (faceScanStatusStallTimer) {
+            window.clearTimeout(faceScanStatusStallTimer);
+        }
+
+        faceScanStatusStallTimer = window.setTimeout(() => {
+            if (!selfieModal?.classList.contains('show') || faceScanInProgress || faceScanCompleted) {
+                return;
+            }
+
+            showManualFaceScanButton('Scan belum jalan. Tekan untuk mulai sekarang');
+        }, 3000);
     }
 
     function stopSelfieStream() {
@@ -4284,12 +4326,6 @@ window.addEventListener('load', function() {
                     window.clearTimeout(faceScanAutoStartTimer);
                     faceScanAutoStartTimer = null;
                 }
-                faceScanAutoStartTimer = window.setTimeout(() => {
-                    if (!selfieModal?.classList.contains('show') || faceScanInProgress || faceScanCompleted) {
-                        return;
-                    }
-                    showManualFaceScanButton('Scan belum mulai. Tekan untuk mulai sekarang');
-                }, 3500);
                 window.setTimeout(() => {
                     if (!selfieModal?.classList.contains('show') || presensiSubmitInFlight) {
                         return;
@@ -4371,6 +4407,7 @@ window.addEventListener('load', function() {
                     onChallengeState: (step, state) => updateSelfieProgress(step, state),
                     onStatus: (message) => {
                         setSelfieStatus(message, inferSelfieStatusType(message));
+                        watchManualFaceScanTrigger(message);
                         facePresensiLog('scan', 'Status update.', {
                             ...facePresensiSnapshot(video),
                             session_id: currentSessionId,
@@ -4616,6 +4653,10 @@ window.addEventListener('load', function() {
             if (faceScanAutoStartTimer) {
                 window.clearTimeout(faceScanAutoStartTimer);
                 faceScanAutoStartTimer = null;
+            }
+            if (faceScanStatusStallTimer) {
+                window.clearTimeout(faceScanStatusStallTimer);
+                faceScanStatusStallTimer = null;
             }
         }
     }
