@@ -15,6 +15,11 @@ class FaceRecognition {
             inputSize: 160,
             scoreThreshold: 0.22,
         };
+        this.attendanceDetectorProfiles = [
+            { inputSize: 224, scoreThreshold: 0.18 },
+            { inputSize: 160, scoreThreshold: 0.16 },
+            { inputSize: 128, scoreThreshold: 0.12 },
+        ];
         this.minimumFaceWidthRatio = 0.085;
         this.maximumEyeTiltDegrees = 26;
         this.enrollmentSharpnessThreshold = 0.1;
@@ -1371,10 +1376,10 @@ class FaceRecognition {
             throw new Error('Model scan wajah belum dimuat.');
         }
 
-        const detection = await faceapi
-            .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions(this.detectorOptions))
-            .withFaceLandmarks()
-            .withFaceDescriptor();
+        const detection = await this.detectSingleFaceWithFallback(videoElement, {
+            withDescriptor: true,
+            options,
+        });
 
         const quality = this.evaluateDetectionQuality(detection, videoElement, options);
 
@@ -1390,9 +1395,10 @@ class FaceRecognition {
             throw new Error('Model scan wajah belum dimuat.');
         }
 
-        const detection = await faceapi
-            .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions(this.detectorOptions))
-            .withFaceLandmarks();
+        const detection = await this.detectSingleFaceWithFallback(videoElement, {
+            withLandmarks: true,
+            options,
+        });
 
         const quality = this.evaluateDetectionQuality(detection, videoElement, options);
         this.emit(callbacks.onGuideState, this.buildGuideStatePayload(quality));
@@ -1417,6 +1423,65 @@ class FaceRecognition {
         }
 
         return null;
+    }
+
+    async detectSingleFaceWithFallback(videoElement, config = {}) {
+        const withDescriptor = config.withDescriptor === true;
+        const withLandmarks = config.withLandmarks !== false;
+        const options = config.options || {};
+        const profiles = this.getDetectionProfiles(options);
+        let lastError = null;
+
+        for (const profile of profiles) {
+            try {
+                let detection = faceapi.detectSingleFace(
+                    videoElement,
+                    new faceapi.TinyFaceDetectorOptions(profile),
+                );
+
+                if (withLandmarks) {
+                    detection = detection.withFaceLandmarks();
+                }
+
+                if (withDescriptor) {
+                    detection = detection.withFaceDescriptor();
+                }
+
+                const result = await detection;
+                if (result) {
+                    return result;
+                }
+            } catch (error) {
+                lastError = error;
+            }
+        }
+
+        if (lastError) {
+            const rawMessage = String(lastError?.message || lastError || '');
+            if (
+                rawMessage.includes('tensor should have')
+                || rawMessage.includes('The provided tensor')
+                || rawMessage.includes('Failed to fetch')
+            ) {
+                throw new Error('Model scan wajah di browser gagal diproses. Muat ulang halaman lalu coba lagi.');
+            }
+        }
+
+        return null;
+    }
+
+    getDetectionProfiles(options = {}) {
+        const baseProfile = {
+            inputSize: this.detectorOptions.inputSize,
+            scoreThreshold: this.detectorOptions.scoreThreshold,
+        };
+        const isAttendance = options.profile === 'attendance';
+
+        if (!isAttendance) {
+            return [baseProfile];
+        }
+
+        return [baseProfile, ...this.attendanceDetectorProfiles];
     }
 
     eyeTiltDegrees(landmarks) {
