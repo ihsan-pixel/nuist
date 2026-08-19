@@ -422,6 +422,9 @@
                                                     @endif
                                                 @elseif(($schedule->attendance->status ?? 'hadir') === 'izin')
                                                     <div class="fw-semibold">{{ $schedule->attendance->display_status_label }}</div>
+                                                @elseif(($schedule->attendance->status_label ?? '') === 'Jurnal Terlambat')
+                                                    <div class="fw-semibold">{{ $schedule->attendance->display_status_label }}</div>
+                                                    <small class="small-muted">Presensi dilakukan setelah jam mengajar berakhir pada hari yang sama.</small>
                                                 @else
                                                     <div class="fw-semibold">Presensi Berhasil</div>
                                                     <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
@@ -482,6 +485,7 @@
                                                 data-start-time="{{ $schedule->start_time }}"
                                                 data-end-time="{{ $schedule->end_time }}"
                                                 data-class-total-students="{{ $schedule->class_student_count->total_students ?? '' }}"
+                                                data-attendance-mode="regular"
                                             >
                                                 <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
                                             </button>
@@ -495,12 +499,22 @@
                                                 </small>
                                             </div>
                                         @else
-                                            <button class="presensi-btn outline" disabled>
-                                                <i class="bx bx-time me-1"></i> Waktu Mengajar Berakhir
+                                            <button
+                                                class="presensi-btn attendance-btn"
+                                                data-schedule-id="{{ $schedule->id }}"
+                                                data-subject="{{ e($schedule->subject) }}"
+                                                data-class-name="{{ e($schedule->class_name) }}"
+                                                data-school-name="{{ e($schedule->school->name ?? 'N/A') }}"
+                                                data-start-time="{{ $schedule->start_time }}"
+                                                data-end-time="{{ $schedule->end_time }}"
+                                                data-class-total-students="{{ $schedule->class_student_count->total_students ?? '' }}"
+                                                data-attendance-mode="late"
+                                            >
+                                                <i class="bx bx-time me-1"></i> Ajukan Presensi Jurnal
                                             </button>
                                             <div class="text-center mt-2">
                                                 <small class="small-muted bg-light px-2 py-1 rounded-pill">
-                                                    <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                                    <i class="bx bx-info-circle me-1"></i>Jurnal terlambat hanya bisa diajukan pada hari yang sama. Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
                                                 </small>
                                             </div>
                                         @endif
@@ -521,7 +535,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="mb-0 fw-bold">
-                        <i class="bx bx-check-circle me-2"></i>Konfirmasi Presensi Mengajar
+                        <i class="bx bx-check-circle me-2"></i><span id="attendanceModalTitle">Konfirmasi Presensi Mengajar</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -642,7 +656,7 @@
                         <i class="bx bx-x me-1"></i>Batal
                     </button>
                     <button type="button" class="btn btn-primary px-4" id="confirmAttendanceBtn" disabled>
-                        <i class="bx bx-check-circle me-1"></i>Presensi
+                        <i class="bx bx-check-circle me-1"></i><span id="confirmAttendanceBtnText">Presensi</span>
                     </button>
                 </div>
             </div>
@@ -666,6 +680,7 @@ let map;
 let marker;
 let realtimeClockInterval;
 const confirmAttendanceBtnLabel = '<i class="bx bx-check-circle me-1"></i>Presensi';
+const confirmAttendanceBtnLateLabel = '<i class="bx bx-check-circle me-1"></i>Ajukan Presensi Jurnal';
 const confirmAttendanceBtnLoadingLabel = '<i class="bx bx-loader-alt bx-spin me-1"></i> Memproses...';
 
 // Initialize Leaflet Map
@@ -791,12 +806,22 @@ function renderScheduleAction(data, state, minutesUntilStart = 0) {
     }
 
     container.innerHTML = `
-        <button class="presensi-btn outline ended-btn" disabled>
-            <i class="bx bx-time me-1"></i> Waktu Mengajar Berakhir
+        <button
+            class="presensi-btn attendance-btn"
+            data-schedule-id="${data.scheduleId}"
+            data-subject="${escapedSubject}"
+            data-class-name="${escapedClassName}"
+            data-school-name="${escapedSchoolName}"
+            data-start-time="${escapedStartTime}"
+            data-end-time="${escapedEndTime}"
+            data-class-total-students="${escapedClassTotalStudents}"
+            data-attendance-mode="late"
+        >
+            <i class="bx bx-time me-1"></i> Ajukan Presensi Jurnal
         </button>
         <div class="text-center mt-2">
             <small class="small-muted bg-light px-2 py-1 rounded-pill">
-                <i class="bx bx-info-circle me-1"></i>Waktu mengajar: ${escapedStartTime} - ${escapedEndTime}
+                <i class="bx bx-info-circle me-1"></i>Jurnal terlambat hanya bisa diajukan pada hari yang sama. Waktu mengajar: ${escapedStartTime} - ${escapedEndTime}
             </small>
         </div>
     `;
@@ -1055,13 +1080,25 @@ function refreshConfirmAttendanceButton() {
     updateStudentAttendancePreview();
 }
 
-function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents) {
+function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents, attendanceMode = 'regular') {
     currentScheduleId = scheduleId;
     userLocation = null;
     isLocationValid = false;
     currentClassTotalStudents = classTotalStudents ? Number(classTotalStudents) : null;
     confirmAttendanceBtn.disabled = true;
-    confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
+    confirmAttendanceBtn.innerHTML = attendanceMode === 'late' ? confirmAttendanceBtnLateLabel : confirmAttendanceBtnLabel;
+    const attendanceModalTitle = document.getElementById('attendanceModalTitle');
+    const confirmAttendanceBtnText = document.getElementById('confirmAttendanceBtnText');
+    if (attendanceModalTitle) {
+        attendanceModalTitle.innerText = attendanceMode === 'late'
+            ? 'Ajukan Presensi Jurnal'
+            : 'Konfirmasi Presensi Mengajar';
+    }
+    if (confirmAttendanceBtnText) {
+        confirmAttendanceBtnText.innerText = attendanceMode === 'late'
+            ? 'Ajukan Presensi Jurnal'
+            : 'Presensi';
+    }
     if (attendanceMateriInput) {
         attendanceMateriInput.value = '';
     }
@@ -1227,7 +1264,8 @@ document.addEventListener('click', function (e) {
             attendanceTrigger.dataset.schoolName,
             attendanceTrigger.dataset.startTime,
             attendanceTrigger.dataset.endTime,
-            attendanceTrigger.dataset.classTotalStudents
+            attendanceTrigger.dataset.classTotalStudents,
+            attendanceTrigger.dataset.attendanceMode || 'regular'
         );
         return;
     }

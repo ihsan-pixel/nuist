@@ -164,12 +164,13 @@ class TeachingAttendanceController extends Controller
         $currentTime = Carbon::now('Asia/Jakarta');
         $startTime = Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
         $endTime = Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
+        $isLateJournal = $currentTime->gt($endTime);
 
-        // Strict time validation: only within schedule time
-        if (!$currentTime->between($startTime, $endTime)) {
+        // Allow late journal submission only on the same day, after the teaching window ends.
+        if (!$currentTime->between($startTime, $endTime) && !$isLateJournal) {
             return response()->json([
                 'success' => false,
-                'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar (' . $schedule->start_time . ' - ' . $schedule->end_time . '). Waktu sekarang: ' . $now
+                'message' => 'Jurnal terlambat hanya dapat diajukan pada hari yang sama setelah jam mengajar berakhir (' . $schedule->start_time . ' - ' . $schedule->end_time . '). Waktu sekarang: ' . $now
             ], 400);
         }
 
@@ -275,10 +276,11 @@ class TeachingAttendanceController extends Controller
                 'user_id' => $user->id,
                 'tanggal' => $today,
                 'waktu' => $now,
-                'status' => 'hadir',
-                'attendance_source' => TeachingAttendance::SOURCE_MANUAL,
-                'is_auto_generated' => false,
-                'latitude' => $request->latitude,
+            'status' => 'hadir',
+            'status_label' => $isLateJournal ? 'Jurnal Terlambat' : null,
+            'attendance_source' => TeachingAttendance::SOURCE_MANUAL,
+            'is_auto_generated' => false,
+            'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
                 'materi' => $request->materi,

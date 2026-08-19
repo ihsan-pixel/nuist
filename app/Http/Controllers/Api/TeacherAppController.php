@@ -1025,7 +1025,8 @@ class TeacherAppController extends Controller
         }
 
         $timeState = $this->buildTeachingAttendanceTimeState($schedule, $now);
-        if ($timeState['state'] !== 'within') {
+        $isLateJournal = $timeState['state'] === 'after';
+        if ($timeState['state'] !== 'within' && !$isLateJournal) {
             throw ValidationException::withMessages([
                 'attendance' => $timeState['message'],
             ]);
@@ -1110,6 +1111,7 @@ class TeacherAppController extends Controller
                 'tanggal' => $today->toDateString(),
                 'waktu' => $now->format('H:i:s'),
                 'status' => 'hadir',
+                'status_label' => $isLateJournal ? 'Jurnal Terlambat' : null,
                 'attendance_source' => TeachingAttendance::SOURCE_MANUAL,
                 'is_auto_generated' => false,
                 'latitude' => $validated['latitude'],
@@ -1148,6 +1150,7 @@ class TeacherAppController extends Controller
             'message' => 'Presensi mengajar berhasil dicatat pada ' . $now->format('H:i') . '.',
             'data' => [
                 'item' => $this->serializeTeachingAttendanceEntry($attendance),
+                'is_late_journal' => $isLateJournal,
             ],
         ], 201);
     }
@@ -2083,7 +2086,7 @@ class TeacherAppController extends Controller
 
         return [
             'state' => 'after',
-            'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar (' . $this->formatTime($schedule->start_time) . ' - ' . $this->formatTime($schedule->end_time) . ').',
+            'message' => 'Jurnal terlambat hanya dapat diajukan pada hari yang sama setelah jam mengajar berakhir (' . $this->formatTime($schedule->start_time) . ' - ' . $this->formatTime($schedule->end_time) . ').',
         ];
     }
 
