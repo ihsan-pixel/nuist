@@ -3925,7 +3925,13 @@ window.addEventListener('load', function() {
                 throw new Error('DOM elements not ready');
             }
 
+            faceScanSessionId += 1;
             stopSelfieStream();
+            if (video) {
+                video.srcObject = null;
+                video.removeAttribute('src');
+                video.load?.();
+            }
 
             await faceScanner.loadModels();
 
@@ -3983,7 +3989,11 @@ window.addEventListener('load', function() {
                     message: 'Arahkan wajah ke tengah oval. Scan akan dimulai otomatis.',
                 });
                 hideFaceScanRetryButton();
+                const sessionId = faceScanSessionId;
                 window.setTimeout(() => {
+                    if (sessionId !== faceScanSessionId) {
+                        return;
+                    }
                     if (!selfieModal?.classList.contains('show') || presensiSubmitInFlight) {
                         return;
                     }

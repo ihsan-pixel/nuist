@@ -33,25 +33,88 @@ class FaceRecognition {
 
     async initializeCamera(videoElement) {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
+            const constraints = {
+                audio: false,
                 video: {
-                    width: 640,
-                    height: 480,
-                    facingMode: 'user'
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: { ideal: 'user' }
                 }
-            });
+            };
 
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (!videoElement) {
+                throw new Error('Elemen video tidak tersedia.');
+            }
+
+            videoElement.playsInline = true;
+            videoElement.muted = true;
+            videoElement.autoplay = true;
             videoElement.srcObject = stream;
-            return new Promise((resolve) => {
-                videoElement.onloadedmetadata = () => {
-                    videoElement.play();
-                    resolve(true);
+            videoElement.load?.();
+
+            return new Promise((resolve, reject) => {
+                const cleanup = () => {
+                    if (timeoutId) {
+                        window.clearTimeout(timeoutId);
+                        timeoutId = null;
+                    }
+                    videoElement.removeEventListener('loadedmetadata', onReady);
+                    videoElement.removeEventListener('canplay', onReady);
+                    videoElement.removeEventListener('playing', onReady);
+                    videoElement.removeEventListener('error', onError);
                 };
+
+                const onReady = async () => {
+                    try {
+                        await videoElement.play();
+                        cleanup();
+                        resolve(true);
+                    } catch (playError) {
+                        cleanup();
+                        reject(playError);
+                    }
+                };
+
+                const onError = () => {
+                    cleanup();
+                    reject(new Error('Video kamera gagal dipersiapkan.'));
+                };
+
+                videoElement.addEventListener('loadedmetadata', onReady, { once: true });
+                videoElement.addEventListener('canplay', onReady, { once: true });
+                videoElement.addEventListener('playing', onReady, { once: true });
+                videoElement.addEventListener('error', onError, { once: true });
+
+                let timeoutId = window.setTimeout(() => {
+                    if (videoElement.readyState >= 2) {
+                        onReady();
+                        return;
+                    }
+                    cleanup();
+                    reject(new Error('Kamera terlalu lama menyiapkan video. Coba ulangi.'));
+                }, 5000);
             });
         } catch (error) {
             console.error('Error accessing camera:', error);
             throw new Error('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
         }
+    }
+
+    stopCamera(videoElement) {
+        if (!videoElement) {
+            return;
+        }
+
+        const stream = videoElement.srcObject;
+        if (stream && typeof stream.getTracks === 'function') {
+            stream.getTracks().forEach((track) => track.stop());
+        }
+
+        videoElement.pause?.();
+        videoElement.srcObject = null;
+        videoElement.removeAttribute('src');
+        videoElement.load?.();
     }
 
     generateChallengeSequence() {
