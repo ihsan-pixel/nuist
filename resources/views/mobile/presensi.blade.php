@@ -1661,29 +1661,6 @@
             transform: scale(0.96);
         }
 
-        .face-scan-manual-trigger {
-            display: inline-flex !important;
-            position: relative;
-            z-index: 20 !important;
-            pointer-events: auto !important;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            width: 100%;
-            margin-top: 8px;
-            border: 1px solid rgba(14, 133, 73, 0.24);
-            border-radius: 10px;
-            background: rgba(14, 133, 73, 0.08);
-            color: #0e8549;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 8px 12px;
-        }
-
-        .face-scan-manual-trigger i {
-            font-size: 14px;
-        }
-
         .swal2-container {
             z-index: 2600 !important;
         }
@@ -2409,12 +2386,6 @@
                 <i class="bx bx-send me-1"></i>
                 Kirim Presensi
             </button>
-            @if($verificationMode === 'face_scan')
-            <button type="button" id="btn-manual-face-scan" class="face-scan-manual-trigger">
-                <i class="bx bx-scan"></i>
-                <span>Jika scan belum jalan, tekan untuk mulai scan</span>
-            </button>
-            @endif
         </div>
         @if($verificationMode === 'face_scan')
         <button type="button" id="btn-face-scan-help" class="face-scan-info-button" aria-label="Buka panduan scan wajah">
@@ -3013,7 +2984,6 @@ window.addEventListener('load', function() {
     const faceLoadingTitle = document.getElementById('face-loading-title');
     const faceLoadingCopy = document.getElementById('face-loading-copy');
     const faceScanReadyBadge = document.getElementById('face-scan-ready-badge');
-    const manualFaceScanButton = document.getElementById('btn-manual-face-scan');
     const selfieProgressItems = Array.from(document.querySelectorAll('.selfie-progress-item'));
     const selfieProgressFill = document.getElementById('selfie-progress-fill');
     const selfieProgressOrb = document.getElementById('selfie-progress-orb');
@@ -3027,9 +2997,6 @@ window.addEventListener('load', function() {
     let faceScanSessionId = 0;
     let faceScanCompleted = false;
     let faceScanReadyToSubmit = false;
-    let faceScanAutoStartTimer = null;
-    let faceScanStatusStallTimer = null;
-    let faceScanLastStatusMessage = '';
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
@@ -3327,69 +3294,6 @@ window.addEventListener('load', function() {
                 faceLoadingCopy.textContent = copy;
             }
         }
-    }
-
-    function showManualFaceScanButton(message = 'Jika scan belum jalan, tekan untuk mulai scan') {
-        if (!manualFaceScanButton || !faceScanRequired) {
-            return;
-        }
-
-        manualFaceScanButton.querySelector('span').textContent = message;
-        manualFaceScanButton.hidden = false;
-        manualFaceScanButton.style.display = 'inline-flex';
-    }
-
-    function hideManualFaceScanButton() {
-        if (!manualFaceScanButton) {
-            return;
-        }
-
-        if (document.activeElement === manualFaceScanButton) {
-            manualFaceScanButton.blur();
-        }
-        manualFaceScanButton.hidden = true;
-    }
-
-    function watchManualFaceScanTrigger(message = '') {
-        if (!faceScanRequired || !manualFaceScanButton) {
-            return;
-        }
-
-        const normalized = String(message || '').toLowerCase();
-        const shouldWatch = normalized.includes('menunggu wajah masuk')
-            || normalized.includes('belum ada wajah di frame')
-            || normalized.includes('a rahkan wajah')
-            || normalized.includes('arahkan wajah')
-            || normalized.includes('wajah sempat hilang')
-            || normalized.includes('wajah sudah di frame')
-            || normalized.includes('sistem memulai scan');
-
-        if (!shouldWatch) {
-            faceScanLastStatusMessage = message || '';
-            if (faceScanStatusStallTimer) {
-                window.clearTimeout(faceScanStatusStallTimer);
-                faceScanStatusStallTimer = null;
-            }
-            hideManualFaceScanButton();
-            return;
-        }
-
-        if (message && message === faceScanLastStatusMessage) {
-            return;
-        }
-
-        faceScanLastStatusMessage = message || '';
-        if (faceScanStatusStallTimer) {
-            window.clearTimeout(faceScanStatusStallTimer);
-        }
-
-        faceScanStatusStallTimer = window.setTimeout(() => {
-            if (!selfieModal?.classList.contains('show') || faceScanInProgress || faceScanCompleted) {
-                return;
-            }
-
-            showManualFaceScanButton('Scan belum jalan. Tekan untuk mulai sekarang');
-        }, 3000);
     }
 
     function stopSelfieStream() {
@@ -4326,11 +4230,6 @@ window.addEventListener('load', function() {
                     message: 'Arahkan wajah ke tengah oval. Scan akan dimulai otomatis.',
                 });
                 hideFaceScanRetryButton();
-                hideManualFaceScanButton();
-                if (faceScanAutoStartTimer) {
-                    window.clearTimeout(faceScanAutoStartTimer);
-                    faceScanAutoStartTimer = null;
-                }
                 window.setTimeout(() => {
                     if (!selfieModal?.classList.contains('show') || presensiSubmitInFlight) {
                         return;
@@ -4372,7 +4271,6 @@ window.addEventListener('load', function() {
 
         if (faceScanRequired) {
             hideFaceScanRetryButton();
-            hideManualFaceScanButton();
         }
 
         facePresensiLog('scan', 'captureSelfie() dimulai.', {
@@ -4404,7 +4302,6 @@ window.addEventListener('load', function() {
         try {
             if (faceScanRequired) {
                 faceScanInProgress = true;
-                hideManualFaceScanButton();
                 resetSelfieProgress();
                 setSelfieProgressOrbState('default');
                 faceVerificationResult = await faceScanner.performAttendanceScan(video, {
@@ -4412,7 +4309,6 @@ window.addEventListener('load', function() {
                     onChallengeState: (step, state) => updateSelfieProgress(step, state),
                     onStatus: (message) => {
                         setSelfieStatus(message, inferSelfieStatusType(message));
-                        watchManualFaceScanTrigger(message);
                         facePresensiLog('scan', 'Status update.', {
                             ...facePresensiSnapshot(video),
                             session_id: currentSessionId,
@@ -4655,14 +4551,6 @@ window.addEventListener('load', function() {
                         : '<i class="bx bx-camera me-1"></i>Ambil Foto';
                 }
             }
-            if (faceScanAutoStartTimer) {
-                window.clearTimeout(faceScanAutoStartTimer);
-                faceScanAutoStartTimer = null;
-            }
-            if (faceScanStatusStallTimer) {
-                window.clearTimeout(faceScanStatusStallTimer);
-                faceScanStatusStallTimer = null;
-            }
         }
     }
 
@@ -4687,18 +4575,6 @@ window.addEventListener('load', function() {
             if (faceScanOnboardingContinue) {
                 faceScanOnboardingContinue.focus();
             }
-        });
-    }
-
-    if (manualFaceScanButton) {
-        manualFaceScanButton.addEventListener('click', function () {
-            if (!faceScanRequired || faceScanInProgress || presensiSubmitInFlight) {
-                return;
-            }
-
-            hideManualFaceScanButton();
-            facePresensiLog('scan', 'Manual scan trigger ditekan.', facePresensiSnapshot(document.getElementById('selfie-video')), 'info');
-            captureSelfie();
         });
     }
 
