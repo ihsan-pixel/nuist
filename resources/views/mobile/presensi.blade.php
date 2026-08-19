@@ -4685,7 +4685,7 @@ window.addEventListener('load', function() {
 
         // Get final location reading (button click) as reading4
         navigator.geolocation.getCurrentPosition(
-            function(position) {
+            async function(position) {
                 let reading4Lat = position.coords.latitude;
                 let reading4Lng = position.coords.longitude;
                 let reading4Timestamp = Date.now();
@@ -4705,7 +4705,16 @@ window.addEventListener('load', function() {
 
                 let selfieDataForUpload = selfieDataValue;
                 if (typeof selfieDataValue === 'string' && selfieDataValue.length > 100) {
-                    selfieDataForUpload = await compressDataUrlForUpload(selfieDataValue, faceScanRequired ? 320 : 360, faceScanRequired ? 0.7 : 0.74);
+                    try {
+                        selfieDataForUpload = await compressDataUrlForUpload(
+                            selfieDataValue,
+                            faceScanRequired ? 320 : 360,
+                            faceScanRequired ? 0.7 : 0.74
+                        );
+                    } catch (compressError) {
+                        console.warn('Selfie compression failed, using original data.', compressError);
+                        selfieDataForUpload = selfieDataValue;
+                    }
                 }
 
                 let postData = {
