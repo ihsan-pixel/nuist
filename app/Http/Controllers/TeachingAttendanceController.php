@@ -254,7 +254,8 @@ class TeachingAttendanceController extends Controller
             $schedule,
             $today,
             $now,
-            $user
+            $user,
+            $isLateJournal
         ) {
             if (
                 !$classStudentCount
@@ -276,11 +277,11 @@ class TeachingAttendanceController extends Controller
                 'user_id' => $user->id,
                 'tanggal' => $today,
                 'waktu' => $now,
-            'status' => 'hadir',
-            'status_label' => $isLateJournal ? 'Jurnal Terlambat' : null,
-            'attendance_source' => TeachingAttendance::SOURCE_MANUAL,
-            'is_auto_generated' => false,
-            'latitude' => $request->latitude,
+                'status' => 'hadir',
+                'status_label' => $isLateJournal ? 'Jurnal Terlambat' : null,
+                'attendance_source' => TeachingAttendance::SOURCE_MANUAL,
+                'is_auto_generated' => false,
+                'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
                 'materi' => $request->materi,
