@@ -3394,31 +3394,6 @@ window.addEventListener('load', function() {
         });
     }
 
-    async function waitForFaceModelReady(timeoutMs = 10000) {
-        const startedAt = Date.now();
-
-        while (Date.now() - startedAt < timeoutMs) {
-            if (faceModelWarmupReady) {
-                return true;
-            }
-
-            if (faceScanner && typeof faceScanner.loadDetectionModels === 'function') {
-                try {
-                    await faceScanner.loadDetectionModels();
-                } catch (error) {
-                    facePresensiLog('model', 'loadDetectionModels() retry gagal saat menunggu model siap.', {
-                        ...facePresensiSnapshot(document.getElementById('selfie-video')),
-                        error: error?.message || String(error || ''),
-                    }, 'warn');
-                }
-            }
-
-            await new Promise((resolve) => window.setTimeout(resolve, 180));
-        }
-
-        return faceModelWarmupReady;
-    }
-
     function setSelfieStatus(message, type = 'info', title = null) {
         const statusElement = document.getElementById('selfie-status');
         if (!statusElement) {
@@ -4244,15 +4219,6 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
-                setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
-                const modelReady = await waitForFaceModelReady(12000);
-                if (!modelReady) {
-                    setSelfieStatus('Model wajah belum siap. Coba ulangi beberapa detik lagi.');
-                    captureBtn.disabled = true;
-                    facePresensiLog('model', 'Model belum siap saat kamera sudah tampil.', facePresensiSnapshot(video), 'warn');
-                    return;
-                }
-
                 if (!faceModelWarmupReady) {
                     setSelfieStatus('Model wajah masih disiapkan. Tunggu sebentar lalu coba lagi.');
                     captureBtn.disabled = true;
