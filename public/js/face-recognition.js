@@ -1376,6 +1376,18 @@ class FaceRecognition {
 
         const quality = this.evaluateDetectionQuality(detection, videoElement, options);
         this.emit(callbacks.onGuideState, this.buildGuideStatePayload(quality));
+        this.emit(callbacks.onDiagnostic, {
+            stage: options.profile || 'default',
+            detection: detection ? {
+                box: detection.detection?.box || null,
+                score: detection.detection?.score ?? null,
+            } : null,
+            quality: {
+                usable: quality.usable,
+                state: quality.state,
+                message: quality.message,
+            },
+        });
 
         if (quality.usable) {
             this.lastGeometryDetection = detection;

@@ -928,6 +928,112 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentProgress = 0;
     let targetProgress = 0;
     let progressAnimationFrame = null;
+    const faceDebugEnabled = (() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('face_debug') === '1' || window.localStorage.getItem('face_presensi_debug') === '1';
+        } catch (error) {
+            return false;
+        }
+    })();
+    const faceDebugState = {
+        sessionId: Math.random().toString(36).slice(2, 10),
+        entries: [],
+        detectionCount: 0,
+        lastStage: 'init',
+    };
+
+    function faceSnapshot(video = null) {
+        return {
+            user_id: userId,
+            device: (navigator.userAgent || '').match(/\(([^)]+)\)/)?.[1]?.split(';').map((item) => item.trim()).find((item) => /SM-|Pixel|Redmi|Xiaomi|OPPO|Vivo|realme|OnePlus|HUAWEI|Huawei/i.test(item)) || 'Unknown',
+            android: (navigator.userAgent || '').match(/Android\s+([\d.]+)/i)?.[1] || 'Unknown',
+            browser: (navigator.userAgent || '').match(/Edg\/(\d+)/i) ? `Edge ${(navigator.userAgent || '').match(/Edg\/(\d+)/i)[1]}` : ((navigator.userAgent || '').match(/SamsungBrowser\/(\d+)/i) ? `Samsung Internet ${(navigator.userAgent || '').match(/SamsungBrowser\/(\d+)/i)[1]}` : ((navigator.userAgent || '').match(/Chrome\/(\d+)/i) ? `Chrome ${(navigator.userAgent || '').match(/Chrome\/(\d+)/i)[1]}` : 'Unknown')),
+            gpu: 'unknown',
+            webgl: 'unavailable',
+            tf_backend: 'unknown',
+            video: `${video?.videoWidth || 0}x${video?.videoHeight || 0}`,
+            ready_state: video?.readyState ?? null,
+            camera: video && video.videoWidth > 0 && video.readyState >= 2 ? 'ready' : 'not ready',
+            last_stage: faceDebugState.lastStage,
+        };
+    }
+
+    async function collectRuntimeInfo() {
+        const info = faceSnapshot();
+        try {
+            if (window.tf && typeof window.tf.getBackend === 'function') {
+                info.tf_backend = window.tf.getBackend() || 'unknown';
+            }
+        } catch (error) {}
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            info.webgl = gl ? 'available' : 'unavailable';
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '';
+                    info.gpu = String(renderer).replace(/^ANGLE\s*\(/i, '').replace(/\)$/,'').trim() || 'unknown';
+                }
+            }
+        } catch (error) {}
+        return info;
+    }
+
+    function appendFaceDebugLine(line) {
+        if (!faceDebugEnabled) {
+            return;
+        }
+
+        let debugBox = document.getElementById('face-enrollment-debug-log');
+        if (!debugBox) {
+            debugBox = document.createElement('pre');
+            debugBox.id = 'face-enrollment-debug-log';
+            debugBox.style.position = 'fixed';
+            debugBox.style.left = '8px';
+            debugBox.style.right = '8px';
+            debugBox.style.bottom = '8px';
+            debugBox.style.maxHeight = '35vh';
+            debugBox.style.overflow = 'auto';
+            debugBox.style.zIndex = '99999';
+            debugBox.style.background = 'rgba(0,0,0,0.82)';
+            debugBox.style.color = '#d1fae5';
+            debugBox.style.padding = '10px';
+            debugBox.style.borderRadius = '10px';
+            debugBox.style.fontSize = '11px';
+            debugBox.style.whiteSpace = 'pre-wrap';
+            debugBox.style.pointerEvents = 'none';
+            document.body.appendChild(debugBox);
+        }
+
+        faceDebugState.entries.push(line);
+        if (faceDebugState.entries.length > 60) {
+            faceDebugState.entries.shift();
+        }
+        debugBox.textContent = faceDebugState.entries.join('\n');
+    }
+
+    async function logEnrollmentHeader(video = null) {
+        if (!faceDebugEnabled) {
+            return;
+        }
+
+        const info = await collectRuntimeInfo();
+        appendFaceDebugLine(`USER: ${userId}`);
+        appendFaceDebugLine(`DEVICE: ${info.device}`);
+        appendFaceDebugLine(`ANDROID: ${info.android}`);
+        appendFaceDebugLine(`BROWSER: ${info.browser}`);
+        appendFaceDebugLine('');
+        appendFaceDebugLine(`GPU: ${info.gpu}`);
+        appendFaceDebugLine(`WEBGL: ${info.webgl}`);
+        appendFaceDebugLine(`TF BACKEND: ${info.tf_backend}`);
+        appendFaceDebugLine('');
+        appendFaceDebugLine(`VIDEO: ${video?.videoWidth || 0}x${video?.videoHeight || 0}`);
+        appendFaceDebugLine(`READY STATE: ${video?.readyState ?? null}`);
+        appendFaceDebugLine(`CAMERA: ${video && video.videoWidth > 0 && video.readyState >= 2 ? 'ready' : 'not ready'}`);
+        appendFaceDebugLine('');
+    }
 
     function setStatus(message, type = 'info') {
         status.className = 'face-scan-status';
@@ -1139,6 +1245,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             setInstruction('Memuat kamera dan model wajah.');
             setStatus('Menyiapkan kamera.');
+            faceDebugState.lastStage = 'camera';
             await Promise.all([
                 warmupFaceModels(),
                 faceRecognition.initializeCamera(video),
@@ -1153,6 +1260,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 state: 'steady',
                 message: 'Pusatkan wajah tepat di dalam oval.',
             });
+            await logEnrollmentHeader(video);
         } catch (error) {
             setStatus(error.message || 'Kamera tidak dapat diakses.');
             setInstruction('Izinkan akses kamera lalu coba lagi.');
@@ -1175,11 +1283,13 @@ document.addEventListener('DOMContentLoaded', function () {
         setCaptureProgress(0);
 
         try {
+            faceDebugState.lastStage = 'align';
             const result = await faceRecognition.performEnrollmentScan(video, {
                 onInstruction: function (message) {
                     setInstruction(message);
                 },
                 onChallengeState: function (step, state) {
+                    faceDebugState.lastStage = step;
                     updateProgress(step, state);
                 },
                 onStatus: function (message) {
@@ -1190,6 +1300,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 onCaptureProgress: function (progress) {
                     setCaptureProgress(progress);
+                },
+                onDiagnostic: function (payload) {
+                    if (!faceDebugEnabled) {
+                        return;
+                    }
+                    if (payload?.detection === null) {
+                        faceDebugState.detectionCount += 1;
+                        if (faceDebugState.detectionCount <= 4) {
+                            appendFaceDebugLine(`Detection #${faceDebugState.detectionCount}: null`);
+                        }
+                        return;
+                    }
+
+                    faceDebugState.detectionCount += 1;
+                    const box = payload?.detection?.box || {};
+                    appendFaceDebugLine(`Detection #${faceDebugState.detectionCount}: FACE BOX ${Math.round(box.x || 0)},${Math.round(box.y || 0)},${Math.round(box.width || 0)}x${Math.round(box.height || 0)}`);
+                    appendFaceDebugLine(`SCORE: ${typeof payload?.detection?.score === 'number' ? payload.detection.score.toFixed(4) : 'null'}`);
+                    appendFaceDebugLine(`QUALITY: ${payload?.quality?.usable ? 'usable' : 'rejected'}`);
+                    if (!payload?.quality?.usable && payload?.quality?.message) {
+                        appendFaceDebugLine(`QUALITY REASON: ${payload.quality.message}`);
+                    }
                 },
             });
 
@@ -1215,6 +1346,11 @@ document.addEventListener('DOMContentLoaded', function () {
             startCameraButton.style.display = 'none';
             enrollButton.style.display = 'block';
         } catch (error) {
+            if (faceDebugEnabled) {
+                appendFaceDebugLine('ALIGN TIMEOUT');
+                appendFaceDebugLine(`REASON: ${error?.message || 'scan failed'}`);
+                appendFaceDebugLine(`LAST STAGE: ${faceDebugState.lastStage}`);
+            }
             faceRecognition.stopCamera(video);
             cameraReady = false;
             placeholder.style.display = 'flex';

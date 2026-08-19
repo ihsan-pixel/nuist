@@ -2400,6 +2400,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('models/face-api.js') }}"></script>
 <script src="{{ asset('js/face-recognition.js') }}"></script>
+<script src="{{ asset('js/face-attendance-mobile.js') }}"></script>
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Leaflet JS -->
@@ -2965,7 +2966,9 @@ window.addEventListener('load', function() {
     const faceScanOnboarding = document.getElementById('face-scan-onboarding');
     const faceScanOnboardingContinue = document.getElementById('btn-face-scan-onboarding-continue');
     const faceScanHelpButton = document.getElementById('btn-face-scan-help');
-    const faceScanner = window.FaceRecognition ? new window.FaceRecognition() : null;
+    const faceScanner = window.MobileFaceRecognition
+        ? new window.MobileFaceRecognition()
+        : (window.FaceRecognition ? new window.FaceRecognition() : null);
     let faceVerificationResult = null;
     const verificationMode = @json($faceVerificationState['mode'] ?? 'selfie');
     const verificationLabel = @json($faceVerificationState['label'] ?? 'Selfie');
@@ -2996,6 +2999,214 @@ window.addEventListener('load', function() {
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
+    const facePresensiDebugEnabled = (() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('face_debug') === '1' || window.localStorage.getItem('face_presensi_debug') === '1';
+        } catch (error) {
+            return false;
+        }
+    })();
+    const facePresensiDebugState = {
+        sessionId: Math.random().toString(36).slice(2, 10),
+        entries: [],
+    };
+
+    function facePresensiSnapshot(video = null) {
+        return {
+            user_agent: navigator.userAgent || '',
+            screen: `${window.innerWidth}x${window.innerHeight}`,
+            model_ready: faceModelWarmupReady,
+            video_width: video?.videoWidth || 0,
+            video_height: video?.videoHeight || 0,
+            ready_state: video?.readyState ?? null,
+            has_scanner: Boolean(faceScanner),
+        };
+    }
+
+    function facePresensiParseBrowser() {
+        const ua = navigator.userAgent || '';
+        const chrome = ua.match(/Chrome\/(\d+)/i);
+        const edge = ua.match(/Edg\/(\d+)/i);
+        const samsung = ua.match(/SamsungBrowser\/(\d+)/i);
+        const browser = edge ? `Edge ${edge[1]}` : (samsung ? `Samsung Internet ${samsung[1]}` : (chrome ? `Chrome ${chrome[1]}` : 'Unknown'));
+        const android = ua.match(/Android\s+([\d.]+)/i);
+        return {
+            browser,
+            android: android ? android[1] : 'Unknown',
+        };
+    }
+
+    function facePresensiParseDevice() {
+        const ua = navigator.userAgent || '';
+        const match = ua.match(/\(([^)]+)\)/);
+        return match ? match[1].split(';').map((item) => item.trim()).find((item) => /SM-|Pixel|Redmi|Xiaomi|OPPO|Vivo|realme|OnePlus|HUAWEI|Huawei/i.test(item)) || (match[1].split(';').map((item) => item.trim())[0] || 'Unknown') : 'Unknown';
+    }
+
+    async function facePresensiCollectRuntimeInfo() {
+        const info = {
+            device: facePresensiParseDevice(),
+            ...facePresensiParseBrowser(),
+            gpu: 'unknown',
+            webgl: 'unavailable',
+            tf_backend: 'unknown',
+        };
+
+        try {
+            if (window.tf && typeof window.tf.getBackend === 'function') {
+                info.tf_backend = window.tf.getBackend() || 'unknown';
+            }
+        } catch (error) {}
+
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            info.webgl = gl ? 'available' : 'unavailable';
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '';
+                    info.gpu = String(renderer).replace(/^ANGLE\s*\(/i, '').replace(/\)$/,'').trim() || 'unknown';
+                }
+            }
+        } catch (error) {}
+
+        return info;
+    }
+
+    async function compressDataUrlForUpload(dataUrl, maxWidth = 360, quality = 0.72) {
+        if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) {
+            return dataUrl;
+        }
+
+        return new Promise((resolve) => {
+            const image = new Image();
+            image.onload = () => {
+                try {
+                    const sourceWidth = image.naturalWidth || image.width || 0;
+                    const sourceHeight = image.naturalHeight || image.height || 0;
+
+                    if (sourceWidth <= 0 || sourceHeight <= 0) {
+                        resolve(dataUrl);
+                        return;
+                    }
+
+                    const targetWidth = Math.min(sourceWidth, maxWidth);
+                    const targetHeight = Math.max(1, Math.round((sourceHeight * targetWidth) / sourceWidth));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        resolve(dataUrl);
+                        return;
+                    }
+
+                    ctx.drawImage(image, 0, 0, targetWidth, targetHeight);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                } catch (error) {
+                    resolve(dataUrl);
+                }
+            };
+            image.onerror = () => resolve(dataUrl);
+            image.src = dataUrl;
+        });
+    }
+
+    function facePresensiFormatHeader(info = {}, video = null) {
+        const snapshot = facePresensiSnapshot(video);
+        return [
+            `USER: {{ (int) Auth::id() }}`,
+            `DEVICE: ${info.device || 'Unknown'}`,
+            `ANDROID: ${info.android || 'Unknown'}`,
+            `BROWSER: ${info.browser || 'Unknown'}`,
+            '',
+            `GPU: ${info.gpu || 'unknown'}`,
+            `WEBGL: ${info.webgl || 'unavailable'}`,
+            `TF BACKEND: ${info.tf_backend || 'unknown'}`,
+            '',
+            `VIDEO: ${snapshot.video_width || 0}x${snapshot.video_height || 0}`,
+            `READY STATE: ${snapshot.ready_state ?? 'null'}`,
+            `CAMERA: ${snapshot.video_width > 0 && snapshot.ready_state >= 2 ? 'ready' : 'not ready'}`,
+        ].join('\n');
+    }
+
+    function facePresensiDetectionFormat(index, payload) {
+        if (!payload?.detection) {
+            return `Detection #${index}: null`;
+        }
+
+        const box = payload.detection.box || {};
+        const quality = payload.quality || {};
+        const parts = [
+            `Detection #${index}: FACE BOX ${Math.round(box.x || 0)},${Math.round(box.y || 0)},${Math.round(box.width || 0)}x${Math.round(box.height || 0)}`,
+            `SCORE: ${typeof payload.detection.score === 'number' ? payload.detection.score.toFixed(4) : 'null'}`,
+            `QUALITY: ${quality.usable ? 'usable' : 'rejected'}`,
+        ];
+
+        if (!quality.usable && quality.message) {
+            parts.push(`QUALITY REASON: ${quality.message}`);
+        }
+
+        return parts.join('\n');
+    }
+
+    function facePresensiLog(stage, message, data = null, level = 'info') {
+        if (!facePresensiDebugEnabled) {
+            return;
+        }
+
+        const entry = {
+            at: new Date().toISOString(),
+            stage,
+            message,
+            data,
+        };
+
+        facePresensiDebugState.entries.push(entry);
+        if (facePresensiDebugState.entries.length > 200) {
+            facePresensiDebugState.entries.shift();
+        }
+
+        const tag = `[face-presensi][${facePresensiDebugState.sessionId}][${stage}] ${message}`;
+        if (level === 'error') {
+            console.error(tag, data || '');
+        } else if (level === 'warn') {
+            console.warn(tag, data || '');
+        } else {
+            console.info(tag, data || '');
+        }
+
+        if (facePresensiDebugEnabled) {
+            let debugBox = document.getElementById('face-presensi-debug-log');
+            if (!debugBox) {
+                debugBox = document.createElement('pre');
+                debugBox.id = 'face-presensi-debug-log';
+                debugBox.style.position = 'fixed';
+                debugBox.style.left = '8px';
+                debugBox.style.right = '8px';
+                debugBox.style.bottom = '8px';
+                debugBox.style.maxHeight = '35vh';
+                debugBox.style.overflow = 'auto';
+                debugBox.style.zIndex = '99999';
+                debugBox.style.background = 'rgba(0,0,0,0.82)';
+                debugBox.style.color = '#d1fae5';
+                debugBox.style.padding = '10px';
+                debugBox.style.borderRadius = '10px';
+                debugBox.style.fontSize = '11px';
+                debugBox.style.whiteSpace = 'pre-wrap';
+                debugBox.style.pointerEvents = 'none';
+                document.body.appendChild(debugBox);
+            }
+
+            const lines = facePresensiDebugState.entries.slice(-40).map((item) => {
+                const detail = item.data ? ` | ${JSON.stringify(item.data)}` : '';
+                return `${item.at} | ${item.stage} | ${item.message}${detail}`;
+            });
+            debugBox.textContent = lines.join('\n');
+        }
+    }
 
     function setFaceModelReadyState(ready, progress = null) {
         faceModelWarmupReady = ready;
@@ -3014,19 +3225,26 @@ window.addEventListener('load', function() {
 
     function warmupFaceModels() {
         if (!faceScanner) {
+            facePresensiLog('model', 'faceScanner tidak tersedia saat warmup dimulai.', facePresensiSnapshot(), 'warn');
             return;
         }
 
         const warmupModels = async () => {
             try {
+                facePresensiLog('model', 'Warmup model dimulai.', facePresensiSnapshot(), 'info');
                 setFaceModelReadyState(false, 0);
                 const warmupPromise = faceScanner.loadDetectionModels();
                 setFaceModelReadyState(false, 50);
                 await warmupPromise;
                 setFaceModelReadyState(true, 100);
+                facePresensiLog('model', 'Warmup model selesai.', facePresensiSnapshot(), 'info');
             } catch (error) {
                 console.warn('Face model warmup failed:', error);
                 setFaceModelReadyState(false, 0);
+                facePresensiLog('model', 'Warmup model gagal.', {
+                    ...facePresensiSnapshot(),
+                    error: error?.message || String(error || ''),
+                }, 'error');
             }
         };
 
@@ -3060,6 +3278,7 @@ window.addEventListener('load', function() {
         if (!faceScanner) {
             return;
         }
+        facePresensiLog('camera', 'Stream dihentikan.', facePresensiSnapshot(document.getElementById('selfie-video')), 'info');
         faceScanner.stopCamera(document.getElementById('selfie-video'));
         if (selfieStream && typeof selfieStream.getTracks === 'function') {
             selfieStream.getTracks().forEach(track => track.stop());
@@ -3914,7 +4133,7 @@ window.addEventListener('load', function() {
     async function initializeSelfieCamera() {
         try {
             if (!faceScanner) {
-                throw new Error('Script face-recognition.js tidak termuat atau path asset salah.');
+                throw new Error('Script face-recognition.js atau face-attendance-mobile.js tidak termuat atau path asset salah.');
             }
             const video = document.getElementById('selfie-video');
             const container = document.getElementById('selfie-container');
@@ -3925,12 +4144,15 @@ window.addEventListener('load', function() {
                 throw new Error('DOM elements not ready');
             }
 
+            facePresensiLog('camera', 'Inisialisasi kamera dimulai.', facePresensiSnapshot(video), 'info');
             stopSelfieStream();
 
             await faceScanner.loadModels();
+            facePresensiLog('model', 'loadModels() selesai sebelum inisialisasi kamera.', facePresensiSnapshot(video), 'info');
 
             if (faceScanRequired) {
                 await faceScanner.initializeCamera(video);
+                facePresensiLog('camera', 'initializeCamera() selesai.', facePresensiSnapshot(video), 'info');
                 video.style.display = 'block';
 
                 const placeholder = container.querySelector('.selfie-placeholder');
@@ -3941,6 +4163,7 @@ window.addEventListener('load', function() {
                 setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
                 await faceScanner.loadModels();
                 setFaceLoadingState(false);
+                facePresensiLog('model', 'loadModels() selesai pada jalur face_scan.', facePresensiSnapshot(video), 'info');
                 updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {
                 captureBtn.disabled = true;
@@ -3958,10 +4181,12 @@ window.addEventListener('load', function() {
                 await waitForVideoPlaybackReady(video);
                 await video.play();
                 await waitForVideoFrame(video);
+                facePresensiLog('camera', 'Kamera selfie manual siap.', facePresensiSnapshot(video), 'info');
                 //updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
             }
             video.style.display = 'block';
             setFaceLoadingState(false);
+            facePresensiLog('camera', 'Kamera ditampilkan dan loading overlay dimatikan.', facePresensiSnapshot(video), 'info');
 
             const placeholder = container.querySelector('.selfie-placeholder');
             if (placeholder) {
@@ -3987,6 +4212,7 @@ window.addEventListener('load', function() {
                     if (!selfieModal?.classList.contains('show') || presensiSubmitInFlight) {
                         return;
                     }
+                    facePresensiLog('scan', 'Auto captureSelfie() dipanggil.', facePresensiSnapshot(video), 'info');
                     captureSelfie();
                 }, 120);
             } else {
@@ -4007,7 +4233,7 @@ window.addEventListener('load', function() {
         if (faceScanRequired && !faceScanner) {
             showFormalErrorAlert(
                 'Library Scan Wajah Tidak Tersedia',
-                'File face-recognition.js belum termuat di halaman. Pastikan file ada di public root hosting dan URL /js/face-recognition.js bisa diakses.'
+                'File face-recognition.js atau face-attendance-mobile.js belum termuat di halaman. Pastikan file ada di public root hosting dan URL asset bisa diakses.'
             );
             return;
         }
@@ -4024,6 +4250,12 @@ window.addEventListener('load', function() {
         if (faceScanRequired) {
             hideFaceScanRetryButton();
         }
+
+        facePresensiLog('scan', 'captureSelfie() dimulai.', {
+            ...facePresensiSnapshot(video),
+            session_id: currentSessionId,
+            face_scan_required: faceScanRequired,
+        }, 'info');
 
         if (faceScanRetryTimer) {
             window.clearTimeout(faceScanRetryTimer);
@@ -4055,10 +4287,30 @@ window.addEventListener('load', function() {
                     onChallengeState: (step, state) => updateSelfieProgress(step, state),
                     onStatus: (message) => {
                         setSelfieStatus(message, inferSelfieStatusType(message));
+                        facePresensiLog('scan', 'Status update.', {
+                            ...facePresensiSnapshot(video),
+                            session_id: currentSessionId,
+                            message,
+                        }, 'info');
                     },
-                    onGuideState: (payload) => updateSelfieGuideState(payload),
+                    onGuideState: (payload) => {
+                        updateSelfieGuideState(payload);
+                        if (payload?.message) {
+                            facePresensiLog('scan', 'Guide update.', {
+                                ...facePresensiSnapshot(video),
+                                session_id: currentSessionId,
+                                state: payload?.state || null,
+                                message: payload?.message,
+                            }, 'info');
+                        }
+                    },
                     skipPreMatchCheck: true,
                 });
+                facePresensiLog('scan', 'performAttendanceScan() selesai.', {
+                    ...facePresensiSnapshot(video),
+                    session_id: currentSessionId,
+                    has_result: Boolean(faceVerificationResult),
+                }, 'info');
                 await verifyFaceMatchAfterBlink(faceVerificationResult);
             } else {
                 await waitForVideoFrame(video);
@@ -4370,6 +4622,11 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed
                 });
 
+                let selfieDataForUpload = selfieDataValue;
+                if (typeof selfieDataValue === 'string' && selfieDataValue.length > 100) {
+                    selfieDataForUpload = await compressDataUrlForUpload(selfieDataValue, faceScanRequired ? 320 : 360, faceScanRequired ? 0.7 : 0.74);
+                }
+
                 let postData = {
                     _token: '{{ csrf_token() }}',
                     presensi_mode: presensiMode,
@@ -4381,7 +4638,7 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed,
                     device_info: navigator.userAgent,
                     location_readings: JSON.stringify(allReadings),
-                    selfie_data: selfieDataValue
+                    selfie_data: selfieDataForUpload
                 };
 
                 if (faceScanRequired) {
