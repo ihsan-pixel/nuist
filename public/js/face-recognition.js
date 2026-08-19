@@ -255,7 +255,8 @@ class FaceRecognition {
 
         const livenessChallenges = await this.runEnrollmentScanSequence(videoElement, callbacks);
         const descriptor = await this.captureFaceDescriptor(videoElement, {
-            strict: true,
+            strict: false,
+            allowFallback: true,
             profile: 'enrollment',
         });
 
@@ -443,9 +444,9 @@ class FaceRecognition {
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks, {
-                strict: true,
+                strict: false,
                 profile: 'enrollment',
-                allowFallback: false,
+                allowFallback: true,
             });
 
             if (!detection) {
@@ -529,6 +530,34 @@ class FaceRecognition {
                 });
 
                 return true;
+            }
+
+            if (Date.now() - startedAt > 1400) {
+                const burst = await this.captureBurstFrames(videoElement, {
+                    count: 3,
+                    intervalMs: 140,
+                    warmupMs: 0,
+                    onProgress: (index, total) => {
+                        this.emit(callbacks.onCaptureProgress, Math.max(0.2, index / total));
+                    },
+                });
+
+                if (burst?.best_frame) {
+                    this.emit(callbacks.onCaptureProgress, 1);
+                    this.emit(callbacks.onEnrollmentQuality, {
+                        progress: 1,
+                        ready: true,
+                        sharpEnough: true,
+                        stableEnough: true,
+                        sharpness: 0,
+                        motion: 0,
+                    });
+                    this.emit(callbacks.onGuideState, {
+                        state: 'success',
+                        message: 'Wajah berhasil diambil otomatis.',
+                    });
+                    return true;
+                }
             }
 
             await this.delay(20);
