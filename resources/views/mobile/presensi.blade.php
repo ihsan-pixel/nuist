@@ -2410,7 +2410,7 @@
                 Kirim Presensi
             </button>
             @if($verificationMode === 'face_scan')
-            <button type="button" id="btn-manual-face-scan" class="face-scan-manual-trigger" aria-hidden="false">
+            <button type="button" id="btn-manual-face-scan" class="face-scan-manual-trigger">
                 <i class="bx bx-scan"></i>
                 <span>Jika scan belum jalan, tekan untuk mulai scan</span>
             </button>
@@ -3335,7 +3335,8 @@ window.addEventListener('load', function() {
         }
 
         manualFaceScanButton.querySelector('span').textContent = message;
-        manualFaceScanButton.setAttribute('aria-hidden', 'false');
+        manualFaceScanButton.hidden = false;
+        manualFaceScanButton.style.display = 'inline-flex';
     }
 
     function hideManualFaceScanButton() {
@@ -3343,7 +3344,10 @@ window.addEventListener('load', function() {
             return;
         }
 
-        manualFaceScanButton.setAttribute('aria-hidden', 'true');
+        if (document.activeElement === manualFaceScanButton) {
+            manualFaceScanButton.blur();
+        }
+        manualFaceScanButton.hidden = true;
     }
 
     function watchManualFaceScanTrigger(message = '') {
