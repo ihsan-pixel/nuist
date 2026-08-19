@@ -22,9 +22,9 @@ class FaceRecognition {
         ];
         this.minimumFaceWidthRatio = 0.085;
         this.maximumEyeTiltDegrees = 26;
-        this.enrollmentSharpnessThreshold = 0.1;
-        this.enrollmentMotionThreshold = 0.08;
-        this.enrollmentHoldMs = 180;
+        this.enrollmentSharpnessThreshold = 0.06;
+        this.enrollmentMotionThreshold = 0.12;
+        this.enrollmentHoldMs = 120;
         this.challengeBlinkLeadMs = 240;
         this.challengeActionLeadMs = 360;
     }
@@ -425,7 +425,7 @@ class FaceRecognition {
         throw new Error('Wajah belum tepat di dalam oval. Dekatkan atau geser posisi wajah hingga pas pada bingkai.');
     }
 
-    async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 2800) {
+    async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 4200) {
         const startedAt = Date.now();
         let heldSince = null;
         let previousSignature = null;
@@ -534,7 +534,13 @@ class FaceRecognition {
             await this.delay(20);
         }
 
-        throw new Error('Wajah belum cukup stabil di dalam oval. Tahan posisi wajah hingga sistem mengambil gambar otomatis.');
+        this.emit(callbacks.onStatus, 'Wajah belum sepenuhnya stabil. Mengambil sampel terbaik yang tersedia.');
+        this.emit(callbacks.onGuideState, {
+            state: 'warning',
+            message: 'Wajah belum sepenuhnya stabil. Sistem mengambil sampel terbaik.',
+        });
+
+        return true;
     }
 
     async runAttendanceRiskScanSequence(videoElement, callbacks = {}) {
@@ -1718,9 +1724,11 @@ class FaceRecognition {
         const motion = previousSignature ? this.measureFaceMotion(signature, previousSignature) : 0;
         const sharpEnough = sharpness >= this.enrollmentSharpnessThreshold;
         const stableEnough = motion <= this.enrollmentMotionThreshold;
+        const nearReady = sharpness >= (this.enrollmentSharpnessThreshold * 0.75)
+            && motion <= (this.enrollmentMotionThreshold * 1.35);
 
         return {
-            ready: sharpEnough && stableEnough,
+            ready: (sharpEnough && stableEnough) || nearReady,
             sharpEnough,
             stableEnough,
             sharpness,
