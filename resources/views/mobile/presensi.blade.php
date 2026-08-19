@@ -3261,7 +3261,6 @@ window.addEventListener('load', function() {
                 const warmupPromise = faceScanner.loadDetectionModels();
                 setFaceModelReadyState(false, 50);
                 await warmupPromise;
-                await faceScanner.loadRecognitionModel();
                 setFaceModelReadyState(true, 100);
                 facePresensiLog('model', 'Warmup model selesai.', facePresensiSnapshot(), 'info');
             } catch (error) {
