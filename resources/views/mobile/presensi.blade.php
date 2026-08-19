@@ -2411,7 +2411,7 @@
                 Kirim Presensi
             </button>
             @if($verificationMode === 'face_scan')
-            <button type="button" id="btn-manual-face-scan" class="face-scan-manual-trigger" aria-hidden="true">
+            <button type="button" id="btn-manual-face-scan" class="face-scan-manual-trigger" aria-hidden="false">
                 <i class="bx bx-scan"></i>
                 <span>Jika scan belum jalan, tekan untuk mulai scan</span>
             </button>
@@ -3357,7 +3357,9 @@ window.addEventListener('load', function() {
             || normalized.includes('belum ada wajah di frame')
             || normalized.includes('a rahkan wajah')
             || normalized.includes('arahkan wajah')
-            || normalized.includes('wajah sempat hilang');
+            || normalized.includes('wajah sempat hilang')
+            || normalized.includes('wajah sudah di frame')
+            || normalized.includes('sistem memulai scan');
 
         if (!shouldWatch) {
             faceScanLastStatusMessage = message || '';
