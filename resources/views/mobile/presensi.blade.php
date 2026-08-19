@@ -2973,6 +2973,7 @@ window.addEventListener('load', function() {
     const verificationMode = @json($faceVerificationState['mode'] ?? 'selfie');
     const verificationLabel = @json($faceVerificationState['label'] ?? 'Selfie');
     const faceVerifyUrl = @json(route('mobile.face.verify'));
+    const faceDiagnosticStoreUrl = @json(route('presensi_admin.face_diagnostics.store'));
     const faceScanRequired = verificationMode === 'face_scan';
     const faceEnrollmentReady = @json($faceVerificationState['enrolled'] ?? false);
     const selfieContainer = document.getElementById('selfie-container');
@@ -3206,6 +3207,30 @@ window.addEventListener('load', function() {
             });
             debugBox.textContent = lines.join('\n');
         }
+    }
+
+    function sendFaceDiagnostic(payload = {}) {
+        if (!facePresensiDebugEnabled || !faceDiagnosticStoreUrl) {
+            return;
+        }
+
+        const body = JSON.stringify(payload);
+        if (navigator.sendBeacon) {
+            const blob = new Blob([body], { type: 'application/json' });
+            navigator.sendBeacon(faceDiagnosticStoreUrl, blob);
+            return;
+        }
+
+        fetch(faceDiagnosticStoreUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body,
+            keepalive: true,
+        }).catch(() => {});
     }
 
     function setFaceModelReadyState(ready, progress = null) {
@@ -4393,6 +4418,22 @@ window.addEventListener('load', function() {
                 setSelfieProgressOrbState('success');
                 updateFaceInstruction('Wajah cocok. Mengirim presensi.');
                 setSelfieStatus('Wajah cocok dengan data terdaftar. Presensi sedang dikirim.', 'success');
+                sendFaceDiagnostic({
+                    user_id: @json(optional(Auth::user())->id),
+                    source: 'presensi',
+                    outcome: 'success',
+                    stage: 'scan',
+                    reason: 'face scan completed',
+                    device: facePresensiParseDevice(),
+                    android_version: facePresensiCollectRuntimeInfo().android_version,
+                    browser: facePresensiParseBrowser(),
+                    gpu: facePresensiCollectRuntimeInfo().gpu,
+                    webgl: facePresensiCollectRuntimeInfo().webgl,
+                    tf_backend: facePresensiCollectRuntimeInfo().tf_backend,
+                    video_size: facePresensiCollectRuntimeInfo().video_size,
+                    ready_state: facePresensiCollectRuntimeInfo().ready_state,
+                    camera_state: facePresensiCollectRuntimeInfo().camera_state,
+                });
             } else {
                 updateSelfieGuideState({
                     state: 'processing',
@@ -4439,6 +4480,27 @@ window.addEventListener('load', function() {
 
             if (faceScanRequired) {
                 if (error?.fatal || verificationRejected) {
+                    sendFaceDiagnostic({
+                        user_id: @json(optional(Auth::user())->id),
+                        source: 'presensi',
+                        outcome: 'failed',
+                        stage: facePresensiDebugState.lastStage || 'scan',
+                        reason: errorMessage,
+                        device: facePresensiParseDevice(),
+                        android_version: facePresensiCollectRuntimeInfo().android_version,
+                        browser: facePresensiParseBrowser(),
+                        gpu: facePresensiCollectRuntimeInfo().gpu,
+                        webgl: facePresensiCollectRuntimeInfo().webgl,
+                        tf_backend: facePresensiCollectRuntimeInfo().tf_backend,
+                        video_size: facePresensiCollectRuntimeInfo().video_size,
+                        ready_state: facePresensiCollectRuntimeInfo().ready_state,
+                        camera_state: facePresensiCollectRuntimeInfo().camera_state,
+                        details: {
+                            notes: error?.notes || null,
+                            similarity: error?.similarity ?? null,
+                            face_distance: error?.face_distance ?? null,
+                        },
+                    });
                     setSelfieStatus(errorMessage, 'error');
                     showFormalErrorAlert(
                         'Wajah Tidak Cocok',
@@ -4453,6 +4515,25 @@ window.addEventListener('load', function() {
                     return;
                 }
 
+                sendFaceDiagnostic({
+                    user_id: @json(optional(Auth::user())->id),
+                    source: 'presensi',
+                    outcome: 'stuck',
+                    stage: facePresensiDebugState.lastStage || 'scan',
+                    reason: errorMessage,
+                    device: facePresensiParseDevice(),
+                    android_version: facePresensiCollectRuntimeInfo().android_version,
+                    browser: facePresensiParseBrowser(),
+                    gpu: facePresensiCollectRuntimeInfo().gpu,
+                    webgl: facePresensiCollectRuntimeInfo().webgl,
+                    tf_backend: facePresensiCollectRuntimeInfo().tf_backend,
+                    video_size: facePresensiCollectRuntimeInfo().video_size,
+                    ready_state: facePresensiCollectRuntimeInfo().ready_state,
+                    camera_state: facePresensiCollectRuntimeInfo().camera_state,
+                    details: {
+                        notes: error?.notes || null,
+                    },
+                });
                 setSelfieStatus(
                     errorMessage || 'Scan wajah belum stabil. Tahan wajah lebih tenang lalu kedip sekali lagi.',
                     'warning'

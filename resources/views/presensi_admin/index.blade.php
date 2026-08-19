@@ -1221,6 +1221,13 @@
                         class="btn btn-success btn-sm rounded-pill px-3">
                             <i class="bx bx-download me-1"></i>Export
                         </a>
+
+                        @if(Auth::user()->role === 'super_admin')
+                            <a href="{{ route('presensi_admin.face_diagnostics') }}"
+                               class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                <i class="bx bx-bug me-1"></i>Face Diagnostics
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

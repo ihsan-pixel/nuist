@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\Presensi;
+use App\Models\FaceDiagnostic;
 use App\Models\User;
 use App\Models\Holiday;
 use App\Services\ApprovedIzinSyncService;
@@ -487,6 +488,22 @@ class PresensiController extends \App\Http\Controllers\Controller
         );
 
         if (!$faceVerification['success']) {
+            FaceDiagnostic::create([
+                'user_id' => $user->id,
+                'actor_id' => $user->id,
+                'source' => 'presensi',
+                'outcome' => 'failed',
+                'stage' => 'verification',
+                'reason' => $faceVerification['notes'] ?? $faceVerification['message'] ?? 'face verification failed',
+                'device' => substr((string) $request->input('device_info'), 0, 191) ?: null,
+                'details' => [
+                    'liveness_score' => $faceVerification['liveness_score'] ?? null,
+                    'similarity' => $faceVerification['similarity'] ?? null,
+                    'face_distance' => $faceVerification['face_distance'] ?? null,
+                    'notes' => $faceVerification['notes'] ?? null,
+                ],
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => $faceVerification['message'],
@@ -497,6 +514,21 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         $faceVerification['verified'] = true;
+        FaceDiagnostic::create([
+            'user_id' => $user->id,
+            'actor_id' => $user->id,
+            'source' => 'presensi',
+            'outcome' => 'success',
+            'stage' => 'verification',
+            'reason' => 'face verified',
+            'device' => substr((string) $request->input('device_info'), 0, 191) ?: null,
+            'details' => [
+                'liveness_score' => $faceVerification['liveness_score'] ?? null,
+                'similarity' => $faceVerification['similarity'] ?? null,
+                'face_distance' => $faceVerification['face_distance'] ?? null,
+                'mode' => $request->input('presensi_mode', 'auto'),
+            ],
+        ]);
 
         // Prevent double submission for masuk if already exists
         if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\User;
+use App\Models\FaceDiagnostic;
 
 class FaceController extends Controller
 {
@@ -85,6 +86,21 @@ class FaceController extends Controller
             $user->face_verification_required = true;
             $user->save();
 
+            FaceDiagnostic::create([
+                'user_id' => $user->id,
+                'actor_id' => $auth->id,
+                'source' => 'enrollment',
+                'outcome' => 'success',
+                'stage' => 'save',
+                'reason' => 'face enrollment saved',
+                'device' => is_string($request->input('device_info')) ? Str::limit($request->input('device_info'), 191, '') : null,
+                'details' => [
+                    'replaced_previous_face' => $replacingExistingFace,
+                    'liveness_score' => $livenessScore,
+                    'challenges_completed' => count($normalizedChallenges),
+                ],
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => $replacingExistingFace
@@ -100,6 +116,20 @@ class FaceController extends Controller
                 'user_id' => $userId,
                 'auth_user_id' => $auth->id ?? null,
                 'message' => $e->getMessage(),
+            ]);
+
+            FaceDiagnostic::create([
+                'user_id' => $userId,
+                'actor_id' => $auth->id,
+                'source' => 'enrollment',
+                'outcome' => 'failed',
+                'stage' => 'save',
+                'reason' => $e->getMessage(),
+                'device' => is_string($request->input('device_info')) ? Str::limit($request->input('device_info'), 191, '') : null,
+                'details' => [
+                    'liveness_score' => $livenessScore,
+                    'notes' => 'backend_exception',
+                ],
             ]);
 
             return response()->json([

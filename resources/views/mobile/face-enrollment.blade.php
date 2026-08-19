@@ -900,6 +900,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = '{{ csrf_token() }}';
     const enrollUrl = '{{ route('mobile.face.enroll') }}';
+    const faceDiagnosticStoreUrl = @json(route('presensi_admin.face_diagnostics.store'));
     const userId = {{ (int) Auth::id() }};
 
     const placeholder = document.getElementById('face-placeholder');
@@ -1056,6 +1057,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         window.alert(message);
+    }
+
+    function sendFaceDiagnostic(payload = {}) {
+        if (!faceDebugEnabled || !faceDiagnosticStoreUrl) {
+            return;
+        }
+
+        const body = JSON.stringify(payload);
+        if (navigator.sendBeacon) {
+            const blob = new Blob([body], { type: 'application/json' });
+            navigator.sendBeacon(faceDiagnosticStoreUrl, blob);
+            return;
+        }
+
+        fetch(faceDiagnosticStoreUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body,
+            keepalive: true,
+        }).catch(() => {});
     }
 
     function resetProgress() {
@@ -1411,6 +1436,16 @@ document.addEventListener('DOMContentLoaded', function () {
             setStatus('Wajah berhasil didaftarkan. Halaman akan dimuat ulang.', 'success');
             setInstruction('Pendaftaran wajah selesai.');
             showSimpleAlert(payload.message || 'Wajah berhasil didaftarkan.', 'success');
+            sendFaceDiagnostic({
+                user_id: userId,
+                source: 'enrollment',
+                outcome: 'success',
+                stage: faceDebugState.lastStage,
+                reason: 'enrollment saved',
+                details: {
+                    progress: 100,
+                },
+            });
             window.setTimeout(function () {
                 window.location.href = @json(route('mobile.presensi'));
             }, 1200);
@@ -1419,6 +1454,13 @@ document.addEventListener('DOMContentLoaded', function () {
             enrollButton.textContent = 'Kirim Wajah';
             setStatus(error.message || 'Pendaftaran wajah gagal disimpan.', 'error');
             showSimpleAlert(error.message || 'Pendaftaran wajah gagal disimpan.', 'error');
+            sendFaceDiagnostic({
+                user_id: userId,
+                source: 'enrollment',
+                outcome: 'failed',
+                stage: faceDebugState.lastStage,
+                reason: error.message || 'enrollment failed',
+            });
         }
     }
 
