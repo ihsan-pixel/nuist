@@ -431,6 +431,7 @@ class FaceRecognition {
         let heldSince = null;
         let previousSignature = null;
         let stableFrames = 0;
+        let burstAttempted = false;
 
         this.emit(callbacks.onCaptureProgress, 0);
         this.emit(callbacks.onEnrollmentQuality, {
@@ -443,6 +444,9 @@ class FaceRecognition {
         });
 
         while (Date.now() - startedAt < timeoutMs) {
+            const elapsedProgress = this.clamp((Date.now() - startedAt) / timeoutMs, 0, 1);
+            this.emit(callbacks.onCaptureProgress, Math.max(0.05, elapsedProgress));
+
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks, {
                 strict: false,
                 profile: 'enrollment',
@@ -532,7 +536,8 @@ class FaceRecognition {
                 return true;
             }
 
-            if (Date.now() - startedAt > 1400) {
+            if (!burstAttempted && Date.now() - startedAt > 1200) {
+                burstAttempted = true;
                 const burst = await this.captureBurstFrames(videoElement, {
                     count: 3,
                     intervalMs: 140,
@@ -562,12 +567,6 @@ class FaceRecognition {
 
             await this.delay(20);
         }
-
-        this.emit(callbacks.onStatus, 'Wajah belum sepenuhnya stabil. Mengambil sampel terbaik yang tersedia.');
-        this.emit(callbacks.onGuideState, {
-            state: 'warning',
-            message: 'Wajah belum sepenuhnya stabil. Sistem mengambil sampel terbaik.',
-        });
 
         return true;
     }
