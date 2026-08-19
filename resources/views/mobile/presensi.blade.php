@@ -1662,7 +1662,7 @@
         }
 
         .face-scan-manual-trigger {
-            display: none;
+            display: inline-flex !important;
             align-items: center;
             justify-content: center;
             gap: 6px;
@@ -1679,10 +1679,6 @@
 
         .face-scan-manual-trigger i {
             font-size: 14px;
-        }
-
-        .face-scan-manual-trigger[aria-hidden="false"] {
-            display: inline-flex;
         }
 
         .swal2-container {
