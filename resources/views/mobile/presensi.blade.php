@@ -3261,6 +3261,7 @@ window.addEventListener('load', function() {
                 const warmupPromise = faceScanner.loadDetectionModels();
                 setFaceModelReadyState(false, 50);
                 await warmupPromise;
+                await faceScanner.loadRecognitionModel();
                 setFaceModelReadyState(true, 100);
                 facePresensiLog('model', 'Warmup model selesai.', facePresensiSnapshot(), 'info');
             } catch (error) {
@@ -3274,11 +3275,7 @@ window.addEventListener('load', function() {
         };
 
         setFaceModelReadyState(false, 0);
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(warmupModels, { timeout: 1500 });
-        } else {
-            window.setTimeout(warmupModels, 300);
-        }
+        window.setTimeout(warmupModels, 50);
     }
 
     warmupFaceModels();
