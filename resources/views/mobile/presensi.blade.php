@@ -4172,8 +4172,8 @@ window.addEventListener('load', function() {
             facePresensiLog('camera', 'Inisialisasi kamera dimulai.', facePresensiSnapshot(video), 'info');
             stopSelfieStream();
 
-            await faceScanner.loadModels();
-            facePresensiLog('model', 'loadModels() selesai sebelum inisialisasi kamera.', facePresensiSnapshot(video), 'info');
+            await faceScanner.loadDetectionModels();
+            facePresensiLog('model', 'loadDetectionModels() selesai sebelum inisialisasi kamera.', facePresensiSnapshot(video), 'info');
 
             if (faceScanRequired) {
                 await faceScanner.initializeCamera(video);
@@ -4185,10 +4185,7 @@ window.addEventListener('load', function() {
                     placeholder.style.display = 'none';
                 }
 
-                setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
-                await faceScanner.loadModels();
                 setFaceLoadingState(false);
-                facePresensiLog('model', 'loadModels() selesai pada jalur face_scan.', facePresensiSnapshot(video), 'info');
                 updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {
                 captureBtn.disabled = true;
@@ -4219,11 +4216,6 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
-                if (!faceModelWarmupReady) {
-                    setSelfieStatus('Model wajah masih disiapkan. Tunggu sebentar lalu coba lagi.');
-                    captureBtn.disabled = true;
-                    return;
-                }
                 captureBtn.style.display = 'none';
                 captureBtn.disabled = true;
                 setSelfieStatus('Kamera aktif. Scan dimulai otomatis saat wajah siap.');
