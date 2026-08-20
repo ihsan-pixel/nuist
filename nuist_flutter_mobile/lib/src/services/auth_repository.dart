@@ -164,9 +164,9 @@ class AuthRepository {
           Session.fromLoginJson(response.data ?? <String, dynamic>{});
       _session = session;
       _apiClient.setAuthToken(session.token);
+      await _tokenStorage.writeToken(session.token);
 
       if (rememberSession) {
-        await _tokenStorage.writeToken(session.token);
         await _tokenStorage.saveRememberedLogin(
           email: identifier,
           password: password,
@@ -174,7 +174,6 @@ class AuthRepository {
           remember: true,
         );
       } else {
-        await _tokenStorage.deleteToken();
         await _tokenStorage.clearRememberedLogin();
       }
 

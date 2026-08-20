@@ -96,5 +96,5 @@ Route::post('github-commit', [GithubWebhookController::class, 'handle'])
     ->middleware(['github.webhook', 'throttle:20,1']);
 
 // Face enrollment (admin) and verification (mobile presensi) with rate-limiting
-Route::middleware(['auth', 'throttle:10,1'])->post('/face/enroll', [FaceController::class, 'enroll']);
-Route::middleware(['auth', 'throttle:20,1'])->post('/face/verify', [FaceController::class, 'verify']);
+Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/face/enroll', [FaceController::class, 'enroll']);
+Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/face/verify', [FaceController::class, 'verify']);

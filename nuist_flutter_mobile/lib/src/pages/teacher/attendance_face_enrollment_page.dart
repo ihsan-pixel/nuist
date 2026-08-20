@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -20,11 +21,13 @@ class AttendanceFaceEnrollmentPage extends StatefulWidget {
     required this.repository,
     required this.title,
     required this.description,
+    this.currentUserId,
   });
 
   final TeacherMobileRepository repository;
   final String title;
   final String description;
+  final int? currentUserId;
 
   @override
   State<AttendanceFaceEnrollmentPage> createState() =>
@@ -41,6 +44,11 @@ class _AttendanceFaceEnrollmentPageState
   bool _readyToCapture = false;
   bool _submitting = false;
   int _stableFrames = 0;
+  String _poseInstruction = 'Arahkan wajah ke depan.';
+  final List<String> _poseSequence = <String>[];
+  final Map<String, List<double>> _poseDescriptors = <String, List<double>>{};
+  Face? _latestFace;
+  Size? _latestImageSize;
   Timer? _autoCaptureTimer;
   bool _autoCaptureArmed = false;
   String _status = 'Menyiapkan kamera depan...';
@@ -73,6 +81,7 @@ class _AttendanceFaceEnrollmentPageState
         options: FaceDetectorOptions(
           enableClassification: true,
           enableLandmarks: true,
+          enableTracking: true,
           performanceMode: FaceDetectorMode.accurate,
         ),
       );
@@ -123,6 +132,8 @@ class _AttendanceFaceEnrollmentPageState
       );
       final faces = await _detector!.processImage(inputImage);
       final face = faces.isNotEmpty ? faces.first : null;
+      final pose = _detectPose(face);
+      final stable = _isPoseStable(face);
       final ready = _isFaceReady(face);
 
       if (!mounted) {
@@ -130,18 +141,28 @@ class _AttendanceFaceEnrollmentPageState
       }
 
       setState(() {
+        _latestFace = face;
+        _latestImageSize = Size(image.width.toDouble(), image.height.toDouble());
         _hasFace = face != null;
         _readyToCapture = ready;
-        _stableFrames = ready ? _stableFrames + 1 : 0;
+        _stableFrames = stable ? _stableFrames + 1 : 0;
+        _poseInstruction = _instructionForPose(pose);
         if (face == null) {
           _status = 'Wajah belum terdeteksi. Posisikan wajah di tengah bingkai.';
+        } else if (pose == 'front' && stable) {
+          _status = 'Wajah depan stabil. Selanjutnya lihat kanan.';
+        } else if (pose == 'right' && stable) {
+          _status = 'Bagus. Selanjutnya lihat kiri.';
+        } else if (pose == 'left' && stable) {
+          _status = 'Bagus. Kembali lihat depan untuk menyimpan.';
         } else if (ready) {
-          _status = 'Wajah siap didaftarkan.';
+          _status = 'Wajah stabil dan siap didaftarkan.';
         } else {
           _status = 'Tahan posisi wajah agar hasil lebih akurat.';
         }
       });
 
+      _updatePoseSequence(face);
       _scheduleAutoCapture();
     } catch (_) {
       if (mounted) {
@@ -162,7 +183,7 @@ class _AttendanceFaceEnrollmentPageState
       return;
     }
 
-    if (_stableFrames < 6 || _autoCaptureArmed) {
+    if (_stableFrames < 4 || _autoCaptureArmed) {
       return;
     }
 
@@ -189,28 +210,126 @@ class _AttendanceFaceEnrollmentPageState
     return yaw <= 12 && pitch <= 12 && roll <= 12 && leftEye >= 0.2 && rightEye >= 0.2;
   }
 
+  bool _isPoseStable(Face? face) {
+    if (face == null) {
+      return false;
+    }
+    final yaw = (face.headEulerAngleY ?? 0).abs();
+    final pitch = (face.headEulerAngleX ?? 0).abs();
+    final roll = (face.headEulerAngleZ ?? 0).abs();
+    return yaw <= 18 && pitch <= 18 && roll <= 18;
+  }
+
+  String _detectPose(Face? face) {
+    if (face == null) {
+      return 'searching';
+    }
+    final yaw = face.headEulerAngleY ?? 0;
+    if (yaw >= 12) {
+      return 'right';
+    }
+    if (yaw <= -12) {
+      return 'left';
+    }
+    return 'front';
+  }
+
+  String _instructionForPose(String pose) {
+    switch (pose) {
+      case 'right':
+        return 'Sekarang lihat kanan sedikit.';
+      case 'left':
+        return 'Sekarang lihat kiri sedikit.';
+      case 'front':
+        return 'Hadapkan wajah ke depan.';
+      default:
+        return 'Arahkan wajah ke dalam bingkai.';
+    }
+  }
+
+  void _updatePoseSequence(Face? face) {
+    if (face == null) {
+      return;
+    }
+    final pose = _detectPose(face);
+    final stable = _isPoseStable(face);
+    if (!stable) {
+      return;
+    }
+
+    if (pose == 'front' && _poseSequence.isEmpty) {
+      _poseSequence.add('front');
+      _poseDescriptors['front'] = _buildDescriptor(face);
+    } else if (pose == 'right' &&
+        _poseSequence.isNotEmpty &&
+        _poseSequence.last == 'front' &&
+        !_poseSequence.contains('right')) {
+      _poseSequence.add('right');
+      _poseDescriptors['right'] = _buildDescriptor(face);
+    } else if (pose == 'left' &&
+        _poseSequence.contains('right') &&
+        !_poseSequence.contains('left')) {
+      _poseSequence.add('left');
+      _poseDescriptors['left'] = _buildDescriptor(face);
+    } else if (pose == 'front' &&
+        _poseSequence.contains('left') &&
+        !_poseSequence.asMap().containsKey(3)) {
+      _poseSequence.add('front_final');
+      _poseDescriptors['front_final'] = _buildDescriptor(face);
+    }
+  }
+
   InputImage _toInputImage(
     CameraImage image,
     CameraDescription camera,
     DeviceOrientation orientation,
   ) {
     final rotation = _rotationFromOrientation(camera, orientation);
-    final format = InputImageFormatValue.fromRawValue(image.format.raw) ??
-        InputImageFormat.yuv420;
-    final bytes = WriteBuffer();
-    for (final plane in image.planes) {
-      bytes.putUint8List(plane.bytes);
-    }
+    final bytes = _convertToNv21(image);
     final metadata = InputImageMetadata(
       size: Size(image.width.toDouble(), image.height.toDouble()),
       rotation: rotation,
-      format: format,
+      format: InputImageFormat.nv21,
       bytesPerRow: image.planes.first.bytesPerRow,
     );
     return InputImage.fromBytes(
-      bytes: bytes.done().buffer.asUint8List(),
+      bytes: bytes,
       metadata: metadata,
     );
+  }
+
+  Uint8List _convertToNv21(CameraImage image) {
+    final yPlane = image.planes[0];
+    final uPlane = image.planes[1];
+    final vPlane = image.planes[2];
+    final int ySize = image.width * image.height;
+    final int uvSize = image.width * image.height ~/ 2;
+    final bytes = Uint8List(ySize + uvSize);
+
+    var offset = 0;
+    for (var row = 0; row < image.height; row++) {
+      final rowStart = row * yPlane.bytesPerRow;
+      bytes.setRange(
+        offset,
+        offset + image.width,
+        yPlane.bytes,
+        rowStart,
+      );
+      offset += image.width;
+    }
+
+    final chromaHeight = image.height ~/ 2;
+    final chromaWidth = image.width ~/ 2;
+    for (var row = 0; row < chromaHeight; row++) {
+      for (var col = 0; col < chromaWidth; col++) {
+        final vIndex = row * vPlane.bytesPerRow + col * vPlane.bytesPerPixel!;
+        final uIndex = row * uPlane.bytesPerRow + col * uPlane.bytesPerPixel!;
+        bytes[offset++] = vPlane.bytes[vIndex];
+        bytes[offset++] = uPlane.bytes[uIndex];
+      }
+    }
+
+    return bytes;
   }
 
   InputImageRotation _rotationFromOrientation(
@@ -253,19 +372,22 @@ class _AttendanceFaceEnrollmentPageState
         );
       }
 
-      final profile = await widget.repository.getProfile();
-      final user = Map<String, dynamic>.from(
-        (profile['user'] as Map?) ?? const <String, dynamic>{},
-      );
-      final userId = (user['id'] as num?)?.toInt();
+      final userId = widget.currentUserId;
       if (userId == null) {
-        throw Exception('User ID tidak ditemukan dari profil.');
+        throw Exception('User ID tidak ditemukan dari sesi aktif. Silakan login ulang.');
+      }
+
+      final faceData = _combinedDescriptor();
+      if (faceData == null) {
+        throw Exception('Data wajah belum cukup lengkap. Coba ulangi dengan posisi wajah lebih stabil.');
       }
 
       final result = await widget.repository.enrollFace(
         payload: {
           'user_id': userId,
-          'face_data': processed['face_descriptor'],
+          'face_data': faceData,
+          'face_samples': _poseDescriptors,
+          'pose_sequence': _poseSequence,
           'liveness_score': processed['liveness_score'],
           'liveness_challenges': processed['liveness_challenges'],
           'device_info': 'flutter_mobile_face_enrollment',
@@ -363,6 +485,29 @@ class _AttendanceFaceEnrollmentPageState
     return descriptor;
   }
 
+  List<double>? _combinedDescriptor() {
+    if (_poseDescriptors.isEmpty) {
+      return null;
+    }
+
+    final samples = _poseDescriptors.values.where((item) => item.isNotEmpty).toList();
+    if (samples.isEmpty) {
+      return null;
+    }
+
+    final length = samples.first.length;
+    final combined = List<double>.filled(length, 0.0);
+    for (final sample in samples) {
+      for (var i = 0; i < length && i < sample.length; i++) {
+        combined[i] += sample[i];
+      }
+    }
+    for (var i = 0; i < combined.length; i++) {
+      combined[i] = combined[i] / samples.length;
+    }
+    return combined;
+  }
+
   double _landmarkValue(
     FaceLandmark? landmark,
     double Function(double x) normX,
@@ -438,6 +583,9 @@ class _AttendanceFaceEnrollmentPageState
                 hasFace: _hasFace,
                 readyToCapture: _readyToCapture,
                 stableFrames: _stableFrames,
+                progress: _enrollmentProgress,
+                latestFace: _latestFace,
+                latestImageSize: _latestImageSize,
               ),
               const SizedBox(height: 24),
               Text(
@@ -459,6 +607,16 @@ class _AttendanceFaceEnrollmentPageState
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _poseInstruction,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: _enrollMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const Spacer(),
@@ -488,6 +646,27 @@ class _AttendanceFaceEnrollmentPageState
       ),
     );
   }
+
+  double get _enrollmentProgress {
+    if (_poseSequence.isEmpty) {
+      return 0.0;
+    }
+    final known = <String>{..._poseSequence};
+    var progress = 0.0;
+    if (known.contains('front')) {
+      progress += 0.25;
+    }
+    if (known.contains('right')) {
+      progress += 0.25;
+    }
+    if (known.contains('left')) {
+      progress += 0.25;
+    }
+    if (known.contains('front_final')) {
+      progress += 0.25;
+    }
+    return progress.clamp(0.0, 1.0);
+  }
 }
 
 class _FaceHeroCard extends StatelessWidget {
@@ -497,6 +676,9 @@ class _FaceHeroCard extends StatelessWidget {
     required this.hasFace,
     required this.readyToCapture,
     required this.stableFrames,
+    required this.progress,
+    required this.latestFace,
+    required this.latestImageSize,
   });
 
   final CameraController? controller;
@@ -504,14 +686,17 @@ class _FaceHeroCard extends StatelessWidget {
   final bool hasFace;
   final bool readyToCapture;
   final int stableFrames;
+  final double progress;
+  final Face? latestFace;
+  final Size? latestImageSize;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 332,
-        height: 408,
-        padding: const EdgeInsets.all(22),
+        width: 344,
+        height: 426,
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(34),
@@ -538,8 +723,8 @@ class _FaceHeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Container(
-              width: 188,
-              height: 188,
+              width: 236,
+              height: 236,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _enrollPrimarySoft,
@@ -549,20 +734,30 @@ class _FaceHeroCard extends StatelessWidget {
                 child: loading && controller == null
                     ? const Center(child: CircularProgressIndicator())
                     : controller == null
-                            ? const Center(
-                                child: Icon(
-                                  Icons.verified_user_rounded,
-                                  size: 96,
-                                  color: _enrollPrimary,
-                                ),
-                              )
-                        : Stack(
+                        ? const Center(
+                            child: Icon(
+                              Icons.verified_user_rounded,
+                              size: 104,
+                              color: _enrollPrimary,
+                            ),
+                          )
+                          : Stack(
                             fit: StackFit.expand,
                             children: [
                               Center(
-                                child: AspectRatio(
-                                  aspectRatio: controller!.value.aspectRatio,
-                                  child: CameraPreview(controller!),
+                                child: _CameraPreviewFit(controller: controller!),
+                              ),
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: CustomPaint(
+                                    painter: _FaceScanPainter(
+                                      progress: progress,
+                                      face: latestFace,
+                                      imageSize: latestImageSize,
+                                      activeColor: _enrollPrimary,
+                                      softColor: _enrollPrimarySoft,
+                                    ),
+                                  ),
                                 ),
                               ),
                               Container(
@@ -581,8 +776,8 @@ class _FaceHeroCard extends StatelessWidget {
                                   right: 18,
                                   top: 18,
                                   child: Container(
-                                    width: 24,
-                                    height: 24,
+                                    width: 26,
+                                    height: 26,
                                     decoration: const BoxDecoration(
                                       color: Color(0xFF22C55E),
                                       shape: BoxShape.circle,
@@ -590,7 +785,7 @@ class _FaceHeroCard extends StatelessWidget {
                                     child: const Icon(
                                       Icons.check_rounded,
                                       color: Colors.white,
-                                      size: 16,
+                                      size: 18,
                                     ),
                                   ),
                                 ),
@@ -598,7 +793,7 @@ class _FaceHeroCard extends StatelessWidget {
                           ),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
             Text(
               readyToCapture
                   ? 'Identity Verified'
@@ -608,7 +803,7 @@ class _FaceHeroCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: _enrollText,
-                fontSize: 20,
+                fontSize: 21,
                 height: 1.1,
                 fontWeight: FontWeight.w800,
               ),
@@ -626,7 +821,7 @@ class _FaceHeroCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -645,6 +840,125 @@ class _FaceHeroCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _FaceScanPainter extends CustomPainter {
+  _FaceScanPainter({
+    required this.progress,
+    required this.face,
+    required this.imageSize,
+    required this.activeColor,
+    required this.softColor,
+  });
+
+  final double progress;
+  final Face? face;
+  final Size? imageSize;
+  final Color activeColor;
+  final Color softColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.shortestSide / 2 - 10;
+    final trackPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..color = softColor.withValues(alpha: 0.65);
+    final progressPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.5
+      ..strokeCap = StrokeCap.round
+      ..color = activeColor;
+
+    canvas.drawCircle(center, radius, trackPaint);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -1.57,
+      6.28318 * progress,
+      false,
+      progressPaint,
+    );
+
+    if (face != null && imageSize != null) {
+      final faceBox = face!.boundingBox;
+      final faceCenter = Offset(
+        (faceBox.left + faceBox.width / 2) / imageSize!.width * size.width,
+        (faceBox.top + faceBox.height / 2) / imageSize!.height * size.height,
+      );
+      final landmarks = face!.landmarks;
+      final rawPoints = [
+        landmarks[FaceLandmarkType.leftEye]?.position,
+        landmarks[FaceLandmarkType.rightEye]?.position,
+        landmarks[FaceLandmarkType.noseBase]?.position,
+        landmarks[FaceLandmarkType.leftMouth]?.position,
+        landmarks[FaceLandmarkType.rightMouth]?.position,
+      ];
+      final points = rawPoints
+          .map(
+            (position) => position == null
+                ? null
+                : Offset(
+                    position.x.toDouble(),
+                    position.y.toDouble(),
+                  ),
+          )
+          .toList();
+
+      final dotPaint = Paint()..color = activeColor;
+      final glowPaint = Paint()..color = activeColor.withValues(alpha: 0.18);
+
+      canvas.drawCircle(
+        _mapToPreview(
+          size: size,
+          imageSize: imageSize!,
+          point: faceCenter,
+          mirrorX: true,
+        ),
+        14,
+        glowPaint,
+      );
+      for (final point in points.whereType<Offset>()) {
+        canvas.drawCircle(
+          _mapToPreview(
+            size: size,
+            imageSize: imageSize!,
+            point: point,
+            mirrorX: true,
+          ),
+          3.5,
+          dotPaint,
+        );
+      }
+    }
+  }
+
+  Offset _mapToPreview({
+    required Size size,
+    required Size imageSize,
+    required Offset point,
+    required bool mirrorX,
+  }) {
+    final scale = math.max(
+      size.width / imageSize.width,
+      size.height / imageSize.height,
+    );
+    final scaledWidth = imageSize.width * scale;
+    final scaledHeight = imageSize.height * scale;
+    final dx = (size.width - scaledWidth) / 2;
+    final dy = (size.height - scaledHeight) / 2;
+    final x = mirrorX ? (imageSize.width - point.dx) : point.dx;
+    return Offset(dx + x * scale, dy + point.dy * scale);
+  }
+
+  @override
+  bool shouldRepaint(covariant _FaceScanPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.face != face ||
+        oldDelegate.imageSize != imageSize ||
+        oldDelegate.activeColor != activeColor ||
+        oldDelegate.softColor != softColor;
   }
 }
 
@@ -670,6 +984,42 @@ class _MiniBadge extends StatelessWidget {
           fontWeight: FontWeight.w700,
         ),
       ),
+    );
+  }
+}
+
+class _CameraPreviewFit extends StatelessWidget {
+  const _CameraPreviewFit({required this.controller});
+
+  final CameraController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final previewSize = controller.value.previewSize;
+        if (previewSize == null) {
+          return CameraPreview(controller);
+        }
+
+        final previewAspect = previewSize.height / previewSize.width;
+        return ClipOval(
+          child: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: previewAspect,
+                height: 1,
+                child: AspectRatio(
+                  aspectRatio: previewAspect,
+                  child: CameraPreview(controller),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

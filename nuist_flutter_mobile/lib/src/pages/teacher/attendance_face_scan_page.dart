@@ -189,26 +189,54 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     DeviceOrientation orientation,
   ) {
     final rotation = _rotationFromOrientation(camera, orientation);
-    final format = InputImageFormatValue.fromRawValue(image.format.raw) ??
-        InputImageFormat.yuv420;
-
-    final bytes = WriteBuffer();
-    for (final plane in image.planes) {
-      bytes.putUint8List(plane.bytes);
-    }
+    final bytes = _convertToNv21(image);
 
     final size = Size(image.width.toDouble(), image.height.toDouble());
     final metadata = InputImageMetadata(
       size: size,
       rotation: rotation,
-      format: format,
+      format: InputImageFormat.nv21,
       bytesPerRow: image.planes.first.bytesPerRow,
     );
 
     return InputImage.fromBytes(
-      bytes: bytes.done().buffer.asUint8List(),
+      bytes: bytes,
       metadata: metadata,
     );
+  }
+
+  Uint8List _convertToNv21(CameraImage image) {
+    final yPlane = image.planes[0];
+    final uPlane = image.planes[1];
+    final vPlane = image.planes[2];
+    final int ySize = image.width * image.height;
+    final int uvSize = image.width * image.height ~/ 2;
+    final bytes = Uint8List(ySize + uvSize);
+
+    var offset = 0;
+    for (var row = 0; row < image.height; row++) {
+      final rowStart = row * yPlane.bytesPerRow;
+      bytes.setRange(
+        offset,
+        offset + image.width,
+        yPlane.bytes,
+        rowStart,
+      );
+      offset += image.width;
+    }
+
+    final chromaHeight = image.height ~/ 2;
+    final chromaWidth = image.width ~/ 2;
+    for (var row = 0; row < chromaHeight; row++) {
+      for (var col = 0; col < chromaWidth; col++) {
+        final vIndex = row * vPlane.bytesPerRow + col * vPlane.bytesPerPixel!;
+        final uIndex = row * uPlane.bytesPerRow + col * uPlane.bytesPerPixel!;
+        bytes[offset++] = vPlane.bytes[vIndex];
+        bytes[offset++] = uPlane.bytes[uIndex];
+      }
+    }
+
+    return bytes;
   }
 
   InputImageRotation _rotationFromOrientation(
@@ -487,9 +515,9 @@ class _FaceHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 332,
-        height: 408,
-        padding: const EdgeInsets.all(22),
+        width: 344,
+        height: 426,
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(34),
@@ -516,8 +544,8 @@ class _FaceHeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Container(
-              width: 188,
-              height: 188,
+              width: 236,
+              height: 236,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _scanPrimarySoft,
@@ -527,21 +555,18 @@ class _FaceHeroCard extends StatelessWidget {
                 child: loading && controller == null
                     ? const Center(child: CircularProgressIndicator())
                     : controller == null
-                            ? const Center(
-                                child: Icon(
-                                  Icons.face_retouching_natural_rounded,
-                                  size: 96,
-                                  color: _scanPrimary,
-                                ),
-                              )
+                        ? const Center(
+                            child: Icon(
+                              Icons.face_retouching_natural_rounded,
+                              size: 104,
+                              color: _scanPrimary,
+                            ),
+                          )
                         : Stack(
                             fit: StackFit.expand,
                             children: [
                               Center(
-                                child: AspectRatio(
-                                  aspectRatio: controller!.value.aspectRatio,
-                                  child: CameraPreview(controller!),
-                                ),
+                                child: _CameraPreviewFit(controller: controller!),
                               ),
                               Container(
                                 decoration: BoxDecoration(
@@ -559,8 +584,8 @@ class _FaceHeroCard extends StatelessWidget {
                                   right: 18,
                                   top: 18,
                                   child: Container(
-                                    width: 24,
-                                    height: 24,
+                                    width: 26,
+                                    height: 26,
                                     decoration: const BoxDecoration(
                                       color: Color(0xFF22C55E),
                                       shape: BoxShape.circle,
@@ -568,7 +593,7 @@ class _FaceHeroCard extends StatelessWidget {
                                     child: const Icon(
                                       Icons.check_rounded,
                                       color: Colors.white,
-                                      size: 16,
+                                      size: 18,
                                     ),
                                   ),
                                 ),
@@ -576,7 +601,7 @@ class _FaceHeroCard extends StatelessWidget {
                           ),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
             Text(
               readyToCapture
                   ? 'Identity Verified'
@@ -586,7 +611,7 @@ class _FaceHeroCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: _scanText,
-                fontSize: 20,
+                fontSize: 21,
                 height: 1.1,
                 fontWeight: FontWeight.w800,
               ),
@@ -604,7 +629,7 @@ class _FaceHeroCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -648,6 +673,42 @@ class _MiniBadge extends StatelessWidget {
           fontWeight: FontWeight.w700,
         ),
       ),
+    );
+  }
+}
+
+class _CameraPreviewFit extends StatelessWidget {
+  const _CameraPreviewFit({required this.controller});
+
+  final CameraController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final previewSize = controller.value.previewSize;
+        if (previewSize == null) {
+          return CameraPreview(controller);
+        }
+
+        final previewAspect = previewSize.height / previewSize.width;
+        return ClipOval(
+          child: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: previewAspect,
+                height: 1,
+                child: AspectRatio(
+                  aspectRatio: previewAspect,
+                  child: CameraPreview(controller),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

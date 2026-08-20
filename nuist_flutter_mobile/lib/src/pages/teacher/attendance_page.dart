@@ -34,12 +34,14 @@ class TeacherAttendancePage extends StatefulWidget {
     required this.onBackToHome,
     required this.onOpenAttendanceHistory,
     required this.isActive,
+    this.currentUserId,
   });
 
   final TeacherMobileRepository repository;
   final VoidCallback onBackToHome;
   final Future<void> Function() onOpenAttendanceHistory;
   final bool isActive;
+  final int? currentUserId;
 
   @override
   State<TeacherAttendancePage> createState() => _TeacherAttendancePageState();
@@ -281,6 +283,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           repository: widget.repository,
           title: 'Daftar Wajah',
           description: 'Aktifkan data wajah sebelum presensi kehadiran.',
+          currentUserId: widget.currentUserId,
         ),
       ),
     );

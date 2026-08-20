@@ -216,6 +216,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
               onBackToHome: _openDashboard,
               onOpenAttendanceHistory: _openReportPage,
               isActive: _currentIndex == 2,
+              currentUserId: widget.controller.session?.user.id,
             ),
             TeacherTeachingJournalPage(
               repository: widget.repository,
