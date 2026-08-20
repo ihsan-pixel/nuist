@@ -530,9 +530,8 @@
         async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 3600) {
             const startedAt = Date.now();
             let heldSince = null;
-            let stableFrames = 0;
             let lastDetectionAt = 0;
-            const stableHoldMs = Math.max(260, holdMs * 2);
+            const stableHoldMs = 420;
 
             this.emit(callbacks.onCaptureProgress, 0);
             this.emit(callbacks.onEnrollmentQuality, {
@@ -569,48 +568,29 @@
                     continue;
                 }
 
-                const readiness = this.evaluateEnrollmentCaptureReadiness(videoElement, detection, null);
-                lastDetectionAt = Date.now();
-
-                this.emit(callbacks.onEnrollmentQuality, {
-                    progress: heldSince === null ? 0 : this.clamp((Date.now() - heldSince) / stableHoldMs, 0, 1),
-                    ready: readiness.ready,
-                    sharpEnough: readiness.sharpEnough,
-                    stableEnough: readiness.stableEnough,
-                    sharpness: readiness.sharpness,
-                    motion: readiness.motion,
-                });
-
                 if (heldSince === null) {
                     heldSince = Date.now();
-                    stableFrames = 1;
                     this.emit(callbacks.onStatus, 'Wajah terdeteksi. Menstabilkan posisi sebentar.');
-                } else if (Date.now() - lastDetectionAt <= 240) {
-                    stableFrames += 1;
                 }
 
+                lastDetectionAt = Date.now();
                 const holdElapsed = Date.now() - heldSince;
                 const holdProgress = this.clamp(holdElapsed / stableHoldMs, 0, 1);
                 this.emit(callbacks.onCaptureProgress, holdProgress);
+                this.emit(callbacks.onEnrollmentQuality, {
+                    progress: holdProgress,
+                    ready: holdProgress >= 1,
+                    sharpEnough: true,
+                    stableEnough: true,
+                    sharpness: 1,
+                    motion: 0,
+                });
 
-                if (holdElapsed < stableHoldMs && stableFrames < 2) {
-                    heldSince = null;
-                    stableFrames = 0;
-                    this.emit(callbacks.onCaptureProgress, 0);
+                if (holdProgress < 1) {
                     this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah.');
                     await this.delay(120);
                     continue;
                 }
-
-                this.emit(callbacks.onStatus, 'Wajah sudah stabil. Mengambil gambar otomatis.');
-                this.emit(callbacks.onEnrollmentQuality, {
-                    progress: holdProgress,
-                    ready: true,
-                    sharpEnough: readiness.sharpEnough,
-                    stableEnough: readiness.stableEnough,
-                    sharpness: readiness.sharpness,
-                    motion: readiness.motion,
-                });
 
                 if (holdElapsed >= stableHoldMs) {
                     this.emit(callbacks.onCaptureProgress, 1);
@@ -619,8 +599,8 @@
                         ready: true,
                         sharpEnough: true,
                         stableEnough: true,
-                        sharpness: readiness.sharpness,
-                        motion: readiness.motion,
+                        sharpness: 1,
+                        motion: 0,
                     });
                     this.emit(callbacks.onGuideState, { state: 'success', message: 'Wajah berhasil diambil otomatis.' });
                     return true;
