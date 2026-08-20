@@ -22,7 +22,13 @@ class FaceController extends Controller
      */
     public function enroll(Request $request)
     {
-        $auth = Auth::user();
+        $auth = $request->user();
+        if (!$auth) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
 
         $request->validate([
             'user_id' => 'required|integer',
@@ -147,7 +153,13 @@ class FaceController extends Controller
      */
     public function verify(Request $request)
     {
-        $auth = Auth::user();
+        $auth = $request->user();
+        if (!$auth) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
 
         $request->validate([
             'face_descriptor' => 'required',
