@@ -1782,32 +1782,22 @@ class _CalendarDayTile extends StatelessWidget {
                           : (isBlackDay
                               ? Colors.black87
                               : (isMissedAttendance
-                              ? _DashboardPalette.danger
-                              : _DashboardPalette.textPrimary))),
+                                  ? _DashboardPalette.danger
+                                  : _DashboardPalette.textPrimary))),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ),
           ),
-          if (isHoliday || status == 'izin')
-            Container(
-              width: 7,
-              height: 7,
-              decoration: BoxDecoration(
-                color: isHoliday ? _DashboardPalette.warning : color,
-                shape: BoxShape.circle,
-              ),
-            )
-          else
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: isBlackDay ? Colors.black87 : color,
-                shape: BoxShape.circle,
-              ),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: isBlackDay ? Colors.black87 : color,
+              shape: BoxShape.circle,
             ),
+          ),
         ],
       ),
     );
