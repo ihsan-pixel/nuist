@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -45,10 +46,9 @@ class _AttendanceFaceEnrollmentPageState
   bool _readyToCapture = false;
   bool _submitting = false;
   int _stableFrames = 0;
-  String _poseInstruction = 'Arahkan wajah ke depan.';
-  String _nextStepHint = 'Langkah berikutnya: hadapkan wajah ke depan.';
-  final List<String> _poseSequence = <String>[];
-  final Map<String, List<double>> _poseDescriptors = <String, List<double>>{};
+  int _sampleCount = 0;
+  String _poseInstruction = 'Arahkan wajah ke dalam lingkaran.';
+  String _nextStepHint = 'Tahan sebentar agar sistem mengambil sample otomatis.';
   Face? _latestFace;
   Size? _latestImageSize;
   Timer? _autoCaptureTimer;
@@ -56,6 +56,7 @@ class _AttendanceFaceEnrollmentPageState
   String _status = 'Menyiapkan kamera depan...';
   String? _error;
   DateTime _lastFrameAt = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime _lastSampleAt = DateTime.fromMillisecondsSinceEpoch(0);
 
   @override
   void initState() {
@@ -134,9 +135,9 @@ class _AttendanceFaceEnrollmentPageState
       );
       final faces = await _detector!.processImage(inputImage);
       final face = faces.isNotEmpty ? faces.first : null;
-      final pose = _detectPose(face);
-      final stable = _isPoseStable(face);
       final ready = _isFaceReady(face);
+      final quality = _evaluateFaceQuality(face, image);
+      final sampleReady = face != null && ready && quality['passed'] == true;
 
       if (!mounted) {
         return;
@@ -147,25 +148,26 @@ class _AttendanceFaceEnrollmentPageState
         _latestImageSize = Size(image.width.toDouble(), image.height.toDouble());
         _hasFace = face != null;
         _readyToCapture = ready;
-        _stableFrames = stable ? _stableFrames + 1 : 0;
-        _poseInstruction = _instructionForPose(pose);
-        _nextStepHint = _nextHintForPose(pose);
+        _stableFrames = ready ? _stableFrames + 1 : 0;
+        _poseInstruction = _instructionForQuality(quality, face);
+        _nextStepHint = _nextHintForSampleState();
         if (face == null) {
           _status = 'Wajah belum terdeteksi. Posisikan wajah di tengah bingkai.';
-        } else if (pose == 'front' && stable) {
-          _status = 'Wajah depan stabil. Selanjutnya lihat kanan.';
-        } else if (pose == 'right' && stable) {
-          _status = 'Bagus. Selanjutnya lihat kiri.';
-        } else if (pose == 'left' && stable) {
-          _status = 'Bagus. Kembali lihat depan untuk menyimpan.';
         } else if (ready) {
-          _status = 'Wajah stabil dan siap didaftarkan.';
+          _status = _sampleCount >= 3
+              ? 'Wajah stabil. Hampir selesai.'
+              : 'Wajah stabil. Tahan sebentar.';
         } else {
-          _status = 'Tahan posisi wajah agar hasil lebih akurat.';
+          _status = _instructionForQuality(quality, face);
+        }
+        if (sampleReady &&
+            _sampleCount < 5 &&
+            now.difference(_lastSampleAt).inMilliseconds >= 600) {
+          _lastSampleAt = now;
+          _sampleCount += 1;
         }
       });
 
-      _updatePoseSequence(face);
       _scheduleAutoCapture();
     } catch (_) {
       if (mounted) {
@@ -180,23 +182,20 @@ class _AttendanceFaceEnrollmentPageState
   }
 
   void _scheduleAutoCapture() {
-    if (!_readyToCapture ||
-        _loading ||
-        _submitting ||
-        !_isEnrollmentSequenceComplete()) {
+    if (!_readyToCapture || _loading || _submitting) {
       _autoCaptureTimer?.cancel();
       _autoCaptureArmed = false;
       return;
     }
 
-    if (_stableFrames < 6 || _autoCaptureArmed) {
+    if (_stableFrames < 8 || _autoCaptureArmed) {
       return;
     }
 
     _autoCaptureArmed = true;
     _autoCaptureTimer?.cancel();
-    _autoCaptureTimer = Timer(const Duration(milliseconds: 850), () {
-      if (mounted && _readyToCapture && !_loading && !_submitting) {
+    _autoCaptureTimer = Timer(const Duration(milliseconds: 650), () {
+      if (mounted && _readyToCapture && !_loading && !_submitting && _sampleCount >= 3) {
         unawaited(_captureAndEnroll());
       } else {
         _autoCaptureArmed = false;
@@ -214,98 +213,6 @@ class _AttendanceFaceEnrollmentPageState
     final leftEye = face.leftEyeOpenProbability ?? 1.0;
     final rightEye = face.rightEyeOpenProbability ?? 1.0;
     return yaw <= 12 && pitch <= 12 && roll <= 12 && leftEye >= 0.2 && rightEye >= 0.2;
-  }
-
-  bool _isPoseStable(Face? face) {
-    if (face == null) {
-      return false;
-    }
-    final yaw = (face.headEulerAngleY ?? 0).abs();
-    final pitch = (face.headEulerAngleX ?? 0).abs();
-    final roll = (face.headEulerAngleZ ?? 0).abs();
-    return yaw <= 18 && pitch <= 18 && roll <= 18;
-  }
-
-  bool _isEnrollmentSequenceComplete() {
-    return _poseSequence.length >= 4 &&
-        _poseSequence[0] == 'front' &&
-        _poseSequence[1] == 'right' &&
-        _poseSequence[2] == 'left' &&
-        _poseSequence[3] == 'front_final';
-  }
-
-  String _detectPose(Face? face) {
-    if (face == null) {
-      return 'searching';
-    }
-    final yaw = face.headEulerAngleY ?? 0;
-    if (yaw >= 12) {
-      return 'right';
-    }
-    if (yaw <= -12) {
-      return 'left';
-    }
-    return 'front';
-  }
-
-  String _instructionForPose(String pose) {
-    switch (pose) {
-      case 'right':
-        return 'Sekarang lihat kanan sedikit.';
-      case 'left':
-        return 'Sekarang lihat kiri sedikit.';
-      case 'front':
-        return 'Hadapkan wajah ke depan.';
-      default:
-        return 'Arahkan wajah ke dalam bingkai.';
-    }
-  }
-
-  String _nextHintForPose(String pose) {
-    switch (pose) {
-      case 'front':
-        return _poseSequence.isEmpty
-            ? 'Langkah berikutnya: tahan wajah depan sampai stabil.'
-            : 'Langkah berikutnya: geser wajah sedikit ke kanan.';
-      case 'right':
-        return 'Langkah berikutnya: geser wajah sedikit ke kiri.';
-      case 'left':
-        return 'Langkah berikutnya: kembali lihat depan untuk simpan.';
-      default:
-        return 'Langkah berikutnya: arahkan wajah ke dalam bingkai.';
-    }
-  }
-
-  void _updatePoseSequence(Face? face) {
-    if (face == null) {
-      return;
-    }
-    final pose = _detectPose(face);
-    final stable = _isPoseStable(face);
-    if (!stable) {
-      return;
-    }
-
-    if (pose == 'front' && _poseSequence.isEmpty) {
-      _poseSequence.add('front');
-      _poseDescriptors['front'] = _buildDescriptor(face);
-    } else if (pose == 'right' &&
-        _poseSequence.isNotEmpty &&
-        _poseSequence.last == 'front' &&
-        !_poseSequence.contains('right')) {
-      _poseSequence.add('right');
-      _poseDescriptors['right'] = _buildDescriptor(face);
-    } else if (pose == 'left' &&
-        _poseSequence.contains('right') &&
-        !_poseSequence.contains('left')) {
-      _poseSequence.add('left');
-      _poseDescriptors['left'] = _buildDescriptor(face);
-    } else if (pose == 'front' &&
-        _poseSequence.contains('left') &&
-        !_poseSequence.asMap().containsKey(3)) {
-      _poseSequence.add('front_final');
-      _poseDescriptors['front_final'] = _buildDescriptor(face);
-    }
   }
 
   InputImage _toInputImage(
@@ -406,28 +313,18 @@ class _AttendanceFaceEnrollmentPageState
         throw Exception('User ID tidak ditemukan dari sesi aktif. Silakan login ulang.');
       }
 
-      final faceData = _combinedDescriptor();
-      if (faceData == null || faceData.length != 128) {
-        throw Exception(
-          'Data wajah belum cukup lengkap. Ulangi urutan depan, kanan, kiri, lalu depan lagi.',
-        );
-      }
-
-      if (!_isEnrollmentSequenceComplete() || _poseDescriptors.length < 4) {
-        throw Exception(
-          'Urutan pendaftaran wajah belum lengkap. Ikuti pose depan, kanan, kiri, lalu depan lagi.',
-        );
-      }
-
       final embedding = await _embeddingService.extractEmbedding(File(file.path));
+      final embeddingValidation = _validateEmbedding(embedding);
+      if (!embeddingValidation['valid']) {
+        throw Exception(
+          'Data wajah tidak dapat diproses. Silakan ulangi.',
+        );
+      }
 
       final result = await widget.repository.enrollFace(
         payload: {
           'user_id': userId,
-          'face_data': faceData,
-          'face_samples': _poseDescriptors,
-          'pose_sequence': _poseSequence,
-          if (embedding != null) 'face_embedding': embedding,
+          'face_embedding': embeddingValidation['embedding'],
           'liveness_score': processed['liveness_score'],
           'liveness_challenges': processed['liveness_challenges'],
           'device_info': 'flutter_mobile_face_enrollment',
@@ -551,27 +448,108 @@ class _AttendanceFaceEnrollmentPageState
     return descriptor;
   }
 
-  List<double>? _combinedDescriptor() {
-    if (_poseDescriptors.isEmpty) {
-      return null;
+  String _instructionForQuality(Map<String, dynamic> quality, Face? face) {
+    if (face == null) {
+      return 'Arahkan wajah ke dalam lingkaran.';
     }
 
-    final samples = _poseDescriptors.values.where((item) => item.isNotEmpty).toList();
-    if (samples.isEmpty) {
-      return null;
+    final issue = quality['issue'] as String?;
+    switch (issue) {
+      case 'too_far':
+        return 'Terlalu jauh dari kamera.';
+      case 'too_close':
+        return 'Terlalu dekat dari kamera.';
+      case 'blur':
+        return 'Tahan posisi sebentar.';
+      case 'lighting':
+        return 'Pencahayaan kurang.';
+      case 'off_center':
+        return 'Pusatkan wajah ke tengah.';
+      default:
+        return quality['passed'] == true
+            ? 'Posisi sudah bagus.'
+            : 'Arahkan wajah ke dalam lingkaran.';
+    }
+  }
+
+  String _nextHintForSampleState() {
+    if (_sampleCount >= 5) {
+      return 'Sample cukup. Menyimpan data wajah...';
+    }
+    if (_sampleCount >= 3) {
+      return 'Hampir selesai. Tahan sebentar lagi.';
+    }
+    return 'Tahan sebentar agar sistem mengambil sample otomatis.';
+  }
+
+  Map<String, dynamic> _evaluateFaceQuality(Face? face, CameraImage image) {
+    if (face == null) {
+      return {'passed': false, 'issue': 'no_face', 'score': 0.0};
     }
 
-    final length = samples.first.length;
-    final combined = List<double>.filled(length, 0.0);
-    for (final sample in samples) {
-      for (var i = 0; i < length && i < sample.length; i++) {
-        combined[i] += sample[i];
-      }
+    final box = face.boundingBox;
+    final imageWidth = image.width.toDouble();
+    final imageHeight = image.height.toDouble();
+    final faceArea = box.width * box.height;
+    final frameArea = imageWidth * imageHeight;
+    final areaRatio = frameArea <= 0 ? 0.0 : faceArea / frameArea;
+    final centerX = box.center.dx / imageWidth;
+    final centerY = box.center.dy / imageHeight;
+    final yaw = (face.headEulerAngleY ?? 0).abs();
+    final pitch = (face.headEulerAngleX ?? 0).abs();
+    final roll = (face.headEulerAngleZ ?? 0).abs();
+    final eyeLeft = face.leftEyeOpenProbability ?? 1.0;
+    final eyeRight = face.rightEyeOpenProbability ?? 1.0;
+
+    if (areaRatio < 0.03) {
+      return {'passed': false, 'issue': 'too_far', 'score': areaRatio};
     }
-    for (var i = 0; i < combined.length; i++) {
-      combined[i] = combined[i] / samples.length;
+    if (areaRatio > 0.42) {
+      return {'passed': false, 'issue': 'too_close', 'score': areaRatio};
     }
-    return combined;
+    if ((centerX - 0.5).abs() > 0.18 || (centerY - 0.5).abs() > 0.18) {
+      return {'passed': false, 'issue': 'off_center', 'score': areaRatio};
+    }
+    if (yaw > 18 || pitch > 18 || roll > 12) {
+      return {'passed': false, 'issue': 'pose', 'score': areaRatio};
+    }
+    if (eyeLeft < 0.2 || eyeRight < 0.2) {
+      return {'passed': false, 'issue': 'blink', 'score': areaRatio};
+    }
+
+    return {'passed': true, 'issue': null, 'score': 1.0};
+  }
+
+  Map<String, dynamic> _validateEmbedding(List<double>? embedding) {
+    if (embedding == null || embedding.length != 128) {
+      return {'valid': false, 'embedding': null};
+    }
+
+    final normalized = embedding.map((value) => value.toDouble()).toList(growable: false);
+    if (normalized.any((value) => value.isNaN || value.isInfinite)) {
+      return {'valid': false, 'embedding': null};
+    }
+
+    final min = normalized.reduce((a, b) => a < b ? a : b);
+    final max = normalized.reduce((a, b) => a > b ? a : b);
+    var sumSquares = 0.0;
+    for (final value in normalized) {
+      sumSquares += value * value;
+    }
+    final norm = math.sqrt(sumSquares);
+    if (norm <= 0) {
+      return {'valid': false, 'embedding': null};
+    }
+
+    final unit = normalized.map((value) => value / norm).toList(growable: false);
+    return {
+      'valid': true,
+      'embedding': unit,
+      'embedding_dimension': unit.length,
+      'embedding_min': min,
+      'embedding_max': max,
+      'embedding_norm': norm,
+    };
   }
 
   double _landmarkValue(
@@ -724,24 +702,7 @@ class _AttendanceFaceEnrollmentPageState
   }
 
   double get _enrollmentProgress {
-    if (_poseSequence.isEmpty) {
-      return 0.0;
-    }
-    final known = <String>{..._poseSequence};
-    var progress = 0.0;
-    if (known.contains('front')) {
-      progress += 0.25;
-    }
-    if (known.contains('right')) {
-      progress += 0.25;
-    }
-    if (known.contains('left')) {
-      progress += 0.25;
-    }
-    if (known.contains('front_final')) {
-      progress += 0.25;
-    }
-    return progress.clamp(0.0, 1.0);
+    return (_sampleCount / 5.0).clamp(0.0, 1.0);
   }
 }
 
@@ -790,7 +751,7 @@ class _FaceHeroCard extends StatelessWidget {
           children: [
             const SizedBox(height: 6),
             const Text(
-              'Face detection',
+              'Daftar Wajah',
               style: TextStyle(
                 color: _enrollText,
                 fontSize: 15,
@@ -858,15 +819,13 @@ class _FaceHeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              readyToCapture
-                  ? 'Identity Verified'
-                  : hasFace
-                      ? 'Keep your face centered'
-                      : 'Align your face with the frame',
+              hasFace
+                  ? (readyToCapture ? 'Wajah terdeteksi' : 'Pusatkan wajah')
+                  : 'Arahkan wajah ke lingkaran',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: _enrollText,
-                fontSize: 21,
+                fontSize: 18,
                 height: 1.1,
                 fontWeight: FontWeight.w800,
               ),
@@ -874,8 +833,8 @@ class _FaceHeroCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               readyToCapture
-                  ? 'Wajah sudah stabil dan siap didaftarkan.'
-                  : 'Pastikan wajah terlihat jelas, tidak miring, dan pencahayaan cukup.',
+                  ? 'Tahan sebentar...'
+                  : 'Pastikan wajah terlihat jelas dan pencahayaan cukup.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: _enrollMuted,
@@ -884,17 +843,36 @@ class _FaceHeroCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                minHeight: 8,
+                value: progress,
+                backgroundColor: const Color(0xFFE4ECE8),
+                valueColor: const AlwaysStoppedAnimation<Color>(_enrollPrimary),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${(progress * 100).round()}% sample terkumpul',
+              style: const TextStyle(
+                color: _enrollMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _MiniBadge(
-                  label: hasFace ? 'Face detected' : 'Searching',
+                  label: hasFace ? 'Terdeteksi' : 'Mencari',
                   active: hasFace,
                 ),
                 const SizedBox(width: 8),
                 _MiniBadge(
-                  label: stableFrames >= 6 ? 'Stable' : 'Stabilizing',
+                  label: stableFrames >= 6 ? 'Stabil' : 'Menstabilkan',
                   active: stableFrames >= 6,
                 ),
               ],

@@ -6,12 +6,8 @@ use App\Models\User;
 
 class FaceVerificationService
 {
-    private const FACE_DISTANCE_THRESHOLD = 0.72;
-    private const FACE_DISTANCE_MARGIN_THRESHOLD = 0.10;
     private const LIVENESS_THRESHOLD = 0.45;
-    private const REQUIRED_ATTENDANCE_CHALLENGE = 'blink';
-    private const REQUIRED_DYNAMIC_CHALLENGES = ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'];
-    private const SCREEN_REPLAY_RISK_THRESHOLD = 0.55;
+    private const DEFAULT_FACE_SIMILARITY_THRESHOLD = 0.80;
 
     public function requirementState(User $user): array
     {
@@ -37,7 +33,6 @@ class FaceVerificationService
         bool $enforceAdvancedLiveness = false,
     ): array {
         $state = $this->requirementState($user);
-
         if (!$state['enrolled']) {
             return [
                 'success' => false,
@@ -46,11 +41,11 @@ class FaceVerificationService
             ];
         }
 
-        $normalizedDescriptor = $this->normalizeDescriptor($embedding);
-        if (empty($normalizedDescriptor)) {
-            $normalizedDescriptor = $this->normalizeDescriptor($descriptor);
+        $provided = $this->normalizeDescriptor($embedding);
+        if ($provided === []) {
+            $provided = $this->normalizeDescriptor($descriptor);
         }
-        if (empty($normalizedDescriptor)) {
+        if ($provided === []) {
             return [
                 'success' => false,
                 'message' => 'Data descriptor wajah tidak valid. Silakan ulangi scan wajah.',
@@ -59,7 +54,6 @@ class FaceVerificationService
         }
 
         $normalizedLivenessScore = is_numeric($livenessScore) ? (float) $livenessScore : null;
-
         if ($normalizedLivenessScore === null) {
             return [
                 'success' => false,
@@ -69,7 +63,7 @@ class FaceVerificationService
         }
 
         $storedDescriptors = $this->storedDescriptors($user);
-        if (empty($storedDescriptors)) {
+        if ($storedDescriptors === []) {
             return [
                 'success' => false,
                 'message' => 'Data wajah terdaftar tidak dapat dibaca. Silakan lakukan pendaftaran wajah ulang.',
@@ -77,77 +71,14 @@ class FaceVerificationService
             ];
         }
 
-        $bestDistance = null;
-        $secondBestDistance = null;
-
-        foreach ($storedDescriptors as $storedDescriptor) {
-            $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
-            if ($bestDistance === null || $distance < $bestDistance) {
-                $secondBestDistance = $bestDistance;
-                $bestDistance = $distance;
-            } elseif ($secondBestDistance === null || $distance < $secondBestDistance) {
-                $secondBestDistance = $distance;
-            }
-        }
-
-        $bestDistance ??= INF;
-        $bestSimilarity = $this->distanceToSimilarity($bestDistance);
-        $isFlutterClient = is_string($deviceInfo) && str_contains(strtolower($deviceInfo), 'flutter');
-        $distanceThreshold = $isFlutterClient ? 1.10 : self::FACE_DISTANCE_THRESHOLD;
-        $marginThreshold = $isFlutterClient ? 0.02 : self::FACE_DISTANCE_MARGIN_THRESHOLD;
-
-        if ($secondBestDistance !== null) {
-            $distanceGap = $secondBestDistance - $bestDistance;
-            if ($distanceGap < $marginThreshold) {
-                return [
-                    'success' => false,
-                    'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
-                    'similarity' => round($bestSimilarity, 4),
-                    'face_distance' => is_finite($bestDistance) ? round($bestDistance, 4) : null,
-                    'face_distance_threshold' => $distanceThreshold,
-                    'face_distance_gap' => round($distanceGap, 4),
-                    'face_distance_gap_threshold' => $marginThreshold,
-                    'liveness_score' => round($normalizedLivenessScore, 4),
-                    'notes' => 'face_ambiguous_match',
-                ];
-            }
-        }
-
-        if ($normalizedLivenessScore < self::LIVENESS_THRESHOLD) {
-            return [
-                'success' => false,
-                'message' => 'Scan wajah gagal diverifikasi. Wajah belum terbaca dengan cukup stabil.',
-                'similarity' => round($bestSimilarity, 4),
-                'face_distance' => is_finite($bestDistance) ? round($bestDistance, 4) : null,
-                'face_distance_threshold' => $distanceThreshold,
-                'liveness_score' => round($normalizedLivenessScore, 4),
-                'notes' => 'liveness_below_threshold',
-            ];
-        }
-
-        if ($bestDistance > $distanceThreshold) {
-            return [
-                'success' => false,
-                'message' => 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.',
-                'similarity' => round($bestSimilarity, 4),
-                'face_distance' => round($bestDistance, 4),
-                'face_distance_threshold' => $distanceThreshold,
-                'liveness_score' => round($normalizedLivenessScore, 4),
-                'notes' => 'face_similarity_below_threshold',
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Scan wajah berhasil diverifikasi.',
-            'face_id_used' => $user->face_id,
-            'similarity' => round($bestSimilarity, 4),
-            'face_distance' => round($bestDistance, 4),
-            'face_distance_threshold' => $distanceThreshold,
-            'liveness_score' => round($normalizedLivenessScore, 4),
-            'device_info' => $deviceInfo,
-            'notes' => 'face_verified',
-        ];
+        return $this->matchAgainstStoredDescriptors(
+            $storedDescriptors,
+            $provided,
+            $normalizedLivenessScore,
+            $deviceInfo,
+            $user->face_id,
+            $user
+        );
     }
 
     public function identifyBestMatchingUser(
@@ -157,8 +88,8 @@ class FaceVerificationService
         mixed $challenges,
         bool $enforceAdvancedLiveness = false,
     ): array {
-        $normalizedDescriptor = $this->normalizeDescriptor($descriptor);
-        if (empty($normalizedDescriptor)) {
+        $provided = $this->normalizeDescriptor($descriptor);
+        if ($provided === []) {
             return [
                 'success' => false,
                 'message' => 'Data descriptor wajah tidak valid. Silakan ulangi scan wajah.',
@@ -167,7 +98,6 @@ class FaceVerificationService
         }
 
         $normalizedLivenessScore = is_numeric($livenessScore) ? (float) $livenessScore : null;
-
         if ($normalizedLivenessScore === null) {
             return [
                 'success' => false,
@@ -186,8 +116,8 @@ class FaceVerificationService
         }
 
         $bestUser = null;
-        $bestDistance = null;
-        $secondBestDistance = null;
+        $bestSimilarity = null;
+        $secondBestSimilarity = null;
 
         foreach ($users as $user) {
             if (!$user instanceof User) {
@@ -195,23 +125,23 @@ class FaceVerificationService
             }
 
             $storedDescriptors = $this->storedDescriptors($user);
-            if (empty($storedDescriptors)) {
+            if ($storedDescriptors === []) {
                 continue;
             }
 
             foreach ($storedDescriptors as $storedDescriptor) {
-                $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
-                if ($bestDistance === null || $distance < $bestDistance) {
-                    $secondBestDistance = $bestDistance;
-                    $bestDistance = $distance;
+                $similarity = $this->cosineSimilarity($storedDescriptor, $provided);
+                if ($bestSimilarity === null || $similarity > $bestSimilarity) {
+                    $secondBestSimilarity = $bestSimilarity;
+                    $bestSimilarity = $similarity;
                     $bestUser = $user;
-                } elseif ($secondBestDistance === null || $distance < $secondBestDistance) {
-                    $secondBestDistance = $distance;
+                } elseif ($secondBestSimilarity === null || $similarity > $secondBestSimilarity) {
+                    $secondBestSimilarity = $similarity;
                 }
             }
         }
 
-        if (!$bestUser || $bestDistance === null) {
+        if (!$bestUser || $bestSimilarity === null) {
             return [
                 'success' => false,
                 'message' => 'Belum ada data wajah guru yang siap dicocokkan di kiosk ini.',
@@ -220,30 +150,31 @@ class FaceVerificationService
             ];
         }
 
-        $bestSimilarity = $this->distanceToSimilarity($bestDistance);
-        if ($secondBestDistance !== null) {
-            $distanceGap = $secondBestDistance - $bestDistance;
-            if ($distanceGap < self::FACE_DISTANCE_MARGIN_THRESHOLD) {
+        $threshold = $this->faceSimilarityThreshold();
+        if ($secondBestSimilarity !== null) {
+            $similarityGap = $bestSimilarity - $secondBestSimilarity;
+            if ($similarityGap < 0.02) {
                 return [
                     'success' => false,
                     'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
                     'similarity' => round($bestSimilarity, 4),
-                    'face_distance' => round($bestDistance, 4),
-                    'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
-                    'face_distance_gap' => round($distanceGap, 4),
-                    'face_distance_gap_threshold' => self::FACE_DISTANCE_MARGIN_THRESHOLD,
+                    'matched' => false,
+                    'threshold' => $threshold,
+                    'similarity_gap' => round($similarityGap, 4),
+                    'similarity_gap_threshold' => 0.02,
                     'liveness_score' => round($normalizedLivenessScore, 4),
                     'notes' => 'face_ambiguous_match',
                 ];
             }
         }
-        if ($bestDistance > self::FACE_DISTANCE_THRESHOLD) {
+
+        if ($bestSimilarity < $threshold) {
             return [
                 'success' => false,
                 'message' => 'Wajah tidak dikenali. Pastikan guru sudah mendaftarkan wajah yang benar.',
                 'similarity' => round($bestSimilarity, 4),
-                'face_distance' => round($bestDistance, 4),
-                'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                'matched' => false,
+                'threshold' => $threshold,
                 'liveness_score' => round($normalizedLivenessScore, 4),
                 'notes' => 'face_similarity_below_threshold',
             ];
@@ -255,17 +186,19 @@ class FaceVerificationService
             'user' => $bestUser,
             'face_id_used' => $bestUser->face_id,
             'similarity' => round($bestSimilarity, 4),
-            'face_distance' => round($bestDistance, 4),
-            'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+            'matched' => true,
+            'threshold' => $threshold,
             'liveness_score' => round($normalizedLivenessScore, 4),
+            'embedding_dimension' => 128,
+            'embedding_norm' => 1.0,
             'notes' => 'face_identified',
         ];
     }
 
     public function identifyByDescriptorOnly(iterable $users, mixed $descriptor): array
     {
-        $normalizedDescriptor = $this->normalizeDescriptor($descriptor);
-        if (empty($normalizedDescriptor)) {
+        $provided = $this->normalizeDescriptor($descriptor);
+        if ($provided === []) {
             return [
                 'success' => false,
                 'face_verified' => false,
@@ -275,8 +208,8 @@ class FaceVerificationService
         }
 
         $bestUser = null;
-        $bestDistance = null;
-        $secondBestDistance = null;
+        $bestSimilarity = null;
+        $secondBestSimilarity = null;
 
         foreach ($users as $user) {
             if (!$user instanceof User) {
@@ -284,23 +217,23 @@ class FaceVerificationService
             }
 
             $storedDescriptors = $this->storedDescriptors($user);
-            if (empty($storedDescriptors)) {
+            if ($storedDescriptors === []) {
                 continue;
             }
 
             foreach ($storedDescriptors as $storedDescriptor) {
-                $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
-                if ($bestDistance === null || $distance < $bestDistance) {
-                    $secondBestDistance = $bestDistance;
-                    $bestDistance = $distance;
+                $similarity = $this->cosineSimilarity($storedDescriptor, $provided);
+                if ($bestSimilarity === null || $similarity > $bestSimilarity) {
+                    $secondBestSimilarity = $bestSimilarity;
+                    $bestSimilarity = $similarity;
                     $bestUser = $user;
-                } elseif ($secondBestDistance === null || $distance < $secondBestDistance) {
-                    $secondBestDistance = $distance;
+                } elseif ($secondBestSimilarity === null || $similarity > $secondBestSimilarity) {
+                    $secondBestSimilarity = $similarity;
                 }
             }
         }
 
-        if (!$bestUser || $bestDistance === null) {
+        if (!$bestUser || $bestSimilarity === null) {
             return [
                 'success' => false,
                 'face_verified' => false,
@@ -309,31 +242,32 @@ class FaceVerificationService
             ];
         }
 
-        $bestSimilarity = $this->distanceToSimilarity($bestDistance);
-        if ($secondBestDistance !== null) {
-            $distanceGap = $secondBestDistance - $bestDistance;
-            if ($distanceGap < self::FACE_DISTANCE_MARGIN_THRESHOLD) {
+        $threshold = $this->faceSimilarityThreshold();
+        if ($secondBestSimilarity !== null) {
+            $similarityGap = $bestSimilarity - $secondBestSimilarity;
+            if ($similarityGap < 0.02) {
                 return [
                     'success' => false,
                     'face_verified' => false,
                     'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
                     'similarity' => round($bestSimilarity, 4),
-                    'face_distance' => round($bestDistance, 4),
-                    'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
-                    'face_distance_gap' => round($distanceGap, 4),
-                    'face_distance_gap_threshold' => self::FACE_DISTANCE_MARGIN_THRESHOLD,
+                    'matched' => false,
+                    'threshold' => $threshold,
+                    'similarity_gap' => round($similarityGap, 4),
+                    'similarity_gap_threshold' => 0.02,
                     'notes' => 'face_ambiguous_match',
                 ];
             }
         }
-        if ($bestDistance > self::FACE_DISTANCE_THRESHOLD) {
+
+        if ($bestSimilarity < $threshold) {
             return [
                 'success' => false,
                 'face_verified' => false,
                 'message' => 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.',
                 'similarity' => round($bestSimilarity, 4),
-                'face_distance' => round($bestDistance, 4),
-                'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                'matched' => false,
+                'threshold' => $threshold,
                 'notes' => 'face_similarity_below_threshold',
             ];
         }
@@ -345,9 +279,32 @@ class FaceVerificationService
             'user' => $bestUser,
             'face_id_used' => $bestUser->face_id,
             'similarity' => round($bestSimilarity, 4),
-            'face_distance' => round($bestDistance, 4),
-            'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+            'matched' => true,
+            'threshold' => $threshold,
             'notes' => 'face_verified',
+        ];
+    }
+
+    public function compareFaceEmbeddings(array $storedEmbedding, array $providedEmbedding): array
+    {
+        $stored = $this->normalizeDescriptor($storedEmbedding);
+        $provided = $this->normalizeDescriptor($providedEmbedding);
+
+        if ($stored === [] || $provided === []) {
+            return [
+                'similarity' => -1.0,
+                'matched' => false,
+                'threshold' => $this->faceSimilarityThreshold(),
+            ];
+        }
+
+        $similarity = $this->cosineSimilarity($stored, $provided);
+        $threshold = $this->faceSimilarityThreshold();
+
+        return [
+            'similarity' => round($similarity, 4),
+            'matched' => $similarity >= $threshold,
+            'threshold' => $threshold,
         ];
     }
 
@@ -366,7 +323,6 @@ class FaceVerificationService
 
         if (isset($stored['face_embedding'])) {
             $descriptor = $this->normalizeDescriptor($stored['face_embedding']);
-
             if ($descriptor !== []) {
                 return [$descriptor];
             }
@@ -379,19 +335,17 @@ class FaceVerificationService
                 ->values()
                 ->all();
 
-            if (!empty($descriptors)) {
+            if ($descriptors !== []) {
                 return $descriptors;
             }
         }
 
         if (isset($stored['face_descriptor'])) {
             $descriptor = $this->normalizeDescriptor($stored['face_descriptor']);
-
             return $descriptor === [] ? [] : [$descriptor];
         }
 
         $descriptor = $this->normalizeDescriptor($stored);
-
         return $descriptor === [] ? [] : [$descriptor];
     }
 
@@ -402,16 +356,54 @@ class FaceVerificationService
         }
 
         $normalized = [];
-
         foreach ($descriptor as $value) {
             if (!is_numeric($value)) {
                 return [];
             }
 
-            $normalized[] = (float) $value;
+            $floatValue = (float) $value;
+            if (!is_finite($floatValue)) {
+                return [];
+            }
+            $normalized[] = $floatValue;
         }
 
-        return count($normalized) === 128 ? $normalized : [];
+        if (count($normalized) !== 128) {
+            return [];
+        }
+
+        $norm = sqrt(array_sum(array_map(fn ($value) => $value * $value, $normalized)));
+        if ($norm > 0) {
+            foreach ($normalized as $index => $value) {
+                $normalized[$index] = $value / $norm;
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function cosineSimilarity(array $a, array $b): float
+    {
+        if (count($a) !== 128 || count($b) !== 128) {
+            return -1.0;
+        }
+
+        $dot = 0.0;
+        $normA = 0.0;
+        $normB = 0.0;
+        for ($i = 0; $i < 128; $i++) {
+            $va = (float) $a[$i];
+            $vb = (float) $b[$i];
+            $dot += $va * $vb;
+            $normA += $va * $va;
+            $normB += $vb * $vb;
+        }
+
+        if ($normA <= 0 || $normB <= 0) {
+            return -1.0;
+        }
+
+        return $dot / (sqrt($normA) * sqrt($normB));
     }
 
     private function normalizeChallenges(mixed $challenges): array
@@ -435,51 +427,10 @@ class FaceVerificationService
             ->all();
     }
 
-    private function hasPassedChallenge(array $challenges, string $type): bool
+    private function faceSimilarityThreshold(): float
     {
-        return collect($challenges)->contains(function (array $challenge) use ($type) {
-            return ($challenge['type'] ?? null) === $type
-                && ($challenge['passed'] ?? false) === true;
-        });
-    }
+        $threshold = config('kiosk_face.similarity_threshold', self::DEFAULT_FACE_SIMILARITY_THRESHOLD);
 
-    private function firstPassedChallenge(array $challenges, array $types): ?array
-    {
-        $found = collect($challenges)->first(function (array $challenge) use ($types) {
-            return in_array($challenge['type'] ?? null, $types, true)
-                && ($challenge['passed'] ?? false) === true;
-        });
-
-        return is_array($found) ? $found : null;
-    }
-
-    private function findChallenge(array $challenges, string $type): ?array
-    {
-        $found = collect($challenges)->first(function (array $challenge) use ($type) {
-            return ($challenge['type'] ?? null) === $type;
-        });
-
-        return is_array($found) ? $found : null;
-    }
-
-    private function euclideanDistance(array $first, array $second): float
-    {
-        if (count($first) !== 128 || count($second) !== 128) {
-            return INF;
-        }
-
-        $sum = 0.0;
-
-        for ($index = 0; $index < 128; $index++) {
-            $delta = (float) $first[$index] - (float) $second[$index];
-            $sum += $delta * $delta;
-        }
-
-        return sqrt($sum);
-    }
-
-    private function distanceToSimilarity(float $distance): float
-    {
-        return is_finite($distance) ? max(0.0, 1.0 - $distance) : 0.0;
+        return is_numeric($threshold) ? (float) $threshold : self::DEFAULT_FACE_SIMILARITY_THRESHOLD;
     }
 }

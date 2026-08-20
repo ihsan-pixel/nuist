@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -287,6 +288,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       }
 
       final embedding = await _embeddingService.extractEmbedding(File(file.path));
+      final embeddingValidation = _validateEmbedding(embedding);
       if (!mounted) {
         return;
       }
@@ -297,10 +299,10 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
       final verification = await widget.repository.verifyFace(
         payload: {
+          'face_embedding': embeddingValidation['embedding'],
           'face_descriptor': processed['face_descriptor'],
           'liveness_score': processed['liveness_score'],
           'liveness_challenges': processed['liveness_challenges'],
-          if (embedding != null) 'face_embedding': embedding,
         },
       );
 
@@ -479,6 +481,32 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     }
 
     return items;
+  }
+
+  Map<String, dynamic> _validateEmbedding(List<double>? embedding) {
+    if (embedding == null || embedding.length != 128) {
+      return {'valid': false, 'embedding': null};
+    }
+
+    if (embedding.any((value) => value.isNaN || value.isInfinite)) {
+      return {'valid': false, 'embedding': null};
+    }
+
+    var sumSquares = 0.0;
+    for (final value in embedding) {
+      sumSquares += value * value;
+    }
+    final norm = math.sqrt(sumSquares);
+    if (norm <= 0) {
+      return {'valid': false, 'embedding': null};
+    }
+
+    return {
+      'valid': true,
+      'embedding': embedding.map((value) => value / norm).toList(growable: false),
+      'embedding_dimension': embedding.length,
+      'embedding_norm': norm,
+    };
   }
 
   @override

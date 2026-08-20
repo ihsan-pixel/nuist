@@ -1745,7 +1745,7 @@ class _CalendarDayTile extends StatelessWidget {
                     : _DashboardPalette.border)));
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
@@ -1762,13 +1762,14 @@ class _CalendarDayTile extends StatelessWidget {
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Container(
               padding: isToday
-                  ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+                  ? const EdgeInsets.symmetric(horizontal: 7, vertical: 3)
                   : EdgeInsets.zero,
               decoration: BoxDecoration(
                 color: isToday ? _DashboardPalette.primary : Colors.transparent,
@@ -1786,15 +1787,16 @@ class _CalendarDayTile extends StatelessWidget {
                               : (isMissedAttendance
                                   ? _DashboardPalette.danger
                                   : _DashboardPalette.textPrimary))),
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ),
           ),
+          const SizedBox(height: 2),
           Container(
-            width: 8,
-            height: 8,
+            width: 7,
+            height: 7,
             decoration: BoxDecoration(
               color: isBlackDay ? Colors.black87 : color,
               shape: BoxShape.circle,

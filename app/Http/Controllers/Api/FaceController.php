@@ -13,7 +13,7 @@ use App\Models\FaceDiagnostic;
 class FaceController extends Controller
 {
     // Thresholds - adjust as needed or move to config
-    private float $FACE_DISTANCE_THRESHOLD = 0.72;
+    private float $FACE_SIMILARITY_THRESHOLD = 0.80;
     private float $LIVENESS_THRESHOLD = 0.55;
 
     /**
@@ -32,8 +32,9 @@ class FaceController extends Controller
 
         $request->validate([
             'user_id' => 'required|integer',
-            'face_data' => 'required',
             'face_embedding' => 'nullable|array',
+            'face_data' => 'nullable',
+            'face_samples' => 'nullable|array',
             'liveness_score' => 'required|numeric|min:0|max:1',
             'liveness_challenges' => 'nullable|array',
         ]);
@@ -60,8 +61,10 @@ class FaceController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found.'], 404);
         }
 
-        $faceData = $this->normalizeDescriptor($request->input('face_data'));
-        if ($faceData === []) {
+        $faceEmbedding = $this->normalizeDescriptor($request->input('face_embedding'));
+        $legacyDescriptor = $this->normalizeDescriptor($request->input('face_data'));
+
+        if ($faceEmbedding === [] && $legacyDescriptor === []) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data wajah hasil scan tidak valid. Silakan ulangi scan wajah.',
@@ -69,11 +72,9 @@ class FaceController extends Controller
             ], 422);
         }
 
-        $faceEmbedding = $this->normalizeDescriptor($request->input('face_embedding'));
-
         $storedDescriptors = $this->normalizeStoredDescriptors(
             $request->input('face_samples'),
-            $faceData,
+            $faceEmbedding !== [] ? $faceEmbedding : $legacyDescriptor,
         );
         $normalizedChallenges = $this->normalizeChallenges($livenessChallenges);
         $replacingExistingFace = $user->hasFaceEnrollment();
@@ -81,9 +82,10 @@ class FaceController extends Controller
         // Store encrypted face data as JSON string with additional metadata
         try {
             $enrollmentData = [
-                'face_descriptor' => $faceData,
+                'face_embedding' => $faceEmbedding !== [] ? $faceEmbedding : $legacyDescriptor,
+                'face_embedding_dimension' => count($faceEmbedding !== [] ? $faceEmbedding : $legacyDescriptor),
+                'face_descriptor' => $legacyDescriptor !== [] ? $legacyDescriptor : null,
                 'descriptors' => $storedDescriptors,
-                'face_embedding' => $faceEmbedding !== [] ? $faceEmbedding : null,
                 'liveness_score' => $livenessScore,
                 'liveness_challenges' => $normalizedChallenges,
                 'enrolled_at' => now()->toIso8601String(),
@@ -114,7 +116,7 @@ class FaceController extends Controller
                     'liveness_score' => $livenessScore,
                     'challenges_completed' => count($normalizedChallenges),
                     'descriptors_count' => count($storedDescriptors),
-                    'embedding_saved' => $faceEmbedding !== [],
+                    'embedding_saved' => ($faceEmbedding !== [] || $legacyDescriptor !== []),
                 ],
             ]);
 
@@ -191,7 +193,9 @@ class FaceController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found.'], 404);
         }
 
-        $provided = $this->normalizeDescriptor($request->input('face_descriptor'));
+        $providedEmbedding = $this->normalizeDescriptor($request->input('face_embedding'));
+        $providedDescriptor = $this->normalizeDescriptor($request->input('face_descriptor'));
+        $provided = $providedEmbedding !== [] ? $providedEmbedding : $providedDescriptor;
         if ($provided === []) {
             return response()->json([
                 'success' => false,
@@ -211,18 +215,13 @@ class FaceController extends Controller
 
         // Normalize stored descriptors: support new enrollment format with metadata
         if (is_array($stored) && !empty($stored)) {
-            // Check if this is the new format with face_descriptor key
             if (isset($stored['face_embedding'])) {
                 $storedDescriptors = [$stored['face_embedding']];
-            }
-            if (isset($stored['face_descriptor'])) {
+            } elseif (isset($stored['face_descriptor'])) {
                 $storedDescriptors = [$stored['face_descriptor']];
-            }
-            // If stored contains top-level 'descriptors' key (legacy)
-            elseif (isset($stored['descriptors']) && is_array($stored['descriptors'])) {
+            } elseif (isset($stored['descriptors']) && is_array($stored['descriptors'])) {
                 $storedDescriptors = $stored['descriptors'];
             } else {
-                // assume stored is a single descriptor array (legacy)
                 $storedDescriptors = [$stored];
             }
         }
@@ -231,23 +230,21 @@ class FaceController extends Controller
             return response()->json(['success' => false, 'message' => 'No enrolled face data for this user.'], 400);
         }
 
-        // Compute smallest face-api Euclidean distance among stored descriptors.
-        $bestDistance = null;
+        $bestSimilarity = null;
         foreach ($storedDescriptors as $s) {
             $storedDescriptor = $this->normalizeDescriptor($s);
             if ($storedDescriptor === []) {
                 continue;
             }
 
-            $distance = $this->euclideanDistance($storedDescriptor, $provided);
-            if ($bestDistance === null || $distance < $bestDistance) {
-                $bestDistance = $distance;
+            $similarity = $this->cosineSimilarity($storedDescriptor, $provided);
+            if ($bestSimilarity === null || $similarity > $bestSimilarity) {
+                $bestSimilarity = $similarity;
             }
         }
 
-        $bestDistance ??= INF;
-        $similarity = $this->distanceToSimilarity($bestDistance);
-        $faceMatched = $bestDistance <= $this->FACE_DISTANCE_THRESHOLD;
+        $bestSimilarity ??= -1.0;
+        $faceMatched = $bestSimilarity >= $this->FACE_SIMILARITY_THRESHOLD;
         $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
         $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
         $faceVerified = $faceMatched && $livenessVerified && $challengeVerified;
@@ -270,33 +267,37 @@ class FaceController extends Controller
             'face_verified' => $faceVerified,
             'message' => $message,
             'notes' => $notes,
-            'similarity' => round($similarity, 4),
-            'face_distance' => is_finite($bestDistance) ? round($bestDistance, 4) : null,
-            'face_distance_threshold' => $this->FACE_DISTANCE_THRESHOLD,
+            'similarity' => round($bestSimilarity, 4),
+            'matched' => $faceMatched,
+            'threshold' => $this->FACE_SIMILARITY_THRESHOLD,
             'liveness_score' => $livenessScore,
             'liveness_threshold' => $this->LIVENESS_THRESHOLD,
             'liveness_challenges' => $normalizedChallenges,
         ]);
     }
 
-    private function euclideanDistance(array $a, array $b): float
+    private function cosineSimilarity(array $a, array $b): float
     {
         if (count($a) !== 128 || count($b) !== 128) {
-            return INF;
+            return -1.0;
         }
 
-        $sum = 0.0;
+        $dot = 0.0;
+        $normA = 0.0;
+        $normB = 0.0;
         for ($i = 0; $i < 128; $i++) {
-            $delta = (float) $a[$i] - (float) $b[$i];
-            $sum += $delta * $delta;
+            $va = (float) $a[$i];
+            $vb = (float) $b[$i];
+            $dot += $va * $vb;
+            $normA += $va * $va;
+            $normB += $vb * $vb;
         }
 
-        return sqrt($sum);
-    }
+        if ($normA <= 0 || $normB <= 0) {
+            return -1.0;
+        }
 
-    private function distanceToSimilarity(float $distance): float
-    {
-        return is_finite($distance) ? max(0.0, 1.0 - $distance) : 0.0;
+        return $dot / (sqrt($normA) * sqrt($normB));
     }
 
     private function normalizeDescriptor(mixed $descriptor): array
@@ -312,10 +313,26 @@ class FaceController extends Controller
                 return [];
             }
 
-            $normalized[] = (float) $value;
+            $floatValue = (float) $value;
+            if (!is_finite($floatValue)) {
+                return [];
+            }
+
+            $normalized[] = $floatValue;
         }
 
-        return count($normalized) === 128 ? $normalized : [];
+        if (count($normalized) !== 128) {
+            return [];
+        }
+
+        $norm = sqrt(array_sum(array_map(fn ($value) => $value * $value, $normalized)));
+        if ($norm > 0) {
+            foreach ($normalized as $index => $value) {
+                $normalized[$index] = $value / $norm;
+            }
+        }
+
+        return $normalized;
     }
 
     private function normalizeChallenges(mixed $challenges): array
@@ -365,11 +382,16 @@ class FaceController extends Controller
             return true;
         }
 
-        return $this->hasPassedChallenge($challenges, 'blink')
-            && $this->hasPassedChallenge($challenges, 'face_captured')
-            && $this->hasAnyPassedChallenge($challenges, ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'])
-            && $this->hasPassedChallenge($challenges, 'screen_replay_risk')
-            && $this->hasPassedChallenge($challenges, 'risk_score');
+        return $this->hasAnyPassedChallenge($challenges, [
+            'blink',
+            'face_scan',
+            'turn_left',
+            'turn_right',
+            'look_up',
+            'look_down',
+            'mouth_open',
+            'head_tilt',
+        ]);
     }
 
     private function hasPassedChallenge(array $challenges, string $type): bool
