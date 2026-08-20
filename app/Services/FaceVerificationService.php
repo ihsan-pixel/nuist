@@ -359,10 +359,16 @@ class FaceVerificationService
             return [];
         }
 
-        if (isset($stored['face_descriptor'])) {
-            $descriptor = $this->normalizeDescriptor($stored['face_descriptor']);
+        if (isset($stored['descriptors']) && is_array($stored['descriptors'])) {
+            $descriptors = collect($stored['descriptors'])
+                ->map(fn ($item) => $this->normalizeDescriptor($item))
+                ->filter(fn ($item) => $item !== [])
+                ->values()
+                ->all();
 
-            return $descriptor === [] ? [] : [$descriptor];
+            if (!empty($descriptors)) {
+                return $descriptors;
+            }
         }
 
         if (isset($stored['face_embedding'])) {
@@ -371,12 +377,10 @@ class FaceVerificationService
             return $descriptor === [] ? [] : [$descriptor];
         }
 
-        if (isset($stored['descriptors']) && is_array($stored['descriptors'])) {
-            return collect($stored['descriptors'])
-                ->map(fn ($item) => $this->normalizeDescriptor($item))
-                ->filter(fn ($item) => $item !== [])
-                ->values()
-                ->all();
+        if (isset($stored['face_descriptor'])) {
+            $descriptor = $this->normalizeDescriptor($stored['face_descriptor']);
+
+            return $descriptor === [] ? [] : [$descriptor];
         }
 
         $descriptor = $this->normalizeDescriptor($stored);
