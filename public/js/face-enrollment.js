@@ -532,6 +532,8 @@
             let heldSince = null;
             let previousSignature = null;
             let stableFrames = 0;
+            let softReadySince = null;
+            const softReadyMs = 900;
 
             this.emit(callbacks.onCaptureProgress, 0);
             this.emit(callbacks.onEnrollmentQuality, {
@@ -570,6 +572,11 @@
 
                 const readiness = this.evaluateEnrollmentCaptureReadiness(videoElement, detection, previousSignature);
                 previousSignature = readiness.signature;
+
+                if (softReadySince === null) {
+                    softReadySince = Date.now();
+                }
+
                 this.emit(callbacks.onEnrollmentQuality, {
                     progress: readiness.ready ? (heldSince === null ? 0 : this.clamp((Date.now() - heldSince) / holdMs, 0, 1)) : 0,
                     ready: readiness.ready,
@@ -579,7 +586,10 @@
                     motion: readiness.motion,
                 });
 
-                if (!readiness.ready) {
+                const softReadyElapsed = Date.now() - softReadySince;
+                const softReady = readiness.stableEnough || softReadyElapsed >= softReadyMs || stableFrames >= 2;
+
+                if (!readiness.ready && !softReady) {
                     heldSince = null;
                     stableFrames = 0;
                     this.emit(callbacks.onCaptureProgress, 0);
@@ -600,6 +610,10 @@
                     this.emit(callbacks.onStatus, 'Posisi tepat, stabil, dan tajam. Mengambil gambar otomatis.');
                 }
 
+                if (!readiness.ready && softReady) {
+                    this.emit(callbacks.onStatus, 'Wajah sudah stabil. Mengambil gambar otomatis.');
+                }
+
                 const holdElapsed = heldSince === null ? 0 : Date.now() - heldSince;
                 const holdProgress = this.clamp(holdElapsed / holdMs, 0, 1);
                 this.emit(callbacks.onCaptureProgress, holdProgress);
@@ -616,7 +630,7 @@
                     this.emit(callbacks.onCaptureProgress, 1);
                     this.emit(callbacks.onEnrollmentQuality, {
                         progress: 1,
-                        ready: true,
+                        ready: readiness.ready || softReady,
                         sharpEnough: readiness.sharpEnough,
                         stableEnough: readiness.stableEnough,
                         sharpness: readiness.sharpness,
