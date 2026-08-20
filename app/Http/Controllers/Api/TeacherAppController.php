@@ -100,6 +100,11 @@ class TeacherAppController extends Controller
             }
 
             foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+                if ($izin->type === ExternalTeachingPermissionService::TYPE
+                    && !ExternalTeachingPermissionService::isNoPresenceDay($izin, $date)) {
+                    continue;
+                }
+
                 $izinCalendarEntries->push((object) [
                     'tanggal' => $date->copy(),
                     'status' => 'izin',
