@@ -490,6 +490,7 @@ class _DashboardContent extends StatelessWidget {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
+    final hariKbm = (monthlyStats['hari_kbm'] as num?)?.toInt() ?? 6;
     final schedules = ((data['today_schedules'] as List?) ?? const [])
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
@@ -746,6 +747,7 @@ class _DashboardContent extends StatelessWidget {
           leadingEmptyDays: calendarLeadingEmptyDays,
           items: attendanceCalendar,
           holidayNotes: holidayNotes,
+          hariKbm: hariKbm,
           onOpenMonthPicker: onOpenCalendarMonthPicker,
         ),
       ],
@@ -1385,6 +1387,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
     required this.leadingEmptyDays,
     required this.items,
     required this.holidayNotes,
+    required this.hariKbm,
     required this.onOpenMonthPicker,
   });
 
@@ -1392,6 +1395,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
   final int leadingEmptyDays;
   final List<Map<String, dynamic>> items;
   final List<Map<String, dynamic>> holidayNotes;
+  final int hariKbm;
   final VoidCallback onOpenMonthPicker;
 
   @override
@@ -1530,6 +1534,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                                 ? const SizedBox.shrink()
                                 : _CalendarDayTile(
                                     item: weekRows[rowIndex][cellIndex]!,
+                                    hariKbm: hariKbm,
                                   ),
                           ),
                         ),
@@ -1705,9 +1710,11 @@ class _CalendarWeekday extends StatelessWidget {
 class _CalendarDayTile extends StatelessWidget {
   const _CalendarDayTile({
     required this.item,
+    required this.hariKbm,
   });
 
   final Map<String, dynamic> item;
+  final int hariKbm;
 
   @override
   Widget build(BuildContext context) {
@@ -1715,6 +1722,10 @@ class _CalendarDayTile extends StatelessWidget {
     final isToday = item['is_today'] == true;
     final color = _calendarStatusColor(status);
     final isHoliday = status == 'tanggal_merah';
+    final weekdayShort = item['weekday_short'] as String? ?? '';
+    final isSunday = weekdayShort == 'Min';
+    final isSaturday = hariKbm == 5 && weekdayShort == 'Sab';
+    final isBlackDay = isSunday || isSaturday;
     final isMissedAttendance = status == 'alpha' || status == 'belum_tercatat';
     final backgroundColor = isHoliday
         ? const Color(0xFFFFFBF1)
@@ -1724,10 +1735,12 @@ class _CalendarDayTile extends StatelessWidget {
     final borderColor = isToday
         ? _DashboardPalette.primary
         : (isHoliday
-            ? _DashboardPalette.softYellow
-            : (isMissedAttendance
-                ? const Color(0xFFFECACA)
-                : _DashboardPalette.border));
+            ? _DashboardPalette.warning.withValues(alpha: 0.28)
+            : (isBlackDay
+                ? const Color(0xFFD1D5DB)
+                : (isMissedAttendance
+                    ? const Color(0xFFFECACA)
+                    : _DashboardPalette.border)));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
@@ -1766,23 +1779,35 @@ class _CalendarDayTile extends StatelessWidget {
                       ? Colors.white
                       : (isHoliday
                           ? _DashboardPalette.warning
-                          : (isMissedAttendance
+                          : (isBlackDay
+                              ? Colors.black87
+                              : (isMissedAttendance
                               ? _DashboardPalette.danger
-                              : _DashboardPalette.textPrimary)),
+                              : _DashboardPalette.textPrimary))),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ),
           ),
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
+          if (isHoliday || status == 'izin')
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                color: isHoliday ? _DashboardPalette.warning : color,
+                shape: BoxShape.circle,
+              ),
+            )
+          else
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: isBlackDay ? Colors.black87 : color,
+                shape: BoxShape.circle,
+              ),
             ),
-          ),
         ],
       ),
     );
