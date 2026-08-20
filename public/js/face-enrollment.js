@@ -28,7 +28,7 @@
             this.webglInferenceFailures = 0;
             this.backendFallbackActive = false;
             this.inferenceTimeoutMs = 1800;
-            this.modelLoadTimeoutMs = 8000;
+            this.modelLoadTimeoutMs = 20000;
             this.tfHealthCheckTimeoutMs = 1800;
             this.backendOrder = ['webgl', 'wasm', 'cpu'];
             this.recentDetectionMemoryMs = 450;
@@ -343,10 +343,8 @@
             this.detectionModelLoadPromise = (async () => {
                 try {
                     this.emitDiagnostic({}, { type: 'model-load-status', status: 'loading-detection', backend: this.getTfBackendName() });
-                    await Promise.all([
-                        this.loadModelWithTimeout(() => faceapi.nets.tinyFaceDetector.loadFromUri(this.modelBaseUri), 'tinyFaceDetector.load'),
-                        this.loadModelWithTimeout(() => faceapi.nets.faceLandmark68Net.loadFromUri(this.modelBaseUri), 'faceLandmark68Net.load'),
-                    ]);
+                    await this.loadModelWithTimeout(() => faceapi.nets.tinyFaceDetector.loadFromUri(this.modelBaseUri), 'tinyFaceDetector.load');
+                    await this.loadModelWithTimeout(() => faceapi.nets.faceLandmark68Net.loadFromUri(this.modelBaseUri), 'faceLandmark68Net.load');
                 } catch (error) {
                     const rawMessage = String(error?.message || error || '');
                     if (rawMessage.includes('Based on the provided shape') || rawMessage.includes('tensor should have') || rawMessage.includes('Failed to fetch') || rawMessage.includes('404')) {
