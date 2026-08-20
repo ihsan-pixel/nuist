@@ -23,6 +23,18 @@ const _journalWarning = Color(0xFFF59E0B);
 const _journalDanger = Color(0xFFEF4444);
 const _journalInfo = Color(0xFF00745A);
 
+Duration _durationFromTime(String value) {
+  final parts = value.split(':');
+  if (parts.length < 2) {
+    return Duration.zero;
+  }
+
+  final hours = int.tryParse(parts[0]) ?? 0;
+  final minutes = int.tryParse(parts[1]) ?? 0;
+  final seconds = parts.length > 2 ? int.tryParse(parts[2]) ?? 0 : 0;
+  return Duration(hours: hours, minutes: minutes, seconds: seconds);
+}
+
 class TeacherTeachingJournalPage extends StatefulWidget {
   const TeacherTeachingJournalPage({
     super.key,
@@ -822,10 +834,32 @@ class _JournalContent extends StatelessWidget {
             .whereType<Map>()
             .map((item) => Map<String, dynamic>.from(item))
             .toList();
-    final items = ((data['items'] as List?) ?? const [])
+    final items = [
+      ...((data['items'] as List?) ?? const [])
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item)),
+      ...missedJournalSchedules,
+    ]
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
-        .toList();
+        .toList()
+      ..sort((a, b) {
+        final aDate = DateTime.tryParse('${a['date'] ?? ''}');
+        final bDate = DateTime.tryParse('${b['date'] ?? ''}');
+        final aTime = a['time'] as String? ?? '00:00:00';
+        final bTime = b['time'] as String? ?? '00:00:00';
+        final aKey = DateTime(
+          aDate?.year ?? 1970,
+          aDate?.month ?? 1,
+          aDate?.day ?? 1,
+        ).add(_durationFromTime(aTime));
+        final bKey = DateTime(
+          bDate?.year ?? 1970,
+          bDate?.month ?? 1,
+          bDate?.day ?? 1,
+        ).add(_durationFromTime(bTime));
+        return bKey.compareTo(aKey);
+      });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1411,6 +1445,7 @@ class _JournalHistoryTable extends StatelessWidget {
             subject: 'MAPEL',
             material: 'MATERI',
             attendance: 'HADIR',
+            status: 'header',
             isHeader: true,
           ),
         ),
@@ -1440,18 +1475,27 @@ class _JournalHistoryRow extends StatelessWidget {
     required this.subject,
     required this.material,
     required this.attendance,
+    required this.status,
     this.isHeader = false,
   });
 
   factory _JournalHistoryRow.fromItem(Map<String, dynamic> item) {
     final present = item['present_students'];
     final total = item['class_total_students'];
+    final status = item['status'] as String? ?? 'hadir';
     return _JournalHistoryRow(
       date: '${item['date_label'] ?? '-'}\n${item['time'] ?? '-'}',
       className: item['class_name'] as String? ?? '-',
       subject: item['subject'] as String? ?? '-',
       material: item['materi'] as String? ?? '-',
-      attendance: present == null ? '-' : total == null ? '$present' : '$present/$total',
+      attendance: status == 'terlewat'
+          ? 'Belum'
+          : present == null
+              ? '-'
+              : total == null
+                  ? '$present'
+                  : '$present/$total',
+      status: status,
     );
   }
 
@@ -1460,12 +1504,22 @@ class _JournalHistoryRow extends StatelessWidget {
   final String subject;
   final String material;
   final String attendance;
+  final String status;
   final bool isHeader;
 
   @override
   Widget build(BuildContext context) {
+    final isMissed = status == 'terlewat';
+    final isIzin = status == 'izin';
+    final rowColor = isHeader
+        ? _journalPrimaryDark
+        : isMissed
+            ? _journalDanger
+            : isIzin
+                ? _journalWarning
+                : _journalText;
     final style = TextStyle(
-      color: isHeader ? _journalPrimaryDark : _journalText,
+      color: rowColor,
       fontSize: isHeader ? 8.5 : 9.5,
       fontWeight: isHeader ? FontWeight.w800 : FontWeight.w700,
       height: 1.28,

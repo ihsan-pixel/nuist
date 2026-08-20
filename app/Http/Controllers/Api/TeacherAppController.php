@@ -855,6 +855,54 @@ class TeacherAppController extends Controller
             })
             ->values();
 
+        $missedJournalSchedules = $teacherSchedules->values()
+            ->flatMap(function (TeachingSchedule $schedule) use ($monthStart, $today, $items, $monthEventMap) {
+                $scheduleDates = collect();
+                $startDate = $monthStart->copy();
+                $endDate = $today->copy();
+
+                for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                    if (strtolower((string) $schedule->day) !== strtolower((string) $date->locale('id')->dayName)) {
+                        continue;
+                    }
+
+                    if (!$this->schedulePeriodMatchesDate($schedule, $date)) {
+                        continue;
+                    }
+
+                    $attendanceKey = $schedule->id . '|' . $date->toDateString();
+                    $hasAttendance = $items->contains(function (TeachingAttendance $item) use ($attendanceKey) {
+                        return $item->teaching_schedule_id . '|' . Carbon::parse($item->tanggal)->toDateString() === $attendanceKey;
+                    });
+
+                    if ($hasAttendance || $monthEventMap->has($attendanceKey)) {
+                        continue;
+                    }
+
+                    $scheduleDates->push([
+                        'id' => $schedule->id . ':' . $date->toDateString(),
+                        'date' => $date->toDateString(),
+                        'date_label' => $date->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                        'subject' => $schedule->subject,
+                        'class_name' => $schedule->classNameLabel(),
+                        'school_name' => $schedule->school?->name,
+                        'time' => $this->formatTime($schedule->start_time) . ' - ' . $this->formatTime($schedule->end_time),
+                        'status' => 'terlewat',
+                        'status_label' => 'Terlewat',
+                        'materi' => 'Belum ada presensi tercatat.',
+                        'present_students' => null,
+                        'class_total_students' => null,
+                        'student_attendance_percentage' => null,
+                        'attendance_source' => 'schedule_missing',
+                    ]);
+                }
+
+                return $scheduleDates;
+            })
+            ->values()
+            ->sortByDesc(fn (array $item) => $item['date'] . ' ' . substr((string) ($item['time'] ?? '00:00:00'), 0, 8))
+            ->values();
+
         return response()->json([
             'message' => 'OK',
             'data' => [
@@ -923,6 +971,7 @@ class TeacherAppController extends Controller
                 'items' => $items->map(function (TeachingAttendance $item) {
                     return $this->serializeTeachingAttendanceEntry($item);
                 })->values(),
+                'missed_journal_schedules' => $missedJournalSchedules,
             ],
         ]);
     }
