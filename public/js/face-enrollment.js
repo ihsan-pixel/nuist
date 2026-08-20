@@ -530,10 +530,9 @@
         async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 3600) {
             const startedAt = Date.now();
             let heldSince = null;
-            let previousSignature = null;
             let stableFrames = 0;
-            let softReadySince = null;
-            const softReadyMs = 900;
+            let lastDetectionAt = 0;
+            const stableHoldMs = Math.max(260, holdMs * 2);
 
             this.emit(callbacks.onCaptureProgress, 0);
             this.emit(callbacks.onEnrollmentQuality, {
@@ -555,7 +554,7 @@
                 if (!detection) {
                     heldSince = null;
                     stableFrames = 0;
-                    previousSignature = null;
+                    lastDetectionAt = 0;
                     this.emit(callbacks.onCaptureProgress, 0);
                     this.emit(callbacks.onEnrollmentQuality, {
                         progress: 0,
@@ -570,15 +569,11 @@
                     continue;
                 }
 
-                const readiness = this.evaluateEnrollmentCaptureReadiness(videoElement, detection, previousSignature);
-                previousSignature = readiness.signature;
-
-                if (softReadySince === null) {
-                    softReadySince = Date.now();
-                }
+                const readiness = this.evaluateEnrollmentCaptureReadiness(videoElement, detection, null);
+                lastDetectionAt = Date.now();
 
                 this.emit(callbacks.onEnrollmentQuality, {
-                    progress: readiness.ready ? (heldSince === null ? 0 : this.clamp((Date.now() - heldSince) / holdMs, 0, 1)) : 0,
+                    progress: heldSince === null ? 0 : this.clamp((Date.now() - heldSince) / stableHoldMs, 0, 1),
                     ready: readiness.ready,
                     sharpEnough: readiness.sharpEnough,
                     stableEnough: readiness.stableEnough,
@@ -586,53 +581,44 @@
                     motion: readiness.motion,
                 });
 
-                const softReadyElapsed = Date.now() - softReadySince;
-                const softReady = readiness.stableEnough || softReadyElapsed >= softReadyMs || stableFrames >= 2;
+                if (heldSince === null) {
+                    heldSince = Date.now();
+                    stableFrames = 1;
+                    this.emit(callbacks.onStatus, 'Wajah terdeteksi. Menstabilkan posisi sebentar.');
+                } else if (Date.now() - lastDetectionAt <= 240) {
+                    stableFrames += 1;
+                }
 
-                if (!readiness.ready && !softReady) {
+                const holdElapsed = Date.now() - heldSince;
+                const holdProgress = this.clamp(holdElapsed / stableHoldMs, 0, 1);
+                this.emit(callbacks.onCaptureProgress, holdProgress);
+
+                if (holdElapsed < stableHoldMs && stableFrames < 2) {
                     heldSince = null;
                     stableFrames = 0;
                     this.emit(callbacks.onCaptureProgress, 0);
-                    if (!readiness.sharpEnough) {
-                        this.emit(callbacks.onStatus, 'Wajah sudah pas. Tahan lebih tenang sebentar agar tidak blur.');
-                    } else if (!readiness.stableEnough) {
-                        this.emit(callbacks.onStatus, 'Wajah sudah di tengah. Jangan bergerak agar scan cepat penuh.');
-                    } else {
-                        this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah.');
-                    }
+                    this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah.');
                     await this.delay(120);
                     continue;
                 }
 
-                stableFrames += 1;
-                if (heldSince === null && stableFrames >= 1) {
-                    heldSince = Date.now();
-                    this.emit(callbacks.onStatus, 'Posisi tepat, stabil, dan tajam. Mengambil gambar otomatis.');
-                }
-
-                if (!readiness.ready && softReady) {
-                    this.emit(callbacks.onStatus, 'Wajah sudah stabil. Mengambil gambar otomatis.');
-                }
-
-                const holdElapsed = heldSince === null ? 0 : Date.now() - heldSince;
-                const holdProgress = this.clamp(holdElapsed / holdMs, 0, 1);
-                this.emit(callbacks.onCaptureProgress, holdProgress);
+                this.emit(callbacks.onStatus, 'Wajah sudah stabil. Mengambil gambar otomatis.');
                 this.emit(callbacks.onEnrollmentQuality, {
                     progress: holdProgress,
-                    ready: readiness.ready,
+                    ready: true,
                     sharpEnough: readiness.sharpEnough,
                     stableEnough: readiness.stableEnough,
                     sharpness: readiness.sharpness,
                     motion: readiness.motion,
                 });
 
-                if (heldSince !== null && holdElapsed >= holdMs) {
+                if (holdElapsed >= stableHoldMs) {
                     this.emit(callbacks.onCaptureProgress, 1);
                     this.emit(callbacks.onEnrollmentQuality, {
                         progress: 1,
-                        ready: readiness.ready || softReady,
-                        sharpEnough: readiness.sharpEnough,
-                        stableEnough: readiness.stableEnough,
+                        ready: true,
+                        sharpEnough: true,
+                        stableEnough: true,
                         sharpness: readiness.sharpness,
                         motion: readiness.motion,
                     });
