@@ -1720,13 +1720,13 @@ class _CalendarDayTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = item['status'] as String? ?? 'belum_tercatat';
     final isToday = item['is_today'] == true;
-    final color = _calendarStatusColor(status);
     final isHoliday = status == 'tanggal_merah';
     final weekdayShort = item['weekday_short'] as String? ?? '';
     final isSunday = weekdayShort == 'Min';
     final isSaturday = hariKbm == 5 && weekdayShort == 'Sab';
     final isBlackDay = isSunday || isSaturday;
     final isMissedAttendance = status == 'alpha' || status == 'belum_tercatat';
+    final color = isBlackDay ? Colors.black87 : _calendarStatusColor(status);
     final backgroundColor = isHoliday
         ? const Color(0xFFFFFBF1)
         : (isMissedAttendance
@@ -1755,7 +1755,7 @@ class _CalendarDayTile extends StatelessWidget {
           ),
         ],
         border: Border.all(
-          color: borderColor,
+          color: isBlackDay ? const Color(0xFFD1D5DB) : borderColor,
           width: isToday ? 1.5 : 1,
         ),
       ),
