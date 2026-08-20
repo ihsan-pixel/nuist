@@ -530,7 +530,6 @@
         async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 3600) {
             const startedAt = Date.now();
             let heldSince = null;
-            let lastDetectionAt = 0;
             const stableHoldMs = 420;
 
             this.emit(callbacks.onCaptureProgress, 0);
@@ -552,8 +551,6 @@
 
                 if (!detection) {
                     heldSince = null;
-                    stableFrames = 0;
-                    lastDetectionAt = 0;
                     this.emit(callbacks.onCaptureProgress, 0);
                     this.emit(callbacks.onEnrollmentQuality, {
                         progress: 0,
@@ -573,7 +570,6 @@
                     this.emit(callbacks.onStatus, 'Wajah terdeteksi. Menstabilkan posisi sebentar.');
                 }
 
-                lastDetectionAt = Date.now();
                 const holdElapsed = Date.now() - heldSince;
                 const holdProgress = this.clamp(holdElapsed / stableHoldMs, 0, 1);
                 this.emit(callbacks.onCaptureProgress, holdProgress);
@@ -586,13 +582,7 @@
                     motion: 0,
                 });
 
-                if (holdProgress < 1) {
-                    this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah.');
-                    await this.delay(120);
-                    continue;
-                }
-
-                if (holdElapsed >= stableHoldMs) {
+                if (holdProgress >= 1 || holdElapsed >= stableHoldMs) {
                     this.emit(callbacks.onCaptureProgress, 1);
                     this.emit(callbacks.onEnrollmentQuality, {
                         progress: 1,
@@ -606,6 +596,7 @@
                     return true;
                 }
 
+                this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah.');
                 await this.delay(120);
             }
 
