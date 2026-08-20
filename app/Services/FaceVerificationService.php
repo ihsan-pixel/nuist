@@ -33,6 +33,7 @@ class FaceVerificationService
         mixed $livenessScore,
         mixed $challenges,
         mixed $embedding = null,
+        mixed $deviceInfo = null,
         bool $enforceAdvancedLiveness = false,
     ): array {
         $state = $this->requirementState($user);
@@ -91,18 +92,21 @@ class FaceVerificationService
 
         $bestDistance ??= INF;
         $bestSimilarity = $this->distanceToSimilarity($bestDistance);
+        $isFlutterClient = is_string($deviceInfo) && str_contains(strtolower($deviceInfo), 'flutter');
+        $distanceThreshold = $isFlutterClient ? 0.92 : self::FACE_DISTANCE_THRESHOLD;
+        $marginThreshold = $isFlutterClient ? 0.05 : self::FACE_DISTANCE_MARGIN_THRESHOLD;
 
         if ($secondBestDistance !== null) {
             $distanceGap = $secondBestDistance - $bestDistance;
-            if ($distanceGap < self::FACE_DISTANCE_MARGIN_THRESHOLD) {
+            if ($distanceGap < $marginThreshold) {
                 return [
                     'success' => false,
                     'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
                     'similarity' => round($bestSimilarity, 4),
                     'face_distance' => is_finite($bestDistance) ? round($bestDistance, 4) : null,
-                    'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                    'face_distance_threshold' => $distanceThreshold,
                     'face_distance_gap' => round($distanceGap, 4),
-                    'face_distance_gap_threshold' => self::FACE_DISTANCE_MARGIN_THRESHOLD,
+                    'face_distance_gap_threshold' => $marginThreshold,
                     'liveness_score' => round($normalizedLivenessScore, 4),
                     'notes' => 'face_ambiguous_match',
                 ];
@@ -115,19 +119,19 @@ class FaceVerificationService
                 'message' => 'Scan wajah gagal diverifikasi. Wajah belum terbaca dengan cukup stabil.',
                 'similarity' => round($bestSimilarity, 4),
                 'face_distance' => is_finite($bestDistance) ? round($bestDistance, 4) : null,
-                'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                'face_distance_threshold' => $distanceThreshold,
                 'liveness_score' => round($normalizedLivenessScore, 4),
                 'notes' => 'liveness_below_threshold',
             ];
         }
 
-        if ($bestDistance > self::FACE_DISTANCE_THRESHOLD) {
+        if ($bestDistance > $distanceThreshold) {
             return [
                 'success' => false,
                 'message' => 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.',
                 'similarity' => round($bestSimilarity, 4),
                 'face_distance' => round($bestDistance, 4),
-                'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                'face_distance_threshold' => $distanceThreshold,
                 'liveness_score' => round($normalizedLivenessScore, 4),
                 'notes' => 'face_similarity_below_threshold',
             ];
@@ -139,7 +143,7 @@ class FaceVerificationService
             'face_id_used' => $user->face_id,
             'similarity' => round($bestSimilarity, 4),
             'face_distance' => round($bestDistance, 4),
-            'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+            'face_distance_threshold' => $distanceThreshold,
             'liveness_score' => round($normalizedLivenessScore, 4),
             'notes' => 'face_verified',
         ];
@@ -359,6 +363,14 @@ class FaceVerificationService
             return [];
         }
 
+        if (isset($stored['face_embedding'])) {
+            $descriptor = $this->normalizeDescriptor($stored['face_embedding']);
+
+            if ($descriptor !== []) {
+                return [$descriptor];
+            }
+        }
+
         if (isset($stored['descriptors']) && is_array($stored['descriptors'])) {
             $descriptors = collect($stored['descriptors'])
                 ->map(fn ($item) => $this->normalizeDescriptor($item))
@@ -369,12 +381,6 @@ class FaceVerificationService
             if (!empty($descriptors)) {
                 return $descriptors;
             }
-        }
-
-        if (isset($stored['face_embedding'])) {
-            $descriptor = $this->normalizeDescriptor($stored['face_embedding']);
-
-            return $descriptor === [] ? [] : [$descriptor];
         }
 
         if (isset($stored['face_descriptor'])) {

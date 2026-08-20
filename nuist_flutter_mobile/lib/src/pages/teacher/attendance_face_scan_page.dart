@@ -282,10 +282,10 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         );
       }
 
-      if (!context.mounted) {
+      final embedding = await _embeddingService.extractEmbedding(File(file.path));
+      if (!mounted) {
         return;
       }
-      final embedding = await _embeddingService.extractEmbedding(File(file.path));
       if (embedding != null) {
         processed['face_embedding'] = embedding;
       }

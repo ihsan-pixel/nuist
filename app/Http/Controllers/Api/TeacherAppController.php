@@ -716,6 +716,7 @@ class TeacherAppController extends Controller
                 $validated['liveness_score'] ?? null,
                 $validated['liveness_challenges'] ?? [],
                 $validated['face_embedding'] ?? null,
+                $validated['device_info'] ?? null,
             );
 
             if (!$faceVerification['success']) {

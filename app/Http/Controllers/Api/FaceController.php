@@ -212,6 +212,9 @@ class FaceController extends Controller
         // Normalize stored descriptors: support new enrollment format with metadata
         if (is_array($stored) && !empty($stored)) {
             // Check if this is the new format with face_descriptor key
+            if (isset($stored['face_embedding'])) {
+                $storedDescriptors = [$stored['face_embedding']];
+            }
             if (isset($stored['face_descriptor'])) {
                 $storedDescriptors = [$stored['face_descriptor']];
             }
