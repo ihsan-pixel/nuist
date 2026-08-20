@@ -855,6 +855,55 @@ class TeacherAppController extends Controller
             })
             ->values();
 
+        $missingItems = collect();
+        for ($date = $monthStart->copy(); $date->lte($today); $date->addDay()) {
+            $daySchedules = $teacherSchedules->values()->filter(function (TeachingSchedule $schedule) use ($date) {
+                return strtolower((string) $schedule->day) === strtolower((string) $date->locale('id')->dayName)
+                    && $this->schedulePeriodMatchesDate($schedule, $date);
+            });
+
+            foreach ($daySchedules as $schedule) {
+                $attendanceKey = $schedule->id . '|' . $date->toDateString();
+                $hasAttendance = $items->contains(function (TeachingAttendance $item) use ($attendanceKey) {
+                    return $item->teaching_schedule_id . '|' . Carbon::parse($item->tanggal)->toDateString() === $attendanceKey;
+                });
+
+                if ($hasAttendance) {
+                    continue;
+                }
+
+                $calendarEvent = $monthEventMap->get($attendanceKey);
+                if ($calendarEvent) {
+                    $missingItems->push($this->academicCalendarEventService->buildVirtualAttendanceForSchedule($schedule, $date, $calendarEvent));
+                    continue;
+                }
+
+                $isApprovedIzinToday = $approvedTeachingJournalIzin !== null && $date->isSameDay($today);
+                $missingItems->push(new TeachingAttendance([
+                    'teaching_schedule_id' => $schedule->id,
+                    'user_id' => $user->id,
+                    'tanggal' => $date->toDateString(),
+                    'waktu' => $this->formatTime($schedule->end_time),
+                    'status' => $isApprovedIzinToday ? 'izin' : 'terlewat',
+                    'status_label' => $isApprovedIzinToday ? 'Izin (Disetujui)' : 'Terlewat',
+                    'attendance_source' => $isApprovedIzinToday ? 'teaching_journal_izin' : 'teaching_journal_missing',
+                    'is_auto_generated' => false,
+                    'lokasi' => $isApprovedIzinToday ? 'Izin' : 'Belum ada presensi',
+                    'materi' => $isApprovedIzinToday ? 'Izin aktif - tidak ada materi tercatat.' : 'Belum ada presensi tercatat.',
+                    'present_students' => null,
+                    'class_total_students' => null,
+                    'student_attendance_percentage' => null,
+                ]));
+            }
+        }
+
+        $items = $items
+            ->concat($missingItems->filter())
+            ->sortByDesc(function ($item) {
+                return Carbon::parse($item->tanggal)->toDateString() . ' ' . ($item->waktu ?? '00:00:00');
+            })
+            ->values();
+
         return response()->json([
             'message' => 'OK',
             'data' => [
