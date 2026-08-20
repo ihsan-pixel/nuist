@@ -895,7 +895,7 @@
 
 @section('script')
 <script src="{{ asset('models/face-api.js') }}"></script>
-<script src="{{ asset('js/face-enrollment.js') }}"></script>
+<script src="{{ asset('js/face-recognition.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = '{{ csrf_token() }}';
@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const onboardingContinueButton = document.getElementById('btn-face-onboarding-continue');
     const faceHelpButton = document.getElementById('btn-face-help');
 
-    const faceRecognition = new window.FaceEnrollmentEngine();
+    const faceRecognition = new window.FaceRecognition();
     let cameraReady = false;
     let enrollmentResult = null;
     let onboardingAccepted = false;
@@ -1271,7 +1271,10 @@ document.addEventListener('DOMContentLoaded', function () {
             setInstruction('Memuat kamera dan model wajah.');
             setStatus('Menyiapkan kamera.');
             faceDebugState.lastStage = 'camera';
-            await faceRecognition.initializeCamera(video);
+            await Promise.all([
+                warmupFaceModels(),
+                faceRecognition.initializeCamera(video),
+            ]);
 
             cameraReady = true;
             placeholder.style.display = 'none';
@@ -1281,12 +1284,6 @@ document.addEventListener('DOMContentLoaded', function () {
             updateGuideState({
                 state: 'steady',
                 message: 'Pusatkan wajah tepat di dalam oval.',
-            });
-            warmupFaceModels().catch((error) => {
-                console.warn('Face enrollment warmup failed:', error);
-                if (faceDebugEnabled) {
-                    appendFaceDebugLine(`WARMUP FAILED: ${error?.message || error || 'unknown error'}`);
-                }
             });
             await logEnrollmentHeader(video);
         } catch (error) {
@@ -1304,12 +1301,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!cameraReady) {
             await activateCamera();
-        }
-
-        if (!cameraReady) {
-            startCameraButton.disabled = false;
-            startCameraButton.textContent = 'Mulai Scan';
-            return;
         }
 
         enrollButton.disabled = true;
