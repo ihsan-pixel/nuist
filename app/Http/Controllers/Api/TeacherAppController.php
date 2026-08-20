@@ -117,6 +117,11 @@ class TeacherAppController extends Controller
             ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->orderBy('date')
             ->get();
+        $calendarCounts = $this->calculateCalendarAttendanceCounts(
+            $calendarAttendanceItems,
+            $monthStart,
+            $today
+        );
 
         $todayPresensi = Presensi::query()
             ->with('madrasah')
@@ -248,7 +253,7 @@ class TeacherAppController extends Controller
                 ],
                 'monthly_stats' => [
                     'present_count' => $attendanceStats['present_count'],
-                    'izin_count' => $attendanceStats['izin_count'],
+                    'izin_count' => $calendarCounts['izin_count'],
                     'alpha_count' => $attendanceStats['alpha_count'],
                     'working_days' => $attendanceStats['working_days'],
                     'hari_kbm' => $attendanceStats['hari_kbm'],
@@ -2508,18 +2513,43 @@ class TeacherAppController extends Controller
             }
         }
 
+        $countedDays = $presentCount + $izinCount + $alphaCount;
         return [
-            'attendance_percent' => $workingDays > 0
-                ? round(($presentCount / $workingDays) * 100, 1)
+            'attendance_percent' => $countedDays > 0
+                ? round((($presentCount + $izinCount) / $countedDays) * 100, 1)
                 : 0,
             'present_count' => $presentCount,
             'izin_count' => $izinCount,
             'alpha_count' => $alphaCount,
             'working_days' => $workingDays,
             'hari_kbm' => (int) ($user->madrasah?->hari_kbm ?? '6'),
-            'attendance_basis_label' => $workingDays > 0
-                ? 'Dihitung dari ' . $workingDays . ' hari kerja • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari'
-                : 'Belum ada hari kerja pada periode ini • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari',
+            'attendance_basis_label' => $countedDays > 0
+                ? 'Dihitung sampai hari ini • Hadir + Izin dari ' . $countedDays . ' hari terhitung'
+                : 'Belum ada hari terhitung pada periode ini',
+        ];
+    }
+
+    private function calculateCalendarAttendanceCounts($items, Carbon $monthStart, Carbon $today): array
+    {
+        $recordsByDate = collect($items)->groupBy(function ($item) {
+            return Carbon::parse($item->tanggal)->toDateString();
+        });
+
+        $effectiveEnd = $monthStart->isSameMonth($today) && $monthStart->year === $today->year
+            ? $today->copy()
+            : $monthStart->copy()->endOfMonth();
+
+        $izinCount = 0;
+
+        foreach (CarbonPeriod::create($monthStart, $effectiveEnd) as $date) {
+            $dayItems = $recordsByDate->get($date->toDateString(), collect());
+            if ($dayItems->where('status', 'izin')->isNotEmpty()) {
+                $izinCount++;
+            }
+        }
+
+        return [
+            'izin_count' => $izinCount,
         ];
     }
 

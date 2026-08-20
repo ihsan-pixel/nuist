@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -47,6 +46,7 @@ class _AttendanceFaceEnrollmentPageState
   bool _submitting = false;
   int _stableFrames = 0;
   String _poseInstruction = 'Arahkan wajah ke depan.';
+  String _nextStepHint = 'Langkah berikutnya: hadapkan wajah ke depan.';
   final List<String> _poseSequence = <String>[];
   final Map<String, List<double>> _poseDescriptors = <String, List<double>>{};
   Face? _latestFace;
@@ -149,6 +149,7 @@ class _AttendanceFaceEnrollmentPageState
         _readyToCapture = ready;
         _stableFrames = stable ? _stableFrames + 1 : 0;
         _poseInstruction = _instructionForPose(pose);
+        _nextStepHint = _nextHintForPose(pose);
         if (face == null) {
           _status = 'Wajah belum terdeteksi. Posisikan wajah di tengah bingkai.';
         } else if (pose == 'front' && stable) {
@@ -257,6 +258,21 @@ class _AttendanceFaceEnrollmentPageState
         return 'Hadapkan wajah ke depan.';
       default:
         return 'Arahkan wajah ke dalam bingkai.';
+    }
+  }
+
+  String _nextHintForPose(String pose) {
+    switch (pose) {
+      case 'front':
+        return _poseSequence.isEmpty
+            ? 'Langkah berikutnya: tahan wajah depan sampai stabil.'
+            : 'Langkah berikutnya: geser wajah sedikit ke kanan.';
+      case 'right':
+        return 'Langkah berikutnya: geser wajah sedikit ke kiri.';
+      case 'left':
+        return 'Langkah berikutnya: kembali lihat depan untuk simpan.';
+      default:
+        return 'Langkah berikutnya: arahkan wajah ke dalam bingkai.';
     }
   }
 
@@ -415,6 +431,32 @@ class _AttendanceFaceEnrollmentPageState
           'liveness_score': processed['liveness_score'],
           'liveness_challenges': processed['liveness_challenges'],
           'device_info': 'flutter_mobile_face_enrollment',
+        },
+      );
+
+      if (!mounted) {
+        return;
+      }
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Text('Daftar Wajah Berhasil'),
+            content: Text(
+              (result['_message'] as String?) ??
+                  'Data wajah berhasil disimpan dan siap digunakan untuk presensi.',
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Lanjut'),
+              ),
+            ],
+          );
         },
       );
 
@@ -643,6 +685,16 @@ class _AttendanceFaceEnrollmentPageState
                   fontWeight: FontWeight.w700,
                 ),
               ),
+              const SizedBox(height: 4),
+              Text(
+                _nextStepHint,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: _enrollPrimary,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               const Spacer(),
               FilledButton(
                 onPressed: (_loading || !_readyToCapture || _submitting)
@@ -771,20 +823,6 @@ class _FaceHeroCard extends StatelessWidget {
                               Center(
                                 child: _CameraPreviewFit(controller: controller!),
                               ),
-                              Positioned.fill(
-                                child: IgnorePointer(
-                                  child: CustomPaint(
-                                    painter: _FaceScanPainter(
-                                      progress: progress,
-                                      face: latestFace,
-                                      imageSize: latestImageSize,
-                                      controller: controller,
-                                      activeColor: _enrollPrimary,
-                                      softColor: _enrollPrimarySoft,
-                                    ),
-                                  ),
-                                ),
-                              ),
                               Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -865,129 +903,6 @@ class _FaceHeroCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _FaceScanPainter extends CustomPainter {
-  _FaceScanPainter({
-    required this.progress,
-    required this.face,
-    required this.imageSize,
-    required this.controller,
-    required this.activeColor,
-    required this.softColor,
-  });
-
-  final double progress;
-  final Face? face;
-  final Size? imageSize;
-  final CameraController? controller;
-  final Color activeColor;
-  final Color softColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.shortestSide / 2 - 10;
-    final trackPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
-      ..color = softColor.withValues(alpha: 0.65);
-    final progressPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.5
-      ..strokeCap = StrokeCap.round
-      ..color = activeColor;
-
-    canvas.drawCircle(center, radius, trackPaint);
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -1.57,
-      6.28318 * progress,
-      false,
-      progressPaint,
-    );
-
-    if (face != null && imageSize != null) {
-      final faceBox = face!.boundingBox;
-      final faceCenter = Offset(
-        (faceBox.left + faceBox.width / 2) / imageSize!.width * size.width,
-        (faceBox.top + faceBox.height / 2) / imageSize!.height * size.height,
-      );
-      final landmarks = face!.landmarks;
-      final rawPoints = [
-        landmarks[FaceLandmarkType.leftEye]?.position,
-        landmarks[FaceLandmarkType.rightEye]?.position,
-        landmarks[FaceLandmarkType.noseBase]?.position,
-        landmarks[FaceLandmarkType.leftMouth]?.position,
-        landmarks[FaceLandmarkType.rightMouth]?.position,
-      ];
-      final points = rawPoints
-          .map(
-            (position) => position == null
-                ? null
-                : Offset(
-                    position.x.toDouble(),
-                    position.y.toDouble(),
-                  ),
-          )
-          .toList();
-
-      final dotPaint = Paint()..color = activeColor;
-      final glowPaint = Paint()..color = activeColor.withValues(alpha: 0.18);
-
-      final mirrorX = controller?.description.lensDirection == CameraLensDirection.front;
-      canvas.drawCircle(
-        _mapToPreview(
-          size: size,
-          imageSize: imageSize!,
-          point: faceCenter,
-          mirrorX: mirrorX,
-        ),
-        14,
-        glowPaint,
-      );
-      for (final point in points.whereType<Offset>()) {
-        canvas.drawCircle(
-          _mapToPreview(
-            size: size,
-            imageSize: imageSize!,
-            point: point,
-            mirrorX: mirrorX,
-          ),
-          3.5,
-          dotPaint,
-        );
-      }
-    }
-  }
-
-  Offset _mapToPreview({
-    required Size size,
-    required Size imageSize,
-    required Offset point,
-    required bool mirrorX,
-  }) {
-    final scale = math.max(
-      size.width / imageSize.width,
-      size.height / imageSize.height,
-    );
-    final scaledWidth = imageSize.width * scale;
-    final scaledHeight = imageSize.height * scale;
-    final dx = (size.width - scaledWidth) / 2;
-    final dy = (size.height - scaledHeight) / 2;
-    final x = mirrorX ? (imageSize.width - point.dx) : point.dx;
-    return Offset(dx + x * scale, dy + point.dy * scale);
-  }
-
-  @override
-  bool shouldRepaint(covariant _FaceScanPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.face != face ||
-        oldDelegate.imageSize != imageSize ||
-        oldDelegate.controller != controller ||
-        oldDelegate.activeColor != activeColor ||
-        oldDelegate.softColor != softColor;
   }
 }
 

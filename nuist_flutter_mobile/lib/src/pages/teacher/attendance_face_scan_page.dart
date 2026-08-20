@@ -652,24 +652,6 @@ class _FaceHeroCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              if (readyToCapture)
-                                Positioned(
-                                  right: 18,
-                                  top: 18,
-                                  child: Container(
-                                    width: 26,
-                                    height: 26,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF22C55E),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.check_rounded,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
                             ],
                           ),
               ),
