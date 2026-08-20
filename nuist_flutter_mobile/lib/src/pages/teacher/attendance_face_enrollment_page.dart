@@ -146,7 +146,8 @@ class _AttendanceFaceEnrollmentPageState
     } catch (_) {
       if (mounted) {
         setState(() {
-          _status = 'Gagal membaca frame kamera.';
+          _error = 'Gagal membaca frame kamera.';
+          _status = _error!;
         });
       }
     } finally {
@@ -656,20 +657,16 @@ class _CameraCoverPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final previewRatio = controller.value.aspectRatio;
     return Stack(
       fit: StackFit.expand,
       children: [
-        Center(
+        ClipOval(
           child: FittedBox(
             fit: BoxFit.cover,
             child: SizedBox(
-              width: previewRatio,
-              height: 1,
-              child: AspectRatio(
-                aspectRatio: previewRatio,
-                child: CameraPreview(controller),
-              ),
+              width: 1,
+              height: 1 / controller.value.aspectRatio,
+              child: CameraPreview(controller),
             ),
           ),
         ),
