@@ -93,8 +93,8 @@ class FaceVerificationService
         $bestDistance ??= INF;
         $bestSimilarity = $this->distanceToSimilarity($bestDistance);
         $isFlutterClient = is_string($deviceInfo) && str_contains(strtolower($deviceInfo), 'flutter');
-        $distanceThreshold = $isFlutterClient ? 0.92 : self::FACE_DISTANCE_THRESHOLD;
-        $marginThreshold = $isFlutterClient ? 0.05 : self::FACE_DISTANCE_MARGIN_THRESHOLD;
+        $distanceThreshold = $isFlutterClient ? 1.10 : self::FACE_DISTANCE_THRESHOLD;
+        $marginThreshold = $isFlutterClient ? 0.02 : self::FACE_DISTANCE_MARGIN_THRESHOLD;
 
         if ($secondBestDistance !== null) {
             $distanceGap = $secondBestDistance - $bestDistance;
@@ -145,6 +145,7 @@ class FaceVerificationService
             'face_distance' => round($bestDistance, 4),
             'face_distance_threshold' => $distanceThreshold,
             'liveness_score' => round($normalizedLivenessScore, 4),
+            'device_info' => $deviceInfo,
             'notes' => 'face_verified',
         ];
     }

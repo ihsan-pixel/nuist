@@ -234,9 +234,10 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final result = await Navigator.of(context).push<Map<String, dynamic>>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => const AttendanceFaceScanPage(
+        builder: (_) => AttendanceFaceScanPage(
           title: 'Scan Wajah',
           description: 'Selesaikan verifikasi biometrik untuk presensi.',
+          repository: widget.repository,
         ),
       ),
     );
@@ -649,7 +650,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
               }
               setModalState(() {});
               if (_hasVerificationCapture(data) && currentStep <= 1) {
-                await jumpToStep(2, setModalState);
+                final success = await _submitAttendance(data);
+                if (!mounted || !sheetContext.mounted) {
+                  return;
+                }
+                setModalState(() {});
+                if (success && sheetContext.mounted) {
+                  Navigator.of(sheetContext).pop();
+                }
               }
             }
 
@@ -850,7 +858,7 @@ class _AttendanceContent extends StatelessWidget {
       schoolLatitude: schoolLatitude,
       schoolLongitude: schoolLongitude,
     );
-    final canOpenFlow = canSubmit && isFaceEnrolled && !submitting;
+    final canOpenFlow = canSubmit && isFaceEnrolled && !submitting && position != null;
     final requiresFaceEnrollment = isFaceScan && !isFaceEnrolled;
 
     return Stack(

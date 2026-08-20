@@ -7,6 +7,7 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/services.dart';
 
 import '../../services/face_embedding_service.dart';
+import '../../services/teacher_mobile_repository.dart';
 
 const _scanPrimary = Color(0xFF00745A);
 const _scanPrimarySoft = Color(0xFFEAF6F1);
@@ -19,10 +20,12 @@ class AttendanceFaceScanPage extends StatefulWidget {
     super.key,
     required this.title,
     required this.description,
+    required this.repository,
   });
 
   final String title;
   final String description;
+  final TeacherMobileRepository repository;
 
   @override
   State<AttendanceFaceScanPage> createState() => _AttendanceFaceScanPageState();
@@ -36,6 +39,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   bool _processingFrame = false;
   bool _hasFace = false;
   bool _readyToCapture = false;
+  bool _verifying = false;
   int _stableFrames = 0;
   Timer? _autoCaptureTimer;
   bool _autoCaptureArmed = false;
@@ -262,7 +266,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   }
 
   Future<void> _capture() async {
-    if (_loading || !_readyToCapture || _controller == null) {
+    if (_loading || !_readyToCapture || _controller == null || _verifying) {
       return;
     }
 
@@ -286,10 +290,38 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       if (!mounted) {
         return;
       }
-      if (embedding != null) {
-        processed['face_embedding'] = embedding;
+      setState(() {
+        _verifying = true;
+        _status = 'Mencocokkan wajah ke data terdaftar...';
+      });
+
+      final verification = await widget.repository.verifyFace(
+        payload: {
+          'face_descriptor': processed['face_descriptor'],
+          'liveness_score': processed['liveness_score'],
+          'liveness_challenges': processed['liveness_challenges'],
+          if (embedding != null) 'face_embedding': embedding,
+        },
+      );
+
+      if (!mounted) {
+        return;
       }
-      Navigator.of(context).pop(processed);
+
+      if (verification['success'] == true || verification['face_verified'] == true) {
+        if (embedding != null) {
+          processed['face_embedding'] = embedding;
+        }
+        processed['face_verified'] = true;
+        processed['face_verification'] = verification;
+        Navigator.of(context).pop(processed);
+        return;
+      }
+
+      final message = verification['_message'] as String? ??
+          verification['message'] as String? ??
+          'Wajah tidak cocok dengan data yang terdaftar.';
+      await _restartStreamWithError(message);
     } catch (error) {
       if (!mounted) {
         return;
@@ -309,9 +341,23 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       if (mounted) {
         setState(() {
           _loading = false;
+          _verifying = false;
         });
       }
     }
+  }
+
+  Future<void> _restartStreamWithError(String message) async {
+    setState(() {
+      _error = message;
+      _status = message;
+      _verifying = false;
+    });
+    try {
+      if (_controller != null && !_controller!.value.isStreamingImages) {
+        await _controller?.startImageStream(_processCameraImage);
+      }
+    } catch (_) {}
   }
 
   Future<Map<String, dynamic>?> _analyzeImage(String path) async {
