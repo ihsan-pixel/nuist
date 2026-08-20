@@ -509,9 +509,9 @@ class _FaceHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 300,
-        height: 334,
-        padding: const EdgeInsets.all(20),
+        width: 332,
+        height: 408,
+        padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(34),
@@ -527,19 +527,19 @@ class _FaceHeroCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             const Text(
               'Face detection',
               style: TextStyle(
                 color: _enrollText,
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
             Container(
-              width: 148,
-              height: 148,
+              width: 188,
+              height: 188,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _enrollPrimarySoft,
@@ -549,13 +549,13 @@ class _FaceHeroCard extends StatelessWidget {
                 child: loading && controller == null
                     ? const Center(child: CircularProgressIndicator())
                     : controller == null
-                        ? const Center(
-                            child: Icon(
-                              Icons.verified_user_rounded,
-                              size: 82,
-                              color: _enrollPrimary,
-                            ),
-                          )
+                            ? const Center(
+                                child: Icon(
+                                  Icons.verified_user_rounded,
+                                  size: 96,
+                                  color: _enrollPrimary,
+                                ),
+                              )
                         : Stack(
                             fit: StackFit.expand,
                             children: [
@@ -598,7 +598,7 @@ class _FaceHeroCard extends StatelessWidget {
                           ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
             Text(
               readyToCapture
                   ? 'Identity Verified'
@@ -608,12 +608,12 @@ class _FaceHeroCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: _enrollText,
-                fontSize: 19,
-                height: 1.15,
+                fontSize: 20,
+                height: 1.1,
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               readyToCapture
                   ? 'Wajah sudah stabil dan siap didaftarkan.'
@@ -622,11 +622,11 @@ class _FaceHeroCard extends StatelessWidget {
               style: const TextStyle(
                 color: _enrollMuted,
                 fontSize: 11,
-                height: 1.25,
+                height: 1.3,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
