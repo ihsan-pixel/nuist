@@ -1271,10 +1271,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setInstruction('Memuat kamera dan model wajah.');
             setStatus('Menyiapkan kamera.');
             faceDebugState.lastStage = 'camera';
-            await Promise.all([
-                warmupFaceModels(),
-                faceRecognition.initializeCamera(video),
-            ]);
+            await faceRecognition.initializeCamera(video);
 
             cameraReady = true;
             placeholder.style.display = 'none';
@@ -1284,6 +1281,12 @@ document.addEventListener('DOMContentLoaded', function () {
             updateGuideState({
                 state: 'steady',
                 message: 'Pusatkan wajah tepat di dalam oval.',
+            });
+            warmupFaceModels().catch((error) => {
+                console.warn('Face enrollment warmup failed:', error);
+                if (faceDebugEnabled) {
+                    appendFaceDebugLine(`WARMUP FAILED: ${error?.message || error || 'unknown error'}`);
+                }
             });
             await logEnrollmentHeader(video);
         } catch (error) {
@@ -1301,6 +1304,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!cameraReady) {
             await activateCamera();
+        }
+
+        if (!cameraReady) {
+            startCameraButton.disabled = false;
+            startCameraButton.textContent = 'Mulai Scan';
+            return;
         }
 
         enrollButton.disabled = true;
