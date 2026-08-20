@@ -325,11 +325,12 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       final face = faces.first;
       final imageBytes = await File(path).readAsBytes();
       final liveness = _estimateLiveness(face);
+      final challenges = _normalizeChallenges(liveness['challenges']);
       return {
         'selfie_data': 'data:image/jpeg;base64,${base64Encode(imageBytes)}',
         'face_descriptor': _buildDescriptor(face),
         'liveness_score': liveness['score'],
-        'liveness_challenges': liveness['challenges'],
+        'liveness_challenges': challenges,
       };
     } finally {
       await detector.close();
@@ -406,6 +407,24 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       'score': score.clamp(0.0, 1.0),
       'challenges': challenges,
     };
+  }
+
+  List<String> _normalizeChallenges(dynamic raw) {
+    final items = <String>[];
+    if (raw is Iterable) {
+      for (final item in raw) {
+        final value = item?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          items.add(value);
+        }
+      }
+    }
+
+    if (items.isEmpty) {
+      return <String>['face_scan'];
+    }
+
+    return items;
   }
 
   @override

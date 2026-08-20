@@ -364,13 +364,15 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         'device_info': 'flutter_mobile_${defaultTargetPlatform.name}',
         'location_readings': _locationReadings,
         'selfie_data': _faceScanResult!['selfie_data'],
+        'liveness_challenges': _normalizedChallenges(
+          _faceScanResult!['liveness_challenges'],
+        ),
       };
 
       if (verificationMode == 'face_scan') {
         payload.addAll({
           'face_descriptor': _faceScanResult!['face_descriptor'],
           'liveness_score': _faceScanResult!['liveness_score'],
-          'liveness_challenges': _faceScanResult!['liveness_challenges'],
         });
       }
 
@@ -434,8 +436,26 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       'selfie_data': selfieData,
       'face_descriptor': List<dynamic>.from(faceDescriptor),
       'liveness_score': livenessScore,
-      'liveness_challenges': List<dynamic>.from(livenessChallenges),
+      'liveness_challenges': _normalizedChallenges(livenessChallenges),
     };
+  }
+
+  List<String> _normalizedChallenges(dynamic raw) {
+    final items = <String>[];
+    if (raw is Iterable) {
+      for (final item in raw) {
+        final value = item?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          items.add(value);
+        }
+      }
+    }
+
+    if (items.isEmpty) {
+      return <String>['face_scan'];
+    }
+
+    return items;
   }
 
   bool _requiresFaceScan(Map<String, dynamic> data) {
