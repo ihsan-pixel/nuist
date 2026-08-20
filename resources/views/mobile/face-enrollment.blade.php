@@ -895,7 +895,7 @@
 
 @section('script')
 <script src="{{ asset('models/face-api.js') }}"></script>
-<script src="{{ asset('js/face-recognition.js') }}"></script>
+<script src="{{ asset('js/face-enrollment.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = '{{ csrf_token() }}';
@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const onboardingContinueButton = document.getElementById('btn-face-onboarding-continue');
     const faceHelpButton = document.getElementById('btn-face-help');
 
-    const faceRecognition = new window.FaceRecognition();
+    const faceRecognition = new window.FaceEnrollmentEngine();
     let cameraReady = false;
     let enrollmentResult = null;
     let onboardingAccepted = false;
