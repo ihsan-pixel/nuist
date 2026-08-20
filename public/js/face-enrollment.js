@@ -179,6 +179,7 @@
                     type: 'tf-backend-missing',
                     backend: 'unavailable',
                 });
+                this.backendFallbackActive = true;
                 return 'unavailable';
             }
 
@@ -205,7 +206,20 @@
                 }
             }
 
-            throw new Error('TensorFlow backend tidak dapat diinisialisasi.');
+            this.tfBackend = this.getTfBackendName();
+            this.tfBackendHealth = {
+                backend: this.tfBackend,
+                healthy: false,
+                error: 'TensorFlow backend tidak dapat diinisialisasi.',
+                checkedAt: Date.now(),
+            };
+            this.backendFallbackActive = true;
+            this.emitDiagnostic(callbacks, {
+                type: 'backend-fallback-active',
+                backend: this.tfBackend,
+                reason: 'TensorFlow backend unavailable, using face-api default execution path.',
+            });
+            return this.tfBackend;
         }
 
         async runInferenceWithBackendFallback(callbacks, inferenceFn) {
@@ -287,7 +301,16 @@
 
             this.modelLoadPromise = (async () => {
                 this.emitDiagnostic({}, { type: 'model-load-status', status: 'starting', backend: this.getTfBackendName() });
-                await this.selectEnrollmentBackend();
+                try {
+                    await this.selectEnrollmentBackend();
+                } catch (error) {
+                    this.emitDiagnostic({}, {
+                        type: 'backend-fallback-warning',
+                        backend: this.getTfBackendName(),
+                        error: String(error?.message || error || 'backend selection failed'),
+                    });
+                }
+
                 await this.loadDetectionModels();
                 await this.loadRecognitionModel();
                 this.emitDiagnostic({}, { type: 'model-load-status', status: 'loaded', backend: this.getTfBackendName() });
@@ -617,7 +640,9 @@
             let lastError = null;
             while (Date.now() < deadline) {
                 try {
-                    const detection = await this.detectSingleFace(videoElement, options);
+                    const detection = options.profile === 'enrollment'
+                        ? await this.detectEnrollmentFace(videoElement, options.callbacks || {}, options)
+                        : await this.detectSingleFace(videoElement, options);
                     if (!detection) {
                         await this.delay(120);
                         continue;
@@ -725,6 +750,51 @@
             }
 
             return null;
+        }
+
+        async detectEnrollmentFace(videoElement, callbacks = {}, options = {}) {
+            const deadline = Date.now() + (options.timeoutMs || this.inferenceTimeoutMs);
+            let lastError = null;
+
+            while (Date.now() < deadline) {
+                try {
+                    const detection = await this.runInferenceWithBackendFallback(callbacks, () => faceapi
+                        .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions(this.detectorOptions))
+                        .withFaceLandmarks()
+                        .withFaceDescriptor());
+
+                    if (!detection) {
+                        await this.delay(120);
+                        continue;
+                    }
+
+                    const quality = this.evaluateDetectionQuality(detection, videoElement, options);
+                    if (!quality.usable) {
+                        await this.delay(120);
+                        continue;
+                    }
+
+                    return detection;
+                } catch (error) {
+                    lastError = error;
+                    const message = String(error?.message || error || '');
+                    this.emitDiagnostic(callbacks, {
+                        type: 'inference-error',
+                        stage: 'detectEnrollmentFace',
+                        backend: this.getTfBackendName(),
+                        error: message,
+                    });
+
+                    if (message.includes('timeout') || this.backendFallbackActive) {
+                        await this.delay(120);
+                        continue;
+                    }
+
+                    throw error;
+                }
+            }
+
+            throw lastError || new Error('Descriptor wajah tidak dapat diambil. Ulangi scan wajah.');
         }
 
         evaluateDetectionQuality(detection, videoElement, options = {}) {
