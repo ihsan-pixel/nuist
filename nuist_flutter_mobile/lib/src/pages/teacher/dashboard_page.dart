@@ -1721,9 +1721,11 @@ class _CalendarDayTile extends StatelessWidget {
     final status = item['status'] as String? ?? 'belum_tercatat';
     final isToday = item['is_today'] == true;
     final isHoliday = status == 'tanggal_merah';
-    final weekdayShort = item['weekday_short'] as String? ?? '';
-    final isSunday = weekdayShort == 'Min';
-    final isSaturday = hariKbm == 5 && weekdayShort == 'Sab';
+    final rawDate = item['date'] as String? ?? '';
+    final parsedDate = DateTime.tryParse(rawDate);
+    final weekday = parsedDate?.weekday ?? 0;
+    final isSunday = weekday == DateTime.sunday;
+    final isSaturday = hariKbm == 5 && weekday == DateTime.saturday;
     final isBlackDay = isSunday || isSaturday;
     final isMissedAttendance = status == 'alpha' || status == 'belum_tercatat';
     final color = isBlackDay ? Colors.black87 : _calendarStatusColor(status);

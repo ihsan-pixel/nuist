@@ -189,6 +189,34 @@ class TeacherMobileRepository {
     }
   }
 
+  Future<Map<String, dynamic>> enrollFace({
+    required Map<String, dynamic> payload,
+  }) async {
+    try {
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/face/enroll',
+          data: payload,
+        ),
+        actionLabel: 'daftar wajah',
+      );
+      final body = response.data ?? const <String, dynamic>{};
+      final result = body['success'] == true
+          ? Map<String, dynamic>.from(body)
+          : <String, dynamic>{};
+      if (body['message'] is String) {
+        result['_message'] = body['message'];
+      }
+      return result;
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher daftar wajah request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getProfile() {
     return _get('/mobile/app/teacher/profile', actionLabel: 'profil');
   }

@@ -1267,6 +1267,7 @@ class TeacherAppController extends Controller
             'message' => 'OK',
             'data' => [
                 'user' => [
+                    'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->no_hp,
@@ -1355,6 +1356,7 @@ class TeacherAppController extends Controller
             'message' => 'Profil berhasil diperbarui.',
             'data' => [
                 'user' => [
+                    'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->no_hp,

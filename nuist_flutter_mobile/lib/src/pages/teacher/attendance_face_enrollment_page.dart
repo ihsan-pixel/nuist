@@ -4,34 +4,40 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image_picker/image_picker.dart';
 
-const _scanPrimary = Color(0xFF00745A);
-const _scanPrimaryDark = Color(0xFF00553F);
-const _scanPrimarySoft = Color(0xFFE5F5F0);
-const _scanPrimaryBorder = Color(0xFFDCE7E3);
-const _scanText = Color(0xFF172A24);
-const _scanMuted = Color(0xFF64746E);
+import '../../services/teacher_mobile_repository.dart';
 
-class AttendanceFaceScanPage extends StatefulWidget {
-  const AttendanceFaceScanPage({
+const _enrollPrimary = Color(0xFF00745A);
+const _enrollPrimaryDark = Color(0xFF00553F);
+const _enrollPrimarySoft = Color(0xFFE5F5F0);
+const _enrollPrimaryBorder = Color(0xFFDCE7E3);
+const _enrollText = Color(0xFF172A24);
+const _enrollMuted = Color(0xFF64746E);
+
+class AttendanceFaceEnrollmentPage extends StatefulWidget {
+  const AttendanceFaceEnrollmentPage({
     super.key,
+    required this.repository,
     required this.title,
     required this.description,
   });
 
+  final TeacherMobileRepository repository;
   final String title;
   final String description;
 
   @override
-  State<AttendanceFaceScanPage> createState() => _AttendanceFaceScanPageState();
+  State<AttendanceFaceEnrollmentPage> createState() =>
+      _AttendanceFaceEnrollmentPageState();
 }
 
-class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
+class _AttendanceFaceEnrollmentPageState
+    extends State<AttendanceFaceEnrollmentPage> {
   final ImagePicker _picker = ImagePicker();
   bool _loading = false;
   String _status = 'Siapkan wajah Anda di depan kamera.';
   String? _error;
 
-  Future<void> _capture() async {
+  Future<void> _captureAndEnroll() async {
     if (_loading) return;
     setState(() {
       _loading = true;
@@ -48,7 +54,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
       if (image == null) {
         setState(() {
-          _status = 'Pengambilan gambar dibatalkan.';
+          _status = 'Pendaftaran dibatalkan.';
         });
         return;
       }
@@ -62,13 +68,33 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         return;
       }
 
+      final profile = await widget.repository.getProfile();
+      final user = Map<String, dynamic>.from(
+        (profile['user'] as Map?) ?? const <String, dynamic>{},
+      );
+      final userId = (user['id'] as num?)?.toInt();
+      if (userId == null) {
+        throw Exception('User ID tidak ditemukan dari profil.');
+      }
+
+      final result = await widget.repository.enrollFace(
+        payload: {
+          'user_id': userId,
+          'face_data': processed['face_descriptor'],
+          'liveness_score': processed['liveness_score'],
+          'liveness_challenges': processed['liveness_challenges'],
+          'device_info': 'flutter_mobile_face_enrollment',
+        },
+      );
+
       if (!mounted) return;
 
       setState(() {
-        _status = 'Wajah terdeteksi. Silakan gunakan hasil ini.';
+        _status = (result['_message'] as String?) ??
+            'Pendaftaran wajah berhasil disimpan.';
       });
 
-      Navigator.of(context).pop(processed);
+      Navigator.of(context).pop(result);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -101,13 +127,11 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       }
 
       final face = faces.first;
-      final descriptor = _buildDescriptor(face);
-      final liveness = _estimateLiveness(face);
       return {
         'selfie_data': 'data:image/jpeg;base64,${base64Encode(await XFile(path).readAsBytes())}',
-        'face_descriptor': descriptor,
-        'liveness_score': liveness['score'],
-        'liveness_challenges': liveness['challenges'],
+        'face_descriptor': _buildDescriptor(face),
+        'liveness_score': _estimateLiveness(face)['score'],
+        'liveness_challenges': _estimateLiveness(face)['challenges'],
       };
     } finally {
       await detector.close();
@@ -117,10 +141,8 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   List<double> _buildDescriptor(Face face) {
     final box = face.boundingBox;
     final landmarks = face.landmarks;
-
     final width = box.width <= 0 ? 1.0 : box.width;
     final height = box.height <= 0 ? 1.0 : box.height;
-
     double normX(double x) => (x - box.left) / width;
     double normY(double y) => (y - box.top) / height;
 
@@ -166,26 +188,22 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   Map<String, dynamic> _estimateLiveness(Face face) {
     final challenges = <String>[];
     var score = 0.4;
-
     final leftEye = face.leftEyeOpenProbability ?? 0.0;
     final rightEye = face.rightEyeOpenProbability ?? 0.0;
     if (leftEye < 0.35 || rightEye < 0.35) {
       score += 0.25;
       challenges.add('blink');
     }
-
     final turnY = face.headEulerAngleY ?? 0.0;
     if (turnY > 8 || turnY < -8) {
       score += 0.2;
       challenges.add(turnY > 0 ? 'turn_left' : 'turn_right');
     }
-
     final tiltZ = (face.headEulerAngleZ ?? 0.0).abs();
     if (tiltZ > 5) {
       score += 0.15;
       challenges.add('head_tilt');
     }
-
     return {
       'score': score.clamp(0.0, 1.0),
       'challenges': challenges,
@@ -198,7 +216,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        foregroundColor: _scanText,
+        foregroundColor: _enrollText,
         elevation: 0,
         titleSpacing: 0,
         title: Column(
@@ -207,7 +225,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
             Text(
               widget.title,
               style: const TextStyle(
-                color: _scanText,
+                color: _enrollText,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -216,7 +234,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: _scanMuted,
+                color: _enrollMuted,
                 fontWeight: FontWeight.w700,
                 fontSize: 11,
               ),
@@ -235,15 +253,15 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: _scanPrimaryBorder),
+                  border: Border.all(color: _enrollPrimaryBorder),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Presensi Wajah',
+                      'Pendaftaran Wajah',
                       style: TextStyle(
-                        color: _scanText,
+                        color: _enrollText,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                       ),
@@ -252,7 +270,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
                     Text(
                       _status,
                       style: const TextStyle(
-                        color: _scanMuted,
+                        color: _enrollMuted,
                         height: 1.4,
                       ),
                     ),
@@ -268,9 +286,9 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
                     ],
                     const SizedBox(height: 14),
                     FilledButton.icon(
-                      onPressed: _loading ? null : _capture,
+                      onPressed: _loading ? null : _captureAndEnroll,
                       style: FilledButton.styleFrom(
-                        backgroundColor: _scanPrimary,
+                        backgroundColor: _enrollPrimary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -287,7 +305,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
                               ),
                             )
                           : const Icon(Icons.camera_alt_rounded),
-                      label: Text(_loading ? 'Memproses...' : 'Ambil Wajah'),
+                      label: Text(_loading ? 'Memproses...' : 'Ambil & Simpan Wajah'),
                     ),
                   ],
                 ),
@@ -296,15 +314,15 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: _scanPrimarySoft,
+                    color: _enrollPrimarySoft,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: _scanPrimaryBorder),
+                    border: Border.all(color: _enrollPrimaryBorder),
                   ),
                   child: const Center(
                     child: Icon(
                       Icons.face_retouching_natural_rounded,
                       size: 72,
-                      color: _scanPrimaryDark,
+                      color: _enrollPrimaryDark,
                     ),
                   ),
                 ),

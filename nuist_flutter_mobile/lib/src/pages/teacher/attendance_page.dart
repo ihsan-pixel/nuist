@@ -8,6 +8,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'attendance_face_enrollment_page.dart';
 import 'attendance_face_scan_page.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
@@ -261,6 +262,30 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
   Future<void> _captureVerification(Map<String, dynamic> data) async {
     await _captureFaceScan(data);
+  }
+
+  Future<void> _openFaceEnrollment(Map<String, dynamic> data) async {
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
+    final enrolled = verification['face_enrolled'] == true ||
+        verification['enrolled'] == true;
+    if (enrolled) {
+      return;
+    }
+
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+      builder: (_) => AttendanceFaceEnrollmentPage(
+          repository: widget.repository,
+          title: 'Daftar Wajah',
+          description: 'Aktifkan data wajah sebelum presensi kehadiran.',
+        ),
+      ),
+    );
+
+    await _refresh();
   }
 
   Future<bool> _submitAttendance(Map<String, dynamic> data) async {
@@ -708,6 +733,9 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           onOpenAttendanceFlow: () => _openAttendanceFlow(
             snapshot.data ?? const <String, dynamic>{},
           ),
+          onOpenFaceEnrollment: () => _openFaceEnrollment(
+            snapshot.data ?? const <String, dynamic>{},
+          ),
           onBackToHome: widget.onBackToHome,
           onOpenAttendanceHistory: widget.onOpenAttendanceHistory,
           onRefreshData: _refresh,
@@ -733,6 +761,7 @@ class _AttendanceContent extends StatelessWidget {
     required this.onCaptureSelfie,
     required this.onClearSelfie,
     required this.onOpenAttendanceFlow,
+    required this.onOpenFaceEnrollment,
     required this.onBackToHome,
     required this.onOpenAttendanceHistory,
     required this.onRefreshData,
@@ -752,6 +781,7 @@ class _AttendanceContent extends StatelessWidget {
   final Future<void> Function() onCaptureSelfie;
   final VoidCallback onClearSelfie;
   final VoidCallback onOpenAttendanceFlow;
+  final Future<void> Function() onOpenFaceEnrollment;
   final VoidCallback onBackToHome;
   final Future<void> Function() onOpenAttendanceHistory;
   final Future<void> Function() onRefreshData;
@@ -796,6 +826,7 @@ class _AttendanceContent extends StatelessWidget {
       schoolLongitude: schoolLongitude,
     );
     final canOpenFlow = canSubmit && isFaceEnrolled && !submitting;
+    final requiresFaceEnrollment = isFaceScan && !isFaceEnrolled;
 
     return Stack(
       children: [
@@ -1000,9 +1031,15 @@ class _AttendanceContent extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: canOpenFlow ? onOpenAttendanceFlow : null,
+                    onPressed: requiresFaceEnrollment
+                        ? () async {
+                            await onOpenFaceEnrollment();
+                          }
+                        : (canOpenFlow ? onOpenAttendanceFlow : null),
                     style: FilledButton.styleFrom(
-                      backgroundColor: _attendancePrimary,
+                      backgroundColor: requiresFaceEnrollment
+                          ? _attendancePrimaryDark
+                          : _attendancePrimary,
                       disabledBackgroundColor: _attendancePrimaryBorder,
                       disabledForegroundColor: _attendanceMuted,
                       foregroundColor: Colors.white,
@@ -1013,7 +1050,7 @@ class _AttendanceContent extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      nextModeLabel,
+                      requiresFaceEnrollment ? 'Daftar Wajah' : nextModeLabel,
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 13,
@@ -1026,7 +1063,7 @@ class _AttendanceContent extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   verification['message'] as String? ??
-                      'Data wajah belum terdaftar.',
+                      'Data wajah belum terdaftar. Silakan daftar wajah terlebih dahulu.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: Colors.white,
