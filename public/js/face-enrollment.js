@@ -312,9 +312,8 @@
                 }
 
                 await this.loadDetectionModels();
-                await this.loadRecognitionModel();
-                this.emitDiagnostic({}, { type: 'model-load-status', status: 'loaded', backend: this.getTfBackendName() });
-                this.recognitionModelsLoaded = true;
+                this.emitDiagnostic({}, { type: 'model-load-status', status: 'detection-ready', backend: this.getTfBackendName() });
+                this.recognitionModelsLoaded = false;
                 this.modelsLoaded = true;
                 return true;
             })();
@@ -638,6 +637,11 @@
             let lastError = null;
             while (Date.now() < deadline) {
                 try {
+                    if (!this.recognitionModelsLoaded) {
+                        await this.loadRecognitionModel();
+                        this.recognitionModelsLoaded = true;
+                    }
+
                     const detection = options.profile === 'enrollment'
                         ? await this.detectEnrollmentFace(videoElement, options.callbacks || {}, options)
                         : await this.detectSingleFace(videoElement, options);
