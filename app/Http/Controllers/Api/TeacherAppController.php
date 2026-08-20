@@ -878,18 +878,20 @@ class TeacherAppController extends Controller
                     continue;
                 }
 
-                $isApprovedIzinToday = $approvedTeachingJournalIzin !== null && $date->isSameDay($today);
+                $approvedIzinForDate = $this->findApprovedTeachingJournalIzin($user, $date)
+                    ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $date);
+                $isApprovedIzinForDate = $approvedIzinForDate !== null;
                 $missingItems->push(new TeachingAttendance([
                     'teaching_schedule_id' => $schedule->id,
                     'user_id' => $user->id,
                     'tanggal' => $date->toDateString(),
                     'waktu' => $this->formatTime($schedule->end_time),
-                    'status' => $isApprovedIzinToday ? 'izin' : 'terlewat',
-                    'status_label' => $isApprovedIzinToday ? 'Izin (Disetujui)' : 'Terlewat',
-                    'attendance_source' => $isApprovedIzinToday ? 'teaching_journal_izin' : 'teaching_journal_missing',
+                    'status' => $isApprovedIzinForDate ? 'izin' : 'terlewat',
+                    'status_label' => $isApprovedIzinForDate ? 'Izin (Disetujui)' : 'Terlewat',
+                    'attendance_source' => $isApprovedIzinForDate ? 'teaching_journal_izin' : 'teaching_journal_missing',
                     'is_auto_generated' => false,
-                    'lokasi' => $isApprovedIzinToday ? 'Izin' : 'Belum ada presensi',
-                    'materi' => $isApprovedIzinToday ? 'Izin aktif - tidak ada materi tercatat.' : 'Belum ada presensi tercatat.',
+                    'lokasi' => $isApprovedIzinForDate ? 'Izin' : 'Belum ada presensi',
+                    'materi' => $isApprovedIzinForDate ? 'Izin aktif - tidak ada materi tercatat.' : 'Belum ada presensi tercatat.',
                     'present_students' => null,
                     'class_total_students' => null,
                     'student_attendance_percentage' => null,
