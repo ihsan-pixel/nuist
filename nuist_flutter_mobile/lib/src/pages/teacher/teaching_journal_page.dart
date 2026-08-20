@@ -829,16 +829,10 @@ class _JournalContent extends StatelessWidget {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
-    final missedJournalSchedules =
-        ((data['missed_journal_schedules'] as List?) ?? const [])
-            .whereType<Map>()
-            .map((item) => Map<String, dynamic>.from(item))
-            .toList();
     final items = [
       ...((data['items'] as List?) ?? const [])
           .whereType<Map>()
           .map((item) => Map<String, dynamic>.from(item)),
-      ...missedJournalSchedules,
     ]
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
@@ -951,20 +945,6 @@ class _JournalContent extends StatelessWidget {
               ),
             ),
           ),
-        if (missedJournalSchedules.isNotEmpty) ...[
-          const SizedBox(height: 14),
-          const _PageSectionHeading(
-            eyebrow: 'Terlewat',
-            title: 'Jadwal Terlewat',
-          ),
-          const SizedBox(height: 10),
-          ...missedJournalSchedules.map(
-            (schedule) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _MissedTeachingScheduleTile(item: schedule),
-            ),
-          ),
-        ],
         const SizedBox(height: 14),
         const _PageSectionHeading(
           eyebrow: 'Riwayat',
@@ -1147,6 +1127,7 @@ class _TeachingScheduleTile extends StatelessWidget {
     final isLateJournal =
         timeState == 'after' && attendance == null && status != 'izin';
     final shouldShowAction = canSubmit || isLateJournal;
+    final statusIsIzin = status == 'izin';
 
     return AppSectionCard(
       padding: const EdgeInsets.all(14),
@@ -1210,7 +1191,7 @@ class _TeachingScheduleTile extends StatelessWidget {
                 label: item['status_label'] as String? ?? 'Belum Presensi',
                 color: status == 'hadir'
                     ? Colors.white
-                    : status == 'izin'
+                    : statusIsIzin
                         ? _journalSoft
                         : _journalWarning,
               ),
@@ -1272,7 +1253,7 @@ class _TeachingScheduleTile extends StatelessWidget {
                 ],
               ),
             )
-          else if (status == 'izin')
+          else if (statusIsIzin)
             _InfoBanner(
               color: _journalSoft,
               icon: Icons.info_outline_rounded,
@@ -1328,93 +1309,6 @@ class _TeachingScheduleTile extends StatelessWidget {
                 ),
               ],
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MissedTeachingScheduleTile extends StatelessWidget {
-  const _MissedTeachingScheduleTile({
-    required this.item,
-  });
-
-  final Map<String, dynamic> item;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSectionCard(
-      padding: const EdgeInsets.all(14),
-      backgroundColor: const Color(0xFFF6FBF8),
-      borderColor: _journalBorder,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _journalSoftRed,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.assignment_late_rounded,
-                  color: _journalDanger,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item['subject'] as String? ?? '-',
-                      style: const TextStyle(
-                        color: _journalText,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${item['class_name'] ?? '-'} • ${item['school_name'] ?? '-'}',
-                      style: TextStyle(
-                        color: _journalMuted.withValues(alpha: 0.95),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${item['date_label'] ?? '-'} • ${item['start_time'] ?? '-'} - ${item['end_time'] ?? '-'}',
-                      style: TextStyle(
-                        color: _journalMuted.withValues(alpha: 0.85),
-                        fontSize: 10.5,
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const _StatusPill(
-                label: 'Terlewat',
-                color: _journalDanger,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Belum ada presensi pada jadwal ini. Bisa lanjut sebagai Jurnal Susulan jika masih di hari yang sama saat jadwal berlangsung.',
-            style: TextStyle(
-              color: _journalMuted.withValues(alpha: 0.95),
-              fontSize: 11.5,
-              height: 1.45,
-            ),
-          ),
         ],
       ),
     );
