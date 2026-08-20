@@ -196,9 +196,9 @@ class _AttendanceFaceEnrollmentPageState
     final rotation = _rotationFromOrientation(camera, orientation);
     final format = InputImageFormatValue.fromRawValue(image.format.raw) ??
         InputImageFormat.yuv420;
-    final bytes = <int>[];
+    final bytes = WriteBuffer();
     for (final plane in image.planes) {
-      bytes.addAll(plane.bytes);
+      bytes.putUint8List(plane.bytes);
     }
     final metadata = InputImageMetadata(
       size: Size(image.width.toDouble(), image.height.toDouble()),
@@ -207,7 +207,7 @@ class _AttendanceFaceEnrollmentPageState
       bytesPerRow: image.planes.first.bytesPerRow,
     );
     return InputImage.fromBytes(
-      bytes: Uint8List.fromList(bytes),
+      bytes: bytes.done().buffer.asUint8List(),
       metadata: metadata,
     );
   }
@@ -555,40 +555,13 @@ class _FaceHeroCard extends StatelessWidget {
                               color: _enrollPrimary,
                             ),
                           )
-                        : Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              CameraPreview(controller!),
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: readyToCapture
-                                        ? _enrollPrimary
-                                        : Colors.white.withValues(alpha: 0.65),
-                                    width: 3,
-                                  ),
-                                ),
-                              ),
-                              if (readyToCapture)
-                                Positioned(
-                          right: 18,
-                          top: 18,
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF22C55E),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.check_rounded,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                            ],
+                        : _CameraCoverPreview(
+                            controller: controller!,
+                            readyToCapture: readyToCapture,
+                            overlayBorderColor: readyToCapture
+                                ? _enrollPrimary
+                                : Colors.white.withValues(alpha: 0.65),
+                            successDotColor: const Color(0xFF22C55E),
                           ),
               ),
             ),
@@ -664,6 +637,67 @@ class _MiniBadge extends StatelessWidget {
           fontWeight: FontWeight.w700,
         ),
       ),
+    );
+  }
+}
+
+class _CameraCoverPreview extends StatelessWidget {
+  const _CameraCoverPreview({
+    required this.controller,
+    required this.readyToCapture,
+    required this.overlayBorderColor,
+    required this.successDotColor,
+  });
+
+  final CameraController controller;
+  final bool readyToCapture;
+  final Color overlayBorderColor;
+  final Color successDotColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final previewRatio = controller.value.aspectRatio;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Center(
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: previewRatio,
+              height: 1,
+              child: AspectRatio(
+                aspectRatio: previewRatio,
+                child: CameraPreview(controller),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: overlayBorderColor, width: 3),
+          ),
+        ),
+        if (readyToCapture)
+          Positioned(
+            right: 18,
+            top: 18,
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: successDotColor,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
