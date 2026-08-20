@@ -79,6 +79,34 @@ class TeacherAppController extends Controller
             ->where('user_id', $user->id)
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->get();
+        $approvedIzinThisMonth = Izin::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->whereDate('tanggal', '<=', $monthEnd->toDateString())
+            ->where(function ($query) use ($monthStart) {
+                $query->whereNull('tanggal_selesai')
+                    ->orWhereDate('tanggal_selesai', '>=', $monthStart->toDateString());
+            })
+            ->get();
+        $izinCalendarEntries = collect();
+        foreach ($approvedIzinThisMonth as $izin) {
+            $startDate = Carbon::parse($izin->tanggal)->startOfDay()->max($monthStart->copy()->startOfDay());
+            $endDate = $izin->tanggal_selesai
+                ? Carbon::parse($izin->tanggal_selesai)->startOfDay()->min($monthEnd->copy()->startOfDay())
+                : $startDate->copy();
+
+            if ($endDate->lt($startDate)) {
+                continue;
+            }
+
+            foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+                $izinCalendarEntries->push((object) [
+                    'tanggal' => $date->copy(),
+                    'status' => 'izin',
+                ]);
+            }
+        }
+        $calendarAttendanceItems = $presensiThisMonth->concat($izinCalendarEntries);
         $holidaysThisMonth = Holiday::query()
             ->where('is_active', true)
             ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
@@ -226,7 +254,7 @@ class TeacherAppController extends Controller
                     'steps' => $performanceSteps,
                 ],
                 'attendance_calendar_leading_empty_days' => $monthStart->dayOfWeekIso - 1,
-                'attendance_calendar' => $this->buildAttendanceCalendar($presensiThisMonth, $holidaysThisMonth, $calendarDate, $today),
+                'attendance_calendar' => $this->buildAttendanceCalendar($calendarAttendanceItems, $holidaysThisMonth, $calendarDate, $today),
                 'holiday_notes' => $holidaysThisMonth
                     ->map(fn (Holiday $holiday) => $this->serializeHoliday($holiday))
                     ->values(),
