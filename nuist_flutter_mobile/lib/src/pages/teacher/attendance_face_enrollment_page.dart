@@ -556,13 +556,45 @@ class _FaceHeroCard extends StatelessWidget {
                               color: _enrollPrimary,
                             ),
                           )
-                        : _CameraCoverPreview(
-                            controller: controller!,
-                            readyToCapture: readyToCapture,
-                            overlayBorderColor: readyToCapture
-                                ? _enrollPrimary
-                                : Colors.white.withValues(alpha: 0.65),
-                            successDotColor: const Color(0xFF22C55E),
+                        : Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Center(
+                                child: AspectRatio(
+                                  aspectRatio: controller!.value.aspectRatio,
+                                  child: CameraPreview(controller!),
+                                ),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: readyToCapture
+                                        ? _enrollPrimary
+                                        : Colors.white.withValues(alpha: 0.65),
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
+                              if (readyToCapture)
+                                Positioned(
+                                  right: 18,
+                                  top: 18,
+                                  child: Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF22C55E),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.check_rounded,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
               ),
             ),
@@ -638,63 +670,6 @@ class _MiniBadge extends StatelessWidget {
           fontWeight: FontWeight.w700,
         ),
       ),
-    );
-  }
-}
-
-class _CameraCoverPreview extends StatelessWidget {
-  const _CameraCoverPreview({
-    required this.controller,
-    required this.readyToCapture,
-    required this.overlayBorderColor,
-    required this.successDotColor,
-  });
-
-  final CameraController controller;
-  final bool readyToCapture;
-  final Color overlayBorderColor;
-  final Color successDotColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        ClipOval(
-          child: FittedBox(
-            fit: BoxFit.cover,
-            child: SizedBox(
-              width: 1,
-              height: 1 / controller.value.aspectRatio,
-              child: CameraPreview(controller),
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: overlayBorderColor, width: 3),
-          ),
-        ),
-        if (readyToCapture)
-          Positioned(
-            right: 18,
-            top: 18,
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: successDotColor,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_rounded,
-                color: Colors.white,
-                size: 16,
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
