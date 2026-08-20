@@ -8,6 +8,7 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/services.dart';
 
 import '../../services/teacher_mobile_repository.dart';
+import '../../services/face_embedding_service.dart';
 
 const _enrollPrimary = Color(0xFF00745A);
 const _enrollPrimarySoft = Color(0xFFEAF6F1);
@@ -38,6 +39,7 @@ class _AttendanceFaceEnrollmentPageState
     extends State<AttendanceFaceEnrollmentPage> {
   CameraController? _controller;
   FaceDetector? _detector;
+  final FaceEmbeddingService _embeddingService = FaceEmbeddingService();
   bool _loading = true;
   bool _processingFrame = false;
   bool _hasFace = false;
@@ -177,13 +179,16 @@ class _AttendanceFaceEnrollmentPageState
   }
 
   void _scheduleAutoCapture() {
-    if (!_readyToCapture || _loading || _submitting) {
+    if (!_readyToCapture ||
+        _loading ||
+        _submitting ||
+        !_isEnrollmentSequenceComplete()) {
       _autoCaptureTimer?.cancel();
       _autoCaptureArmed = false;
       return;
     }
 
-    if (_stableFrames < 4 || _autoCaptureArmed) {
+    if (_stableFrames < 6 || _autoCaptureArmed) {
       return;
     }
 
@@ -218,6 +223,14 @@ class _AttendanceFaceEnrollmentPageState
     final pitch = (face.headEulerAngleX ?? 0).abs();
     final roll = (face.headEulerAngleZ ?? 0).abs();
     return yaw <= 18 && pitch <= 18 && roll <= 18;
+  }
+
+  bool _isEnrollmentSequenceComplete() {
+    return _poseSequence.length >= 4 &&
+        _poseSequence[0] == 'front' &&
+        _poseSequence[1] == 'right' &&
+        _poseSequence[2] == 'left' &&
+        _poseSequence[3] == 'front_final';
   }
 
   String _detectPose(Face? face) {
@@ -378,9 +391,19 @@ class _AttendanceFaceEnrollmentPageState
       }
 
       final faceData = _combinedDescriptor();
-      if (faceData == null) {
-        throw Exception('Data wajah belum cukup lengkap. Coba ulangi dengan posisi wajah lebih stabil.');
+      if (faceData == null || faceData.length != 128) {
+        throw Exception(
+          'Data wajah belum cukup lengkap. Ulangi urutan depan, kanan, kiri, lalu depan lagi.',
+        );
       }
+
+      if (!_isEnrollmentSequenceComplete() || _poseDescriptors.length < 4) {
+        throw Exception(
+          'Urutan pendaftaran wajah belum lengkap. Ikuti pose depan, kanan, kiri, lalu depan lagi.',
+        );
+      }
+
+      final embedding = await _embeddingService.extractEmbedding(File(file.path));
 
       final result = await widget.repository.enrollFace(
         payload: {
@@ -388,6 +411,7 @@ class _AttendanceFaceEnrollmentPageState
           'face_data': faceData,
           'face_samples': _poseDescriptors,
           'pose_sequence': _poseSequence,
+          if (embedding != null) 'face_embedding': embedding,
           'liveness_score': processed['liveness_score'],
           'liveness_challenges': processed['liveness_challenges'],
           'device_info': 'flutter_mobile_face_enrollment',
@@ -754,6 +778,7 @@ class _FaceHeroCard extends StatelessWidget {
                                       progress: progress,
                                       face: latestFace,
                                       imageSize: latestImageSize,
+                                      controller: controller,
                                       activeColor: _enrollPrimary,
                                       softColor: _enrollPrimarySoft,
                                     ),
@@ -848,6 +873,7 @@ class _FaceScanPainter extends CustomPainter {
     required this.progress,
     required this.face,
     required this.imageSize,
+    required this.controller,
     required this.activeColor,
     required this.softColor,
   });
@@ -855,6 +881,7 @@ class _FaceScanPainter extends CustomPainter {
   final double progress;
   final Face? face;
   final Size? imageSize;
+  final CameraController? controller;
   final Color activeColor;
   final Color softColor;
 
@@ -909,12 +936,13 @@ class _FaceScanPainter extends CustomPainter {
       final dotPaint = Paint()..color = activeColor;
       final glowPaint = Paint()..color = activeColor.withValues(alpha: 0.18);
 
+      final mirrorX = controller?.description.lensDirection == CameraLensDirection.front;
       canvas.drawCircle(
         _mapToPreview(
           size: size,
           imageSize: imageSize!,
           point: faceCenter,
-          mirrorX: true,
+          mirrorX: mirrorX,
         ),
         14,
         glowPaint,
@@ -925,7 +953,7 @@ class _FaceScanPainter extends CustomPainter {
             size: size,
             imageSize: imageSize!,
             point: point,
-            mirrorX: true,
+            mirrorX: mirrorX,
           ),
           3.5,
           dotPaint,
@@ -957,6 +985,7 @@ class _FaceScanPainter extends CustomPainter {
     return oldDelegate.progress != progress ||
         oldDelegate.face != face ||
         oldDelegate.imageSize != imageSize ||
+        oldDelegate.controller != controller ||
         oldDelegate.activeColor != activeColor ||
         oldDelegate.softColor != softColor;
   }

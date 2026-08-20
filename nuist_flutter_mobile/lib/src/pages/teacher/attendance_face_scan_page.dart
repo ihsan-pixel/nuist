@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/services.dart';
 
+import '../../services/face_embedding_service.dart';
+
 const _scanPrimary = Color(0xFF00745A);
 const _scanPrimarySoft = Color(0xFFEAF6F1);
 const _scanPrimaryBorder = Color(0xFFD7E5DE);
@@ -29,6 +31,7 @@ class AttendanceFaceScanPage extends StatefulWidget {
 class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   CameraController? _controller;
   FaceDetector? _detector;
+  final FaceEmbeddingService _embeddingService = FaceEmbeddingService();
   bool _loading = true;
   bool _processingFrame = false;
   bool _hasFace = false;
@@ -279,8 +282,12 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         );
       }
 
-      if (!mounted) {
+      if (!context.mounted) {
         return;
+      }
+      final embedding = await _embeddingService.extractEmbedding(File(file.path));
+      if (embedding != null) {
+        processed['face_embedding'] = embedding;
       }
       Navigator.of(context).pop(processed);
     } catch (error) {
@@ -329,6 +336,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       return {
         'selfie_data': 'data:image/jpeg;base64,${base64Encode(imageBytes)}',
         'face_descriptor': _buildDescriptor(face),
+        'face_embedding': null,
         'liveness_score': liveness['score'],
         'liveness_challenges': challenges,
       };

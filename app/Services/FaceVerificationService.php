@@ -32,6 +32,7 @@ class FaceVerificationService
         mixed $descriptor,
         mixed $livenessScore,
         mixed $challenges,
+        mixed $embedding = null,
         bool $enforceAdvancedLiveness = false,
     ): array {
         $state = $this->requirementState($user);
@@ -44,7 +45,10 @@ class FaceVerificationService
             ];
         }
 
-        $normalizedDescriptor = $this->normalizeDescriptor($descriptor);
+        $normalizedDescriptor = $this->normalizeDescriptor($embedding);
+        if (empty($normalizedDescriptor)) {
+            $normalizedDescriptor = $this->normalizeDescriptor($descriptor);
+        }
         if (empty($normalizedDescriptor)) {
             return [
                 'success' => false,
@@ -357,6 +361,12 @@ class FaceVerificationService
 
         if (isset($stored['face_descriptor'])) {
             $descriptor = $this->normalizeDescriptor($stored['face_descriptor']);
+
+            return $descriptor === [] ? [] : [$descriptor];
+        }
+
+        if (isset($stored['face_embedding'])) {
+            $descriptor = $this->normalizeDescriptor($stored['face_embedding']);
 
             return $descriptor === [] ? [] : [$descriptor];
         }

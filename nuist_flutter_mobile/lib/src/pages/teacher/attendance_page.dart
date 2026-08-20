@@ -367,6 +367,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         'liveness_challenges': _normalizedChallenges(
           _faceScanResult!['liveness_challenges'],
         ),
+        if (_faceScanResult!['face_embedding'] != null)
+          'face_embedding': _faceScanResult!['face_embedding'],
       };
 
       if (verificationMode == 'face_scan') {
@@ -631,7 +633,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           builder: (context, setModalState) {
             Future<void> handleCaptureLocation() async {
               await _captureLocation();
-              if (!mounted) {
+              if (!mounted || !sheetContext.mounted) {
                 return;
               }
               setModalState(() {});
@@ -642,7 +644,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
             Future<void> handleCaptureVerification() async {
               await _captureVerification(data);
-              if (!mounted) {
+              if (!mounted || !sheetContext.mounted) {
                 return;
               }
               setModalState(() {});
@@ -653,7 +655,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
             Future<void> handleSubmit() async {
               final success = await _submitAttendance(data);
-              if (!mounted) {
+              if (!mounted || !sheetContext.mounted) {
                 return;
               }
               setModalState(() {});

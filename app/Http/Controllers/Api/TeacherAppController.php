@@ -714,7 +714,8 @@ class TeacherAppController extends Controller
                 $user,
                 $validated['face_descriptor'] ?? null,
                 $validated['liveness_score'] ?? null,
-                $validated['liveness_challenges'] ?? []
+                $validated['liveness_challenges'] ?? [],
+                $validated['face_embedding'] ?? null,
             );
 
             if (!$faceVerification['success']) {

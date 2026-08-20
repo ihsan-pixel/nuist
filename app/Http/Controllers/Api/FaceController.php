@@ -33,6 +33,7 @@ class FaceController extends Controller
         $request->validate([
             'user_id' => 'required|integer',
             'face_data' => 'required',
+            'face_embedding' => 'nullable|array',
             'liveness_score' => 'required|numeric|min:0|max:1',
             'liveness_challenges' => 'nullable|array',
         ]);
@@ -68,6 +69,8 @@ class FaceController extends Controller
             ], 422);
         }
 
+        $faceEmbedding = $this->normalizeDescriptor($request->input('face_embedding'));
+
         $storedDescriptors = $this->normalizeStoredDescriptors(
             $request->input('face_samples'),
             $faceData,
@@ -80,6 +83,7 @@ class FaceController extends Controller
             $enrollmentData = [
                 'face_descriptor' => $faceData,
                 'descriptors' => $storedDescriptors,
+                'face_embedding' => $faceEmbedding !== [] ? $faceEmbedding : null,
                 'liveness_score' => $livenessScore,
                 'liveness_challenges' => $normalizedChallenges,
                 'enrolled_at' => now()->toIso8601String(),
@@ -110,6 +114,7 @@ class FaceController extends Controller
                     'liveness_score' => $livenessScore,
                     'challenges_completed' => count($normalizedChallenges),
                     'descriptors_count' => count($storedDescriptors),
+                    'embedding_saved' => $faceEmbedding !== [],
                 ],
             ]);
 
