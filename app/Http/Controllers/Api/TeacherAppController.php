@@ -808,6 +808,7 @@ class TeacherAppController extends Controller
         $this->academicCalendarEventService->syncTeacherRange($user, $monthStart, $monthEnd);
 
         $todaySchedules = $this->todaySchedules($user, $today);
+        $missedJournalSchedules = $this->missedJournalSchedules($user, $today);
         $this->attachTeachingClassStudentCounts($todaySchedules);
 
         $todayAttendances = TeachingAttendance::query()
@@ -920,6 +921,7 @@ class TeacherAppController extends Controller
                         'attendance' => $attendance ? $this->serializeTeachingAttendanceEntry($attendance) : null,
                     ];
                 })->values(),
+                'missed_journal_schedules' => $missedJournalSchedules->values(),
                 'items' => $items->map(function (TeachingAttendance $item) {
                     return $this->serializeTeachingAttendanceEntry($item);
                 })->values(),
@@ -2032,6 +2034,101 @@ class TeacherAppController extends Controller
             ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();
+    }
+
+    private function missedJournalSchedules(User $user, Carbon $today)
+    {
+        $activePeriod = $user->madrasah_id
+            ? $this->resolveSchedulePeriod($user->madrasah_id, null, true, $today)
+            : null;
+
+        if (!$activePeriod) {
+            return collect();
+        }
+
+        $schedules = TeachingSchedule::query()
+            ->with(['school', 'period', 'class_student_count'])
+            ->where('teacher_id', $user->id)
+            ->where('teaching_schedule_period_id', $activePeriod->id)
+            ->orderBy('day')
+            ->orderBy('start_time')
+            ->get();
+
+        $todayAttendances = TeachingAttendance::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today->toDateString())
+            ->get()
+            ->keyBy('teaching_schedule_id');
+
+        $results = collect();
+        $periodStart = $activePeriod->start_date ? Carbon::parse($activePeriod->start_date, 'Asia/Jakarta') : $today->copy()->startOfMonth();
+        $periodStart = $periodStart->copy()->startOfDay();
+        $periodEnd = $activePeriod->end_date ? Carbon::parse($activePeriod->end_date, 'Asia/Jakarta') : $today->copy();
+        $periodEnd = $periodEnd->copy()->startOfDay();
+        $rangeEnd = $periodEnd->lt($today->copy()->startOfDay()) ? $periodEnd : $today->copy()->subDay()->startOfDay();
+
+        if ($rangeEnd->lt($periodStart)) {
+            return collect();
+        }
+
+        foreach ($schedules as $schedule) {
+            $scheduleCreatedAt = $schedule->created_at
+                ? Carbon::parse($schedule->created_at, 'Asia/Jakarta')->startOfDay()
+                : $periodStart->copy();
+            $rangeStart = $scheduleCreatedAt->gt($periodStart) ? $scheduleCreatedAt : $periodStart;
+            $scheduleDay = strtolower((string) $schedule->day);
+
+            for ($date = $rangeStart->copy(); $date->lte($rangeEnd); $date->addDay()) {
+                if (strtolower($date->copy()->locale('id')->dayName) !== $scheduleDay) {
+                    continue;
+                }
+
+                if ($todayAttendances->has($schedule->id) && $date->isSameDay($today)) {
+                    continue;
+                }
+
+                $attendanceOnDate = TeachingAttendance::query()
+                    ->where('teaching_schedule_id', $schedule->id)
+                    ->whereDate('tanggal', $date->toDateString())
+                    ->first();
+
+                $event = $this->academicCalendarEventService->eventForScheduleDate($schedule, $date);
+                if ($attendanceOnDate || $event) {
+                    continue;
+                }
+
+                if ($date->isSameDay($today)) {
+                    continue;
+                }
+
+                $classTotalStudents = $schedule->class_student_count?->total_students;
+
+                $results->push([
+                    'id' => $schedule->id,
+                    'schedule_date' => $date->toDateString(),
+                    'date_label' => $date->locale('id')->translatedFormat('l, d M Y'),
+                    'subject' => $schedule->subject,
+                    'class_name' => $schedule->classNameLabel(),
+                    'school_name' => $schedule->school?->name,
+                    'start_time' => $this->formatTime($schedule->start_time),
+                    'end_time' => $this->formatTime($schedule->end_time),
+                    'class_total_students' => $classTotalStudents,
+                    'requires_class_total_students' => $classTotalStudents === null,
+                    'time_state' => 'after',
+                    'time_message' => 'Jurnal terlambat hanya dapat diajukan pada hari yang sama setelah jam mengajar berakhir (' . $this->formatTime($schedule->start_time) . ' - ' . $this->formatTime($schedule->end_time) . ').',
+                    'can_submit' => false,
+                    'status' => 'pending',
+                    'status_label' => 'Belum Presensi',
+                    'attendance' => null,
+                    'is_missed_journal' => true,
+                ]);
+            }
+        }
+
+        return $results->sortBy([
+            ['schedule_date', 'asc'],
+            ['start_time', 'asc'],
+        ])->values();
     }
 
     private function attachTeachingClassStudentCounts($schedules): void

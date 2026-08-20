@@ -817,6 +817,11 @@ class _JournalContent extends StatelessWidget {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
+    final missedJournalSchedules =
+        ((data['missed_journal_schedules'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
     final items = ((data['items'] as List?) ?? const [])
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
@@ -912,6 +917,20 @@ class _JournalContent extends StatelessWidget {
               ),
             ),
           ),
+        if (missedJournalSchedules.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          const _PageSectionHeading(
+            eyebrow: 'Terlewat',
+            title: 'Jadwal Terlewat',
+          ),
+          const SizedBox(height: 10),
+          ...missedJournalSchedules.map(
+            (schedule) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _MissedTeachingScheduleTile(item: schedule),
+            ),
+          ),
+        ],
         const SizedBox(height: 14),
         const _PageSectionHeading(
           eyebrow: 'Riwayat',
@@ -1281,6 +1300,93 @@ class _TeachingScheduleTile extends StatelessWidget {
   }
 }
 
+class _MissedTeachingScheduleTile extends StatelessWidget {
+  const _MissedTeachingScheduleTile({
+    required this.item,
+  });
+
+  final Map<String, dynamic> item;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSectionCard(
+      padding: const EdgeInsets.all(14),
+      backgroundColor: const Color(0xFFF6FBF8),
+      borderColor: _journalBorder,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _journalSoftRed,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.assignment_late_rounded,
+                  color: _journalDanger,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['subject'] as String? ?? '-',
+                      style: const TextStyle(
+                        color: _journalText,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${item['class_name'] ?? '-'} • ${item['school_name'] ?? '-'}',
+                      style: TextStyle(
+                        color: _journalMuted.withValues(alpha: 0.95),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11.5,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${item['date_label'] ?? '-'} • ${item['start_time'] ?? '-'} - ${item['end_time'] ?? '-'}',
+                      style: TextStyle(
+                        color: _journalMuted.withValues(alpha: 0.85),
+                        fontSize: 10.5,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const _StatusPill(
+                label: 'Terlewat',
+                color: _journalDanger,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Belum ada presensi pada jadwal ini. Bisa lanjut sebagai Jurnal Susulan jika masih di hari yang sama saat jadwal berlangsung.',
+            style: TextStyle(
+              color: _journalMuted.withValues(alpha: 0.95),
+              fontSize: 11.5,
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _JournalHistoryTable extends StatelessWidget {
   const _JournalHistoryTable({required this.items});
 
@@ -1298,15 +1404,16 @@ class _JournalHistoryTable extends StatelessWidget {
               color: _journalSoft,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-            child: const _JournalHistoryRow(
-              date: 'TANGGAL / JAM',
-              className: 'KELAS',
-              subject: 'MAPEL',
-              attendance: 'HADIR',
-              isHeader: true,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          child: const _JournalHistoryRow(
+            date: 'TANGGAL / JAM',
+            className: 'KELAS',
+            subject: 'MAPEL',
+            material: 'MATERI',
+            attendance: 'HADIR',
+            isHeader: true,
           ),
+        ),
           ...items.asMap().entries.map(
             (entry) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
@@ -1331,6 +1438,7 @@ class _JournalHistoryRow extends StatelessWidget {
     required this.date,
     required this.className,
     required this.subject,
+    required this.material,
     required this.attendance,
     this.isHeader = false,
   });
@@ -1342,6 +1450,7 @@ class _JournalHistoryRow extends StatelessWidget {
       date: '${item['date_label'] ?? '-'}\n${item['time'] ?? '-'}',
       className: item['class_name'] as String? ?? '-',
       subject: item['subject'] as String? ?? '-',
+      material: item['materi'] as String? ?? '-',
       attendance: present == null ? '-' : total == null ? '$present' : '$present/$total',
     );
   }
@@ -1349,6 +1458,7 @@ class _JournalHistoryRow extends StatelessWidget {
   final String date;
   final String className;
   final String subject;
+  final String material;
   final String attendance;
   final bool isHeader;
 
@@ -1363,13 +1473,30 @@ class _JournalHistoryRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 76, child: Text(date, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+        SizedBox(width: 66, child: Text(date, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
         const SizedBox(width: 5),
-        SizedBox(width: 40, child: Text(className, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+        SizedBox(width: 34, child: Text(className, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
         const SizedBox(width: 5),
-        Expanded(child: Text(subject, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+        Expanded(
+          flex: 2,
+          child: Text(subject, style: style, maxLines: 2, overflow: TextOverflow.ellipsis),
+        ),
         const SizedBox(width: 5),
-        SizedBox(width: 34, child: Text(attendance, textAlign: TextAlign.right, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+        Expanded(
+          flex: 2,
+          child: Text(material, style: style, maxLines: 2, overflow: TextOverflow.ellipsis),
+        ),
+        const SizedBox(width: 5),
+        SizedBox(
+          width: 40,
+          child: Text(
+            attendance,
+            textAlign: TextAlign.right,
+            style: style,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }
