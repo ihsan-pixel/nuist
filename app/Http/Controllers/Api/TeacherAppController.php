@@ -1086,6 +1086,7 @@ class TeacherAppController extends Controller
             $classCountSummary,
             $locationState,
             $presentStudents,
+            $isLateJournal,
             $request,
             $schedule,
             $studentAttendancePercentage,
