@@ -266,6 +266,7 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
     required String materi,
     required int presentStudents,
     int? classTotalStudents,
+    required bool isLateJournal,
   }) async {
     if (_position == null) {
       throw Exception(
@@ -291,6 +292,7 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
     final result = await widget.repository.submitTeachingJournalAttendance(
       payload: {
         'teaching_schedule_id': schedule['id'],
+        'attendance_mode': isLateJournal ? 'late' : 'regular',
         'latitude': _position!.latitude,
         'longitude': _position!.longitude,
         'lokasi': _locationAddress ?? _coordinateLabel(_position!),
@@ -314,6 +316,8 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
   Future<void> _openAttendanceSheet(Map<String, dynamic> schedule) async {
     final storedClassTotal =
         (schedule['class_total_students'] as num?)?.toInt();
+    final timeState = schedule['time_state'] as String? ?? 'after';
+    final isLateJournal = timeState == 'after';
     _materiController.clear();
     _classTotalController.clear();
     _presentController.clear();
@@ -351,6 +355,12 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
                     presentStudents <= classTotal
                 ? ((presentStudents / classTotal) * 100).toStringAsFixed(1)
                 : null;
+            final submitLabel = isLateJournal
+                ? 'Kirim Jurnal Susulan'
+                : 'Kirim Presensi Mengajar';
+            final submitHint = isLateJournal
+                ? 'Jurnal ini tercatat sebagai terlambat/susulan karena jadwal sudah lewat.'
+                : 'Presensi ini mengikuti jadwal aktif saat ini.';
 
             return AnimatedPadding(
               duration: const Duration(milliseconds: 180),
@@ -547,10 +557,54 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
+                              const SizedBox(height: 12),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isLateJournal
+                                      ? const Color(0xFFFFF7ED)
+                                      : const Color(0xFFF5FAF8),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: isLateJournal
+                                        ? const Color(0xFFF6C177)
+                                        : _journalBorder,
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      isLateJournal
+                                          ? Icons.assignment_late_rounded
+                                          : Icons.schedule_rounded,
+                                      color: isLateJournal
+                                          ? _journalWarning
+                                          : _journalPrimary,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        submitHint,
+                                        style: TextStyle(
+                                          color: isLateJournal
+                                              ? const Color(0xFF9A6700)
+                                              : _journalMuted,
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w700,
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
                             onPressed: canSubmit
                                 ? () async {
                                     final resolvedClassTotal =
@@ -586,6 +640,7 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
                                             storedClassTotal == null
                                                 ? resolvedClassTotal
                                                 : null,
+                                        isLateJournal: isLateJournal,
                                       );
 
                                       if (!sheetContext.mounted) {
@@ -652,7 +707,7 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
                             label: Text(
                               isSubmitting
                                   ? 'Mengirim...'
-                                  : 'Kirim Presensi Mengajar',
+                                  : submitLabel,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w800,
                               ),
@@ -848,9 +903,12 @@ class _JournalContent extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 10),
               child: _TeachingScheduleTile(
                 item: schedule,
-                onTakeAttendance: schedule['can_submit'] == true
-                    ? () => onOpenAttendanceSheet(schedule)
-                    : null,
+                onTakeAttendance:
+                    (schedule['can_submit'] == true ||
+                            (schedule['time_state'] as String? ?? 'after') ==
+                                'after')
+                        ? () => onOpenAttendanceSheet(schedule)
+                        : null,
               ),
             ),
           ),
@@ -1033,6 +1091,9 @@ class _TeachingScheduleTile extends StatelessWidget {
     final timeState = item['time_state'] as String? ?? 'after';
     final status = item['status'] as String? ?? 'pending';
     final canSubmit = item['can_submit'] == true;
+    final isLateJournal =
+        timeState == 'after' && attendance == null && status != 'izin';
+    final shouldShowAction = canSubmit || isLateJournal;
 
     return AppSectionCard(
       padding: const EdgeInsets.all(14),
@@ -1165,7 +1226,7 @@ class _TeachingScheduleTile extends StatelessWidget {
               message:
                   'Jadwal mengajar hari ini dibebaskan karena izin sudah disetujui.',
             )
-          else
+          else if (shouldShowAction)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1187,7 +1248,7 @@ class _TeachingScheduleTile extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: canSubmit ? onTakeAttendance : null,
+                    onPressed: onTakeAttendance,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       disabledBackgroundColor: Colors.white.withValues(alpha: 0.16),
@@ -1200,18 +1261,12 @@ class _TeachingScheduleTile extends StatelessWidget {
                       elevation: 0,
                     ),
                     icon: Icon(
-                      canSubmit
-                          ? Icons.check_circle_outline_rounded
-                          : timeState == 'before'
-                              ? Icons.schedule_rounded
-                              : Icons.lock_clock_rounded,
+                      isLateJournal
+                          ? Icons.assignment_late_rounded
+                          : Icons.check_circle_outline_rounded,
                     ),
                     label: Text(
-                      canSubmit
-                          ? 'Lakukan Presensi'
-                          : timeState == 'before'
-                              ? 'Menunggu Waktu Mengajar'
-                              : 'Waktu Mengajar Berakhir',
+                      isLateJournal ? 'Jurnal Susulan' : 'Lakukan Presensi',
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
                       ),

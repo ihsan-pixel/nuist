@@ -759,35 +759,148 @@ class _DashboardTopBackdrop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      // The reserved space keeps cards anchored while the green panel ends
-      // higher on the page.
       height: 288,
-      child: Stack(
-      children: [
-        Container(
-          height: 250,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                _DashboardPalette.primaryDark,
-                _DashboardPalette.primary,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _DashboardPalette.cardShadow,
-                blurRadius: 20,
-                offset: Offset(0, 10),
+      child: ClipRRect(
+        child: CustomPaint(
+          painter: _DashboardPremiumHeaderBackground(),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                right: -70,
+                top: -90,
+                child: Container(
+                  width: 240,
+                  height: 240,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.035),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 34,
+                top: 92,
+                child: Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.12),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 50,
+                top: 112,
+                child: Container(
+                  width: 4,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
               ),
             ],
           ),
         ),
-      ],
       ),
     );
   }
+}
+
+class _DashboardPremiumHeaderBackground extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final basePaint = Paint()..color = const Color(0xFF004838);
+    canvas.drawRect(Offset.zero & size, basePaint);
+
+    final darkTopPaint = Paint()
+      ..color = const Color(0xFF002F25).withValues(alpha: 0.72);
+    final darkTopPath = Path()
+      ..moveTo(size.width * 0.28, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height * 0.42)
+      ..quadraticBezierTo(
+        size.width * 0.80,
+        size.height * 0.25,
+        size.width * 0.55,
+        size.height * 0.13,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.39,
+        size.height * 0.05,
+        size.width * 0.28,
+        0,
+      )
+      ..close();
+    canvas.drawPath(darkTopPath, darkTopPaint);
+
+    final diagonalPaint = Paint()
+      ..color = const Color(0xFF0B6650).withValues(alpha: 0.24);
+    final diagonalPath = Path()
+      ..moveTo(size.width * 0.16, 0)
+      ..quadraticBezierTo(
+        size.width * 0.47,
+        size.height * 0.10,
+        size.width,
+        size.height * 0.40,
+      )
+      ..lineTo(size.width, size.height * 0.57)
+      ..quadraticBezierTo(
+        size.width * 0.58,
+        size.height * 0.22,
+        size.width * 0.16,
+        size.height * 0.06,
+      )
+      ..close();
+    canvas.drawPath(diagonalPath, diagonalPaint);
+
+    final lightDiagonalPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.025);
+    final lightDiagonalPath = Path()
+      ..moveTo(0, size.height * 0.02)
+      ..quadraticBezierTo(
+        size.width * 0.40,
+        size.height * 0.20,
+        size.width,
+        size.height * 0.06,
+      )
+      ..lineTo(size.width, size.height * 0.15)
+      ..quadraticBezierTo(
+        size.width * 0.48,
+        size.height * 0.30,
+        0,
+        size.height * 0.10,
+      )
+      ..close();
+    canvas.drawPath(lightDiagonalPath, lightDiagonalPaint);
+
+    final bottomPaint = Paint()
+      ..color = const Color(0xFF006E53).withValues(alpha: 0.22);
+    final bottomPath = Path()
+      ..moveTo(0, size.height * 0.70)
+      ..quadraticBezierTo(
+        size.width * 0.18,
+        size.height * 0.54,
+        size.width * 0.42,
+        size.height * 0.69,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.72,
+        size.height * 0.89,
+        size.width,
+        size.height * 0.62,
+      )
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(bottomPath, bottomPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _DashboardHeaderData {
@@ -1182,8 +1295,8 @@ class _PerformanceCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            _DashboardPalette.primary,
-            _DashboardPalette.primaryDark,
+            Color(0xFF004838),
+            Color(0xFF002F25),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -1252,9 +1365,9 @@ class _PerformanceCard extends StatelessWidget {
                 return LinearProgressIndicator(
                   minHeight: 8,
                   value: animatedValue,
-                  backgroundColor: Colors.white24,
+                  backgroundColor: const Color(0x1AFFFFFF),
                   valueColor: const AlwaysStoppedAnimation<Color>(
-                    _DashboardPalette.accent,
+                    Color(0xFFF8D77A),
                   ),
                 );
               },
@@ -1815,7 +1928,7 @@ List<_DashboardServiceSection> _buildServiceSections({
     ),
     _DashboardServiceItem(
       label: 'Jadwal',
-      colors: const [Color(0xFF00745A), Color(0xFF00745A)],
+      colors: const [Color(0xFF00553F), Color(0xFF00745A)],
       icon: Icons.calendar_month_rounded,
       onTap: () => onSelectTab(1),
     ),
@@ -1841,7 +1954,7 @@ List<_DashboardServiceSection> _buildServiceSections({
       label: permissions['can_manage_izin'] == true
           ? 'Data Presensi'
           : 'Jadwal Hari Ini',
-      colors: const [Color(0xFF00745A), Color(0xFF00745A)],
+      colors: const [Color(0xFF00553F), Color(0xFF00745A)],
       icon: permissions['can_manage_izin'] == true
           ? Icons.groups_rounded
           : Icons.today_rounded,
@@ -2099,10 +2212,10 @@ class _ScheduleShowcaseCard extends StatelessWidget {
       width: 224,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _DashboardPalette.primaryDark,
+        color: const Color(0xFF004838),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _DashboardPalette.primary.withValues(alpha: 0.85),
+          color: const Color(0xFF0B6650).withValues(alpha: 0.5),
         ),
         boxShadow: const [
           BoxShadow(
@@ -2129,7 +2242,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
                 child: Text(
                   '${item['start_time'] ?? '-'} - ${item['end_time'] ?? '-'}',
                   style: const TextStyle(
-                    color: _DashboardPalette.primaryDark,
+                    color: Color(0xFF004838),
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                   ),

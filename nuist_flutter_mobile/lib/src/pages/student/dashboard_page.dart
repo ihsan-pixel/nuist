@@ -504,34 +504,235 @@ class _StudentDashboardTopBackdrop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      // Keep the content anchor unchanged; only the painted green panel is
-      // shorter than the reserved header space.
       height: 288,
       child: Stack(
-      children: [
-        Container(
-          height: 250,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF00553F),
-                Color(0xFF00745A),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x14172A24),
-                blurRadius: 20,
-                offset: Offset(0, 10),
+        children: [
+          Container(
+            height: 250,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF004837),
+                  Color(0xFF00745A),
+                  Color(0xFF13A06E),
+                ],
+                stops: [0.0, 0.62, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x1A172A24),
+                  blurRadius: 22,
+                  offset: Offset(0, 10),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          Positioned(
+            top: -44,
+            right: -24,
+            child: _BackdropOrb(
+              size: 156,
+              colors: [
+                Color(0x33FFFFFF),
+                Color(0x00FFFFFF),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 38,
+            left: -34,
+            child: _BackdropOrb(
+              size: 112,
+              colors: [
+                Color(0x1FFFFFFF),
+                Color(0x00FFFFFF),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 88,
+            right: 58,
+            child: _BackdropStrokeBlob(
+              width: 122,
+              height: 78,
+              color: const Color(0x33DDF9EE),
+            ),
+          ),
+          Positioned(
+            top: 146,
+            left: 24,
+            child: _BackdropStrokeBlob(
+              width: 96,
+              height: 52,
+              color: const Color(0x1AF6FFF9),
+            ),
+          ),
+          Positioned(
+            top: 26,
+            left: 120,
+            child: Transform.rotate(
+              angle: -0.3,
+              child: _BackdropLineCluster(
+                lineColor: const Color(0x33FFFFFF),
+                accentColor: const Color(0x26E8FFF4),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 42,
+            right: 20,
+            child: Transform.rotate(
+              angle: 0.18,
+              child: _BackdropLineCluster(
+                lineColor: const Color(0x22FFFFFF),
+                accentColor: const Color(0x1AE2FFF4),
+              ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+}
+
+class _BackdropOrb extends StatelessWidget {
+  const _BackdropOrb({
+    required this.size,
+    required this.colors,
+  });
+
+  final double size;
+  final List<Color> colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: colors,
+          stops: const [0.15, 1.0],
+        ),
+      ),
+    );
+  }
+}
+
+class _BackdropStrokeBlob extends StatelessWidget {
+  const _BackdropStrokeBlob({
+    required this.width,
+    required this.height,
+    required this.color,
+  });
+
+  final double width;
+  final double height;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color, width: 1.2),
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.22),
+            Colors.transparent,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+    );
+  }
+}
+
+class _BackdropLineCluster extends StatelessWidget {
+  const _BackdropLineCluster({
+    required this.lineColor,
+    required this.accentColor,
+  });
+
+  final Color lineColor;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(150, 98),
+      painter: _BackdropLineClusterPainter(
+        lineColor: lineColor,
+        accentColor: accentColor,
+      ),
+    );
+  }
+}
+
+class _BackdropLineClusterPainter extends CustomPainter {
+  const _BackdropLineClusterPainter({
+    required this.lineColor,
+    required this.accentColor,
+  });
+
+  final Color lineColor;
+  final Color accentColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final linePaint = Paint()
+      ..color = lineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..strokeCap = StrokeCap.round;
+
+    final accentPaint = Paint()
+      ..color = accentColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+
+    final paths = [
+      Path()
+        ..moveTo(12, 20)
+        ..quadraticBezierTo(58, 2, 104, 18)
+        ..quadraticBezierTo(126, 26, 138, 14),
+      Path()
+        ..moveTo(8, 48)
+        ..quadraticBezierTo(54, 30, 102, 46)
+        ..quadraticBezierTo(122, 52, 144, 40),
+      Path()
+        ..moveTo(20, 78)
+        ..quadraticBezierTo(68, 60, 116, 76)
+        ..quadraticBezierTo(132, 82, 148, 70),
+    ];
+
+    for (final path in paths) {
+      canvas.drawPath(path, linePaint);
+    }
+
+    canvas.drawCircle(
+      Offset(size.width * 0.62, size.height * 0.46),
+      5,
+      accentPaint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.26, size.height * 0.74),
+      3.5,
+      accentPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _BackdropLineClusterPainter oldDelegate) {
+    return oldDelegate.lineColor != lineColor ||
+        oldDelegate.accentColor != accentColor;
   }
 }
 
