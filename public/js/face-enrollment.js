@@ -62,7 +62,21 @@
         }
 
         getTf() {
-            return window.tf || null;
+            if (window.tf) {
+                return window.tf;
+            }
+
+            if (window.faceapi) {
+                if (window.faceapi.tf) {
+                    return window.faceapi.tf;
+                }
+
+                if (window.faceapi.env?.getEnv?.().tf) {
+                    return window.faceapi.env.getEnv().tf;
+                }
+            }
+
+            return null;
         }
 
         getTfBackendName() {
@@ -152,12 +166,24 @@
         }
 
         async selectEnrollmentBackend(callbacks = {}) {
-            if (this.backendFallbackActive) {
-                return this.tfBackendMode || this.tfBackend || this.getTfBackendName();
+            const tf = this.getTf();
+            if (!tf) {
+                this.tfBackend = 'unavailable';
+                this.tfBackendHealth = {
+                    backend: 'unavailable',
+                    healthy: false,
+                    error: 'TensorFlow.js belum tersedia.',
+                    checkedAt: Date.now(),
+                };
+                this.emitDiagnostic(callbacks, {
+                    type: 'tf-backend-missing',
+                    backend: 'unavailable',
+                });
+                return 'unavailable';
             }
 
-            if (!this.getTf()) {
-                throw new Error('TensorFlow.js belum tersedia.');
+            if (this.backendFallbackActive) {
+                return this.tfBackendMode || this.tfBackend || this.getTfBackendName();
             }
 
             for (const backend of this.backendOrder) {
@@ -186,6 +212,17 @@
             const tf = this.getTf();
             const backend = this.getTfBackendName();
             const startedAt = Date.now();
+
+            if (!tf) {
+                this.emitDiagnostic(callbacks, {
+                    type: 'inference',
+                    backend: 'unavailable',
+                    durationMs: 0,
+                    status: 'error',
+                    error: 'TensorFlow.js belum tersedia.',
+                });
+                throw new Error('TensorFlow.js belum tersedia.');
+            }
 
             try {
                 const result = await this.withTimeout(Promise.resolve().then(inferenceFn), this.inferenceTimeoutMs, `inference:${backend}`);

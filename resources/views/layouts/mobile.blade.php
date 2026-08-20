@@ -586,7 +586,8 @@
         // });
 
         // Show install prompt if not dismissed before
-        if (!localStorage.getItem('pwa-install-dismissed')) {
+        const installPrompt = document.getElementById('pwa-install-prompt');
+        if (installPrompt && !localStorage.getItem('pwa-install-dismissed')) {
             setTimeout(() => {
                 installPrompt.style.display = 'block';
             }, 3000);
