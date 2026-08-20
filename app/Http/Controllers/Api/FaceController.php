@@ -68,6 +68,10 @@ class FaceController extends Controller
             ], 422);
         }
 
+        $storedDescriptors = $this->normalizeStoredDescriptors(
+            $request->input('face_samples'),
+            $faceData,
+        );
         $normalizedChallenges = $this->normalizeChallenges($livenessChallenges);
         $replacingExistingFace = $user->hasFaceEnrollment();
 
@@ -75,6 +79,7 @@ class FaceController extends Controller
         try {
             $enrollmentData = [
                 'face_descriptor' => $faceData,
+                'descriptors' => $storedDescriptors,
                 'liveness_score' => $livenessScore,
                 'liveness_challenges' => $normalizedChallenges,
                 'enrolled_at' => now()->toIso8601String(),
@@ -104,6 +109,7 @@ class FaceController extends Controller
                     'replaced_previous_face' => $replacingExistingFace,
                     'liveness_score' => $livenessScore,
                     'challenges_completed' => count($normalizedChallenges),
+                    'descriptors_count' => count($storedDescriptors),
                 ],
             ]);
 
@@ -323,6 +329,26 @@ class FaceController extends Controller
             })
             ->values()
             ->all();
+    }
+
+    private function normalizeStoredDescriptors(mixed $samples, array $fallbackDescriptor): array
+    {
+        $descriptors = [];
+
+        if (is_array($samples)) {
+            foreach ($samples as $sample) {
+                $descriptor = $this->normalizeDescriptor($sample);
+                if ($descriptor !== []) {
+                    $descriptors[] = $descriptor;
+                }
+            }
+        }
+
+        if (empty($descriptors)) {
+            $descriptors[] = $fallbackDescriptor;
+        }
+
+        return $descriptors;
     }
 
     private function verifyCompletedChallengePayload(array $challenges): bool
