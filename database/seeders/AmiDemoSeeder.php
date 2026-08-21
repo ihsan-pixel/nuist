@@ -56,9 +56,9 @@ class AmiDemoSeeder extends Seeder
 
         $schools = [];
         foreach ([
-            ['name' => 'SMK NUIST 1', 'scod' => 'SCOD001', 'kabupaten' => 'Sleman'],
-            ['name' => 'SMK NUIST 2', 'scod' => 'SCOD002', 'kabupaten' => 'Bantul'],
-            ['name' => 'SMK NUIST 3', 'scod' => 'SCOD003', 'kabupaten' => 'Kulon Progo'],
+            ['name' => 'SMK NUIST 1', 'scod' => 1001, 'kabupaten' => 'Sleman'],
+            ['name' => 'SMK NUIST 2', 'scod' => 1002, 'kabupaten' => 'Bantul'],
+            ['name' => 'SMK NUIST 3', 'scod' => 1003, 'kabupaten' => 'Kulon Progo'],
         ] as $schoolData) {
             $schools[] = Madrasah::updateOrCreate(['scod' => $schoolData['scod']], $schoolData);
         }
