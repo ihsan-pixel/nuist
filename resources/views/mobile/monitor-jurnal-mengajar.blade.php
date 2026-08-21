@@ -189,7 +189,7 @@
         }
 
         .session-card {
-            padding: 12px;
+            padding: 10px;
         }
 
         .session-top {
@@ -205,7 +205,7 @@
         }
 
         .session-subject {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--nj-text);
             line-height: 1.25;
@@ -218,9 +218,10 @@
         }
 
         .session-meta {
-            display: grid;
-            gap: 2px;
-            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 10px;
+            margin-top: 6px;
         }
 
         .session-meta div {
@@ -275,7 +276,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            margin-top: 8px;
+            margin-top: 6px;
             font-size: 12px;
             color: var(--nj-muted);
         }
@@ -308,7 +309,7 @@
             border: 1px solid var(--nj-border);
             background: #fff;
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 9px 11px;
         }
 
         .weekly-item.active {
@@ -451,13 +452,13 @@
             @else
                 <div class="d-grid gap-2 mt-3">
                     @foreach($selectedGroups as $group)
-                        <div class="session-card">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="fw-semibold text-dark" style="font-size: 13px;">{{ $group['class_name'] ?? '-' }}</div>
-                                <span class="badge rounded-pill bg-light text-dark border">{{ count($group['items'] ?? []) }} sesi</span>
+                        <div class="border rounded-3" style="border-color: var(--nj-border); background: #fff;">
+                            <div class="d-flex justify-content-between align-items-center px-3 pt-2 pb-2" style="border-bottom: 1px solid var(--nj-border);">
+                                <div class="fw-semibold text-dark" style="font-size: 12px; line-height: 1.2;">{{ $group['class_name'] ?? '-' }}</div>
+                                <span class="badge rounded-pill bg-light text-dark border" style="font-size: 10px; padding: 5px 8px;">{{ count($group['items'] ?? []) }} sesi</span>
                             </div>
 
-                            <div class="session-list">
+                            <div class="session-list p-2">
                                 @foreach($group['items'] as $item)
                                     @php
                                         $schedule = $item['schedule'] ?? null;
@@ -466,35 +467,32 @@
                                         $journalFilled = in_array($status, ['hadir', 'izin'], true);
                                         $timeLabel = \Illuminate\Support\Str::of((string) ($item['time'] ?? ''))->replace(':00 - ', ' - ')->replace(':00', '')->toString();
                                     @endphp
-                                    <div class="session-card">
-                                        <div class="session-top">
-                                            <div class="session-main">
-                                                <div class="session-subject">{{ $item['subject'] ?? '-' }}</div>
-                                                <div class="session-time">{{ $timeLabel ?: '-' }}</div>
-
+                                    <div class="border rounded-3 px-2 py-2" style="background:#fbfcfb; border-color: var(--nj-border) !important;">
+                                        <div class="d-flex justify-content-between gap-2">
+                                            <div class="flex-grow-1" style="min-width: 0;">
+                                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                                    <div class="session-subject mb-0">{{ $item['subject'] ?? '-' }}</div>
+                                                    <span class="text-muted" style="font-size: 11px;">{{ $timeLabel ?: '-' }}</span>
+                                                </div>
                                                 <div class="session-meta">
                                                     <div>{{ $schedule?->teacher?->name ?? ($item['teacher'] ?? '-') }}</div>
                                                     <div class="muted">{{ $item['class_name'] ?? '-' }}</div>
                                                 </div>
-
                                                 <div class="journal-state">
                                                     <strong>{{ $journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal' }}</strong>
                                                 </div>
-
-                                                @if(!empty($item['attendance']) && !empty($item['attendance']->materi))
-                                                    <div class="mt-2">
-                                                        <div class="text-muted" style="font-size: 11px; margin-bottom: 2px;">Materi</div>
-                                                        <div class="text-dark" style="font-size: 12px; line-height: 1.4;">
-                                                            {{ \Illuminate\Support\Str::limit((string) $item['attendance']->materi, 110) }}
-                                                        </div>
-                                                    </div>
-                                                @endif
                                             </div>
 
                                             <div class="text-end flex-shrink-0">
                                                 <div class="session-status {{ $statusClass }}">{{ strtoupper($status) }}</div>
                                             </div>
                                         </div>
+
+                                        @if(!empty($item['attendance']) && !empty($item['attendance']->materi))
+                                            <div class="mt-2 text-dark" style="font-size: 11px; line-height: 1.35;">
+                                                <span class="text-muted">Materi:</span> {{ \Illuminate\Support\Str::limit((string) $item['attendance']->materi, 90) }}
+                                            </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
