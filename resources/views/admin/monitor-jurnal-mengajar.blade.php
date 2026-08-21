@@ -85,6 +85,19 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="mt-3 p-3 rounded-3" style="background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.12);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="small text-white-50">Rekap harian</div>
+                            <div class="fw-semibold">{{ $dailyRecaps->count() }} hari terdata</div>
+                        </div>
+                        <div class="text-end small text-white-50">
+                            <div>Hadir {{ $completedJournals->count() }}</div>
+                            <div>Belum {{ $missingJournals->count() }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -94,61 +107,54 @@
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div>
-                        <h5 class="mb-1 text-dark">Jurnal Sudah Tercatat</h5>
-                        <p class="mb-0 text-muted small">Data tampil berdasarkan bulan dan filter kelas</p>
+                        <h5 class="mb-1 text-dark">Rekap Harian</h5>
+                        <p class="mb-0 text-muted small">Data dikelompokkan per tanggal dan bisa direkap harian</p>
                     </div>
-                    <span class="badge bg-success-subtle text-success">{{ $records->total() }}</span>
+                    <span class="badge bg-success-subtle text-success">{{ $dailyRecaps->count() }}</span>
                 </div>
 
-                @if($records->isEmpty())
+                @if($dailyRecaps->isEmpty())
                     <div class="text-center py-5 text-muted">
                         <i class="mdi mdi-book-open-page-variant fs-1"></i>
-                        <div class="mt-2">Belum ada jurnal mengajar pada periode ini.</div>
+                        <div class="mt-2">Belum ada rekap harian pada periode ini.</div>
                     </div>
                 @else
-                    <div class="table-responsive">
-                        <table class="table align-middle table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Tanggal</th>
-                                    <th>Guru</th>
-                                    <th>Kelas</th>
-                                    <th>Mapel</th>
-                                    <th>Jam</th>
-                                    <th>Materi</th>
-                                    <th>Siswa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($records as $record)
-                                    @php($schedule = $record->teachingSchedule)
-                                    <tr>
-                                        <td>{{ \Carbon\Carbon::parse($record->tanggal)->format('d M') }}</td>
-                                        <td>{{ $schedule->teacher->name ?? '-' }}</td>
-                                        <td>{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }}</td>
-                                    <td>{{ $schedule->subject ?? '-' }}</td>
-                                    <td>{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</td>
-                                    <td style="max-width: 240px;">
-                                        {{ $record->materi ?: '-' }}
-                                        @if(($record->status ?? 'hadir') === 'izin' && !empty($record->academicCalendarEvent))
-                                            <div class="small text-success mt-1">{{ $record->academicCalendarEvent->name ?? 'Kegiatan sekolah' }}</div>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if(!is_null($record->present_students) && !is_null($record->class_total_students))
-                                            {{ $record->present_students }}/{{ $record->class_total_students }}
-                                        @else
-                                            -
+                    <div class="d-grid gap-3">
+                        @foreach($dailyRecaps as $daily)
+                            <div class="border rounded-3 p-3">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <div>
+                                        <div class="fw-semibold">{{ $daily['label'] }}</div>
+                                        <div class="text-muted small">Total sesi {{ $daily['total'] }}</div>
+                                    </div>
+                                    <div class="text-end small">
+                                        <div class="text-success">Hadir {{ $daily['hadir'] }}</div>
+                                        <div class="text-info">Izin {{ $daily['izin'] }}</div>
+                                        <div class="text-warning">Belum {{ $daily['belum'] }}</div>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    @foreach($daily['items'] as $item)
+                                        @php($schedule = $item['schedule'])
+                                        <div class="bg-light rounded-3 p-3">
+                                            <div class="d-flex justify-content-between gap-2">
+                                                <div>
+                                                    <div class="fw-semibold">{{ $schedule->teacher->name ?? '-' }}</div>
+                                                    <div class="text-muted small">{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }} | {{ $schedule->subject ?? '-' }}</div>
+                                                </div>
+                                                <span class="badge {{ ($item['status'] ?? 'belum') === 'izin' ? 'bg-info' : (($item['status'] ?? 'belum') === 'hadir' ? 'bg-success' : 'bg-warning') }}">
+                                                    {{ strtoupper($item['status'] ?? 'belum') }}
+                                                </span>
+                                            </div>
+                                            <div class="text-muted small mt-1">{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</div>
+                                            @if(($item['status'] ?? null) === 'izin' && !empty($item['event']))
+                                                <div class="text-success small mt-1">{{ $item['event']->name ?? 'Kegiatan sekolah' }}</div>
                                             @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-3">
-                        {{ $records->links('vendor.pagination.bootstrap-5') }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
@@ -160,8 +166,8 @@
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div>
-                        <h5 class="mb-1 text-dark">Belum Jurnal</h5>
-                        <p class="mb-0 text-muted small">Jadwal yang sudah ada tapi belum dicatat jurnalnya</p>
+                        <h5 class="mb-1 text-dark">Rekap Status</h5>
+                        <p class="mb-0 text-muted small">Ringkasan kehadiran dan izin pada periode ini</p>
                     </div>
                     <span class="badge bg-warning-subtle text-warning">{{ $missingJournals->count() }}</span>
                 </div>
@@ -186,7 +192,7 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card border-0 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div>

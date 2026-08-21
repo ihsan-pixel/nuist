@@ -128,6 +128,23 @@ class MonitorJurnalMengajarController extends Controller
         $completedJournals = $expectedSessions->filter(fn ($item) => !is_null($item['attendance']))->values();
         $approvedIzinSessions = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'izin')->values();
         $missingJournals = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'belum')->values();
+        $dailyRecaps = $expectedSessions
+            ->groupBy('date')
+            ->map(function ($items, $date) {
+                $items = $items->values();
+
+                return [
+                    'date' => $date,
+                    'label' => Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                    'total' => $items->count(),
+                    'hadir' => $items->where('status', 'hadir')->count(),
+                    'izin' => $items->where('status', 'izin')->count(),
+                    'belum' => $items->where('status', 'belum')->count(),
+                    'items' => $items,
+                ];
+            })
+            ->sortByDesc('date')
+            ->values();
 
         $topApprovedEvent = $approvedSchoolActivityEvents->first();
         $approvedEventLabel = $topApprovedEvent?->resolved_type_label;
@@ -167,6 +184,7 @@ class MonitorJurnalMengajarController extends Controller
             'approvedEventName',
             'approvedEventNote',
             'missingJournals',
+            'dailyRecaps',
             'availableClasses'
         ));
     }

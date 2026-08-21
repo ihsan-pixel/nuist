@@ -163,112 +163,70 @@
                     <strong>{{ $summary['total_izin'] ?? 0 }}</strong>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="card border-0 mb-3">
-        <div class="card-body py-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">Jurnal sudah tercatat</div>
-                <span class="text-muted small">{{ $completedJournals->count() }}</span>
+            <div class="mt-3 p-3 rounded-4" style="background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.12);">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div>
+                        <div class="fw-semibold" style="font-size: 12px;">Rekap harian</div>
+                        <div style="font-size: 11px; opacity: 0.85;">Total hari: {{ $dailyRecaps->count() }}</div>
+                    </div>
+                    <div class="text-end" style="font-size: 11px; opacity: 0.85;">
+                        <div>Hadir: {{ $completedJournals->count() }}</div>
+                        <div>Belum: {{ $summary['total_belum_jurnal'] }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    @if($records->isEmpty())
+    @if($dailyRecaps->isEmpty())
         <div class="card border-0 empty-state">
             <div class="card-body text-center py-5">
                 <i class="bx bx-book-open fs-1 text-muted"></i>
-                <h6 class="mt-3 mb-1">Belum ada jurnal mengajar</h6>
-                <p class="text-muted mb-0">Belum ada data presensi mengajar pada bulan yang dipilih.</p>
+                <h6 class="mt-3 mb-1">Belum ada rekap harian</h6>
+                <p class="text-muted mb-0">Belum ada data jurnal mengajar pada bulan yang dipilih.</p>
             </div>
         </div>
     @else
         <div class="d-grid gap-2">
-            @foreach($records as $record)
-                @php
-                    $schedule = $record->teachingSchedule;
-                @endphp
+            @foreach($dailyRecaps as $daily)
                 <div class="card border-0 journal-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start gap-2">
                             <div>
-                                <div class="fw-semibold" style="font-size: 13px;">{{ $schedule->teacher->name ?? '-' }}</div>
-                                <div class="journal-meta">
-                                    {{ \Carbon\Carbon::parse($record->tanggal)->format('d M') }}
-                                    {{ $record->waktu ? '• ' . \Carbon\Carbon::parse($record->waktu)->format('H:i') : '' }}
-                                </div>
+                                <div class="fw-semibold" style="font-size: 13px;">{{ $daily['label'] }}</div>
+                                <div class="journal-meta">Total sesi {{ $daily['total'] }}</div>
                             </div>
-                            <span class="journal-pill">
-                                @if(($record->status ?? 'hadir') === 'izin')
-                                    IZIN
-                                @else
-                                    {{ strtoupper($record->status ?? 'hadir') }}
-                                @endif
-                            </span>
+                            <span class="journal-pill">{{ $daily['hadir'] }} hadir</span>
                         </div>
 
-                        <div class="journal-detail mt-2">
-                            <div class="journal-detail-row">
-                                <span>{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }}</span>
-                                <strong class="text-dark text-end">{{ $schedule->subject ?? '-' }}</strong>
-                            </div>
-                            <div class="journal-detail-row">
-                                <span>Jam</span>
-                                <strong class="text-dark text-end">{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</strong>
-                            </div>
-                            <div class="journal-detail-row">
-                                <span>Materi</span>
-                                <strong class="text-dark text-end text-truncate" style="max-width: 62%;">{{ $record->materi ?: '-' }}</strong>
-                            </div>
-                            @if(($record->status ?? 'hadir') === 'izin' && !empty($record->academicCalendarEvent))
-                                <div class="journal-detail-row">
-                                    <span>Keterangan</span>
-                                    <strong class="text-dark text-end text-truncate" style="max-width: 62%;">{{ $record->academicCalendarEvent->name ?? $record->lokasi ?? 'Kegiatan sekolah' }}</strong>
-                                </div>
-                            @endif
-                            <div class="journal-detail-row">
-                                <span>Siswa</span>
-                                <strong class="text-dark text-end">
-                                    @if(!is_null($record->present_students) && !is_null($record->class_total_students))
-                                        {{ $record->present_students }}/{{ $record->class_total_students }}
-                                    @else
-                                        -
+                        <div class="d-flex gap-2 flex-wrap mt-2">
+                            <span class="badge bg-success-subtle text-success">Hadir {{ $daily['hadir'] }}</span>
+                            <span class="badge bg-info-subtle text-info">Izin {{ $daily['izin'] }}</span>
+                            <span class="badge bg-warning-subtle text-warning">Belum {{ $daily['belum'] }}</span>
+                        </div>
+
+                        <div class="journal-detail mt-3">
+                            @foreach($daily['items'] as $item)
+                                @php($schedule = $item['schedule'])
+                                <div class="border rounded-3 p-2">
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <div>
+                                            <div class="fw-semibold" style="font-size: 12px;">{{ $schedule->teacher->name ?? '-' }}</div>
+                                            <div class="journal-meta">{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }} | {{ $schedule->subject ?? '-' }}</div>
+                                        </div>
+                                        <span class="journal-pill">{{ strtoupper($item['status'] ?? 'belum') }}</span>
+                                    </div>
+                                    <div class="journal-meta mt-1">{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</div>
+                                    @if(($item['status'] ?? null) === 'izin' && !empty($item['event']))
+                                        <div class="small text-success mt-1">{{ $item['event']->name ?? 'Kegiatan sekolah' }}</div>
                                     @endif
-                                </strong>
-                            </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
             @endforeach
-        </div>
-
-        <div class="mt-3">
-            {{ $records->links('vendor.pagination.bootstrap-5') }}
-        </div>
-    @endif
-
-    @if($missingJournals->isNotEmpty())
-        <div class="card border-0 mt-3">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="fw-semibold">Belum jurnal</div>
-                    <span class="text-muted small">{{ $missingJournals->count() }}</span>
-                </div>
-                <div class="d-grid gap-2">
-                    @foreach($missingJournals->take(10) as $item)
-                        <div class="border rounded-3 px-2 py-2">
-                            <div class="d-flex justify-content-between gap-2">
-                                <div class="fw-semibold" style="font-size: 12px;">{{ $item['teacher'] }}</div>
-                                <div class="text-muted small">{{ \Carbon\Carbon::parse($item['date'])->format('d M') }}</div>
-                            </div>
-                            <div class="text-muted small">
-                                {{ $item['class_name'] }} · {{ $item['subject'] }} · {{ $item['time'] }}
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
         </div>
     @endif
 </div>
