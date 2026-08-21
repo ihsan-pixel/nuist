@@ -212,14 +212,14 @@
                                 <div class="border rounded-3 p-2">
                                     <div class="d-flex justify-content-between gap-2">
                                         <div>
-                                            <div class="fw-semibold" style="font-size: 12px;">{{ $schedule->teacher->name ?? '-' }}</div>
+                                            <div class="fw-semibold" style="font-size: 12px;">{{ $schedule->teacher?->name ?? '-' }}</div>
                                             <div class="journal-meta">{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }} | {{ $schedule->subject ?? '-' }}</div>
                                         </div>
                                         <span class="journal-pill">{{ strtoupper($item['status'] ?? 'belum') }}</span>
                                     </div>
                                     <div class="journal-meta mt-1">{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</div>
                                     @if(($item['status'] ?? null) === 'izin' && !empty($item['event']))
-                                        <div class="small text-success mt-1">{{ $item['event']->name ?? 'Kegiatan sekolah' }}</div>
+                                        <div class="small text-success mt-1">{{ $item['event']?->name ?? 'Kegiatan sekolah' }}</div>
                                     @endif
                                 </div>
                             @endforeach

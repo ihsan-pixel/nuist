@@ -139,7 +139,7 @@
                                         <div class="bg-light rounded-3 p-3">
                                             <div class="d-flex justify-content-between gap-2">
                                                 <div>
-                                                    <div class="fw-semibold">{{ $schedule->teacher->name ?? '-' }}</div>
+                                                    <div class="fw-semibold">{{ $schedule->teacher?->name ?? '-' }}</div>
                                                     <div class="text-muted small">{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }} | {{ $schedule->subject ?? '-' }}</div>
                                                 </div>
                                                 <span class="badge {{ ($item['status'] ?? 'belum') === 'izin' ? 'bg-info' : (($item['status'] ?? 'belum') === 'hadir' ? 'bg-success' : 'bg-warning') }}">
@@ -148,7 +148,7 @@
                                             </div>
                                             <div class="text-muted small mt-1">{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</div>
                                             @if(($item['status'] ?? null) === 'izin' && !empty($item['event']))
-                                                <div class="text-success small mt-1">{{ $item['event']->name ?? 'Kegiatan sekolah' }}</div>
+                                                <div class="text-success small mt-1">{{ $item['event']?->name ?? 'Kegiatan sekolah' }}</div>
                                             @endif
                                         </div>
                                     @endforeach
