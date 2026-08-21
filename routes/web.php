@@ -240,12 +240,17 @@ $amiDomains = array_values(array_unique(array_filter(array_merge(
     config('ami.fallback_domains', [])
 ))));
 
-foreach ($amiDomains as $amiDomain) {
-    Route::domain($amiDomain)->group(function () {
+foreach ($amiDomains as $amiIndex => $amiDomain) {
+    $useRouteNames = $amiIndex === 0;
+    Route::domain($amiDomain)->group(function () use ($useRouteNames) {
+
         Route::get('/', fn () => redirect()->route('ami.dashboard'));
 
         Route::middleware(['guest'])->group(function () {
-            Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('ami.login');
+            $loginRoute = Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
+            if ($useRouteNames) {
+                $loginRoute->name('ami.login');
+            }
             Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
                 ->middleware('throttle:6,1');
         });
@@ -254,17 +259,31 @@ foreach ($amiDomains as $amiDomain) {
             Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
                 ->middleware('throttle:10,1');
 
-            Route::get('/dashboard', [App\Http\Controllers\Ami\DashboardController::class, 'index'])->name('ami.dashboard');
-            Route::get('/instrumen', [App\Http\Controllers\Ami\InstrumentController::class, 'index'])->name('ami.instrumen');
-            Route::get('/evaluasi-diri', [App\Http\Controllers\Ami\SchoolEvaluationController::class, 'index'])->name('ami.evaluasi-diri');
-            Route::get('/monitoring', [App\Http\Controllers\Ami\MonitoringController::class, 'index'])->name('ami.monitoring');
-            Route::view('/penugasan', 'ami.simple-page')->name('ami.penugasan');
-            Route::view('/audit', 'ami.simple-page')->name('ami.audit');
-            Route::view('/klarifikasi', 'ami.simple-page')->name('ami.klarifikasi');
-            Route::view('/temuan', 'ami.simple-page')->name('ami.temuan');
-            Route::view('/tindak-lanjut', 'ami.simple-page')->name('ami.tindak-lanjut');
-            Route::view('/peta-mutu', 'ami.simple-page')->name('ami.peta-mutu');
-            Route::view('/laporan', 'ami.simple-page')->name('ami.laporan');
+            $dashboardRoute = Route::get('/dashboard', [App\Http\Controllers\Ami\DashboardController::class, 'index']);
+            $instrumentRoute = Route::get('/instrumen', [App\Http\Controllers\Ami\InstrumentController::class, 'index']);
+            $evaluationRoute = Route::get('/evaluasi-diri', [App\Http\Controllers\Ami\SchoolEvaluationController::class, 'index']);
+            $monitoringRoute = Route::get('/monitoring', [App\Http\Controllers\Ami\MonitoringController::class, 'index']);
+            $penugasanRoute = Route::view('/penugasan', 'ami.simple-page');
+            $auditRoute = Route::view('/audit', 'ami.simple-page');
+            $klarifikasiRoute = Route::view('/klarifikasi', 'ami.simple-page');
+            $temuanRoute = Route::view('/temuan', 'ami.simple-page');
+            $tindakLanjutRoute = Route::view('/tindak-lanjut', 'ami.simple-page');
+            $petaMutuRoute = Route::view('/peta-mutu', 'ami.simple-page');
+            $laporanRoute = Route::view('/laporan', 'ami.simple-page');
+
+            if ($useRouteNames) {
+                $dashboardRoute->name('ami.dashboard');
+                $instrumentRoute->name('ami.instrumen');
+                $evaluationRoute->name('ami.evaluasi-diri');
+                $monitoringRoute->name('ami.monitoring');
+                $penugasanRoute->name('ami.penugasan');
+                $auditRoute->name('ami.audit');
+                $klarifikasiRoute->name('ami.klarifikasi');
+                $temuanRoute->name('ami.temuan');
+                $tindakLanjutRoute->name('ami.tindak-lanjut');
+                $petaMutuRoute->name('ami.peta-mutu');
+                $laporanRoute->name('ami.laporan');
+            }
         });
     });
 }
