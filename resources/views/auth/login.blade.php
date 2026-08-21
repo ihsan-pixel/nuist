@@ -20,9 +20,10 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 @section('content')
 @php
     $isSpmbHost = request()->getHost() === 'spmb.nuist.id';
-    $loginAction = $isSpmbHost ? url('/login') : route('login');
-    $forgotPasswordUrl = $isSpmbHost ? url('/password/reset') : route('mobile.password.request');
-    $backUrl = $isSpmbHost ? url('/') : route('landing');
+    $isAmiHost = request()->getHost() === config('ami.domain');
+    $loginAction = $isSpmbHost || $isAmiHost ? url('/login') : route('login');
+    $forgotPasswordUrl = $isSpmbHost || $isAmiHost ? url('/password/reset') : route('mobile.password.request');
+    $backUrl = $isSpmbHost || $isAmiHost ? url('/') : route('landing');
 @endphp
 <div class="login-container">
     <div class="login-wrapper">
@@ -34,7 +35,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 </div>
                 <h1 class="login-title">LOGIN</h1>
                 <p class="login-subtitle">
-                    {{ $isSpmbHost ? 'Login Admin Sekolah untuk mengelola dashboard SPMB sekolah Anda.' : 'Welcome back! Please sign in to your account.' }}
+                    {{ $isSpmbHost ? 'Login Admin Sekolah untuk mengelola dashboard SPMB sekolah Anda.' : ($isAmiHost ? 'Login AMI untuk melanjutkan audit mutu internal.' : 'Welcome back! Please sign in to your account.') }}
                 </p>
 
                 @if (session('status'))
