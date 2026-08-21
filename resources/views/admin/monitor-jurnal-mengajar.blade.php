@@ -1,48 +1,73 @@
 @extends('layouts.master')
+
 @section('title', 'Monitoring Jurnal Mengajar')
+
 @section('content')
+@php
+    $selectedDateLabel = \Carbon\Carbon::parse($selectedRecap['date'] ?? $selectedDate->toDateString())
+        ->locale('id')
+        ->isoFormat('dddd, D MMMM YYYY');
+    $weekStart = \Carbon\Carbon::parse($weekDays->first()['date'] ?? $selectedDate->toDateString())->locale('id');
+    $activeDays = collect($dailyRecaps ?? [])->filter(fn ($day) => (int) ($day['total'] ?? 0) > 0)->count();
+    $completedDays = collect($dailyRecaps ?? [])->filter(fn ($day) => (int) ($day['belum'] ?? 0) === 0 && (int) ($day['total'] ?? 0) > 0)->count();
+    $progressPercent = ($activeDays > 0) ? (int) round(($completedDays / $activeDays) * 100) : 0;
+    $selectedGroups = collect($selectedRecap['items'] ?? []);
+    $selectedTotal = (int) ($selectedRecap['total'] ?? 0);
+    $selectedHadir = (int) ($selectedRecap['hadir'] ?? 0);
+    $selectedIzin = (int) ($selectedRecap['izin'] ?? 0);
+    $selectedBelum = (int) ($selectedRecap['belum'] ?? 0);
+@endphp
+
 <div class="row g-3">
     <div class="col-12">
-        <div class="card border-0 shadow-sm" style="border-radius: 18px; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);">
-            <div class="card-body p-4 text-white">
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div class="card border-0 shadow-sm" style="border-radius: 14px;">
+            <div class="card-body py-3 px-3 px-lg-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
                     <div>
-                        <h4 class="mb-1 text-white">{{ Auth::user()->madrasah->name ?? '-' }}</h4>
-                        <div class="text-white-50 small">Minggu {{ $summary['week_label'] ?? '-' }}</div>
+                        <div class="fw-semibold text-dark" style="font-size: 18px; line-height: 1.2;">Monitoring Jurnal Mengajar</div>
+                        <div class="text-muted small mt-1">
+                            {{ Auth::user()->madrasah->name ?? '-' }} • Minggu {{ $summary['week_label'] ?? '-' }}
+                        </div>
                     </div>
+
                     <div class="text-end">
-                        <div class="small text-white-50">Hari aktif</div>
-                        <div class="fw-bold fs-4">{{ $selectedRecap['label'] ?? '-' }}</div>
+                        <span class="badge rounded-pill bg-success-subtle text-success mb-1">Hari Aktif</span>
+                        <div class="fw-semibold text-dark" style="font-size: 15px; line-height: 1.2;">{{ $selectedDateLabel }}</div>
                     </div>
                 </div>
 
                 <form method="GET" class="mt-3">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label text-white-50 mb-1">Tanggal acuan</label>
-                            <input type="date" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
+                    <div class="d-flex flex-column flex-lg-row gap-2 align-items-stretch align-items-lg-end">
+                        <div class="flex-grow-1">
+                            <label class="form-label text-muted mb-1 small">Tanggal</label>
+                            <input type="date" name="date" class="form-control" value="{{ $selectedDate->format('Y-m-d') }}">
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-white-50 mb-1">Kelas</label>
-                            <select name="class_name" class="form-select form-select-sm">
-                                <option value="">Semua</option>
+                        <div class="flex-grow-1">
+                            <label class="form-label text-muted mb-1 small">Kelas</label>
+                            <select name="class_name" class="form-select">
+                                <option value="">Semua Kelas</option>
                                 @foreach($availableClasses as $className)
                                     <option value="{{ $className }}" @selected($selectedClass === $className)>{{ $className }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-light btn-sm w-100 fw-semibold" type="submit">Terapkan</button>
+                        <div class="d-grid" style="min-width: 120px;">
+                            <button type="submit" class="btn btn-success fw-semibold">Terapkan</button>
                         </div>
                     </div>
                 </form>
 
-                <div class="d-flex flex-wrap gap-2 mt-3">
+                <div class="d-flex gap-2 mt-3 pb-1 overflow-auto" style="scrollbar-width: thin;">
                     @foreach($weekDays as $day)
+                        @php
+                            $isActiveDay = ($selectedDay ?? '') === $day['key'];
+                        @endphp
                         <a href="{{ request()->fullUrlWithQuery(['date' => $day['date'], 'day' => $day['key']]) }}"
-                           class="btn btn-sm {{ ($selectedDay ?? '') === $day['key'] ? 'btn-light text-dark' : 'btn-outline-light' }}"
-                           style="border-radius: 999px;">
-                            {{ ucfirst($day['key']) }}
+                           class="text-decoration-none flex-shrink-0">
+                            <span class="badge rounded-pill px-3 py-2 border {{ $isActiveDay ? 'bg-success text-white border-success' : 'bg-white text-dark border-light' }}"
+                                  style="font-size: 12px; font-weight: 600;">
+                                {{ ucfirst($day['key']) }}
+                            </span>
                         </a>
                     @endforeach
                 </div>
@@ -51,50 +76,103 @@
     </div>
 
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm" style="border-radius: 18px;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 14px;">
+            <div class="card-body p-3 p-lg-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
                     <div>
-                        <h5 class="mb-1">Rekap Hari Ini</h5>
-                        <div class="text-muted small">{{ $selectedRecap['label'] ?? '-' }}</div>
+                        <div class="fw-semibold text-dark" style="font-size: 16px;">Jurnal Hari Ini</div>
+                        <div class="text-muted small">{{ $selectedDateLabel }} • {{ $selectedTotal }} sesi</div>
                     </div>
-                    <span class="badge bg-success-subtle text-success">{{ $selectedRecap['total'] ?? 0 }} sesi</span>
+                    <div class="text-end">
+                        <div class="small text-muted">Progress hari dipilih</div>
+                        <div class="fw-semibold text-dark">{{ $selectedTotal > 0 ? (100 - ($selectedBelum > 0 ? (int) round(($selectedBelum / max($selectedTotal, 1)) * 100) : 0)) : 0 }}%</div>
+                    </div>
                 </div>
 
                 <div class="row g-2 mb-3">
-                    <div class="col-4"><div class="border rounded-3 p-3"><div class="text-muted small">Hadir</div><div class="fs-4 fw-bold">{{ $selectedRecap['hadir'] ?? 0 }}</div></div></div>
-                    <div class="col-4"><div class="border rounded-3 p-3"><div class="text-muted small">Izin</div><div class="fs-4 fw-bold">{{ $selectedRecap['izin'] ?? 0 }}</div></div></div>
-                    <div class="col-4"><div class="border rounded-3 p-3"><div class="text-muted small">Belum</div><div class="fs-4 fw-bold">{{ $selectedRecap['belum'] ?? 0 }}</div></div></div>
+                    <div class="col-6 col-xl-3">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="text-muted small">Total Sesi</div>
+                            <div class="fw-bold fs-4">{{ $selectedTotal }}</div>
+                            <div class="small text-success">{{ $selectedTotal > 0 && $selectedBelum === 0 ? '100% selesai' : 'Siap direkap' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="text-muted small">Sudah Jurnal</div>
+                            <div class="fw-bold fs-4">{{ $selectedHadir }}</div>
+                            <div class="small text-muted">Jurnal terisi</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="text-muted small">Izin</div>
+                            <div class="fw-bold fs-4">{{ $selectedIzin }}</div>
+                            <div class="small text-muted">Kegiatan disetujui</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="text-muted small">Belum Jurnal</div>
+                            <div class="fw-bold fs-4">{{ $selectedBelum }}</div>
+                            <div class="small text-muted">Perlu ditindaklanjuti</div>
+                        </div>
+                    </div>
                 </div>
 
-                @php($groupedItems = collect($selectedRecap['items'] ?? []))
-                @if($groupedItems->isEmpty())
-                    <div class="text-center text-muted py-5">Tidak ada data untuk hari ini.</div>
+                <div class="mb-2">
+                    <div class="progress" style="height: 6px; border-radius: 999px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $progressPercent }}%;" aria-valuenow="{{ $progressPercent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="text-muted small mt-1">{{ $progressPercent }}% hari dalam minggu ini sudah selesai jurnalnya</div>
+                </div>
+
+                @if($selectedGroups->isEmpty())
+                    <div class="border rounded-3 p-4 text-center text-muted bg-light">
+                        <div class="fw-semibold text-dark">Tidak ada jadwal mengajar</div>
+                        <div class="small mt-1">Tidak terdapat sesi mengajar pada {{ $selectedDateLabel }}.</div>
+                    </div>
                 @else
                     <div class="d-grid gap-3">
-                        @foreach($groupedItems as $group)
-                            <div class="border rounded-4 p-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div class="fw-semibold">{{ $group['class_name'] ?? '-' }}</div>
-                                    <span class="badge bg-light text-dark">{{ count($group['items'] ?? []) }} sesi</span>
+                        @foreach($selectedGroups as $group)
+                            <div class="border rounded-3 p-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                    <div class="fw-semibold text-dark">{{ $group['class_name'] ?? '-' }}</div>
+                                    <span class="badge rounded-pill bg-light text-dark border">{{ count($group['items'] ?? []) }} sesi</span>
                                 </div>
+
                                 <div class="d-grid gap-2">
                                     @foreach($group['items'] as $item)
-                                        @php($schedule = $item['schedule'] ?? null)
-                                        <div class="rounded-3 p-3" style="background:#f8fbf9;">
-                                            <div class="d-flex justify-content-between gap-2">
-                                                <div>
-                                                    <div class="fw-semibold">{{ $schedule?->teacher?->name ?? ($item['teacher'] ?? '-') }}</div>
-                                                    <div class="text-muted small">{{ $item['subject'] ?? '-' }}</div>
+                                        @php
+                                            $schedule = $item['schedule'] ?? null;
+                                            $status = $item['status'] ?? 'belum';
+                                            $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : 'warning');
+                                            $journalFilled = ($status === 'hadir' || $status === 'izin');
+                                        @endphp
+                                        <div class="border rounded-3 p-3" style="background: #fbfcfb;">
+                                            <div class="d-flex justify-content-between gap-3">
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                                        <div class="fw-semibold text-dark">{{ $item['subject'] ?? '-' }}</div>
+                                                        <span class="text-muted small">{{ $item['time'] ?? '-' }}</span>
+                                                    </div>
+                                                    <div class="text-muted small">{{ $schedule?->teacher?->name ?? ($item['teacher'] ?? '-') }} • {{ $item['class_name'] ?? '-' }}</div>
+
+                                                    @if(!empty($item['attendance']) && !empty($item['attendance']->materi))
+                                                        <div class="mt-2">
+                                                            <div class="small text-muted mb-1">Materi</div>
+                                                            <div class="text-dark small">{{ \Illuminate\Support\Str::limit((string) $item['attendance']->materi, 120) }}</div>
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                                <span class="badge {{ ($item['status'] ?? 'belum') === 'izin' ? 'bg-info' : (($item['status'] ?? 'belum') === 'hadir' ? 'bg-success' : 'bg-warning') }}">
-                                                    {{ strtoupper($item['status'] ?? 'belum') }}
-                                                </span>
+
+                                                <div class="text-end flex-shrink-0">
+                                                    <div class="badge rounded-pill bg-{{ $statusClass }}-subtle text-{{ $statusClass }} border border-{{ $statusClass }}-subtle mb-1">
+                                                        {{ strtoupper($status) }}
+                                                    </div>
+                                                    <div class="small text-muted">{{ $journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal' }}</div>
+                                                </div>
                                             </div>
-                                            <div class="text-muted small mt-1">{{ $item['time'] ?? '-' }}</div>
-                                            @if(($item['status'] ?? null) === 'izin' && !empty($item['event']))
-                                                <div class="small text-success mt-1">{{ $item['event']?->name ?? 'Kegiatan sekolah' }}</div>
-                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -107,15 +185,53 @@
     </div>
 
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 18px;">
-            <div class="card-body p-4">
-                <h6 class="mb-3">Ringkasan Mingguan</h6>
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 14px;">
+            <div class="card-body p-3 p-lg-4">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                    <div>
+                        <div class="fw-semibold text-dark" style="font-size: 16px;">Ringkasan Mingguan</div>
+                        <div class="text-muted small">Status tiap hari pada minggu ini</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-muted">Progress Minggu Ini</div>
+                        <div class="fw-semibold text-dark">{{ $completedDays }} / {{ max($activeDays, 0) }} hari selesai</div>
+                    </div>
+                </div>
+
+                <div class="progress mb-3" style="height: 6px; border-radius: 999px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ $activeDays > 0 ? (int) round(($completedDays / $activeDays) * 100) : 0 }}%;" aria-valuenow="{{ $activeDays > 0 ? (int) round(($completedDays / $activeDays) * 100) : 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+
                 <div class="d-grid gap-2">
                     @foreach($dailyRecaps as $daily)
-                        <a href="{{ request()->fullUrlWithQuery(['date' => $daily['date'], 'day' => \Carbon\Carbon::parse($daily['date'])->locale('id')->dayName]) }}" class="text-decoration-none">
-                            <div class="border rounded-3 p-3 {{ ($selectedRecap['date'] ?? '') === $daily['date'] ? 'border-success' : '' }}">
-                                <div class="fw-semibold">{{ $daily['label'] }}</div>
-                                <div class="text-muted small">H {{ $daily['hadir'] }} | I {{ $daily['izin'] }} | B {{ $daily['belum'] }}</div>
+                        @php
+                            $isSelected = ($selectedRecap['date'] ?? '') === $daily['date'];
+                            $dayDate = \Carbon\Carbon::parse($daily['date']);
+                            $dayLabel = $dayDate->locale('id')->isoFormat('dddd, D MMMM');
+                            $isComplete = (int) ($daily['belum'] ?? 0) === 0 && (int) ($daily['total'] ?? 0) > 0;
+                        @endphp
+                        <a href="{{ request()->fullUrlWithQuery(['date' => $daily['date'], 'day' => $dayDate->locale('id')->dayName]) }}" class="text-decoration-none">
+                            <div class="border rounded-3 p-3 {{ $isSelected ? 'border-success bg-success-subtle' : '' }}" style="{{ $isSelected ? 'background:#eef8f2;' : '' }}">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ $dayLabel }}</div>
+                                        <div class="text-muted small">{{ $daily['total'] }} sesi</div>
+                                    </div>
+                                    <div class="text-end">
+                                        @if($isSelected)
+                                            <span class="badge bg-success text-white rounded-pill mb-1">Dipilih</span>
+                                        @elseif($isComplete)
+                                            <span class="badge bg-light text-success border rounded-pill mb-1">Selesai</span>
+                                        @endif
+                                        <div class="text-muted small">
+                                            <span class="text-success">Hadir {{ $daily['hadir'] }}</span>
+                                            <span class="mx-1">•</span>
+                                            <span class="text-info">Izin {{ $daily['izin'] }}</span>
+                                            <span class="mx-1">•</span>
+                                            <span class="text-warning">Belum {{ $daily['belum'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </a>
                     @endforeach
