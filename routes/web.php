@@ -246,7 +246,7 @@ foreach ($amiDomains as $amiIndex => $amiDomain) {
 
         Route::get('/', fn () => redirect()->route('ami.dashboard'));
 
-        Route::middleware(['guest'])->group(function () {
+        Route::middleware(['guest'])->group(function () use ($useRouteNames) {
             $loginRoute = Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
             if ($useRouteNames) {
                 $loginRoute->name('ami.login');
@@ -255,7 +255,7 @@ foreach ($amiDomains as $amiIndex => $amiDomain) {
                 ->middleware('throttle:6,1');
         });
 
-        Route::middleware(['auth'])->group(function () {
+        Route::middleware(['auth'])->group(function () use ($useRouteNames) {
             Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
                 ->middleware('throttle:10,1');
 
