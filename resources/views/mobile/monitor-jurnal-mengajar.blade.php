@@ -13,6 +13,9 @@
     $selectedIzin = (int) ($selectedRecap['izin'] ?? 0);
     $selectedBelum = (int) ($selectedRecap['belum'] ?? 0);
     $selectedGroups = collect($selectedRecap['items'] ?? []);
+    $selectedIzinEvent = $selectedGroups
+        ->flatMap(fn ($group) => collect($group['items'] ?? []))
+        ->first(fn ($item) => ($item['status'] ?? null) === 'izin' && !empty($item['event']));
     $weeklyCompleted = collect($dailyRecaps ?? [])->filter(fn ($day) => (int) ($day['belum'] ?? 0) === 0 && (int) ($day['total'] ?? 0) > 0)->count();
     $weeklyActive = collect($dailyRecaps ?? [])->filter(fn ($day) => (int) ($day['total'] ?? 0) > 0)->count();
     $weeklyProgress = $weeklyActive > 0 ? (int) round(($weeklyCompleted / $weeklyActive) * 100) : 0;
@@ -371,6 +374,14 @@
                     <div class="fw-semibold hero-compact">{{ $selectedDayLabel }}</div>
                 </div>
             </div>
+            @if($selectedIzinEvent)
+                <div class="mt-2 rounded-3 px-3 py-2" style="background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.16);">
+                    <div style="font-size: 11px; opacity: .86;">Izin kegiatan terdeteksi</div>
+                    <div class="fw-semibold" style="font-size: 12px; line-height: 1.35;">
+                        {{ $selectedIzinEvent['event']?->name ?? 'Kegiatan sekolah' }}
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -436,7 +447,7 @@
         <div class="p-3">
             <div class="d-flex justify-content-between align-items-center gap-2">
                 <div>
-                    <div class="section-title">Jurnal Hari Ini</div>
+                    <div class="section-title">Jurnal Harian</div>
                     <div class="section-subtitle">{{ $selectedDayLabel }} • {{ $selectedTotal }} sesi</div>
                 </div>
                 @if($selectedTotal > 0)
@@ -479,18 +490,29 @@
                                                     <div class="muted">{{ $item['class_name'] ?? '-' }}</div>
                                                 </div>
                                                 <div class="journal-state">
-                                                    <strong>{{ $journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal' }}</strong>
+                                                    <strong>
+                                                        {{ $status === 'izin'
+                                                            ? 'Izin kegiatan terdeteksi'
+                                                            : ($journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal') }}
+                                                    </strong>
                                                 </div>
                                             </div>
 
                                             <div class="text-end flex-shrink-0">
-                                                <div class="session-status {{ $statusClass }}">{{ strtoupper($status) }}</div>
+                                                <div class="session-status {{ $statusClass }}">
+                                                    {{ $status === 'izin' ? 'IZIN' : strtoupper($status) }}
+                                                </div>
                                             </div>
                                         </div>
 
                                         @if(!empty($item['attendance']) && !empty($item['attendance']->materi))
                                             <div class="mt-2 text-dark" style="font-size: 11px; line-height: 1.35;">
                                                 <span class="text-muted">Materi:</span> {{ \Illuminate\Support\Str::limit((string) $item['attendance']->materi, 90) }}
+                                            </div>
+                                        @endif
+                                        @if($status === 'izin' && !empty($item['event']))
+                                            <div class="mt-1 text-success" style="font-size: 11px; line-height: 1.35;">
+                                                {{ $item['event']?->name ?? 'Kegiatan sekolah' }}
                                             </div>
                                         @endif
                                     </div>
