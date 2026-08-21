@@ -117,6 +117,7 @@ class MonitorJurnalMengajarController extends Controller
                     'subject' => $schedule->subject ?? '-',
                     'time' => trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')),
                     'attendance' => $attendance,
+                    'schedule' => $schedule,
                     'event' => $event,
                     'status' => $event ? 'izin' : ($attendance ? 'hadir' : 'belum'),
                 ]);
