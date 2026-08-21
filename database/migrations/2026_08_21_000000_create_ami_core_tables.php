@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('ami_periods', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_periods')) Schema::create('ami_periods', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->year('year');
@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->softDeletes();
         });
 
-        Schema::create('ami_instruments', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_instruments')) Schema::create('ami_instruments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_period_id')->nullable()->constrained('ami_periods')->nullOnDelete();
             $table->string('name');
@@ -33,7 +33,7 @@ return new class extends Migration {
             $table->softDeletes();
         });
 
-        Schema::create('ami_components', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_components')) Schema::create('ami_components', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_instrument_id')->constrained('ami_instruments')->cascadeOnDelete();
             $table->string('code');
@@ -45,7 +45,7 @@ return new class extends Migration {
             $table->index(['ami_instrument_id', 'sort_order']);
         });
 
-        Schema::create('ami_items', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_items')) Schema::create('ami_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_component_id')->constrained('ami_components')->cascadeOnDelete();
             $table->string('code');
@@ -56,7 +56,7 @@ return new class extends Migration {
             $table->softDeletes();
         });
 
-        Schema::create('ami_indicators', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_indicators')) Schema::create('ami_indicators', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_item_id')->constrained('ami_items')->cascadeOnDelete();
             $table->string('code')->index();
@@ -71,7 +71,7 @@ return new class extends Migration {
             $table->softDeletes();
         });
 
-        Schema::create('ami_indicator_criteria', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_indicator_criteria')) Schema::create('ami_indicator_criteria', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_indicator_id')->constrained('ami_indicators')->cascadeOnDelete();
             $table->string('label');
@@ -80,7 +80,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_rubrics', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_rubrics')) Schema::create('ami_rubrics', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_indicator_id')->constrained('ami_indicators')->cascadeOnDelete();
             $table->string('label');
@@ -89,7 +89,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_recommended_evidences', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_recommended_evidences')) Schema::create('ami_recommended_evidences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_indicator_id')->constrained('ami_indicators')->cascadeOnDelete();
             $table->string('evidence_type');
@@ -98,7 +98,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_period_schools', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_period_schools')) Schema::create('ami_period_schools', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_period_id')->constrained('ami_periods')->cascadeOnDelete();
             $table->foreignId('madrasah_id')->constrained('madrasahs')->cascadeOnDelete();
@@ -109,7 +109,7 @@ return new class extends Migration {
             $table->unique(['ami_period_id', 'madrasah_id'], 'ami_ps_unique');
         });
 
-        Schema::create('ami_school_responses', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_school_responses')) Schema::create('ami_school_responses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_period_school_id')->constrained('ami_period_schools')->cascadeOnDelete();
             $table->foreignId('ami_indicator_id')->constrained('ami_indicators')->cascadeOnDelete();
@@ -124,7 +124,7 @@ return new class extends Migration {
             $table->unique(['ami_period_school_id', 'ami_indicator_id'], 'ami_sr_unique');
         });
 
-        Schema::create('ami_evidences', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_evidences')) Schema::create('ami_evidences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_school_response_id')->constrained('ami_school_responses')->cascadeOnDelete();
             $table->string('title');
@@ -139,7 +139,7 @@ return new class extends Migration {
             $table->softDeletes();
         });
 
-        Schema::create('ami_assignments', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_assignments')) Schema::create('ami_assignments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_period_id')->constrained('ami_periods')->cascadeOnDelete();
             $table->foreignId('madrasah_id')->constrained('madrasahs')->cascadeOnDelete();
@@ -154,7 +154,7 @@ return new class extends Migration {
             $table->softDeletes();
         });
 
-        Schema::create('ami_auditor_scores', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_auditor_scores')) Schema::create('ami_auditor_scores', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_assignment_id')->constrained('ami_assignments')->cascadeOnDelete();
             $table->foreignId('ami_indicator_id')->constrained('ami_indicators')->cascadeOnDelete();
@@ -168,7 +168,7 @@ return new class extends Migration {
             $table->unique(['ami_assignment_id', 'ami_indicator_id', 'auditor_id'], 'ami_scores_unique');
         });
 
-        Schema::create('ami_verifications', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_verifications')) Schema::create('ami_verifications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_auditor_score_id')->constrained('ami_auditor_scores')->cascadeOnDelete();
             $table->string('type');
@@ -179,7 +179,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_clarifications', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_clarifications')) Schema::create('ami_clarifications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_assignment_id')->constrained('ami_assignments')->cascadeOnDelete();
             $table->foreignId('ami_indicator_id')->constrained('ami_indicators')->cascadeOnDelete();
@@ -192,7 +192,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_clarification_responses', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_clarification_responses')) Schema::create('ami_clarification_responses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_clarification_id')->constrained('ami_clarifications')->cascadeOnDelete();
             $table->foreignId('responded_by')->constrained('users')->cascadeOnDelete();
@@ -202,7 +202,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_findings', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_findings')) Schema::create('ami_findings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_assignment_id')->constrained('ami_assignments')->cascadeOnDelete();
             $table->foreignId('ami_component_id')->nullable()->constrained('ami_components')->nullOnDelete();
@@ -216,7 +216,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_followups', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_followups')) Schema::create('ami_followups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_finding_id')->constrained('ami_findings')->cascadeOnDelete();
             $table->foreignId('school_user_id')->nullable()->constrained('users')->nullOnDelete();
@@ -228,7 +228,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_followup_evidences', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_followup_evidences')) Schema::create('ami_followup_evidences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_followup_id')->constrained('ami_followups')->cascadeOnDelete();
             $table->string('title');
@@ -236,7 +236,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_followup_reviews', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_followup_reviews')) Schema::create('ami_followup_reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ami_followup_id')->constrained('ami_followups')->cascadeOnDelete();
             $table->foreignId('reviewed_by')->constrained('users')->cascadeOnDelete();
@@ -245,7 +245,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('ami_activity_logs', function (Blueprint $table) {
+        if (!Schema::hasTable('ami_activity_logs')) Schema::create('ami_activity_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('role')->nullable()->index();
