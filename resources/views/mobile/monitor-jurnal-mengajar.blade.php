@@ -348,9 +348,9 @@
 
     <div class="monitor-header">
         <div class="d-flex align-items-center gap-2">
-            <button onclick="history.back()" class="btn btn-link p-0 text-decoration-none" style="color: var(--nj-green-dark); width: 36px; height: 36px;">
+            <a href="{{ route('mobile.dashboard') }}" class="btn btn-link p-0 text-decoration-none d-inline-flex align-items-center justify-content-center" style="color: var(--nj-green-dark); width: 36px; height: 36px;">
                 <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
-            </button>
+            </a>
             <div>
                 <div class="title">Monitoring Jurnal Mengajar</div>
                 <div class="subtitle">Rekap mingguan dan navigasi hari</div>
