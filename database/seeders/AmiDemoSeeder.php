@@ -38,7 +38,15 @@ class AmiDemoSeeder extends Seeder
             $createdUsers[$email] = User::updateOrCreate(
                 ['email' => $email],
                 [
-                    'name' => ucfirst(str_replace(['.', '@nuist.test'], [' ', ''], $email)),
+                    'name' => match ($email) {
+                        'superadmin.ami@nuist.test' => 'Super Admin AMI',
+                        'pengurus.ami@nuist.test' => 'Pengurus AMI',
+                        'koordinator.ami@nuist.test' => 'Koordinator Auditor AMI',
+                        'auditor1.ami@nuist.test' => 'Auditor 1 AMI',
+                        'auditor2.ami@nuist.test' => 'Auditor 2 AMI',
+                        'sekolah.ami@nuist.test' => 'Admin Sekolah AMI',
+                        default => 'AMI User',
+                    },
                     'password' => Hash::make('password'),
                     'role' => $role,
                     'is_active' => true,

@@ -6,9 +6,9 @@ final class AmiRoles
 {
     public const SUPER_ADMIN = 'super_admin';
     public const PENGURUS = 'pengurus';
-    public const KOORDINATOR_AUDITOR = 'koordinator_auditor';
-    public const AUDITOR = 'auditor';
-    public const ADMIN_SEKOLAH = 'admin_sekolah';
+    public const KOORDINATOR_AUDITOR = 'pengurus';
+    public const AUDITOR = 'pengurus';
+    public const ADMIN_SEKOLAH = 'admin';
 
     public static function labels(): array
     {
