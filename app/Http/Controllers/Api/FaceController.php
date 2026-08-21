@@ -382,16 +382,11 @@ class FaceController extends Controller
             return true;
         }
 
-        return $this->hasAnyPassedChallenge($challenges, [
-            'blink',
-            'face_scan',
-            'turn_left',
-            'turn_right',
-            'look_up',
-            'look_down',
-            'mouth_open',
-            'head_tilt',
-        ]);
+        return $this->hasPassedChallenge($challenges, 'blink')
+            && $this->hasPassedChallenge($challenges, 'face_captured')
+            && $this->hasAnyPassedChallenge($challenges, ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'])
+            && $this->hasPassedChallenge($challenges, 'screen_replay_risk')
+            && $this->hasPassedChallenge($challenges, 'risk_score');
     }
 
     private function hasPassedChallenge(array $challenges, string $type): bool
