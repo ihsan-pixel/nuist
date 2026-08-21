@@ -33,13 +33,25 @@ class MonitorJurnalMengajarController extends Controller
     {
         $user = $this->ensureAdmin();
 
-        $selectedMonth = $request->input('month', Carbon::now('Asia/Jakarta')->format('Y-m'));
+        $selectedDate = $request->filled('date')
+            ? Carbon::parse($request->input('date'), 'Asia/Jakarta')
+            : Carbon::today('Asia/Jakarta');
         $selectedClass = trim((string) $request->input('class_name', ''));
-        $selectedMonthCarbon = Carbon::createFromFormat('Y-m', $selectedMonth, 'Asia/Jakarta');
-        $startOfMonth = $selectedMonthCarbon->copy()->startOfMonth()->startOfDay();
-        $endOfMonth = $selectedMonthCarbon->copy()->endOfMonth()->endOfDay();
+        $weekStart = $selectedDate->copy()->startOfWeek(Carbon::MONDAY)->startOfDay();
+        $weekEnd = $weekStart->copy()->addDays(5)->endOfDay();
         $today = Carbon::today('Asia/Jakarta')->endOfDay();
-        $effectiveEnd = $endOfMonth->copy()->min($today);
+        $effectiveEnd = $weekEnd->copy()->min($today);
+        $selectedDay = strtolower($request->input('day', $selectedDate->locale('id')->dayName));
+        $dayMap = [
+            'senin' => Carbon::MONDAY,
+            'selasa' => Carbon::TUESDAY,
+            'rabu' => Carbon::WEDNESDAY,
+            'kamis' => Carbon::THURSDAY,
+            'jumat' => Carbon::FRIDAY,
+            'sabtu' => Carbon::SATURDAY,
+        ];
+        $selectedDayOfWeek = $dayMap[$selectedDay] ?? Carbon::MONDAY;
+        $selectedDayDate = null;
 
         $scheduleQuery = TeachingSchedule::with(['teacher'])
             ->where('school_id', $user->madrasah_id);
@@ -59,7 +71,7 @@ class MonitorJurnalMengajarController extends Controller
 
         $approvedSchoolActivityEvents = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
             $schedules,
-            $startOfMonth,
+            $weekStart,
             $effectiveEnd
         );
 
@@ -67,7 +79,7 @@ class MonitorJurnalMengajarController extends Controller
             ->whereHas('teachingSchedule', function ($q) use ($user) {
                 $q->where('school_id', $user->madrasah_id);
             })
-            ->whereBetween('tanggal', [$startOfMonth->toDateString(), $effectiveEnd->toDateString()])
+            ->whereBetween('tanggal', [$weekStart->toDateString(), $effectiveEnd->toDateString()])
             ->orderBy('tanggal', 'desc')
             ->orderBy('waktu', 'desc');
 
@@ -83,21 +95,13 @@ class MonitorJurnalMengajarController extends Controller
         $expectedSessions = collect();
         foreach ($schedules as $schedule) {
             $dayName = strtolower(trim((string) $schedule->day));
-            $dayOfWeek = match ($dayName) {
-                'senin' => Carbon::MONDAY,
-                'selasa' => Carbon::TUESDAY,
-                'rabu' => Carbon::WEDNESDAY,
-                'kamis' => Carbon::THURSDAY,
-                'jumat' => Carbon::FRIDAY,
-                'sabtu' => Carbon::SATURDAY,
-                default => null,
-            };
+            $dayOfWeek = $dayMap[$dayName] ?? null;
 
             if ($dayOfWeek === null) {
                 continue;
             }
 
-            $cursor = $startOfMonth->copy();
+            $cursor = $weekStart->copy();
             while ($cursor <= $effectiveEnd) {
                 if ($cursor->dayOfWeek !== $dayOfWeek) {
                     $cursor->addDay();
@@ -147,6 +151,41 @@ class MonitorJurnalMengajarController extends Controller
             ->sortByDesc('date')
             ->values();
 
+        $weekDays = collect($dayMap)->map(function ($dayOfWeek, $label) use ($weekStart, $weekEnd, $effectiveEnd) {
+            $date = $weekStart->copy()->addDays($dayOfWeek - Carbon::MONDAY);
+            return [
+                'key' => $label,
+                'label' => ucfirst($label),
+                'date' => $date->toDateString(),
+                'active' => $date->betweenIncluded($weekStart, $effectiveEnd),
+            ];
+        })->values();
+
+        $selectedDayDate = $weekStart->copy()->addDays($selectedDayOfWeek - Carbon::MONDAY);
+        $selectedRecap = $dailyRecaps->firstWhere('date', $selectedDayDate->toDateString());
+        $selectedRecap = $selectedRecap ?: [
+            'date' => $selectedDayDate->toDateString(),
+            'label' => $selectedDayDate->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+            'total' => 0,
+            'hadir' => 0,
+            'izin' => 0,
+            'belum' => 0,
+            'items' => collect(),
+        ];
+
+        $selectedRecap['items'] = collect($selectedRecap['items'])
+            ->sortBy(function ($item) {
+                return ($item['class_name'] ?? '') . '|' . ($item['time'] ?? '');
+            })
+            ->groupBy(fn ($item) => $item['class_name'] ?? '-')
+            ->map(function ($items, $className) {
+                return [
+                    'class_name' => $className,
+                    'items' => $items->sortBy(fn ($item) => $item['time'] ?? '')->values(),
+                ];
+            })
+            ->values();
+
         $topApprovedEvent = $approvedSchoolActivityEvents->first();
         $approvedEventLabel = $topApprovedEvent?->resolved_type_label;
         $approvedEventName = $topApprovedEvent?->name;
@@ -160,7 +199,7 @@ class MonitorJurnalMengajarController extends Controller
             'total_guru' => User::where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
                 ->count(),
-            'bulan' => $selectedMonthCarbon->locale('id')->isoFormat('MMMM YYYY'),
+            'week_label' => $weekStart->locale('id')->isoFormat('D MMMM YYYY') . ' - ' . $effectiveEnd->locale('id')->isoFormat('D MMMM YYYY'),
         ];
 
         $availableClasses = $schedules
@@ -176,8 +215,11 @@ class MonitorJurnalMengajarController extends Controller
 
         return view('admin.monitor-jurnal-mengajar', compact(
             'records',
-            'selectedMonth',
+            'selectedDate',
             'selectedClass',
+            'selectedDay',
+            'weekDays',
+            'selectedRecap',
             'summary',
             'completedJournals',
             'approvedIzinSessions',
