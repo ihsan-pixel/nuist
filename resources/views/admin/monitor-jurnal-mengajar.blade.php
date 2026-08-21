@@ -23,6 +23,21 @@
                     </div>
                 </div>
 
+                @if(!empty($approvedEventName))
+                    <div class="mt-3 p-3 rounded-3" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="mdi mdi-information-outline fs-5"></i>
+                            <div>
+                                <div class="fw-semibold">{{ $approvedEventLabel ?? 'Kegiatan Sekolah' }} disetujui</div>
+                                <div class="small text-white-50">{{ $approvedEventName }}</div>
+                                @if(!empty($approvedEventNote))
+                                    <div class="small mt-1 text-white-50">{{ $approvedEventNote }}</div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <form method="GET" class="mt-3">
                     <div class="row g-2 align-items-end">
                         <div class="col-lg-3 col-md-4">
@@ -65,8 +80,8 @@
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="bg-white bg-opacity-10 rounded-3 p-3">
-                            <div class="small text-white-50">Belum jurnal</div>
-                            <div class="fs-4 fw-bold">{{ $summary['total_belum_jurnal'] }}</div>
+                            <div class="small text-white-50">Izin kegiatan</div>
+                            <div class="fs-4 fw-bold">{{ $summary['total_izin'] ?? 0 }}</div>
                         </div>
                     </div>
                 </div>
@@ -111,14 +126,19 @@
                                         <td>{{ \Carbon\Carbon::parse($record->tanggal)->format('d M') }}</td>
                                         <td>{{ $schedule->teacher->name ?? '-' }}</td>
                                         <td>{{ $schedule->classNameLabel() ?: ($schedule->class_name ?? '-') }}</td>
-                                        <td>{{ $schedule->subject ?? '-' }}</td>
-                                        <td>{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</td>
-                                        <td style="max-width: 240px;">{{ $record->materi ?: '-' }}</td>
-                                        <td>
-                                            @if(!is_null($record->present_students) && !is_null($record->class_total_students))
-                                                {{ $record->present_students }}/{{ $record->class_total_students }}
-                                            @else
-                                                -
+                                    <td>{{ $schedule->subject ?? '-' }}</td>
+                                    <td>{{ trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')) }}</td>
+                                    <td style="max-width: 240px;">
+                                        {{ $record->materi ?: '-' }}
+                                        @if(($record->status ?? 'hadir') === 'izin' && !empty($record->academicCalendarEvent))
+                                            <div class="small text-success mt-1">{{ $record->academicCalendarEvent->name ?? 'Kegiatan sekolah' }}</div>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(!is_null($record->present_students) && !is_null($record->class_total_students))
+                                            {{ $record->present_students }}/{{ $record->class_total_students }}
+                                        @else
+                                            -
                                             @endif
                                         </td>
                                     </tr>

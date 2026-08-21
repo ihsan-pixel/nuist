@@ -143,7 +143,13 @@ class MonitoringController extends \App\Http\Controllers\Controller
             ->orderBy('start_time')
             ->get();
 
-        $recordsQuery = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school'])
+        $approvedSchoolActivityEvents = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
+            $schedules,
+            $startOfMonth,
+            $effectiveEnd
+        );
+
+        $recordsQuery = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school', 'academicCalendarEvent'])
             ->whereHas('teachingSchedule', function ($q) use ($user) {
                 $q->where('school_id', $user->madrasah_id);
             })
@@ -188,6 +194,7 @@ class MonitoringController extends \App\Http\Controllers\Controller
                     ->where('teaching_schedule_id', $schedule->id)
                     ->whereDate('tanggal', $cursor->toDateString())
                     ->first();
+                $event = $approvedSchoolActivityEvents->get($schedule->id . '|' . $cursor->toDateString());
 
                 $expectedSessions->push([
                     'date' => $cursor->toDateString(),
@@ -197,6 +204,8 @@ class MonitoringController extends \App\Http\Controllers\Controller
                     'time' => trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')),
                     'attendance' => $attendance,
                     'schedule' => $schedule,
+                    'event' => $event,
+                    'status' => $event ? 'izin' : ($attendance ? 'hadir' : 'belum'),
                 ]);
 
                 $cursor->addDay();
@@ -204,11 +213,18 @@ class MonitoringController extends \App\Http\Controllers\Controller
         }
 
         $completedJournals = $expectedSessions->filter(fn ($item) => !is_null($item['attendance']))->values();
-        $missingJournals = $expectedSessions->filter(fn ($item) => is_null($item['attendance']))->values();
+        $approvedIzinSessions = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'izin')->values();
+        $missingJournals = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'belum')->values();
+
+        $topApprovedEvent = $approvedSchoolActivityEvents->first();
+        $approvedEventLabel = $topApprovedEvent?->resolved_type_label;
+        $approvedEventName = $topApprovedEvent?->name;
+        $approvedEventNote = $topApprovedEvent?->description ?: $topApprovedEvent?->approval_notes;
 
         $summary = [
             'total_jurnal' => $records->total(),
             'total_jadwal' => $expectedSessions->count(),
+            'total_izin' => $approvedIzinSessions->count(),
             'total_belum_jurnal' => $missingJournals->count(),
             'total_guru' => User::where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
@@ -233,6 +249,10 @@ class MonitoringController extends \App\Http\Controllers\Controller
             'selectedClass',
             'summary',
             'completedJournals',
+            'approvedIzinSessions',
+            'approvedEventLabel',
+            'approvedEventName',
+            'approvedEventNote',
             'missingJournals',
             'availableClasses'
         ));

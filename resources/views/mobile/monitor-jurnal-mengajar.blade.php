@@ -115,6 +115,21 @@
                 </div>
             </div>
 
+            @if(!empty($approvedEventName))
+                <div class="mt-3 p-3 rounded-4" style="background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.18);">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bx bx-info-circle" style="font-size: 18px; line-height: 1.2;"></i>
+                        <div>
+                            <div class="fw-semibold" style="font-size: 12px;">{{ $approvedEventLabel ?? 'Kegiatan Sekolah' }} disetujui</div>
+                            <div style="font-size: 11px; opacity: 0.9;">{{ $approvedEventName }}</div>
+                            @if(!empty($approvedEventNote))
+                                <div class="mt-1" style="font-size: 11px; opacity: 0.85;">{{ $approvedEventNote }}</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <form method="GET" class="mt-3">
                 <div class="row g-2">
                     <div class="col-6">
@@ -144,8 +159,8 @@
                     <strong>{{ $summary['total_jurnal'] }}</strong>
                 </div>
                 <div class="stat-box">
-                    <small>Belum jurnal</small>
-                    <strong>{{ $summary['total_belum_jurnal'] }}</strong>
+                    <small>Izin kegiatan</small>
+                    <strong>{{ $summary['total_izin'] ?? 0 }}</strong>
                 </div>
             </div>
         </div>
@@ -185,7 +200,11 @@
                                 </div>
                             </div>
                             <span class="journal-pill">
-                                {{ strtoupper($record->status ?? 'hadir') }}
+                                @if(($record->status ?? 'hadir') === 'izin')
+                                    IZIN
+                                @else
+                                    {{ strtoupper($record->status ?? 'hadir') }}
+                                @endif
                             </span>
                         </div>
 
@@ -202,6 +221,12 @@
                                 <span>Materi</span>
                                 <strong class="text-dark text-end text-truncate" style="max-width: 62%;">{{ $record->materi ?: '-' }}</strong>
                             </div>
+                            @if(($record->status ?? 'hadir') === 'izin' && !empty($record->academicCalendarEvent))
+                                <div class="journal-detail-row">
+                                    <span>Keterangan</span>
+                                    <strong class="text-dark text-end text-truncate" style="max-width: 62%;">{{ $record->academicCalendarEvent->name ?? $record->lokasi ?? 'Kegiatan sekolah' }}</strong>
+                                </div>
+                            @endif
                             <div class="journal-detail-row">
                                 <span>Siswa</span>
                                 <strong class="text-dark text-end">

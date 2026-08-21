@@ -9,9 +9,15 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AcademicCalendarEventService;
 
 class MonitorJurnalMengajarController extends Controller
 {
+    public function __construct(
+        private AcademicCalendarEventService $academicCalendarEventService,
+    ) {
+    }
+
     private function ensureAdmin(): User
     {
         $user = Auth::user();
@@ -51,7 +57,13 @@ class MonitorJurnalMengajarController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        $recordsQuery = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school'])
+        $approvedSchoolActivityEvents = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
+            $schedules,
+            $startOfMonth,
+            $effectiveEnd
+        );
+
+        $recordsQuery = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school', 'academicCalendarEvent'])
             ->whereHas('teachingSchedule', function ($q) use ($user) {
                 $q->where('school_id', $user->madrasah_id);
             })
@@ -96,6 +108,7 @@ class MonitorJurnalMengajarController extends Controller
                     ->where('teaching_schedule_id', $schedule->id)
                     ->whereDate('tanggal', $cursor->toDateString())
                     ->first();
+                $event = $approvedSchoolActivityEvents->get($schedule->id . '|' . $cursor->toDateString());
 
                 $expectedSessions->push([
                     'date' => $cursor->toDateString(),
@@ -104,6 +117,8 @@ class MonitorJurnalMengajarController extends Controller
                     'subject' => $schedule->subject ?? '-',
                     'time' => trim(($schedule->start_time ?? '-') . ' - ' . ($schedule->end_time ?? '-')),
                     'attendance' => $attendance,
+                    'event' => $event,
+                    'status' => $event ? 'izin' : ($attendance ? 'hadir' : 'belum'),
                 ]);
 
                 $cursor->addDay();
@@ -111,11 +126,18 @@ class MonitorJurnalMengajarController extends Controller
         }
 
         $completedJournals = $expectedSessions->filter(fn ($item) => !is_null($item['attendance']))->values();
-        $missingJournals = $expectedSessions->filter(fn ($item) => is_null($item['attendance']))->values();
+        $approvedIzinSessions = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'izin')->values();
+        $missingJournals = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'belum')->values();
+
+        $topApprovedEvent = $approvedSchoolActivityEvents->first();
+        $approvedEventLabel = $topApprovedEvent?->resolved_type_label;
+        $approvedEventName = $topApprovedEvent?->name;
+        $approvedEventNote = $topApprovedEvent?->description ?: $topApprovedEvent?->approval_notes;
 
         $summary = [
             'total_jurnal' => $records->total(),
             'total_jadwal' => $expectedSessions->count(),
+            'total_izin' => $approvedIzinSessions->count(),
             'total_belum_jurnal' => $missingJournals->count(),
             'total_guru' => User::where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
@@ -140,6 +162,10 @@ class MonitorJurnalMengajarController extends Controller
             'selectedClass',
             'summary',
             'completedJournals',
+            'approvedIzinSessions',
+            'approvedEventLabel',
+            'approvedEventName',
+            'approvedEventNote',
             'missingJournals',
             'availableClasses'
         ));
