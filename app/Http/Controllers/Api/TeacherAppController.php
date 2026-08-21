@@ -2513,19 +2513,18 @@ class TeacherAppController extends Controller
             }
         }
 
-        $countedDays = $presentCount + $izinCount + $alphaCount;
         return [
-            'attendance_percent' => $countedDays > 0
-                ? round((($presentCount + $izinCount) / $countedDays) * 100, 1)
+            'attendance_percent' => $workingDays > 0
+                ? round(($presentCount / $workingDays) * 100, 1)
                 : 0,
             'present_count' => $presentCount,
             'izin_count' => $izinCount,
             'alpha_count' => $alphaCount,
             'working_days' => $workingDays,
             'hari_kbm' => (int) ($user->madrasah?->hari_kbm ?? '6'),
-            'attendance_basis_label' => $countedDays > 0
-                ? 'Dihitung sampai hari ini • Hadir + Izin dari ' . $countedDays . ' hari terhitung'
-                : 'Belum ada hari terhitung pada periode ini',
+            'attendance_basis_label' => $workingDays > 0
+                ? 'Dihitung dari ' . $workingDays . ' hari kerja • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari'
+                : 'Belum ada hari kerja pada periode ini • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari',
         ];
     }
 
