@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Support\Facades\Route;
 use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
@@ -23,6 +24,10 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                if (request()->getHost() === config('ami.domain') && Route::has('ami.dashboard')) {
+                    return redirect()->route('ami.dashboard');
+                }
+
                 return redirect(RouteServiceProvider::HOME);
             }
         }

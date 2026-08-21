@@ -15,6 +15,10 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
+            if ($request->getHost() === config('ami.domain')) {
+                return route('ami.login');
+            }
+
             return route('login');
         }
     }

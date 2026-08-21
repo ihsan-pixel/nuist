@@ -285,6 +285,10 @@ foreach ($amiDomains as $amiIndex => $amiDomain) {
                 $laporanRoute->name('ami.laporan');
             }
         });
+
+        Route::fallback(function () {
+            abort(404);
+        });
     });
 }
 
