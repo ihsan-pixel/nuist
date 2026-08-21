@@ -106,7 +106,7 @@ return new class extends Migration {
             $table->decimal('internal_index', 5, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['ami_period_id', 'madrasah_id']);
+            $table->unique(['ami_period_id', 'madrasah_id'], 'ami_ps_unique');
         });
 
         Schema::create('ami_school_responses', function (Blueprint $table) {
@@ -121,7 +121,7 @@ return new class extends Migration {
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['ami_period_school_id', 'ami_indicator_id']);
+            $table->unique(['ami_period_school_id', 'ami_indicator_id'], 'ami_sr_unique');
         });
 
         Schema::create('ami_evidences', function (Blueprint $table) {
