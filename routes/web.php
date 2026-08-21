@@ -227,6 +227,50 @@ Route::domain('sekolah.nuist.id')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| AMI subdomain
+|--------------------------------------------------------------------------
+|
+| The AMI module reuses the existing auth/session stack and only changes
+| the host binding. Local development can use the configured fallback
+| domains so the module stays easy to access in non-production setups.
+|
+*/
+$amiDomains = array_values(array_unique(array_filter(array_merge(
+    [config('ami.domain')],
+    config('ami.fallback_domains', [])
+))));
+
+foreach ($amiDomains as $amiDomain) {
+    Route::domain($amiDomain)->group(function () {
+        Route::get('/', fn () => redirect()->route('ami.dashboard'));
+
+        Route::middleware(['guest'])->group(function () {
+            Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('ami.login');
+            Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
+                ->middleware('throttle:6,1');
+        });
+
+        Route::middleware(['auth'])->group(function () {
+            Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+                ->middleware('throttle:10,1');
+
+            Route::get('/dashboard', [App\Http\Controllers\Ami\DashboardController::class, 'index'])->name('ami.dashboard');
+            Route::get('/instrumen', [App\Http\Controllers\Ami\InstrumentController::class, 'index'])->name('ami.instrumen');
+            Route::get('/evaluasi-diri', [App\Http\Controllers\Ami\SchoolEvaluationController::class, 'index'])->name('ami.evaluasi-diri');
+            Route::get('/monitoring', [App\Http\Controllers\Ami\MonitoringController::class, 'index'])->name('ami.monitoring');
+            Route::view('/penugasan', 'ami.simple-page')->name('ami.penugasan');
+            Route::view('/audit', 'ami.simple-page')->name('ami.audit');
+            Route::view('/klarifikasi', 'ami.simple-page')->name('ami.klarifikasi');
+            Route::view('/temuan', 'ami.simple-page')->name('ami.temuan');
+            Route::view('/tindak-lanjut', 'ami.simple-page')->name('ami.tindak-lanjut');
+            Route::view('/peta-mutu', 'ami.simple-page')->name('ami.peta-mutu');
+            Route::view('/laporan', 'ami.simple-page')->name('ami.laporan');
+        });
+    });
+}
+
+/*
+|--------------------------------------------------------------------------
 | MGMP subdomain
 |--------------------------------------------------------------------------
 |

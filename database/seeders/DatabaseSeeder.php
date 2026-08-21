@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CustomersSeeder::class);
         $this->call(SuperAdminSeeder::class);
         $this->call(AppSettingsSeeder::class);
-    // Talenta instrument (school level assessment)
-    $this->call(\Database\Seeders\TalentaInstrumentSeeder::class);
+        // Talenta instrument (school level assessment)
+        $this->call(\Database\Seeders\TalentaInstrumentSeeder::class);
+        $this->call(\Database\Seeders\AmiDemoSeeder::class);
     }
 }
