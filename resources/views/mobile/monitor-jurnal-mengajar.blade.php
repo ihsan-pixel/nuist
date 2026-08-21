@@ -1,109 +1,542 @@
 @extends('layouts.mobile')
 @section('title', 'Monitoring Jurnal Mengajar')
-@section('subtitle', 'Rekap mingguan kegiatan mengajar')
+@section('subtitle', 'Rekap mingguan dan navigasi hari')
+
 @section('content')
-<div class="container py-3" style="max-width: 720px; margin:auto;">
+@php
+    $selectedDayLabel = \Carbon\Carbon::parse($selectedRecap['date'] ?? $selectedDate->toDateString())
+        ->locale('id')
+        ->isoFormat('dddd, D MMMM YYYY');
+    $weekLabel = $summary['week_label'] ?? '-';
+    $selectedTotal = (int) ($selectedRecap['total'] ?? 0);
+    $selectedHadir = (int) ($selectedRecap['hadir'] ?? 0);
+    $selectedIzin = (int) ($selectedRecap['izin'] ?? 0);
+    $selectedBelum = (int) ($selectedRecap['belum'] ?? 0);
+    $selectedGroups = collect($selectedRecap['items'] ?? []);
+    $weeklyCompleted = collect($dailyRecaps ?? [])->filter(fn ($day) => (int) ($day['belum'] ?? 0) === 0 && (int) ($day['total'] ?? 0) > 0)->count();
+    $weeklyActive = collect($dailyRecaps ?? [])->filter(fn ($day) => (int) ($day['total'] ?? 0) > 0)->count();
+    $weeklyProgress = $weeklyActive > 0 ? (int) round(($weeklyCompleted / $weeklyActive) * 100) : 0;
+@endphp
+
+<div class="container-fluid px-3 py-3 monitor-jurnal-mobile">
     <style>
-        body{background:#f7faf8;font-family:'Poppins',sans-serif;font-size:13px;}
-        .hero{background:linear-gradient(135deg,#004b4c,#0e8549);color:#fff;border-radius:18px;box-shadow:0 10px 24px rgba(0,75,76,.18);}
-        .chip{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.22);font-size:12px;font-weight:600;}
-        .card-soft{border-radius:16px;box-shadow:0 8px 20px rgba(15,56,57,.06);border:1px solid #e7eeea;background:#fff;}
+        .monitor-jurnal-mobile {
+            --nj-green: #0e8549;
+            --nj-green-dark: #004b4c;
+            --nj-green-soft: #e8f5ee;
+            --nj-border: #e6ece8;
+            --nj-text: #1f2937;
+            --nj-muted: #6b7280;
+            background: #f6f8f7;
+        }
+
+        .monitor-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .monitor-header .title {
+            color: var(--nj-green-dark);
+            font-size: 16px;
+            line-height: 1.2;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .monitor-header .subtitle {
+            color: var(--nj-muted);
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .hero-card {
+            border: 1px solid rgba(14, 133, 73, 0.10);
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(0,75,76,.98), rgba(14,133,73,.98));
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(0, 75, 76, 0.10);
+        }
+
+        .hero-muted {
+            opacity: .84;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .hero-compact {
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .active-day-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.14);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,.18);
+        }
+
+        .filter-card,
+        .section-card,
+        .summary-card,
+        .session-card,
+        .week-card {
+            border-radius: 14px;
+            background: #fff;
+            border: 1px solid var(--nj-border);
+            box-shadow: 0 1px 2px rgba(16,24,40,.03);
+        }
+
+        .filter-card .form-control,
+        .filter-card .form-select {
+            min-height: 44px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .btn-nj {
+            background: var(--nj-green);
+            border-color: var(--nj-green);
+            color: #fff;
+            min-height: 44px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .btn-nj:hover,
+        .btn-nj:focus {
+            background: #0b7440;
+            border-color: #0b7440;
+            color: #fff;
+        }
+
+        .day-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .day-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .day-pill {
+            flex: 0 0 auto;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid var(--nj-border);
+            background: #fff;
+            color: var(--nj-text);
+        }
+
+        .day-pill.active {
+            background: var(--nj-green);
+            color: #fff;
+            border-color: var(--nj-green);
+        }
+
+        .summary-card {
+            padding: 12px;
+            min-height: 80px;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            color: var(--nj-muted);
+            line-height: 1.2;
+        }
+
+        .summary-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--nj-text);
+            line-height: 1.1;
+            margin-top: 4px;
+        }
+
+        .summary-note {
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--nj-green);
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 15px;
+            line-height: 1.2;
+            color: var(--nj-text);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: var(--nj-muted);
+            margin-top: 2px;
+        }
+
+        .session-card {
+            padding: 12px;
+        }
+
+        .session-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .session-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .session-subject {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--nj-text);
+            line-height: 1.25;
+            margin-bottom: 2px;
+        }
+
+        .session-time {
+            font-size: 12px;
+            color: var(--nj-muted);
+        }
+
+        .session-meta {
+            display: grid;
+            gap: 2px;
+            margin-top: 8px;
+        }
+
+        .session-meta div {
+            font-size: 12px;
+            color: var(--nj-text);
+            line-height: 1.35;
+        }
+
+        .session-meta .muted {
+            color: var(--nj-muted);
+        }
+
+        .session-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            border: 1px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .session-status.success {
+            color: #127a43;
+            background: #e8f5ee;
+            border-color: #ccead8;
+        }
+
+        .session-status.info {
+            color: #0f6fa8;
+            background: #e8f4fb;
+            border-color: #d0e8f7;
+        }
+
+        .session-status.warning {
+            color: #9a6700;
+            background: #fff4db;
+            border-color: #f5dfac;
+        }
+
+        .session-status.neutral {
+            color: #4b5563;
+            background: #f3f4f6;
+            border-color: #e5e7eb;
+        }
+
+        .journal-state {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--nj-muted);
+        }
+
+        .journal-state strong {
+            color: var(--nj-text);
+        }
+
+        .weekly-toggle {
+            width: 100%;
+            border: 1px solid var(--nj-border);
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--nj-text);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .weekly-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .weekly-item {
+            border: 1px solid var(--nj-border);
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .weekly-item.active {
+            border-color: rgba(14, 133, 73, 0.30);
+            background: var(--nj-green-soft);
+        }
+
+        .weekly-item .line1 {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .weekly-item .line2 {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--nj-muted);
+        }
+
+        .compact-gap {
+            gap: 12px;
+        }
+
+        .session-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .monitor-jurnal-mobile {
+                max-width: 720px;
+                margin: 0 auto;
+            }
+        }
     </style>
 
-    <div class="d-flex align-items-center mb-3">
-        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color:#004b4c;"><i class="bx bx-arrow-back" style="font-size:20px;"></i></button>
-        <div>
-            <div class="fw-bold" style="color:#004b4c;font-size:16px;">Monitoring Jurnal Mengajar</div>
-            <small class="text-muted">Rekap mingguan dan navigasi hari</small>
+    <div class="monitor-header">
+        <div class="d-flex align-items-center gap-2">
+            <button onclick="history.back()" class="btn btn-link p-0 text-decoration-none" style="color: var(--nj-green-dark); width: 36px; height: 36px;">
+                <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+            </button>
+            <div>
+                <div class="title">Monitoring Jurnal Mengajar</div>
+                <div class="subtitle">Rekap mingguan dan navigasi hari</div>
+            </div>
         </div>
     </div>
 
-    <div class="card border-0 hero mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between gap-3">
-                <div>
-                    <div class="fw-semibold">{{ Auth::user()->madrasah->name ?? '-' }}</div>
-                    <div class="small" style="opacity:.85;">{{ $summary['week_label'] ?? '-' }}</div>
+    <div class="hero-card mb-3">
+        <div class="p-3">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <div class="fw-semibold hero-compact text-truncate">{{ Auth::user()->madrasah->name ?? '-' }}</div>
+                    <div class="hero-muted">{{ $weekLabel }}</div>
                 </div>
-                <div class="text-end">
-                    <div class="small" style="opacity:.75;">Hari aktif</div>
-                    <div class="fw-bold">{{ $selectedRecap['label'] ?? '-' }}</div>
+                <div class="text-end flex-shrink-0">
+                    <div class="active-day-badge mb-1">Hari Aktif</div>
+                    <div class="fw-semibold hero-compact">{{ $selectedDayLabel }}</div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <form method="GET" class="mt-3">
+    <div class="filter-card mb-3">
+        <div class="p-3">
+            <form method="GET">
                 <div class="row g-2">
-                    <div class="col-12">
-                        <input type="date" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small text-muted mb-1">Tanggal</label>
+                        <input type="date" name="date" class="form-control" value="{{ $selectedDate->format('Y-m-d') }}">
                     </div>
-                    <div class="col-12">
-                        <select name="class_name" class="form-select form-select-sm">
-                            <option value="">Semua kelas</option>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small text-muted mb-1">Kelas</label>
+                        <select name="class_name" class="form-select">
+                            <option value="">Semua Kelas</option>
                             @foreach($availableClasses as $className)
                                 <option value="{{ $className }}" @selected($selectedClass === $className)>{{ $className }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-light btn-sm w-100 fw-semibold">Terapkan</button>
+                        <button type="submit" class="btn btn-nj w-100">Terapkan</button>
                     </div>
                 </div>
             </form>
-
-            <div class="d-flex flex-wrap gap-2 mt-3">
-                @foreach($weekDays as $day)
-                    <a href="{{ request()->fullUrlWithQuery(['date' => $day['date'], 'day' => $day['key']]) }}" class="chip text-decoration-none {{ ($selectedDay ?? '') === $day['key'] ? 'bg-white text-dark' : 'text-white' }}">
-                        {{ ucfirst($day['key']) }}
-                    </a>
-                @endforeach
-            </div>
         </div>
+    </div>
+
+    <div class="day-nav mb-3 pb-1">
+        @foreach($weekDays as $day)
+            @php
+                $shortDay = mb_substr(ucfirst($day['key']), 0, 3);
+                $isActiveDay = ($selectedDay ?? '') === $day['key'];
+            @endphp
+            <a href="{{ request()->fullUrlWithQuery(['date' => $day['date'], 'day' => $day['key']]) }}" class="text-decoration-none">
+                <span class="day-pill {{ $isActiveDay ? 'active' : '' }}">{{ $shortDay }}</span>
+            </a>
+        @endforeach
     </div>
 
     <div class="row g-2 mb-3">
-        <div class="col-4"><div class="card-soft p-3"><div class="text-muted small">Hadir</div><div class="fw-bold fs-4">{{ $selectedRecap['hadir'] ?? 0 }}</div></div></div>
-        <div class="col-4"><div class="card-soft p-3"><div class="text-muted small">Izin</div><div class="fw-bold fs-4">{{ $selectedRecap['izin'] ?? 0 }}</div></div></div>
-        <div class="col-4"><div class="card-soft p-3"><div class="text-muted small">Belum</div><div class="fw-bold fs-4">{{ $selectedRecap['belum'] ?? 0 }}</div></div></div>
-    </div>
-
-    @php($groupedItems = collect($selectedRecap['items'] ?? []))
-    @if($groupedItems->isEmpty())
-        <div class="card-soft">
-            <div class="card-body text-center py-5 text-muted">
-                Tidak ada data untuk hari ini.
+        <div class="col-4">
+            <div class="summary-card">
+                <div class="summary-label">Sudah Jurnal</div>
+                <div class="summary-value">{{ $selectedHadir }}</div>
             </div>
         </div>
-    @else
-        <div class="d-grid gap-2">
-            @foreach($groupedItems as $group)
-                <div class="card-soft">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="fw-semibold">{{ $group['class_name'] ?? '-' }}</div>
-                            <span class="badge bg-light text-dark">{{ count($group['items'] ?? []) }} sesi</span>
-                        </div>
-                        <div class="d-grid gap-2">
-                            @foreach($group['items'] as $item)
-                                @php($schedule = $item['schedule'] ?? null)
-                                <div class="border rounded-3 p-2" style="background:#f8fbf9;">
-                                    <div class="d-flex justify-content-between gap-2">
-                                        <div>
-                                            <div class="fw-semibold" style="font-size:12px;">{{ $schedule?->teacher?->name ?? ($item['teacher'] ?? '-') }}</div>
-                                            <div class="text-muted small">{{ $item['subject'] ?? '-' }}</div>
+        <div class="col-4">
+            <div class="summary-card">
+                <div class="summary-label">Izin</div>
+                <div class="summary-value">{{ $selectedIzin }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="summary-card">
+                <div class="summary-label">Belum Jurnal</div>
+                <div class="summary-value">{{ $selectedBelum }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card mb-3">
+        <div class="p-3">
+            <div class="d-flex justify-content-between align-items-center gap-2">
+                <div>
+                    <div class="section-title">Jurnal Hari Ini</div>
+                    <div class="section-subtitle">{{ $selectedDayLabel }} • {{ $selectedTotal }} sesi</div>
+                </div>
+                @if($selectedTotal > 0)
+                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">{{ $weeklyProgress }}% selesai</span>
+                @endif
+            </div>
+
+            @if($selectedTotal === 0)
+                <div class="mt-3 border rounded-3 bg-light p-3">
+                    <div class="fw-semibold text-dark">Tidak ada jadwal mengajar</div>
+                    <div class="text-muted small mt-1">Tidak terdapat sesi mengajar pada {{ $selectedDayLabel }}.</div>
+                </div>
+            @else
+                <div class="d-grid gap-2 mt-3">
+                    @foreach($selectedGroups as $group)
+                        <div class="session-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="fw-semibold text-dark" style="font-size: 13px;">{{ $group['class_name'] ?? '-' }}</div>
+                                <span class="badge rounded-pill bg-light text-dark border">{{ count($group['items'] ?? []) }} sesi</span>
+                            </div>
+
+                            <div class="session-list">
+                                @foreach($group['items'] as $item)
+                                    @php
+                                        $schedule = $item['schedule'] ?? null;
+                                        $status = $item['status'] ?? 'belum';
+                                        $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : 'warning');
+                                        $journalFilled = in_array($status, ['hadir', 'izin'], true);
+                                        $timeLabel = \Illuminate\Support\Str::of((string) ($item['time'] ?? ''))->replace(':00 - ', ' - ')->replace(':00', '')->toString();
+                                    @endphp
+                                    <div class="session-card">
+                                        <div class="session-top">
+                                            <div class="session-main">
+                                                <div class="session-subject">{{ $item['subject'] ?? '-' }}</div>
+                                                <div class="session-time">{{ $timeLabel ?: '-' }}</div>
+
+                                                <div class="session-meta">
+                                                    <div>{{ $schedule?->teacher?->name ?? ($item['teacher'] ?? '-') }}</div>
+                                                    <div class="muted">{{ $item['class_name'] ?? '-' }}</div>
+                                                </div>
+
+                                                <div class="journal-state">
+                                                    <strong>{{ $journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal' }}</strong>
+                                                </div>
+
+                                                @if(!empty($item['attendance']) && !empty($item['attendance']->materi))
+                                                    <div class="mt-2">
+                                                        <div class="text-muted" style="font-size: 11px; margin-bottom: 2px;">Materi</div>
+                                                        <div class="text-dark" style="font-size: 12px; line-height: 1.4;">
+                                                            {{ \Illuminate\Support\Str::limit((string) $item['attendance']->materi, 110) }}
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <div class="text-end flex-shrink-0">
+                                                <div class="session-status {{ $statusClass }}">{{ strtoupper($status) }}</div>
+                                            </div>
                                         </div>
-                                        <span class="badge {{ ($item['status'] ?? 'belum') === 'izin' ? 'bg-info' : (($item['status'] ?? 'belum') === 'hadir' ? 'bg-success' : 'bg-warning') }}">{{ strtoupper($item['status'] ?? 'belum') }}</span>
                                     </div>
-                                    <div class="text-muted small mt-1">{{ $item['time'] ?? '-' }}</div>
-                                    @if(($item['status'] ?? null) === 'izin' && !empty($item['event']))
-                                        <div class="small text-success mt-1">{{ $item['event']?->name ?? 'Kegiatan sekolah' }}</div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="p-3">
+            <button class="weekly-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#weeklySummary" aria-expanded="false" aria-controls="weeklySummary">
+                <span>Ringkasan Minggu Ini</span>
+                <span>⌄</span>
+            </button>
+
+            <div class="collapse mt-2" id="weeklySummary">
+                <div class="weekly-list">
+                    @foreach($dailyRecaps as $daily)
+                        @php
+                            $dayDate = \Carbon\Carbon::parse($daily['date']);
+                            $isSelected = ($selectedRecap['date'] ?? '') === $daily['date'];
+                            $dayLabel = $dayDate->locale('id')->isoFormat('ddd, D MMM');
+                        @endphp
+                        <a href="{{ request()->fullUrlWithQuery(['date' => $daily['date'], 'day' => $dayDate->locale('id')->dayName]) }}" class="text-decoration-none">
+                            <div class="weekly-item {{ $isSelected ? 'active' : '' }}">
+                                <div class="line1">
+                                    <div class="fw-semibold text-dark">{{ $dayLabel }}</div>
+                                    @if($isSelected)
+                                        <span class="badge rounded-pill bg-success text-white">Dipilih</span>
                                     @endif
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
+                                <div class="line2">
+                                    Hadir {{ $daily['hadir'] }} • Izin {{ $daily['izin'] }} • Belum {{ $daily['belum'] }}
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
-            @endforeach
+            </div>
         </div>
-    @endif
+    </div>
 </div>
 @endsection
