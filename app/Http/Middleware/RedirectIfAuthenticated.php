@@ -24,10 +24,6 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                if (request()->getHost() === config('ami.domain') && Route::has('ami.dashboard')) {
-                    return redirect()->route('ami.dashboard');
-                }
-
                 return redirect(RouteServiceProvider::HOME);
             }
         }

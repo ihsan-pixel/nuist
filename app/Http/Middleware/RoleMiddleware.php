@@ -25,9 +25,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles)
     {
         if (!Auth::check()) {
-            return request()->getHost() === config('ami.domain')
-                ? redirect()->route('ami.login')
-                : redirect()->route('login');
+            return redirect()->route('login');
         }
 
         $userRole = $this->normalizeRole((string) Auth::user()->role);
@@ -45,10 +43,6 @@ class RoleMiddleware
 
         if (!in_array($userRole, $rolesArray)) {
             \Log::warning('RoleMiddleware: Access denied for user role: [' . $userRole . '] on URL: ' . $request->url());
-            if ($request->getHost() === config('ami.domain')) {
-                return redirect()->route('ami.dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
-            }
-
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 

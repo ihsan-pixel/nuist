@@ -45,10 +45,6 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        if ($request->getHost() === config('ami.domain')) {
-            return redirect()->route('ami.dashboard');
-        }
-
         if (isset($user->is_active) && !$user->is_active) {
             Auth::logout();
             $request->session()->invalidate();
@@ -195,10 +191,6 @@ class LoginController extends Controller
     protected function redirectTo()
     {
         $user = Auth::user();
-
-        if (request()->getHost() === config('ami.domain')) {
-            return '/dashboard';
-        }
 
         if ($this->normalizeRole($user->role ?? '') === 'admin_spp') {
             return '/spp-siswa/dashboard';
