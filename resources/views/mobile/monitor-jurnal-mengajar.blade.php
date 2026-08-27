@@ -11,6 +11,7 @@
     $selectedTotal = (int) ($selectedRecap['total'] ?? 0);
     $selectedHadir = (int) ($selectedRecap['hadir'] ?? 0);
     $selectedIzin = (int) ($selectedRecap['izin'] ?? 0);
+    $selectedLibur = (int) ($selectedRecap['libur'] ?? 0);
     $selectedBelum = (int) ($selectedRecap['belum'] ?? 0);
     $selectedGroups = collect($selectedRecap['items'] ?? []);
     $selectedIzinEvent = $selectedGroups
@@ -437,6 +438,12 @@
         </div>
         <div class="col-4">
             <div class="summary-card">
+                <div class="summary-label">Libur</div>
+                <div class="summary-value">{{ $selectedLibur }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="summary-card">
                 <div class="summary-label">Belum Jurnal</div>
                 <div class="summary-value">{{ $selectedBelum }}</div>
             </div>
@@ -474,7 +481,7 @@
                                     @php
                                         $schedule = $item['schedule'] ?? null;
                                         $status = $item['status'] ?? 'belum';
-                                        $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : 'warning');
+                                        $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : ($status === 'libur' ? 'secondary' : 'warning'));
                                         $journalFilled = in_array($status, ['hadir', 'izin'], true);
                                         $timeLabel = \Illuminate\Support\Str::of((string) ($item['time'] ?? ''))->replace(':00 - ', ' - ')->replace(':00', '')->toString();
                                     @endphp
@@ -493,14 +500,16 @@
                                                     <strong>
                                                         {{ $status === 'izin'
                                                             ? 'Izin kegiatan terdeteksi'
-                                                            : ($journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal') }}
+                                                            : ($status === 'libur'
+                                                                ? 'Tanggal merah, tidak perlu jurnal'
+                                                                : ($journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal')) }}
                                                     </strong>
                                                 </div>
                                             </div>
 
                                             <div class="text-end flex-shrink-0">
                                                 <div class="session-status {{ $statusClass }}">
-                                                    {{ $status === 'izin' ? 'IZIN' : strtoupper($status) }}
+                                                    {{ $status === 'izin' ? 'IZIN' : ($status === 'libur' ? 'LIBUR' : strtoupper($status)) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -513,6 +522,11 @@
                                         @if($status === 'izin' && !empty($item['event']))
                                             <div class="mt-1 text-success" style="font-size: 11px; line-height: 1.35;">
                                                 {{ $item['event']?->name ?? 'Kegiatan sekolah' }}
+                                            </div>
+                                        @endif
+                                        @if($status === 'libur')
+                                            <div class="mt-1 text-muted" style="font-size: 11px; line-height: 1.35;">
+                                                {{ $item['holiday']?->name ?? 'Tanggal merah' }}
                                             </div>
                                         @endif
                                     </div>
