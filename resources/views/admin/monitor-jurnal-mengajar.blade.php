@@ -143,12 +143,12 @@
 
                                 <div class="d-grid gap-2">
                                     @foreach($group['items'] as $item)
-                                        @php
-                                            $schedule = $item['schedule'] ?? null;
-                                            $status = $item['status'] ?? 'belum';
-                                            $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : 'warning');
-                                            $journalFilled = ($status === 'hadir' || $status === 'izin');
-                                        @endphp
+                                            @php
+                                                $schedule = $item['schedule'] ?? null;
+                                                $status = $item['status'] ?? 'belum';
+                                                $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : ($status === 'libur' ? 'secondary' : 'warning'));
+                                                $journalFilled = ($status === 'hadir' || $status === 'izin');
+                                            @endphp
                                         <div class="border rounded-3 p-3" style="background: #fbfcfb;">
                                             <div class="d-flex justify-content-between gap-3">
                                                 <div class="flex-grow-1" style="min-width: 0;">
@@ -168,11 +168,23 @@
 
                                                 <div class="text-end flex-shrink-0">
                                                     <div class="badge rounded-pill bg-{{ $statusClass }}-subtle text-{{ $statusClass }} border border-{{ $statusClass }}-subtle mb-1">
-                                                        {{ strtoupper($status) }}
+                                                        {{ $status === 'libur' ? 'LIBUR' : strtoupper($status) }}
                                                     </div>
-                                                    <div class="small text-muted">{{ $journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal' }}</div>
+                                                    <div class="small text-muted">
+                                                        {{ $status === 'izin'
+                                                            ? 'Izin kegiatan terdeteksi'
+                                                            : ($status === 'libur'
+                                                                ? 'Tanggal merah, tidak perlu jurnal'
+                                                                : ($journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal')) }}
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            @if($status === 'libur')
+                                                <div class="mt-2 small text-muted">
+                                                    {{ $item['holiday']?->name ?? 'Tanggal merah' }}
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -227,6 +239,8 @@
                                             <span class="text-success">Hadir {{ $daily['hadir'] }}</span>
                                             <span class="mx-1">•</span>
                                             <span class="text-info">Izin {{ $daily['izin'] }}</span>
+                                            <span class="mx-1">•</span>
+                                            <span class="text-secondary">Libur {{ $daily['libur'] ?? 0 }}</span>
                                             <span class="mx-1">•</span>
                                             <span class="text-warning">Belum {{ $daily['belum'] }}</span>
                                         </div>

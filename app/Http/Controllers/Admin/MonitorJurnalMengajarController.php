@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Holiday;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingSchedule;
 use App\Models\User;
@@ -74,6 +75,11 @@ class MonitorJurnalMengajarController extends Controller
             $weekStart,
             $effectiveEnd
         );
+        $holidayMap = Holiday::query()
+            ->where('is_active', true)
+            ->whereBetween('date', [$weekStart->toDateString(), $effectiveEnd->toDateString()])
+            ->get()
+            ->keyBy(fn (Holiday $holiday) => $holiday->getRawOriginal('date'));
 
         $recordsQuery = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school', 'academicCalendarEvent'])
             ->whereHas('teachingSchedule', function ($q) use ($user) {
@@ -113,6 +119,8 @@ class MonitorJurnalMengajarController extends Controller
                     ->whereDate('tanggal', $cursor->toDateString())
                     ->first();
                 $event = $approvedSchoolActivityEvents->get($schedule->id . '|' . $cursor->toDateString());
+                $holiday = $holidayMap->get($cursor->toDateString());
+                $status = $event ? 'izin' : (($holiday && !$attendance) ? 'libur' : ($attendance ? 'hadir' : 'belum'));
 
                 $expectedSessions->push([
                     'date' => $cursor->toDateString(),
@@ -123,7 +131,8 @@ class MonitorJurnalMengajarController extends Controller
                     'attendance' => $attendance,
                     'schedule' => $schedule,
                     'event' => $event,
-                    'status' => $event ? 'izin' : ($attendance ? 'hadir' : 'belum'),
+                    'holiday' => $holiday,
+                    'status' => $status,
                 ]);
 
                 $cursor->addDay();
@@ -132,6 +141,7 @@ class MonitorJurnalMengajarController extends Controller
 
         $completedJournals = $expectedSessions->filter(fn ($item) => !is_null($item['attendance']))->values();
         $approvedIzinSessions = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'izin')->values();
+        $holidaySessions = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'libur')->values();
         $missingJournals = $expectedSessions->filter(fn ($item) => ($item['status'] ?? null) === 'belum')->values();
         $dailyRecaps = $expectedSessions
             ->groupBy('date')
@@ -144,6 +154,7 @@ class MonitorJurnalMengajarController extends Controller
                     'total' => $items->count(),
                     'hadir' => $items->where('status', 'hadir')->count(),
                     'izin' => $items->where('status', 'izin')->count(),
+                    'libur' => $items->where('status', 'libur')->count(),
                     'belum' => $items->where('status', 'belum')->count(),
                     'items' => $items,
                 ];
@@ -169,6 +180,7 @@ class MonitorJurnalMengajarController extends Controller
             'total' => 0,
             'hadir' => 0,
             'izin' => 0,
+            'libur' => 0,
             'belum' => 0,
             'items' => collect(),
         ];
@@ -195,6 +207,7 @@ class MonitorJurnalMengajarController extends Controller
             'total_jurnal' => $records->total(),
             'total_jadwal' => $expectedSessions->count(),
             'total_izin' => $approvedIzinSessions->count(),
+            'total_libur' => $holidaySessions->count(),
             'total_belum_jurnal' => $missingJournals->count(),
             'total_guru' => User::where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
