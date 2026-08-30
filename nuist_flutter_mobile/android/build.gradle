@@ -27,6 +27,18 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(':app')
 }
+gradle.projectsEvaluated {
+    def tfliteProject = project(':tflite_flutter')
+
+    if (tfliteProject.hasProperty('android')) {
+        tfliteProject.android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_17
+                targetCompatibility JavaVersion.VERSION_17
+            }
+        }
+    }
+}
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
