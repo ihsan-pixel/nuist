@@ -214,6 +214,19 @@ class BiometricVerificationService
             'threshold' => $resolvedThreshold,
             'verified' => $similarity >= $resolvedThreshold,
         ]);
+        Log::info('[BIOMETRIC_VERIFY][RESULT]', [
+            'auth_user_id' => $user->id,
+            'profile_user_id' => $profile->user_id,
+            'profile_id' => $profile->id,
+            'request_dimension' => $dimension,
+            'profile_dimension' => $profile->dimension,
+            'request_norm' => $requestStats['norm'] ?? null,
+            'profile_norm' => $profileStats['norm'] ?? null,
+            'similarity' => round($similarity, 4),
+            'threshold' => $resolvedThreshold,
+            'verified' => $similarity >= $resolvedThreshold,
+            'failure_code' => $similarity >= $resolvedThreshold ? 'FACE_VERIFIED' : 'SIMILARITY_BELOW_THRESHOLD',
+        ]);
 
         return [
             'ok' => true,

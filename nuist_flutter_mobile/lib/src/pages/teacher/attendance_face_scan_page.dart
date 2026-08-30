@@ -490,9 +490,18 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         'norm=${_embeddingNorm(embedding).toStringAsFixed(6)}',
       );
 
+      final leftEyeRaw = face.landmarks[FaceLandmarkType.leftEye]?.position;
+      final rightEyeRaw = face.landmarks[FaceLandmarkType.rightEye]?.position;
       debugPrint(
         '[FACE_ATTENDANCE][ALIGNMENT] '
-        'output=${aligned.crop.width}x${aligned.crop.height}',
+        'output=${aligned.crop.width}x${aligned.crop.height} '
+        'frame=${source.width}x${source.height} '
+        'rotation=${_rotationFromOrientation(_controller!.description, _controller!.value.deviceOrientation).rawValue} '
+        'lens=${_controller!.description.lensDirection.name} '
+        'leftEyeRaw=${leftEyeRaw == null ? '-' : '(${leftEyeRaw.x.toStringAsFixed(1)},${leftEyeRaw.y.toStringAsFixed(1)})'} '
+        'rightEyeRaw=${rightEyeRaw == null ? '-' : '(${rightEyeRaw.x.toStringAsFixed(1)},${rightEyeRaw.y.toStringAsFixed(1)})'} '
+        'leftEyeNorm=(${aligned.leftEyeX.toStringAsFixed(4)},${aligned.leftEyeY.toStringAsFixed(4)}) '
+        'rightEyeNorm=(${aligned.rightEyeX.toStringAsFixed(4)},${aligned.rightEyeY.toStringAsFixed(4)})',
       );
 
       debugPrint(
@@ -517,7 +526,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       );
 
       debugPrint(
-        '[FACE_ATTENDANCE][VERIFY_RESULT] '
+        '[FACE_ATTENDANCE][API_RESPONSE_RECEIVED] '
         'verified=${verification['face_verified'] == true || verification['success'] == true}',
       );
 

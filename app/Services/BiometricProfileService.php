@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BiometricProfile;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -16,7 +17,9 @@ class BiometricProfileService
             'status' => 'active',
         ], $attributes);
 
-        return BiometricProfile::create($payload);
+        $profile = BiometricProfile::create($payload);
+        $this->logStoredProfile($profile);
+        return $profile;
     }
 
     public function createProfileWithReEnrollment(User $user, array $attributes): BiometricProfile
@@ -40,6 +43,7 @@ class BiometricProfileService
                 $profile = BiometricProfile::create($payload);
             }
 
+            $this->logStoredProfile($profile);
             return $profile->refresh();
         });
     }
@@ -103,5 +107,31 @@ class BiometricProfileService
         }
 
         return $query->update(['status' => 'inactive']);
+    }
+
+    private function logStoredProfile(BiometricProfile $profile): void
+    {
+        $embedding = is_array($profile->embedding) ? $profile->embedding : [];
+        Log::info('[BIOMETRIC_PROFILE][STORED]', [
+            'user_id' => $profile->user_id,
+            'profile_id' => $profile->id,
+            'engine' => $profile->engine,
+            'model' => $profile->model,
+            'model_version' => $profile->model_version,
+            'dimension' => $profile->dimension,
+            'embedding_count' => count($embedding),
+            'status' => $profile->status,
+            'fingerprint' => $this->fingerprintEmbedding($embedding),
+        ]);
+    }
+
+    private function fingerprintEmbedding(array $embedding): string
+    {
+        $canonical = array_map(
+            static fn ($value) => is_numeric($value) ? number_format((float) $value, 8, '.', '') : 'nan',
+            $embedding,
+        );
+
+        return hash('sha256', json_encode($canonical, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 }

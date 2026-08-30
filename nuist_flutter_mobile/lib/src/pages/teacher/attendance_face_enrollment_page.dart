@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:crypto/crypto.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 
@@ -390,6 +392,20 @@ class _AttendanceFaceEnrollmentPageState
 
     final alignment = _converter.extractAlignedFaceCropFromRgb(frame, face);
     final crop = alignment.crop;
+    final leftEyeRaw = face.landmarks[FaceLandmarkType.leftEye]?.position;
+    final rightEyeRaw = face.landmarks[FaceLandmarkType.rightEye]?.position;
+    debugPrint(
+      '[FACE_ALIGNMENT][TRACE] '
+      'context=enrollment '
+      'frame=${frame.width}x${frame.height} '
+      'rotation=${_rotationFromOrientation(controller.description, controller.value.deviceOrientation).rawValue} '
+      'lens=${controller.description.lensDirection.name} '
+      'rawLeftEye=${leftEyeRaw == null ? '-' : '(${leftEyeRaw.x.toStringAsFixed(1)},${leftEyeRaw.y.toStringAsFixed(1)})'} '
+      'rawRightEye=${rightEyeRaw == null ? '-' : '(${rightEyeRaw.x.toStringAsFixed(1)},${rightEyeRaw.y.toStringAsFixed(1)})'} '
+      'normLeftEye=(${alignment.leftEyeX.toStringAsFixed(4)},${alignment.leftEyeY.toStringAsFixed(4)}) '
+      'normRightEye=(${alignment.rightEyeX.toStringAsFixed(4)},${alignment.rightEyeY.toStringAsFixed(4)}) '
+      'output=112x112',
+    );
     final sampleBytes = Uint8List.fromList(img.encodeJpg(crop, quality: 95));
     final embedding = await _recognitionService.generateEmbedding(sampleBytes);
     final norm = _math.l2Norm(embedding);
@@ -719,6 +735,40 @@ class _AttendanceFaceEnrollmentPageState
     );
   }
 
+  void _logCentroidDiagnostics(List<double> centroid) {
+    if (_sampleEmbeddings.isEmpty) {
+      return;
+    }
+
+    final similarities = <double>[];
+    for (var i = 0; i < _sampleEmbeddings.length; i++) {
+      final similarity = _math.cosineSimilarity(_sampleEmbeddings[i], centroid);
+      similarities.add(similarity);
+      debugPrint(
+        '[BIOMETRIC_ENROLL][CENTROID_SAMPLE] '
+        'sample=${i + 1} '
+        'dimension=${_sampleEmbeddings[i].length} '
+        'similarity=${similarity.toStringAsFixed(6)}',
+      );
+    }
+
+    final min = similarities.reduce((a, b) => a < b ? a : b);
+    final mean = similarities.reduce((a, b) => a + b) / similarities.length;
+    debugPrint(
+      '[BIOMETRIC_ENROLL][CENTROID_CHECK] '
+      'sample_count=${_sampleEmbeddings.length} '
+      'dimension=${centroid.length} '
+      'min=${min.toStringAsFixed(6)} '
+      'mean=${mean.toStringAsFixed(6)}',
+    );
+  }
+
+  String _fingerprintEmbedding(List<double> values) {
+    final canonical = values.map((value) => value.toStringAsFixed(8)).toList(growable: false);
+    final digest = sha256.convert(utf8.encode(jsonEncode(canonical)));
+    return digest.toString();
+  }
+
   List<double> _buildCentroid() {
     if (_sampleEmbeddings.length != 5) {
       throw Exception('Sample count bukan 5.');
@@ -743,6 +793,12 @@ class _AttendanceFaceEnrollmentPageState
 
     try {
       final centroid = _buildCentroid();
+      _logCentroidDiagnostics(centroid);
+      debugPrint(
+        '[BIOMETRIC_ENROLL][FINGERPRINT] '
+        'dimension=${centroid.length} '
+        'sha256=${_fingerprintEmbedding(centroid)}',
+      );
       final livenessScore = _computeAggregateLiveness();
       final payload = <String, dynamic>{
         'user_id': userId,
