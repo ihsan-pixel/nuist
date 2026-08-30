@@ -28,10 +28,17 @@ class BiometricProfileService
                 'status' => 'active',
             ], $attributes);
 
-            $profile = BiometricProfile::query()->updateOrCreate(
-                ['user_id' => $user->id],
-                $payload,
-            );
+            $profile = BiometricProfile::query()
+                ->where('user_id', $user->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($profile) {
+                $profile->fill($payload);
+                $profile->save();
+            } else {
+                $profile = BiometricProfile::create($payload);
+            }
 
             return $profile->refresh();
         });
