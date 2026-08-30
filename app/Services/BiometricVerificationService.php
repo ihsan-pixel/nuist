@@ -21,7 +21,7 @@ class BiometricVerificationService
         }
 
         if (count($embedding) !== $dimension) {
-            return $this->error('BIOMETRIC_VECTOR_INVALID', 'Panjang embedding tidak sesuai dengan dimension.');
+            return $this->error('REQUEST_VECTOR_DIMENSION_MISMATCH', 'Panjang embedding request tidak sesuai dengan dimension.');
         }
 
         $normalized = [];
@@ -69,7 +69,7 @@ class BiometricVerificationService
     public function cosineSimilarity(array $probe, array $reference): float
     {
         if ($probe === [] || $reference === [] || count($probe) !== count($reference)) {
-            return -1.0;
+            throw new \InvalidArgumentException('COSINE_VECTOR_INVALID');
         }
 
         $dot = 0.0;
@@ -80,7 +80,7 @@ class BiometricVerificationService
             $a = (float) $value;
             $b = (float) $reference[$idx];
             if (!is_finite($a) || !is_finite($b)) {
-                return -1.0;
+                throw new \InvalidArgumentException('COSINE_VECTOR_INVALID');
             }
 
             $dot += $a * $b;
@@ -89,7 +89,7 @@ class BiometricVerificationService
         }
 
         if ($normProbe <= 0 || $normReference <= 0) {
-            return -1.0;
+            throw new \InvalidArgumentException('COSINE_VECTOR_INVALID');
         }
 
         return $dot / (sqrt($normProbe) * sqrt($normReference));
@@ -115,6 +115,7 @@ class BiometricVerificationService
             'user_id' => $user->id,
             'request_declared_dimension' => $dimension,
             'request_embedding_count' => $requestStats['count'] ?? count($probe['embedding']),
+            'request_norm' => $requestStats['norm'] ?? null,
             'request_embedding_type' => $requestVectorType,
         ]);
 
@@ -178,6 +179,7 @@ class BiometricVerificationService
             'profile_id' => $profile->id,
             'profile_dimension' => $profile->dimension,
             'profile_embedding_count' => $profileStats['count'] ?? count($reference),
+            'profile_norm' => $profileStats['norm'] ?? null,
             'profile_embedding_type' => $profileVectorType,
         ]);
         Log::debug('[BIOMETRIC_VERIFY][PROFILE_VECTOR]', array_merge([
@@ -186,16 +188,17 @@ class BiometricVerificationService
         ], $profileStats));
 
         if (($profileStats['count'] ?? 0) !== $dimension) {
-            return $this->error('VECTOR_DIMENSION_MISMATCH', 'Dimensi vector profil tidak sesuai.');
+            return $this->error('PROFILE_VECTOR_DIMENSION_MISMATCH', 'Dimensi vector profil tidak sesuai.');
         }
 
         if (($profileStats['norm'] ?? 0) <= 0) {
             return $this->error('VECTOR_ZERO_NORM', 'Profil biometrik tersimpan tidak valid.');
         }
 
-        $similarity = $this->cosineSimilarity($probe['embedding'], $reference);
-        if ($similarity < 0) {
-            return $this->error('VECTOR_DIMENSION_MISMATCH', 'Embedding tidak valid untuk dibandingkan.');
+        try {
+            $similarity = $this->cosineSimilarity($probe['embedding'], $reference);
+        } catch (\InvalidArgumentException) {
+            return $this->error('BIOMETRIC_VECTOR_INVALID', 'Embedding tidak valid untuk dibandingkan.');
         }
 
         $resolvedThreshold = (float) config('biometric.default_threshold', 0.75);
@@ -218,7 +221,7 @@ class BiometricVerificationService
             'similarity' => round($similarity, 4),
             'threshold' => $resolvedThreshold,
             'matched' => $similarity >= $resolvedThreshold,
-            'code' => $similarity >= $resolvedThreshold ? 'FACE_VERIFIED' : 'FACE_NOT_VERIFIED',
+            'code' => $similarity >= $resolvedThreshold ? 'FACE_VERIFIED' : 'SIMILARITY_BELOW_THRESHOLD',
             'message' => $similarity >= $resolvedThreshold
                 ? 'Wajah cocok dengan profil biometrik aktif.'
                 : 'Wajah tidak cocok dengan profil biometrik aktif.',
