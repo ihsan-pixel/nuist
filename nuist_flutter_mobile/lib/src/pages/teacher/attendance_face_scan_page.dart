@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +44,10 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   bool _hasFace = false;
   bool _readyToCapture = false;
   bool _verifying = false;
+  bool _cameraReady = false;
+  bool _detectorReady = false;
+  bool _modelReady = false;
+  bool _profileReady = false;
   int _stableFrames = 0;
   Timer? _autoCaptureTimer;
   bool _autoCaptureArmed = false;
@@ -53,10 +56,21 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   String _status = 'Menyiapkan kamera depan...';
   String? _error;
   DateTime _lastFrameAt = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime? _firstValidFaceAt;
+  DateTime? _stableReadyAt;
+  DateTime? _alignmentReadyAt;
+  DateTime? _inferenceStartAt;
+  DateTime? _apiVerifyStartAt;
+  img.Image? _latestRgbFrame;
+  DateTime? _latestRgbFrameAt;
+  Face? _latestFace;
+  Size? _latestImageSize;
+  late final Future<Map<String, dynamic>> _biometricStatusFuture;
 
   @override
   void initState() {
     super.initState();
+    _biometricStatusFuture = widget.repository.getBiometricProfileStatus();
     _initialize();
   }
 
@@ -75,6 +89,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         imageFormatGroup: ImageFormatGroup.yuv420,
       );
       await controller.initialize();
+      _cameraReady = true;
 
       final detector = FaceDetector(
         options: FaceDetectorOptions(
@@ -84,6 +99,26 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
           performanceMode: FaceDetectorMode.accurate,
         ),
       );
+      _detectorReady = true;
+
+      unawaited(_recognitionService.initialize().then((_) {
+        if (mounted) {
+          setState(() {
+            _modelReady = true;
+          });
+        } else {
+          _modelReady = true;
+        }
+      }));
+      unawaited(_biometricStatusFuture.then((_) {
+        if (mounted) {
+          setState(() {
+            _profileReady = true;
+          });
+        } else {
+          _profileReady = true;
+        }
+      }));
 
       if (!mounted) {
         await detector.close();
@@ -117,7 +152,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     }
 
     final now = DateTime.now();
-    if (now.difference(_lastFrameAt).inMilliseconds < 180) {
+    if (now.difference(_lastFrameAt).inMilliseconds < 95) {
       return;
     }
     _lastFrameAt = now;
@@ -129,9 +164,17 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         _controller!.description,
         _controller!.value.deviceOrientation,
       );
+      final rgbFrame = _cameraImageConverter.convertToRgbImage(image);
       final faces = await _detector!.processImage(inputImage);
       final face = faces.isNotEmpty ? faces.first : null;
+      _latestRgbFrame = rgbFrame;
+      _latestRgbFrameAt = now;
+      _latestFace = face;
+      _latestImageSize = Size(rgbFrame.width.toDouble(), rgbFrame.height.toDouble());
       final ready = _isFaceReady(face);
+      if (face != null && _firstValidFaceAt == null) {
+        _firstValidFaceAt = now;
+      }
 
       if (!mounted) {
         return;
@@ -145,6 +188,9 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
           _status = 'Wajah belum terdeteksi. Posisikan wajah di tengah bingkai.';
         } else if (ready) {
           _status = 'Wajah terdeteksi dengan stabil. Silakan ambil scan.';
+          if (_stableFrames >= 2 && _stableReadyAt == null) {
+            _stableReadyAt = now;
+          }
         } else {
           _status = 'Tahan posisi wajah, jangan terlalu miring.';
         }
@@ -170,13 +216,13 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       return;
     }
 
-    if (_stableFrames < 6 || _autoCaptureArmed) {
+    if (_stableFrames < 2 || _autoCaptureArmed) {
       return;
     }
 
     _autoCaptureArmed = true;
     _autoCaptureTimer?.cancel();
-    _autoCaptureTimer = Timer(const Duration(milliseconds: 850), () {
+    _autoCaptureTimer = Timer(Duration.zero, () {
       if (mounted && _readyToCapture && !_loading) {
         unawaited(_capture());
       } else {
@@ -277,6 +323,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       return;
     }
 
+    final verifyStart = DateTime.now();
     setState(() {
       _loading = true;
       _error = null;
@@ -284,9 +331,15 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     });
 
     try {
-      await _stopCameraStreamSafely(reason: 'capture_start');
-      final file = await _controller!.takePicture();
-      final processed = await _analyzeImage(file.path);
+      debugPrint(
+        '[FACE_ATTENDANCE][MODEL] '
+        'cache_hit=${_recognitionService.isInitialized} '
+        'cameraReady=$_cameraReady '
+        'detectorReady=$_detectorReady '
+        'modelReady=$_modelReady '
+        'profileReady=$_profileReady',
+      );
+      final processed = await _analyzeLatestFrame();
       if (processed == null) {
         throw Exception(
           'Wajah tidak valid. Pastikan wajah terlihat jelas dan coba lagi.',
@@ -316,6 +369,20 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       if (verified) {
         debugPrint('[FACE_ATTENDANCE][CAMERA_STOP] reason=verification_complete');
         await _stopCameraStreamSafely(reason: 'verification_complete');
+        final apiVerifyMs = _apiVerifyStartAt == null
+            ? 0
+            : DateTime.now().difference(_apiVerifyStartAt!).inMilliseconds;
+        final totalMs = DateTime.now().difference(verifyStart).inMilliseconds;
+        debugPrint(
+          '[FACE_ATTENDANCE][FAST_TIMING] '
+          'face_first_seen_ms=${_firstValidFaceAt == null ? 0 : verifyStart.difference(_firstValidFaceAt!).inMilliseconds} '
+          'stable_ready_ms=${_stableReadyAt == null ? 0 : verifyStart.difference(_stableReadyAt!).inMilliseconds} '
+          'alignment_ms=${_alignmentReadyAt == null ? 0 : _alignmentReadyAt!.difference(verifyStart).inMilliseconds} '
+          'inference_ms=${_inferenceStartAt == null ? 0 : DateTime.now().difference(_inferenceStartAt!).inMilliseconds} '
+          'api_verify_ms=$apiVerifyMs '
+          'attendance_submit_ms=0 '
+          'total_biometric_ms=$totalMs',
+        );
         if (!mounted) {
           return;
         }
@@ -334,6 +401,11 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
       if (shouldRetryAutomatically) {
         _verificationAttempts++;
+        _loading = false;
+        _verifying = false;
+        _stableFrames = 0;
+        _autoCaptureArmed = false;
+        await Future<void>.delayed(const Duration(milliseconds: 180));
         await _restartStreamWithStatus(
           'Wajah belum terbaca dengan stabil. Mencoba lagi...',
         );
@@ -416,17 +488,13 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     if (controller == null || !controller.value.isInitialized) {
       return;
     }
-
     if (!controller.value.isStreamingImages) {
       return;
     }
-
     debugPrint('[FACE_ATTENDANCE][CAMERA_STOP] reason=$reason');
     try {
       await controller.stopImageStream();
-    } catch (_) {
-      // Cleanup only. The controller may already be stopped by the success path.
-    }
+    } catch (_) {}
   }
 
   String? _friendlyVerificationMessage(String? code) {
@@ -452,36 +520,25 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     }
   }
 
-  Future<Map<String, dynamic>?> _analyzeImage(String path) async {
-    final detector = FaceDetector(
-      options: FaceDetectorOptions(
-        enableClassification: true,
-        enableLandmarks: true,
-        performanceMode: FaceDetectorMode.accurate,
-      ),
+  Future<Map<String, dynamic>?> _analyzeLatestFrame() async {
+    final frame = _latestRgbFrame;
+    final face = _latestFace;
+    final frameAt = _latestRgbFrameAt;
+    if (frame == null || face == null || frameAt == null) {
+      return null;
+    }
+
+    final imageBytes = Uint8List.fromList(img.encodeJpg(frame));
+    final liveness = _estimateLiveness(face);
+    final challenges = _normalizeChallenges(liveness['challenges']);
+    _alignmentReadyAt = DateTime.now();
+    final aligned = _cameraImageConverter.extractAlignedFaceCropFromRgb(
+      frame,
+      face,
     );
-
-    try {
-      final faces = await detector.processImage(InputImage.fromFilePath(path));
-      if (faces.isEmpty) {
-        return null;
-      }
-
-      final face = faces.first;
-      final imageBytes = await File(path).readAsBytes();
-      final source = img.decodeImage(imageBytes);
-      if (source == null) {
-        throw Exception('Gagal membaca gambar hasil capture.');
-      }
-      final liveness = _estimateLiveness(face);
-      final challenges = _normalizeChallenges(liveness['challenges']);
-      final aligned = _cameraImageConverter.extractAlignedFaceCropFromRgb(
-        source,
-        face,
-      );
-      await _recognitionService.initialize();
-      final embeddingBytes = Uint8List.fromList(img.encodeJpg(aligned.crop));
-      final embedding = await _recognitionService.generateEmbedding(embeddingBytes);
+    _inferenceStartAt = DateTime.now();
+    final embeddingBytes = Uint8List.fromList(img.encodeJpg(aligned.crop));
+    final embedding = await _recognitionService.generateEmbedding(embeddingBytes);
 
       debugPrint(
         '[FACE_ATTENDANCE][EMBEDDING] '
@@ -493,9 +550,24 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       final leftEyeRaw = face.landmarks[FaceLandmarkType.leftEye]?.position;
       final rightEyeRaw = face.landmarks[FaceLandmarkType.rightEye]?.position;
       debugPrint(
+        '[FACE_COORDINATE][CANONICAL] '
+        'context=attendance '
+        'camera_width=${_latestImageSize?.width.toStringAsFixed(0) ?? frame.width.toStringAsFixed(0)} '
+        'camera_height=${_latestImageSize?.height.toStringAsFixed(0) ?? frame.height.toStringAsFixed(0)} '
+        'rgb_before_width=${frame.width} '
+        'rgb_before_height=${frame.height} '
+        'rotation=${_rotationFromOrientation(_controller!.description, _controller!.value.deviceOrientation).rawValue} '
+        'rgb_after_width=${aligned.crop.width} '
+        'rgb_after_height=${aligned.crop.height} '
+        'lens=${_controller!.description.lensDirection.name} '
+        'landmark_space_width=${aligned.sourceWidth} '
+        'landmark_space_height=${aligned.sourceHeight}',
+      );
+
+      debugPrint(
         '[FACE_ATTENDANCE][ALIGNMENT] '
         'output=${aligned.crop.width}x${aligned.crop.height} '
-        'frame=${source.width}x${source.height} '
+        'frame=${frame.width}x${frame.height} '
         'rotation=${_rotationFromOrientation(_controller!.description, _controller!.value.deviceOrientation).rawValue} '
         'lens=${_controller!.description.lensDirection.name} '
         'leftEyeRaw=${leftEyeRaw == null ? '-' : '(${leftEyeRaw.x.toStringAsFixed(1)},${leftEyeRaw.y.toStringAsFixed(1)})'} '
@@ -504,6 +576,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         'rightEyeNorm=(${aligned.rightEyeX.toStringAsFixed(4)},${aligned.rightEyeY.toStringAsFixed(4)})',
       );
 
+      _apiVerifyStartAt = DateTime.now();
       debugPrint(
         '[FACE_ATTENDANCE][VERIFY_START] '
         'engine=${_recognitionService.modelInfo.engine} '
@@ -527,19 +600,17 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
       debugPrint(
         '[FACE_ATTENDANCE][API_RESPONSE_RECEIVED] '
-        'verified=${verification['face_verified'] == true || verification['success'] == true}',
+        'verified=${verification['face_verified'] == true || verification['success'] == true} '
+        'api_verify_ms=${_apiVerifyStartAt == null ? 0 : DateTime.now().difference(_apiVerifyStartAt!).inMilliseconds}',
       );
 
-      return {
-        'selfie_data': 'data:image/jpeg;base64,${base64Encode(imageBytes)}',
-        'face_embedding': embedding,
-        'liveness_score': liveness['score'],
-        'liveness_challenges': challenges,
-        'verification': verification,
-      };
-    } finally {
-      await detector.close();
-    }
+    return {
+      'selfie_data': 'data:image/jpeg;base64,${base64Encode(imageBytes)}',
+      'face_embedding': embedding,
+      'liveness_score': liveness['score'],
+      'liveness_challenges': challenges,
+      'verification': verification,
+    };
   }
 
   Map<String, dynamic> _estimateLiveness(Face face) {

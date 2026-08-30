@@ -17,7 +17,6 @@ import 'report_page.dart';
 import 'schedule_page.dart';
 import 'staff_attendance_page.dart';
 import 'teaching_journal_page.dart';
-import 'face_embedding_debug_page.dart';
 
 class TeacherShellPage extends StatefulWidget {
   const TeacherShellPage({
@@ -110,13 +109,6 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
     if (!kDebugMode) {
       return;
     }
-    unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => const FaceEmbeddingDebugPage(),
-        ),
-      ),
-    );
   }
 
   void _openProfile() {
