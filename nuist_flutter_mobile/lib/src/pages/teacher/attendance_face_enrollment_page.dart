@@ -1,13 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:image/image.dart' as img;
 
+import '../../services/face_camera_image_converter.dart';
+import '../../services/face_enrollment_math.dart';
+import '../../services/face_recognition_service.dart';
 import '../../services/teacher_mobile_repository.dart';
-import '../../services/face_embedding_service.dart';
 
 const _enrollPrimary = Color(0xFF00745A);
 const _enrollPrimarySoft = Color(0xFFEAF6F1);
@@ -36,26 +39,52 @@ class AttendanceFaceEnrollmentPage extends StatefulWidget {
 
 class _AttendanceFaceEnrollmentPageState
     extends State<AttendanceFaceEnrollmentPage> {
+  static const List<String> _poseOrder = <String>[
+    'front',
+    'left',
+    'right',
+    'up',
+    'down',
+  ];
+  static const Map<String, String> _posePrompts = <String, String>{
+    'front': 'Hadapkan wajah lurus',
+    'left': 'Putar wajah sedikit ke kiri',
+    'right': 'Putar wajah sedikit ke kanan',
+    'up': 'Angkat wajah sedikit',
+    'down': 'Tundukkan wajah sedikit',
+  };
+
+  final FaceCameraImageConverter _converter = const FaceCameraImageConverter();
+  final FaceRecognitionService _recognitionService = FaceRecognitionService();
+  final FaceEnrollmentMath _math = const FaceEnrollmentMath();
   CameraController? _controller;
   FaceDetector? _detector;
-  final FaceEmbeddingService _embeddingService = FaceEmbeddingService();
   bool _loading = true;
   bool _processingFrame = false;
   bool _hasFace = false;
   bool _readyToCapture = false;
   bool _submitting = false;
   int _stableFrames = 0;
-  String _poseInstruction = 'Arahkan wajah ke depan.';
-  String _nextStepHint = 'Langkah berikutnya: hadapkan wajah ke depan.';
+  final PoseCandidateState _poseCandidateState = PoseCandidateState();
+  String _poseInstruction = _posePrompts['front']!;
+  String _nextStepHint = 'Posisi 1 dari 5';
+  int _currentPoseIndex = 0;
   final List<String> _poseSequence = <String>[];
-  final Map<String, List<double>> _poseDescriptors = <String, List<double>>{};
+  final Map<String, List<double>> _poseEmbeddings = <String, List<double>>{};
+  final List<List<double>> _sampleEmbeddings = <List<double>>[];
+  final List<String> _samplePoses = <String>[];
+  final List<double> _sampleQualityScores = <double>[];
+  final List<double> _sampleLivenessScores = <double>[];
+  final List<String> _livenessChallenges = <String>[];
   Face? _latestFace;
   Size? _latestImageSize;
-  Timer? _autoCaptureTimer;
-  bool _autoCaptureArmed = false;
+  img.Image? _latestOwnedFrame;
+  DateTime? _latestFrameAt;
+  DateTime? _lastPoseDebugAt;
   String _status = 'Menyiapkan kamera depan...';
   String? _error;
-  DateTime _lastFrameAt = DateTime.fromMillisecondsSinceEpoch(0);
+  bool _submitInFlight = false;
+  String? _submitError;
 
   @override
   void initState() {
@@ -88,9 +117,12 @@ class _AttendanceFaceEnrollmentPageState
         ),
       );
 
+      await _recognitionService.initialize();
+
       if (!mounted) {
         await detector.close();
         await controller.dispose();
+        _recognitionService.dispose();
         return;
       }
 
@@ -120,10 +152,10 @@ class _AttendanceFaceEnrollmentPageState
     }
 
     final now = DateTime.now();
-    if (now.difference(_lastFrameAt).inMilliseconds < 180) {
+    if (_latestFrameAt != null && now.difference(_latestFrameAt!).inMilliseconds < 180) {
       return;
     }
-    _lastFrameAt = now;
+    _latestFrameAt = now;
 
     _processingFrame = true;
     try {
@@ -134,39 +166,41 @@ class _AttendanceFaceEnrollmentPageState
       );
       final faces = await _detector!.processImage(inputImage);
       final face = faces.isNotEmpty ? faces.first : null;
-      final pose = _detectPose(face);
-      final stable = _isPoseStable(face);
-      final ready = _isFaceReady(face);
+      final observation = _buildObservation(
+        face: face,
+        frameId: now.millisecondsSinceEpoch,
+        imageWidth: image.width.toDouble(),
+        imageHeight: image.height.toDouble(),
+      );
 
       if (!mounted) {
         return;
       }
 
+      final rgbFrame = _converter.convertToRgbImage(image);
       setState(() {
         _latestFace = face;
         _latestImageSize = Size(image.width.toDouble(), image.height.toDouble());
-        _hasFace = face != null;
-        _readyToCapture = ready;
-        _stableFrames = stable ? _stableFrames + 1 : 0;
-        _poseInstruction = _instructionForPose(pose);
-        _nextStepHint = _nextHintForPose(pose);
+        _latestOwnedFrame = rgbFrame;
+        _latestFrameAt = now;
+        _hasFace = observation.faceCount > 0;
+        _readyToCapture = observation.qualityValid;
+        _stableFrames = observation.poseValid ? _stableFrames + 1 : 0;
+        _poseInstruction = _instructionForPose(observation.targetPose);
+        _nextStepHint = _nextHintForPose(observation.targetPose);
+        _currentPoseIndex = math.min(_currentPoseIndex, _poseOrder.length - 1);
         if (face == null) {
           _status = 'Wajah belum terdeteksi. Posisikan wajah di tengah bingkai.';
-        } else if (pose == 'front' && stable) {
-          _status = 'Wajah depan stabil. Selanjutnya lihat kanan.';
-        } else if (pose == 'right' && stable) {
-          _status = 'Bagus. Selanjutnya lihat kiri.';
-        } else if (pose == 'left' && stable) {
-          _status = 'Bagus. Kembali lihat depan untuk menyimpan.';
-        } else if (ready) {
-          _status = 'Wajah stabil dan siap didaftarkan.';
+        } else if (observation.poseValid && observation.qualityValid) {
+          _status = 'Posisi ${_currentPoseIndex + 1} dari 5 stabil.';
+        } else if (observation.qualityValid) {
+          _status = 'Wajah stabil. Ikuti instruksi pose berikutnya.';
         } else {
           _status = 'Tahan posisi wajah agar hasil lebih akurat.';
         }
       });
 
-      _updatePoseSequence(face);
-      _scheduleAutoCapture();
+      _updatePoseSequence(observation);
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -179,41 +213,18 @@ class _AttendanceFaceEnrollmentPageState
     }
   }
 
-  void _scheduleAutoCapture() {
-    if (!_readyToCapture ||
-        _loading ||
-        _submitting ||
-        !_isEnrollmentSequenceComplete()) {
-      _autoCaptureTimer?.cancel();
-      _autoCaptureArmed = false;
-      return;
+  String _nextHintForPose(String pose) {
+    if (_currentPoseIndex + 1 >= _poseOrder.length) {
+      return 'Langkah berikutnya: review dan kirim data.';
     }
-
-    if (_stableFrames < 6 || _autoCaptureArmed) {
-      return;
-    }
-
-    _autoCaptureArmed = true;
-    _autoCaptureTimer?.cancel();
-    _autoCaptureTimer = Timer(const Duration(milliseconds: 850), () {
-      if (mounted && _readyToCapture && !_loading && !_submitting) {
-        unawaited(_captureAndEnroll());
-      } else {
-        _autoCaptureArmed = false;
-      }
-    });
+    return 'Langkah berikutnya: ${_posePrompts[_poseOrder[_currentPoseIndex + 1]]}';
   }
 
-  bool _isFaceReady(Face? face) {
-    if (face == null) {
-      return false;
+  String _currentPose() {
+    if (_currentPoseIndex >= _poseOrder.length) {
+      return 'done';
     }
-    final yaw = (face.headEulerAngleY ?? 0).abs();
-    final pitch = (face.headEulerAngleX ?? 0).abs();
-    final roll = (face.headEulerAngleZ ?? 0).abs();
-    final leftEye = face.leftEyeOpenProbability ?? 1.0;
-    final rightEye = face.rightEyeOpenProbability ?? 1.0;
-    return yaw <= 12 && pitch <= 12 && roll <= 12 && leftEye >= 0.2 && rightEye >= 0.2;
+    return _poseOrder[_currentPoseIndex];
   }
 
   bool _isPoseStable(Face? face) {
@@ -226,86 +237,618 @@ class _AttendanceFaceEnrollmentPageState
     return yaw <= 18 && pitch <= 18 && roll <= 18;
   }
 
-  bool _isEnrollmentSequenceComplete() {
-    return _poseSequence.length >= 4 &&
-        _poseSequence[0] == 'front' &&
-        _poseSequence[1] == 'right' &&
-        _poseSequence[2] == 'left' &&
-        _poseSequence[3] == 'front_final';
+  void _updatePoseSequence(EnrollmentObservation observation) {
+    if (observation.face == null) {
+      _resetPoseCandidate(
+        reason: 'face_lost',
+        stableFrames: _poseCandidateState.validFrameCount,
+      );
+      return;
+    }
+
+    if (_poseCandidateState.targetPose != observation.targetPose) {
+      _resetPoseCandidate(
+        reason: 'target_changed',
+        stableFrames: _poseCandidateState.validFrameCount,
+      );
+      _poseCandidateState.targetPose = observation.targetPose;
+      _poseCandidateState.startedAt = DateTime.now();
+      _poseCandidateState.lastFrameId = observation.frameId;
+    }
+
+    if (!observation.canEnterCandidate) {
+      if (observation.poseValid || observation.qualityValid) {
+        debugPrint(
+          '[FACE_ENROLL][OBSERVATION_SKIPPED] '
+          'pose=${observation.targetPose} '
+          'frameId=${observation.frameId} '
+          'poseValid=${observation.poseValid} '
+          'qualityValid=${observation.qualityValid} '
+          'reason=${observation.failureReason ?? 'target_changed'}',
+        );
+      }
+      if (observation.face != null && !observation.qualityValid) {
+        _resetPoseCandidate(
+          reason: observation.failureReason ?? 'quality_invalid',
+          stableFrames: _poseCandidateState.validFrameCount,
+        );
+      }
+      return;
+    }
+
+    final now = DateTime.now();
+    if (_currentPoseIndex < _poseOrder.length) {
+      _readyToCapture = true;
+    }
+
+    _poseCandidateState.validFrameCount += 1;
+    _poseCandidateState.missCount = 0;
+    _poseCandidateState.lastValidAt = now;
+    _poseCandidateState.lastFrameId = observation.frameId;
+    final candidateStartedAt = _poseCandidateState.startedAt ?? now;
+    final candidateAgeMs = now.difference(candidateStartedAt).inMilliseconds;
+    debugPrint(
+      '[FACE_ENROLL][POSE_CANDIDATE] '
+      'pose=${observation.targetPose} '
+      'stableFrames=${_poseCandidateState.validFrameCount}',
+    );
+    debugPrint(
+      '[FACE_ENROLL][POSE_OBSERVATION] '
+      'pose=${observation.targetPose} '
+      'frameId=${observation.frameId} '
+      'valid=${observation.poseValid} '
+      'qualityValid=${observation.qualityValid} '
+      'stableFrames=${_poseCandidateState.validFrameCount} '
+      'missCount=${_poseCandidateState.missCount} '
+      'elapsedMs=$candidateAgeMs',
+    );
+
+    final acquired = _poseCandidateState.validFrameCount >= 2 || candidateAgeMs >= 250;
+    if (!acquired || _poseCandidateState.acquired || _loading || _submitting) {
+      return;
+    }
+
+    _poseCandidateState.acquired = true;
+    final stabilityMs = DateTime.now().difference(candidateStartedAt).inMilliseconds;
+    debugPrint(
+      '[FACE_ENROLL][POSE_ACQUIRED] '
+      'pose=${observation.targetPose} '
+      'frameId=${observation.frameId} '
+      'stableFrames=${_poseCandidateState.validFrameCount} '
+      'stabilityMs=$stabilityMs',
+    );
+    unawaited(_captureAndEnroll());
   }
 
-  String _detectPose(Face? face) {
-    if (face == null) {
-      return 'searching';
+  double _semanticYawForUser(Face face) {
+    final rawYaw = face.headEulerAngleY ?? 0.0;
+    final lensDirection = _controller?.description.lensDirection;
+    if (lensDirection == CameraLensDirection.front) {
+      return -rawYaw;
     }
-    final yaw = face.headEulerAngleY ?? 0;
-    if (yaw >= 12) {
-      return 'right';
-    }
-    if (yaw <= -12) {
-      return 'left';
-    }
-    return 'front';
+    return rawYaw;
   }
 
   String _instructionForPose(String pose) {
-    switch (pose) {
-      case 'right':
-        return 'Sekarang lihat kanan sedikit.';
-      case 'left':
-        return 'Sekarang lihat kiri sedikit.';
-      case 'front':
-        return 'Hadapkan wajah ke depan.';
-      default:
-        return 'Arahkan wajah ke dalam bingkai.';
+    return _posePrompts[pose] ?? 'Arahkan wajah ke dalam bingkai.';
+  }
+
+  void _resetPoseCandidate({
+    required String reason,
+    required int stableFrames,
+  }) {
+    if (_poseCandidateState.targetPose != null && stableFrames > 0) {
+      final startedAt = _poseCandidateState.startedAt ?? DateTime.now();
+      debugPrint(
+        '[FACE_ENROLL][POSE_CANDIDATE_RESET] '
+        'pose=${_poseCandidateState.targetPose} '
+        'stableFrames=$stableFrames '
+        'reason=$reason '
+        'elapsedMs=${DateTime.now().difference(startedAt).inMilliseconds} '
+        'missCount=${_poseCandidateState.missCount}',
+      );
+    }
+    _poseCandidateState.reset();
+  }
+
+  Future<_EnrollmentSample?> _captureCurrentSample() async {
+    final controller = _controller;
+    final face = _latestFace;
+    final frame = _latestOwnedFrame;
+    final frameAt = _latestFrameAt;
+    if (controller == null || face == null || frame == null || frameAt == null) {
+      throw Exception('Wajah belum siap untuk diambil.');
+    }
+
+    final frameAgeMs = DateTime.now().difference(frameAt).inMilliseconds;
+    final quality = _computeQualityScore(face);
+    final liveness = _estimateLiveness(face);
+    _livenessChallenges.addAll(liveness.challenges);
+    final currentPose = _currentPose();
+    final observation = _buildObservation(
+      face: face,
+      frameId: frameAt.millisecondsSinceEpoch,
+      imageWidth: frame.width.toDouble(),
+      imageHeight: frame.height.toDouble(),
+      frameAgeOverrideMs: frameAgeMs,
+      targetPose: currentPose,
+    );
+
+    debugPrint(
+      '[FACE_ENROLL][QUALITY] '
+      'pose=${observation.targetPose} '
+      'faceCount=${observation.faceCount} '
+      'frameAgeMs=${observation.frameAgeMs} '
+      'eyes=${observation.eyesAvailable} '
+      'poseValid=${observation.poseValid} '
+      'qualityValid=${observation.qualityValid}',
+    );
+
+    if (!observation.poseValid) {
+      return null;
+    }
+
+    final alignment = _converter.extractAlignedFaceCropFromRgb(frame, face);
+    final crop = alignment.crop;
+    final sampleBytes = Uint8List.fromList(img.encodeJpg(crop, quality: 95));
+    final embedding = await _recognitionService.generateEmbedding(sampleBytes);
+    final norm = _math.l2Norm(embedding);
+
+    if (embedding.length != 192) {
+      throw Exception('Embedding dimension tidak valid.');
+    }
+    if (!embedding.every((value) => value.isFinite) || norm <= 0) {
+      throw Exception('Embedding tidak valid.');
+    }
+
+    debugPrint(
+      '[FACE_ENROLL][CANONICAL_ALIGNMENT] '
+      'method=${alignment.method} '
+      'output=112x112 '
+      'sourceEyeDistance=${alignment.sourceEyeDistance.toStringAsFixed(2)} '
+      'targetEyeDistance=${alignment.targetEyeDistance.toStringAsFixed(2)} '
+      'scale=${alignment.scale.toStringAsFixed(4)} '
+      'rotation=${alignment.rotationDegrees.toStringAsFixed(2)} '
+      'translationX=${alignment.translationX.toStringAsFixed(2)} '
+      'translationY=${alignment.translationY.toStringAsFixed(2)} '
+      'boundaryPadding=${alignment.clamped}',
+    );
+
+    debugPrint(
+      '[FACE_ENROLL][NORMALIZED_LANDMARKS] '
+      'leftEye=(${alignment.leftEyeX.toStringAsFixed(4)},${alignment.leftEyeY.toStringAsFixed(4)}) '
+      'rightEye=(${alignment.rightEyeX.toStringAsFixed(4)},${alignment.rightEyeY.toStringAsFixed(4)}) '
+      'faceCenter=(${alignment.faceCenterX.toStringAsFixed(4)},${alignment.faceCenterY.toStringAsFixed(4)})',
+    );
+
+    return _EnrollmentSample(
+      pose: _currentPose(),
+      embedding: _math.normalizeL2(embedding),
+      norm: norm,
+      qualityScore: quality,
+      livenessScore: liveness.score,
+      livenessChallenges: liveness.challenges,
+      frameAgeMs: frameAgeMs,
+      alignmentMethod: alignment.method,
+    );
+  }
+
+  EnrollmentObservation _buildObservation({
+    required Face? face,
+    required int frameId,
+    required double imageWidth,
+    required double imageHeight,
+    int? frameAgeOverrideMs,
+    String? targetPose,
+  }) {
+    final poseTarget = targetPose ?? _currentPose();
+    final now = DateTime.now();
+    final capturedAt = _latestFrameAt ?? now;
+    final frameAgeMs = frameAgeOverrideMs ?? now.difference(capturedAt).inMilliseconds;
+    final faceCount = face == null ? 0 : 1;
+    final eyesAvailable = face != null &&
+        face.landmarks[FaceLandmarkType.leftEye]?.position != null &&
+        face.landmarks[FaceLandmarkType.rightEye]?.position != null;
+    final rawYaw = face?.headEulerAngleY ?? 0.0;
+  final rawPitch = face?.headEulerAngleX ?? 0.0;
+  final rawRoll = face?.headEulerAngleZ ?? 0.0;
+  final semanticYaw = face == null ? 0.0 : _semanticYawForUser(face);
+  final semanticPitch = rawPitch;
+  final poseValidation = face == null
+        ? null
+        : validateEnrollmentPose(face, targetPose: poseTarget);
+    final faceSizeValid = face != null &&
+        (face.boundingBox.width >= 80 && face.boundingBox.height >= 80);
+    final landmarksValid = face != null && eyesAvailable;
+    final freshnessValid = frameAgeMs <= 700;
+    final sourceWidth = imageWidth > 0 ? imageWidth : (_latestImageSize?.width ?? imageWidth);
+    final sourceHeight = imageHeight > 0 ? imageHeight : (_latestImageSize?.height ?? imageHeight);
+    final boxLeft = face?.boundingBox.left ?? 0.0;
+    final boxTop = face?.boundingBox.top ?? 0.0;
+    final boxRight = face?.boundingBox.right ?? 0.0;
+    final boxBottom = face?.boundingBox.bottom ?? 0.0;
+    final boxWidth = face?.boundingBox.width ?? 0.0;
+    final boxHeight = face?.boundingBox.height ?? 0.0;
+    final normalizedBox = face == null || sourceWidth <= 0 || sourceHeight <= 0
+        ? null
+        : (
+            left: boxLeft / sourceWidth,
+            top: boxTop / sourceHeight,
+            right: boxRight / sourceWidth,
+            bottom: boxBottom / sourceHeight,
+          );
+    final boxIntersectionWidth = face == null
+        ? 0.0
+        : math.max(0.0, math.min(boxRight, sourceWidth) - math.max(boxLeft, 0.0));
+    final boxIntersectionHeight = face == null
+        ? 0.0
+        : math.max(0.0, math.min(boxBottom, sourceHeight) - math.max(boxTop, 0.0));
+    final boxIntersectionArea = boxIntersectionWidth * boxIntersectionHeight;
+    final boxArea = boxWidth > 0 && boxHeight > 0 ? boxWidth * boxHeight : 0.0;
+    final boxIntersectionRatio = boxArea > 0 ? (boxIntersectionArea / boxArea).clamp(0.0, 1.0) : 0.0;
+    final eyesInside = face != null &&
+        sourceWidth > 0 &&
+        sourceHeight > 0 &&
+        face.landmarks[FaceLandmarkType.leftEye]?.position != null &&
+        face.landmarks[FaceLandmarkType.rightEye]?.position != null;
+    final faceCenterX = face == null ? 0.0 : face.boundingBox.left + (face.boundingBox.width / 2.0);
+    final faceCenterY = face == null ? 0.0 : face.boundingBox.top + (face.boundingBox.height / 2.0);
+    final faceCenterInside = face != null &&
+        faceCenterX >= 0 &&
+        faceCenterY >= 0 &&
+        faceCenterX <= sourceWidth &&
+        faceCenterY <= sourceHeight;
+    final boundaryCritical = face == null ||
+        sourceWidth <= 0 ||
+        sourceHeight <= 0 ||
+        !boxLeft.isFinite ||
+        !boxTop.isFinite ||
+        !boxRight.isFinite ||
+        !boxBottom.isFinite ||
+        boxWidth <= 0 ||
+        boxHeight <= 0 ||
+        boxIntersectionRatio < 0.35 ||
+        !faceCenterInside ||
+        !eyesInside;
+    final boundaryValid = !boundaryCritical;
+    final qualityValid = face != null &&
+        faceSizeValid &&
+        landmarksValid &&
+        freshnessValid &&
+        boundaryValid &&
+        _isPoseStable(face);
+    final failureReason = !qualityValid
+        ? (face == null
+            ? 'face_lost'
+            : !freshnessValid
+                ? 'stale_frame'
+                : !landmarksValid
+                    ? 'missing_landmarks'
+                    : !faceSizeValid
+                        ? 'face_size_invalid'
+                        : boundaryCritical
+                            ? 'face_outside_source'
+                            : 'quality_invalid')
+        : (poseValidation?.valid ?? false)
+            ? null
+            : 'pose_outside_target';
+    final observation = EnrollmentObservation(
+      frameId: frameId,
+      capturedAt: capturedAt,
+      frameAgeMs: frameAgeMs,
+      face: face,
+      targetPose: poseTarget,
+      faceCount: faceCount,
+      eyesAvailable: eyesAvailable,
+      rawYaw: rawYaw,
+      rawPitch: rawPitch,
+      rawRoll: rawRoll,
+      semanticYaw: semanticYaw,
+      semanticPitch: semanticPitch,
+      poseValid: poseValidation?.valid ?? false,
+      faceSizeValid: faceSizeValid,
+      landmarksValid: landmarksValid,
+      freshnessValid: freshnessValid,
+      otherQualityValid: boundaryValid,
+      qualityValid: qualityValid,
+      failureReason: failureReason,
+      rule: poseValidation?.rule ?? 'missing_face',
+    );
+
+    if (poseValidation != null) {
+      _logPoseDebug(poseValidation, phase: 'BACKGROUND');
+    }
+    debugPrint(
+      '[FACE_ENROLL][OBSERVATION] '
+      'pose=${observation.targetPose} '
+      'frameId=${observation.frameId} '
+      'frameAgeMs=${observation.frameAgeMs} '
+      'poseValid=${observation.poseValid} '
+      'qualityValid=${observation.qualityValid} '
+      'faceSizeValid=${observation.faceSizeValid} '
+      'landmarksValid=${observation.landmarksValid} '
+      'freshnessValid=${observation.freshnessValid} '
+      'otherQualityValid=${observation.otherQualityValid} '
+      'failureReason=${observation.failureReason ?? '-'}',
+    );
+    debugPrint(
+      '[FACE_ENROLL][BOUNDARY] '
+      'source=${sourceWidth.toStringAsFixed(0)}x${sourceHeight.toStringAsFixed(0)} '
+      'box=(${boxLeft.toStringAsFixed(1)},${boxTop.toStringAsFixed(1)},${boxRight.toStringAsFixed(1)},${boxBottom.toStringAsFixed(1)}) '
+      'normalized=${normalizedBox == null ? '-' : '(${normalizedBox.left.toStringAsFixed(3)},${normalizedBox.top.toStringAsFixed(3)},${normalizedBox.right.toStringAsFixed(3)},${normalizedBox.bottom.toStringAsFixed(3)})'} '
+      'faceCenter=(${faceCenterX.toStringAsFixed(1)},${faceCenterY.toStringAsFixed(1)}) '
+      'eyesInside=$eyesInside '
+      'boxIntersectionRatio=${boxIntersectionRatio.toStringAsFixed(3)} '
+      'critical=$boundaryCritical '
+      'paddingRequired=${boundaryCritical ? 'true' : 'false'}',
+    );
+    return observation;
+  }
+
+  double _computeQualityScore(Face face) {
+    var score = 0.0;
+    final leftEye = face.landmarks[FaceLandmarkType.leftEye]?.position != null;
+    final rightEye = face.landmarks[FaceLandmarkType.rightEye]?.position != null;
+    if (leftEye && rightEye) score += 0.35;
+    if (_isPoseStable(face)) score += 0.25;
+    if (face.boundingBox.width >= 80 && face.boundingBox.height >= 80) score += 0.2;
+    if (face.boundingBox.left > 4 && face.boundingBox.top > 4) score += 0.1;
+    if (face.boundingBox.right < (_latestImageSize?.width ?? double.infinity) - 4 &&
+        face.boundingBox.bottom < (_latestImageSize?.height ?? double.infinity) - 4) {
+      score += 0.1;
+    }
+    return score.clamp(0.0, 1.0);
+  }
+
+  _LivenessResult _estimateLiveness(Face face) {
+    final challenges = <String>[];
+    var score = 0.45;
+    final leftEye = face.leftEyeOpenProbability ?? 1.0;
+    final rightEye = face.rightEyeOpenProbability ?? 1.0;
+    if (leftEye < 0.35 || rightEye < 0.35) {
+      score += 0.25;
+      challenges.add('blink');
+    }
+    final yaw = face.headEulerAngleY ?? 0.0;
+    if (yaw.abs() >= 10) {
+      score += 0.2;
+      challenges.add(yaw > 0 ? 'turn_right' : 'turn_left');
+    }
+    final pitch = face.headEulerAngleX ?? 0.0;
+    if (pitch.abs() >= 10) {
+      score += 0.1;
+      challenges.add(pitch > 0 ? 'head_up' : 'head_down');
+    }
+    return _LivenessResult(
+      score: score.clamp(0.0, 1.0),
+      challenges: challenges,
+    );
+  }
+
+  PoseValidationResult validateEnrollmentPose(
+    Face face, {
+    required String targetPose,
+  }) {
+    final rawYaw = face.headEulerAngleY ?? 0.0;
+    final rawPitch = face.headEulerAngleX ?? 0.0;
+    final rawRoll = face.headEulerAngleZ ?? 0.0;
+    final semanticYaw = _semanticYawForUser(face);
+    final semanticPitch = rawPitch;
+    final rule = switch (targetPose) {
+      'front' => 'abs(semanticYaw)<10 && abs(semanticPitch)<10 && abs(rawRoll)<10',
+      'left' => 'semanticYaw<=-10 && abs(semanticPitch)<18 && abs(rawRoll)<18',
+      'right' => 'semanticYaw>=10 && abs(semanticPitch)<18 && abs(rawRoll)<18',
+      'up' => 'semanticPitch>=10 && abs(semanticYaw)<18 && abs(rawRoll)<18',
+      'down' => 'semanticPitch<=-10 && abs(semanticYaw)<18 && abs(rawRoll)<18',
+      _ => 'unknown',
+    };
+
+    final valid = switch (targetPose) {
+      'front' => semanticYaw.abs() < 10 && semanticPitch.abs() < 10 && rawRoll.abs() < 10,
+      'left' => semanticYaw <= -10 && semanticPitch.abs() < 18 && rawRoll.abs() < 18,
+      'right' => semanticYaw >= 10 && semanticPitch.abs() < 18 && rawRoll.abs() < 18,
+      'up' => semanticPitch >= 10 && semanticYaw.abs() < 18 && rawRoll.abs() < 18,
+      'down' => semanticPitch <= -10 && semanticYaw.abs() < 18 && rawRoll.abs() < 18,
+      _ => false,
+    };
+
+    return PoseValidationResult(
+      targetPose: targetPose,
+      semanticPose: switch (targetPose) {
+        'front' => 'front',
+        'left' => semanticYaw <= -10 ? 'left' : 'front',
+        'right' => semanticYaw >= 10 ? 'right' : 'front',
+        'up' => semanticPitch >= 10 ? 'up' : 'front',
+        'down' => semanticPitch <= -10 ? 'down' : 'front',
+        _ => 'searching',
+      },
+      rawYaw: rawYaw,
+      rawPitch: rawPitch,
+      rawRoll: rawRoll,
+      semanticYaw: semanticYaw,
+      semanticPitch: semanticPitch,
+      valid: valid,
+      failureReason: valid ? null : 'Pose belum sesuai. ${_posePrompts[targetPose] ?? targetPose}.',
+      rule: rule,
+    );
+  }
+
+  void _logPoseDebug(
+    PoseValidationResult validation, {
+    required String phase,
+  }) {
+    final now = DateTime.now();
+    if (phase == 'BACKGROUND') {
+      final last = _lastPoseDebugAt;
+      if (last != null && now.difference(last).inMilliseconds < 400) {
+        return;
+      }
+      _lastPoseDebugAt = now;
+    }
+    debugPrint(
+      '[FACE_ENROLL][POSE_DEBUG] '
+      'phase=$phase '
+      'target=${validation.targetPose} '
+      'rawYaw=${validation.rawYaw.toStringAsFixed(2)} '
+      'rawPitch=${validation.rawPitch.toStringAsFixed(2)} '
+      'rawRoll=${validation.rawRoll.toStringAsFixed(2)} '
+      'semanticYaw=${validation.semanticYaw.toStringAsFixed(2)} '
+      'semanticPitch=${validation.semanticPitch.toStringAsFixed(2)} '
+      'lens=${_controller?.description.lensDirection.name ?? 'unknown'} '
+      'rule=${validation.rule} '
+      'valid=${validation.valid} '
+      'failureReason=${validation.failureReason ?? '-'}',
+    );
+  }
+
+  void _logConsistencyDiagnostics() {
+    if (_sampleEmbeddings.length < 2) {
+      return;
+    }
+    final values = <double>[];
+    for (var i = 1; i < _sampleEmbeddings.length; i++) {
+      values.add(_math.cosineSimilarity(_sampleEmbeddings.first, _sampleEmbeddings[i]));
+    }
+    final min = values.reduce((a, b) => a < b ? a : b);
+    final mean = values.reduce((a, b) => a + b) / values.length;
+    debugPrint(
+      '[FACE_ENROLL][CONSISTENCY] '
+      'count=${_sampleEmbeddings.length} '
+      'min=${min.toStringAsFixed(6)} '
+      'mean=${mean.toStringAsFixed(6)}',
+    );
+  }
+
+  List<double> _buildCentroid() {
+    if (_sampleEmbeddings.length != 5) {
+      throw Exception('Sample count bukan 5.');
+    }
+    return _math.centroid(_sampleEmbeddings);
+  }
+
+  Future<void> _submitEnrollment() async {
+    if (_submitInFlight) {
+      return;
+    }
+    final userId = widget.currentUserId;
+    if (userId == null) {
+      throw Exception('User ID tidak ditemukan dari sesi aktif. Silakan login ulang.');
+    }
+
+    setState(() {
+      _submitInFlight = true;
+      _submitting = true;
+      _status = 'Mengirim profil biometrik...';
+    });
+
+    try {
+      final centroid = _buildCentroid();
+      final livenessScore = _computeAggregateLiveness();
+      final payload = <String, dynamic>{
+        'user_id': userId,
+        'engine': 'tflite',
+        'model': 'mobilefacenet',
+        'model_version': 'mobilefacenet-be4bc7cf',
+        'dimension': 192,
+        'embedding': centroid,
+        'samples': _sampleEmbeddings,
+        'quality_score': _computeAggregateQuality(),
+        'liveness_score': livenessScore,
+        'liveness_challenges': _livenessChallenges.toSet().toList(growable: false),
+        'metadata': {
+          'platform': defaultTargetPlatform.name,
+          'sample_count': _sampleEmbeddings.length,
+          'alignment_method': 'eye_similarity',
+          'input_size': '112x112',
+          'pose_names': _samplePoses,
+          'liveness_challenges': _livenessChallenges.toSet().toList(growable: false),
+        },
+      };
+
+      debugPrint(
+        '[FACE_ENROLL][SUBMIT] '
+        'engine=tflite '
+        'model=mobilefacenet '
+        'modelVersion=mobilefacenet-be4bc7cf '
+        'dimension=192 '
+        'sampleCount=${_sampleEmbeddings.length}',
+      );
+
+      final result = await widget.repository.enrollBiometricProfile(payload: payload);
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _status = 'Pendaftaran wajah berhasil.';
+        _submitError = null;
+      });
+
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('Pendaftaran Wajah Berhasil'),
+            content: Text(
+              (result['_message'] as String?) ??
+                  'Data wajah untuk aplikasi telah diperbarui.',
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Selesai'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop(result);
+      }
+      debugPrint('[FACE_ENROLL][SUCCESS]');
+    } catch (error, st) {
+      debugPrint('[FACE_ENROLL][ERROR] ${error.runtimeType}: $error');
+      debugPrintStack(stackTrace: st);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _submitError = error.toString().replaceFirst('Exception: ', '');
+        _status = _submitError!;
+        _submitting = false;
+        _submitInFlight = false;
+      });
+      return;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _submitting = false;
+          _submitInFlight = false;
+        });
+      } else {
+        _submitting = false;
+        _submitInFlight = false;
+      }
     }
   }
 
-  String _nextHintForPose(String pose) {
-    switch (pose) {
-      case 'front':
-        return _poseSequence.isEmpty
-            ? 'Langkah berikutnya: tahan wajah depan sampai stabil.'
-            : 'Langkah berikutnya: geser wajah sedikit ke kanan.';
-      case 'right':
-        return 'Langkah berikutnya: geser wajah sedikit ke kiri.';
-      case 'left':
-        return 'Langkah berikutnya: kembali lihat depan untuk simpan.';
-      default:
-        return 'Langkah berikutnya: arahkan wajah ke dalam bingkai.';
+  double _computeAggregateQuality() {
+    if (_sampleQualityScores.isEmpty) {
+      return 0.0;
     }
+    final sum = _sampleQualityScores.fold<double>(0.0, (acc, value) => acc + value);
+    return (sum / _sampleQualityScores.length).clamp(0.0, 1.0);
   }
 
-  void _updatePoseSequence(Face? face) {
-    if (face == null) {
-      return;
+  double _computeAggregateLiveness() {
+    if (_sampleLivenessScores.isEmpty) {
+      return 0.0;
     }
-    final pose = _detectPose(face);
-    final stable = _isPoseStable(face);
-    if (!stable) {
-      return;
-    }
-
-    if (pose == 'front' && _poseSequence.isEmpty) {
-      _poseSequence.add('front');
-      _poseDescriptors['front'] = _buildDescriptor(face);
-    } else if (pose == 'right' &&
-        _poseSequence.isNotEmpty &&
-        _poseSequence.last == 'front' &&
-        !_poseSequence.contains('right')) {
-      _poseSequence.add('right');
-      _poseDescriptors['right'] = _buildDescriptor(face);
-    } else if (pose == 'left' &&
-        _poseSequence.contains('right') &&
-        !_poseSequence.contains('left')) {
-      _poseSequence.add('left');
-      _poseDescriptors['left'] = _buildDescriptor(face);
-    } else if (pose == 'front' &&
-        _poseSequence.contains('left') &&
-        !_poseSequence.asMap().containsKey(3)) {
-      _poseSequence.add('front_final');
-      _poseDescriptors['front_final'] = _buildDescriptor(face);
-    }
+    final sum = _sampleLivenessScores.fold<double>(0.0, (acc, value) => acc + value);
+    return (sum / _sampleLivenessScores.length).clamp(0.0, 1.0);
   }
 
   InputImage _toInputImage(
@@ -384,87 +927,85 @@ class _AttendanceFaceEnrollmentPageState
     if (_loading || _controller == null || !_readyToCapture || _submitting) {
       return;
     }
+    if (_currentPoseIndex >= _poseOrder.length) {
+      return;
+    }
+    if (_sampleEmbeddings.length >= 5) {
+      return;
+    }
 
     setState(() {
-      _submitting = true;
+      _processingFrame = true;
       _error = null;
-      _status = 'Menyimpan data wajah...';
+      _status = 'Memproses sample wajah...';
     });
 
     try {
-      await _controller?.stopImageStream();
-      final file = await _controller!.takePicture();
-      final processed = await _analyzeImage(file.path);
-      if (processed == null) {
-        throw Exception(
-          'Wajah tidak valid. Pastikan wajah terlihat jelas lalu ulangi.',
+      final sample = await _captureCurrentSample();
+      if (sample == null) {
+        _resetPoseCandidate(
+          reason: 'capture_invalid_pose',
+          stableFrames: _poseCandidateState.validFrameCount,
         );
-      }
-
-      final userId = widget.currentUserId;
-      if (userId == null) {
-        throw Exception('User ID tidak ditemukan dari sesi aktif. Silakan login ulang.');
-      }
-
-      final faceData = _combinedDescriptor();
-      if (faceData == null || faceData.length != 128) {
-        throw Exception(
-          'Data wajah belum cukup lengkap. Ulangi urutan depan, kanan, kiri, lalu depan lagi.',
-        );
-      }
-
-      if (!_isEnrollmentSequenceComplete() || _poseDescriptors.length < 4) {
-        throw Exception(
-          'Urutan pendaftaran wajah belum lengkap. Ikuti pose depan, kanan, kiri, lalu depan lagi.',
-        );
-      }
-
-      final embedding = await _embeddingService.extractEmbedding(File(file.path));
-
-      final result = await widget.repository.enrollFace(
-        payload: {
-          'user_id': userId,
-          'face_data': faceData,
-          'face_samples': _poseDescriptors,
-          'pose_sequence': _poseSequence,
-          if (embedding != null) 'face_embedding': embedding,
-          'liveness_score': processed['liveness_score'],
-          'liveness_challenges': processed['liveness_challenges'],
-          'device_info': 'flutter_mobile_face_enrollment',
-        },
-      );
-
-      if (!mounted) {
         return;
       }
-      await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: const Text('Daftar Wajah Berhasil'),
-            content: Text(
-              (result['_message'] as String?) ??
-                  'Data wajah berhasil disimpan dan siap digunakan untuk presensi.',
-            ),
-            actions: [
-              FilledButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Lanjut'),
-              ),
-            ],
-          );
-        },
+      _sampleEmbeddings.add(sample.embedding);
+      _samplePoses.add(sample.pose);
+      _sampleQualityScores.add(sample.qualityScore);
+      _sampleLivenessScores.add(sample.livenessScore);
+      _poseEmbeddings[sample.pose] = sample.embedding;
+      _poseSequence.add(sample.pose);
+      _currentPoseIndex = math.min(_currentPoseIndex + 1, _poseOrder.length);
+      _poseInstruction = _currentPoseIndex < _poseOrder.length
+          ? _posePrompts[_poseOrder[_currentPoseIndex]]!
+          : 'Review sample sebelum kirim.';
+      _nextStepHint = _nextHintForPose(sample.pose);
+      _resetPoseCandidate(
+        reason: 'capture_started',
+        stableFrames: _poseCandidateState.validFrameCount,
       );
 
-      if (!mounted) {
+      debugPrint(
+        '[FACE_ENROLL][EMBEDDING] '
+        'pose=${sample.pose} '
+        'dimension=${sample.embedding.length} '
+        'finite=${sample.embedding.every((value) => value.isFinite)} '
+        'norm=${sample.norm.toStringAsFixed(6)}',
+      );
+
+      debugPrint(
+        '[FACE_ENROLL][POSE_COMPLETE] '
+        'pose=${sample.pose} '
+        'sampleCount=${_sampleEmbeddings.length}',
+      );
+
+      if (_currentPoseIndex < _poseOrder.length) {
+        debugPrint(
+          '[FACE_ENROLL][AUTO_ADVANCE] '
+          'from=${sample.pose} '
+          'to=${_currentPose()}',
+        );
+      }
+
+      _logConsistencyDiagnostics();
+
+      if (_sampleEmbeddings.length == 5) {
+        debugPrint('[FACE_ENROLL][AUTO_SUBMIT] sampleCount=5');
+        await _submitEnrollment();
         return;
       }
-      Navigator.of(context).pop(result);
-    } catch (error) {
+
+      if (mounted) {
+        setState(() {
+          _status = 'Sample ${_sampleEmbeddings.length}/5 tersimpan.';
+        });
+      }
+
+    } catch (error, st) {
+      debugPrint(
+        '[FACE_ENROLL][ERROR] ${error.runtimeType}: $error',
+      );
+      debugPrintStack(stackTrace: st);
       if (!mounted) {
         return;
       }
@@ -472,148 +1013,19 @@ class _AttendanceFaceEnrollmentPageState
         _error = error.toString().replaceFirst('Exception: ', '');
         _status = _error!;
       });
-      try {
-        if (_controller != null && !_controller!.value.isStreamingImages) {
-          await _controller?.startImageStream(_processCameraImage);
-        }
-      } catch (_) {}
     } finally {
-      _autoCaptureArmed = false;
-      _autoCaptureTimer?.cancel();
       if (mounted) {
         setState(() {
-          _submitting = false;
+          _processingFrame = false;
         });
+      } else {
+        _processingFrame = false;
       }
     }
-  }
-
-  Future<Map<String, dynamic>?> _analyzeImage(String path) async {
-    final detector = FaceDetector(
-      options: FaceDetectorOptions(
-        enableClassification: true,
-        enableLandmarks: true,
-        performanceMode: FaceDetectorMode.accurate,
-      ),
-    );
-
-    try {
-      final faces = await detector.processImage(InputImage.fromFilePath(path));
-      if (faces.isEmpty) {
-        return null;
-      }
-
-      final face = faces.first;
-      final liveness = _estimateLiveness(face);
-      return {
-        'selfie_data': 'data:image/jpeg;base64,${base64Encode(await File(path).readAsBytes())}',
-        'face_descriptor': _buildDescriptor(face),
-        'liveness_score': liveness['score'],
-        'liveness_challenges': liveness['challenges'],
-      };
-    } finally {
-      await detector.close();
-    }
-  }
-
-  List<double> _buildDescriptor(Face face) {
-    final box = face.boundingBox;
-    final landmarks = face.landmarks;
-    final width = box.width <= 0 ? 1.0 : box.width;
-    final height = box.height <= 0 ? 1.0 : box.height;
-    double normX(double x) => (x - box.left) / width;
-    double normY(double y) => (y - box.top) / height;
-
-    final points = <double>[
-      box.left,
-      box.top,
-      box.width,
-      box.height,
-      face.headEulerAngleX ?? 0,
-      face.headEulerAngleY ?? 0,
-      face.headEulerAngleZ ?? 0,
-      face.leftEyeOpenProbability ?? 0,
-      face.rightEyeOpenProbability ?? 0,
-      _landmarkValue(landmarks[FaceLandmarkType.leftEye], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.rightEye], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.noseBase], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.leftMouth], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.rightMouth], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.bottomMouth], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.leftEar], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.rightEar], normX, normY),
-    ];
-
-    final descriptor = <double>[];
-    for (var i = 0; i < 128; i++) {
-      descriptor.add(points[i % points.length]);
-    }
-    return descriptor;
-  }
-
-  List<double>? _combinedDescriptor() {
-    if (_poseDescriptors.isEmpty) {
-      return null;
-    }
-
-    final samples = _poseDescriptors.values.where((item) => item.isNotEmpty).toList();
-    if (samples.isEmpty) {
-      return null;
-    }
-
-    final length = samples.first.length;
-    final combined = List<double>.filled(length, 0.0);
-    for (final sample in samples) {
-      for (var i = 0; i < length && i < sample.length; i++) {
-        combined[i] += sample[i];
-      }
-    }
-    for (var i = 0; i < combined.length; i++) {
-      combined[i] = combined[i] / samples.length;
-    }
-    return combined;
-  }
-
-  double _landmarkValue(
-    FaceLandmark? landmark,
-    double Function(double x) normX,
-    double Function(double y) normY,
-  ) {
-    final position = landmark?.position;
-    if (position == null) {
-      return 0;
-    }
-    return (normX(position.x.toDouble()) + normY(position.y.toDouble())) / 2.0;
-  }
-
-  Map<String, dynamic> _estimateLiveness(Face face) {
-    final challenges = <String>[];
-    var score = 0.45;
-    final leftEye = face.leftEyeOpenProbability ?? 0.0;
-    final rightEye = face.rightEyeOpenProbability ?? 0.0;
-    if (leftEye < 0.35 || rightEye < 0.35) {
-      score += 0.25;
-      challenges.add('blink');
-    }
-    final turnY = face.headEulerAngleY ?? 0.0;
-    if (turnY > 8 || turnY < -8) {
-      score += 0.2;
-      challenges.add(turnY > 0 ? 'turn_left' : 'turn_right');
-    }
-    final tiltZ = (face.headEulerAngleZ ?? 0.0).abs();
-    if (tiltZ > 5) {
-      score += 0.1;
-      challenges.add('head_tilt');
-    }
-    return {
-      'score': score.clamp(0.0, 1.0),
-      'challenges': challenges,
-    };
   }
 
   @override
   void dispose() {
-    _autoCaptureTimer?.cancel();
     unawaited(_controller?.stopImageStream());
     _controller?.dispose();
     _detector?.close();
@@ -696,24 +1108,31 @@ class _AttendanceFaceEnrollmentPageState
                 ),
               ),
               const Spacer(),
-              FilledButton(
-                onPressed: (_loading || !_readyToCapture || _submitting)
-                    ? null
-                    : _captureAndEnroll,
-                style: FilledButton.styleFrom(
-                  backgroundColor: _enrollPrimary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size.fromHeight(52),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: _readyToCapture ? _enrollPrimarySoft : const Color(0xFFF1F4F3),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _readyToCapture ? _enrollPrimaryBorder : const Color(0xFFE1E6E3),
                   ),
                 ),
                 child: Text(
-                  _loading || _submitting
-                      ? 'Memproses...'
-                      : _readyToCapture
-                          ? 'Continue'
-                          : 'Menunggu Wajah Stabil',
+                  _loading
+                      ? 'Menyiapkan kamera...'
+                      : _submitting
+                          ? 'Mengirim profil biometrik...'
+                          : _readyToCapture
+                                  ? 'Pose valid. Sample akan diambil otomatis.'
+                                  : 'Tunggu pose yang diminta agar stabil.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: _enrollText,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    height: 1.35,
+                  ),
                 ),
               ),
             ],
@@ -730,18 +1149,42 @@ class _AttendanceFaceEnrollmentPageState
     final known = <String>{..._poseSequence};
     var progress = 0.0;
     if (known.contains('front')) {
-      progress += 0.25;
-    }
-    if (known.contains('right')) {
-      progress += 0.25;
+      progress += 0.2;
     }
     if (known.contains('left')) {
-      progress += 0.25;
+      progress += 0.2;
     }
-    if (known.contains('front_final')) {
-      progress += 0.25;
+    if (known.contains('right')) {
+      progress += 0.2;
+    }
+    if (known.contains('up')) {
+      progress += 0.2;
+    }
+    if (known.contains('down')) {
+      progress += 0.2;
     }
     return progress.clamp(0.0, 1.0);
+  }
+}
+
+class PoseCandidateState {
+  String? targetPose;
+  int validFrameCount = 0;
+  int missCount = 0;
+  DateTime? startedAt;
+  DateTime? lastValidAt;
+  int? lastFrameId;
+  bool acquired = false;
+  final int graceMs = 400;
+
+  void reset() {
+    targetPose = null;
+    validFrameCount = 0;
+    missCount = 0;
+    startedAt = null;
+    lastValidAt = null;
+    lastFrameId = null;
+    acquired = false;
   }
 }
 
@@ -966,4 +1409,110 @@ class _CameraPreviewFit extends StatelessWidget {
       },
     );
   }
+}
+
+class _EnrollmentSample {
+  const _EnrollmentSample({
+    required this.pose,
+    required this.embedding,
+    required this.norm,
+    required this.qualityScore,
+    required this.livenessScore,
+    required this.livenessChallenges,
+    required this.frameAgeMs,
+    required this.alignmentMethod,
+  });
+
+  final String pose;
+  final List<double> embedding;
+  final double norm;
+  final double qualityScore;
+  final double livenessScore;
+  final List<String> livenessChallenges;
+  final int frameAgeMs;
+  final String alignmentMethod;
+}
+
+class EnrollmentObservation {
+  const EnrollmentObservation({
+    required this.frameId,
+    required this.capturedAt,
+    required this.frameAgeMs,
+    required this.face,
+    required this.targetPose,
+    required this.faceCount,
+    required this.eyesAvailable,
+    required this.rawYaw,
+    required this.rawPitch,
+    required this.rawRoll,
+    required this.semanticYaw,
+    required this.semanticPitch,
+    required this.poseValid,
+    required this.faceSizeValid,
+    required this.landmarksValid,
+    required this.freshnessValid,
+    required this.otherQualityValid,
+    required this.qualityValid,
+    required this.failureReason,
+    required this.rule,
+  });
+
+  final int frameId;
+  final DateTime capturedAt;
+  final int frameAgeMs;
+  final Face? face;
+  final String targetPose;
+  final int faceCount;
+  final bool eyesAvailable;
+  final double rawYaw;
+  final double rawPitch;
+  final double rawRoll;
+  final double semanticYaw;
+  final double semanticPitch;
+  final bool poseValid;
+  final bool faceSizeValid;
+  final bool landmarksValid;
+  final bool freshnessValid;
+  final bool otherQualityValid;
+  final bool qualityValid;
+  final String? failureReason;
+  final String rule;
+
+  bool get canEnterCandidate => face != null && poseValid && qualityValid && failureReason == null;
+}
+
+class _LivenessResult {
+  const _LivenessResult({
+    required this.score,
+    required this.challenges,
+  });
+
+  final double score;
+  final List<String> challenges;
+}
+
+class PoseValidationResult {
+  const PoseValidationResult({
+    required this.targetPose,
+    required this.semanticPose,
+    required this.rawYaw,
+    required this.rawPitch,
+    required this.rawRoll,
+    required this.semanticYaw,
+    required this.semanticPitch,
+    required this.valid,
+    required this.failureReason,
+    required this.rule,
+  });
+
+  final String targetPose;
+  final String semanticPose;
+  final double rawYaw;
+  final double rawPitch;
+  final double rawRoll;
+  final double semanticYaw;
+  final double semanticPitch;
+  final bool valid;
+  final String? failureReason;
+  final String rule;
 }

@@ -1,6 +1,5 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
@@ -92,18 +91,39 @@ class FaceRecognitionService {
     }
 
     final normalizedInput = _prepareInput(decoded);
-    final output = List<double>.filled(modelInfo.dimension, 0.0, growable: false);
+    final output = List.generate(
+      1,
+      (_) => List<double>.filled(modelInfo.dimension, 0.0, growable: false),
+      growable: false,
+    );
 
-    interpreter.run(normalizedInput, output);
-
-    if (output.length != modelInfo.dimension) {
+    final outputTensor = interpreter.getOutputTensor(0);
+    if (!_shapeEquals(outputTensor.shape, _expectedOutputShape) ||
+        outputTensor.type != TensorType.float32) {
       throw FaceModelContractException(
-        'FACE_MODEL_OUTPUT_INVALID',
-        'Unexpected embedding length: ${output.length}.',
+        'FACE_MODEL_OUTPUT_CONTRACT_INVALID',
+        'Output tensor must be $_expectedOutputShape float32, found shape ${outputTensor.shape} and type ${outputTensor.type}.',
       );
     }
 
-    final norm = _l2Norm(output);
+    debugPrint(
+      '[FACE_DEBUG][MODEL_CONTRACT] '
+      'outputTensorShape=${outputTensor.shape} '
+      'providedOutputShape=[1, ${modelInfo.dimension}]',
+    );
+
+    interpreter.run(normalizedInput, output);
+
+    final rawEmbedding = List<double>.from(output[0]);
+
+    if (rawEmbedding.length != modelInfo.dimension) {
+      throw FaceModelContractException(
+        'FACE_MODEL_OUTPUT_INVALID',
+        'Unexpected embedding length: ${rawEmbedding.length}.',
+      );
+    }
+
+    final norm = _l2Norm(rawEmbedding);
     if (norm <= 0) {
       throw FaceModelContractException(
         'FACE_EMBEDDING_INVALID',
@@ -111,7 +131,22 @@ class FaceRecognitionService {
       );
     }
 
-    return output.map((value) => value / norm).toList(growable: false);
+    final normalizedEmbedding = rawEmbedding.map((value) => value / norm).toList(growable: false);
+    debugPrint(
+      '[FACE_DEBUG][OK][TFLITE_INFERENCE] '
+      'outputShape=[1,192] '
+      'dimension=${rawEmbedding.length} '
+      'inference_ms=${interpreter.lastNativeInferenceDurationMicroSeconds / 1000.0}',
+    );
+    debugPrint(
+      '[FACE_DEBUG][OK][EMBEDDING_VALIDATION] '
+      'dimension=${normalizedEmbedding.length} '
+      'allFinite=${normalizedEmbedding.every((value) => value.isFinite)} '
+      'nonZero=${normalizedEmbedding.any((value) => value != 0.0)} '
+      'norm=${_l2Norm(normalizedEmbedding).toStringAsFixed(6)}',
+    );
+
+    return normalizedEmbedding;
   }
 
   void dispose() {

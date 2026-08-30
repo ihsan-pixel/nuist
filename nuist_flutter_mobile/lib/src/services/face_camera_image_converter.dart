@@ -18,20 +18,75 @@ class FaceCameraImageException implements Exception {
 class FaceCameraImageConverter {
   const FaceCameraImageConverter();
 
-  img.Image extractAlignedFaceCropFromRgb(
+  FaceAlignmentResult extractAlignedFaceCropFromRgb(
     img.Image rgb,
     Face face, {
     double padding = 0.18,
   }) {
     final rotated = _rotateForLandmarks(rgb, face);
-    final crop = _cropWithPadding(rotated, face.boundingBox, padding: padding);
+    final leftEye = face.landmarks[FaceLandmarkType.leftEye]?.position;
+    final rightEye = face.landmarks[FaceLandmarkType.rightEye]?.position;
+    if (leftEye == null || rightEye == null) {
+      throw FaceCameraImageException(
+        'FACE_ALIGNMENT_INSUFFICIENT_LANDMARKS',
+        'Left and right eye landmarks are required for alignment.',
+      );
+    }
+
+    final target = _canonicalTargetPoints();
+    final transform = _buildSimilarityTransform(
+      sourceLeftEye: leftEye,
+      sourceRightEye: rightEye,
+      targetLeftEye: target.leftEye,
+      targetRightEye: target.rightEye,
+    );
+    final crop = _warpSimilarity(
+      rotated,
+      transform,
+      outputWidth: 112,
+      outputHeight: 112,
+    );
     if (crop.width <= 0 || crop.height <= 0) {
       throw FaceCameraImageException(
         'CAMERA_IMAGE_CONVERSION_FAILED',
         'Crop is empty after alignment.',
       );
     }
-    return crop;
+    final normalized = _normalizeLandmarks(
+      transform,
+      leftEye: leftEye,
+      rightEye: rightEye,
+      sourceWidth: rotated.width,
+      sourceHeight: rotated.height,
+    );
+    return FaceAlignmentResult(
+      sourceWidth: rgb.width,
+      sourceHeight: rgb.height,
+      rotationDegrees: _rotationDegreesForLandmarks(face),
+      cropBeforeWidth: rotated.width,
+      cropBeforeHeight: rotated.height,
+      cropAfterWidth: crop.width,
+      cropAfterHeight: crop.height,
+      clamped: transform.boundaryPadding,
+      square: crop.width == crop.height,
+      method: 'eye_similarity',
+      scale: transform.scale,
+      translationX: transform.translationX,
+      translationY: transform.translationY,
+      targetEyeDistance: transform.targetEyeDistance,
+      sourceEyeDistance: transform.sourceEyeDistance,
+      leftEyeX: normalized.leftEyeX,
+      leftEyeY: normalized.leftEyeY,
+      rightEyeX: normalized.rightEyeX,
+      rightEyeY: normalized.rightEyeY,
+      faceCenterX: normalized.faceCenterX,
+      faceCenterY: normalized.faceCenterY,
+      cropLeft: 0,
+      cropTop: 0,
+      cropWidth: crop.width,
+      cropHeight: crop.height,
+      crop: crop,
+    );
   }
 
   InputImage toInputImage(
@@ -98,7 +153,7 @@ class FaceCameraImageConverter {
     double padding = 0.18,
   }) {
     final rgb = convertToRgbImage(image);
-    return extractAlignedFaceCropFromRgb(rgb, face, padding: padding);
+    return extractAlignedFaceCropFromRgb(rgb, face, padding: padding).crop;
   }
 
   InputImageRotation rotationFromOrientation(
@@ -230,25 +285,248 @@ class FaceCameraImageConverter {
     return img.copyRotate(source, angle: -rollDegrees);
   }
 
-  img.Image _cropWithPadding(
-    img.Image source,
-    Rect bbox, {
-    double padding = 0.18,
+  double _rotationDegreesForLandmarks(Face face) {
+    final leftEye = face.landmarks[FaceLandmarkType.leftEye]?.position;
+    final rightEye = face.landmarks[FaceLandmarkType.rightEye]?.position;
+    if (leftEye == null || rightEye == null) {
+      throw FaceCameraImageException(
+        'FACE_ALIGNMENT_INSUFFICIENT_LANDMARKS',
+        'Left and right eye landmarks are required for alignment.',
+      );
+    }
+    final dx = rightEye.x.toDouble() - leftEye.x.toDouble();
+    final dy = rightEye.y.toDouble() - leftEye.y.toDouble();
+    return math.atan2(dy, dx) * 180 / math.pi;
+  }
+
+  _CanonicalTargetPoints _canonicalTargetPoints() {
+    return const _CanonicalTargetPoints(
+      leftEye: OffsetPoint(38.0, 42.0),
+      rightEye: OffsetPoint(74.0, 42.0),
+    );
+  }
+
+  _SimilarityTransform _buildSimilarityTransform({
+    required math.Point<int> sourceLeftEye,
+    required math.Point<int> sourceRightEye,
+    required OffsetPoint targetLeftEye,
+    required OffsetPoint targetRightEye,
   }) {
-    final padX = source.width * padding;
-    final padY = source.height * padding;
-
-    final startX = math.max(0, (bbox.left - padX).floor());
-    final startY = math.max(0, (bbox.top - padY).floor());
-    final endX = math.min(source.width, (bbox.right + padX).ceil());
-    final endY = math.min(source.height, (bbox.bottom + padY).ceil());
-
-    final width = endX - startX;
-    final height = endY - startY;
-    if (width <= 0 || height <= 0) {
-      return img.Image(width: 0, height: 0);
+    final sourceDx = sourceRightEye.x.toDouble() - sourceLeftEye.x.toDouble();
+    final sourceDy = sourceRightEye.y.toDouble() - sourceLeftEye.y.toDouble();
+    final sourceDistance = math.sqrt((sourceDx * sourceDx) + (sourceDy * sourceDy));
+    if (sourceDistance <= 0 || !sourceDistance.isFinite) {
+      throw FaceCameraImageException(
+        'FACE_ALIGNMENT_INVALID_GEOMETRY',
+        'Source eye distance invalid.',
+      );
     }
 
-    return img.copyCrop(source, x: startX, y: startY, width: width, height: height);
+    final targetDx = targetRightEye.x - targetLeftEye.x;
+    final targetDy = targetRightEye.y - targetLeftEye.y;
+    final targetDistance = math.sqrt((targetDx * targetDx) + (targetDy * targetDy));
+    final sourceAngle = math.atan2(sourceDy, sourceDx);
+    final targetAngle = math.atan2(targetDy, targetDx);
+    final angle = targetAngle - sourceAngle;
+    final scale = targetDistance / sourceDistance;
+    final cosA = math.cos(angle);
+    final sinA = math.sin(angle);
+
+    final rotatedLeftX = (sourceLeftEye.x.toDouble() * scale * cosA) -
+        (sourceLeftEye.y.toDouble() * scale * sinA);
+    final rotatedLeftY = (sourceLeftEye.x.toDouble() * scale * sinA) +
+        (sourceLeftEye.y.toDouble() * scale * cosA);
+    final translationX = targetLeftEye.x - rotatedLeftX;
+    final translationY = targetLeftEye.y - rotatedLeftY;
+
+    return _SimilarityTransform(
+      scale: scale,
+      angle: angle,
+      translationX: translationX,
+      translationY: translationY,
+      sourceEyeDistance: sourceDistance,
+      targetEyeDistance: targetDistance,
+    );
   }
+
+  img.Image _warpSimilarity(
+    img.Image source,
+    _SimilarityTransform transform, {
+    required int outputWidth,
+    required int outputHeight,
+  }) {
+    final result = img.Image(width: outputWidth, height: outputHeight);
+    final cosA = math.cos(transform.angle);
+    final sinA = math.sin(transform.angle);
+    var boundaryPadding = false;
+    for (var y = 0; y < outputHeight; y++) {
+      for (var x = 0; x < outputWidth; x++) {
+        final tx = x.toDouble();
+        final ty = y.toDouble();
+        final sx = ((tx - transform.translationX) * cosA + (ty - transform.translationY) * sinA) / transform.scale;
+        final sy = (-(tx - transform.translationX) * sinA + (ty - transform.translationY) * cosA) / transform.scale;
+        if (sx < 0 || sy < 0 || sx >= source.width - 1 || sy >= source.height - 1) {
+          boundaryPadding = true;
+          result.setPixelRgb(x, y, 0, 0, 0);
+          continue;
+        }
+        final px = sx.round();
+        final py = sy.round();
+        final color = source.getPixel(px, py);
+        result.setPixel(x, y, color);
+      }
+    }
+    transform.boundaryPadding = boundaryPadding;
+    return result;
+  }
+
+  _NormalizedLandmarks _normalizeLandmarks(
+    _SimilarityTransform transform, {
+    required math.Point<int> leftEye,
+    required math.Point<int> rightEye,
+    required int sourceWidth,
+    required int sourceHeight,
+  }) {
+    final cosA = math.cos(transform.angle);
+    final sinA = math.sin(transform.angle);
+    OffsetPoint mapPoint(math.Point<int> point) {
+      final x = point.x.toDouble() * transform.scale;
+      final y = point.y.toDouble() * transform.scale;
+      final rx = (x * cosA) - (y * sinA) + transform.translationX;
+      final ry = (x * sinA) + (y * cosA) + transform.translationY;
+      return OffsetPoint(
+        rx / 112.0,
+        ry / 112.0,
+      );
+    }
+
+    final left = mapPoint(leftEye);
+    final right = mapPoint(rightEye);
+    final faceCenter = OffsetPoint(
+      ((left.x + right.x) / 2.0).clamp(0.0, 1.0),
+      ((left.y + right.y) / 2.0).clamp(0.0, 1.0),
+    );
+    return _NormalizedLandmarks(
+      leftEyeX: left.x,
+      leftEyeY: left.y,
+      rightEyeX: right.x,
+      rightEyeY: right.y,
+      faceCenterX: faceCenter.x,
+      faceCenterY: faceCenter.y,
+    );
+  }
+}
+
+class FaceAlignmentResult {
+  const FaceAlignmentResult({
+    required this.sourceWidth,
+    required this.sourceHeight,
+    required this.rotationDegrees,
+    required this.cropBeforeWidth,
+    required this.cropBeforeHeight,
+    required this.cropAfterWidth,
+    required this.cropAfterHeight,
+    required this.clamped,
+    required this.square,
+    required this.method,
+    required this.scale,
+    required this.translationX,
+    required this.translationY,
+    required this.targetEyeDistance,
+    required this.sourceEyeDistance,
+    required this.leftEyeX,
+    required this.leftEyeY,
+    required this.rightEyeX,
+    required this.rightEyeY,
+    required this.faceCenterX,
+    required this.faceCenterY,
+    required this.cropLeft,
+    required this.cropTop,
+    required this.cropWidth,
+    required this.cropHeight,
+    required this.crop,
+  });
+
+  final int sourceWidth;
+  final int sourceHeight;
+  final double rotationDegrees;
+  final int cropBeforeWidth;
+  final int cropBeforeHeight;
+  final int cropAfterWidth;
+  final int cropAfterHeight;
+  final bool clamped;
+  final bool square;
+  final String method;
+  final double scale;
+  final double translationX;
+  final double translationY;
+  final double targetEyeDistance;
+  final double sourceEyeDistance;
+  final double leftEyeX;
+  final double leftEyeY;
+  final double rightEyeX;
+  final double rightEyeY;
+  final double faceCenterX;
+  final double faceCenterY;
+  final int cropLeft;
+  final int cropTop;
+  final int cropWidth;
+  final int cropHeight;
+  final img.Image crop;
+
+  double get aspectRatio => cropAfterHeight == 0 ? 0.0 : cropAfterWidth / cropAfterHeight;
+}
+
+class _CanonicalTargetPoints {
+  const _CanonicalTargetPoints({
+    required this.leftEye,
+    required this.rightEye,
+  });
+
+  final OffsetPoint leftEye;
+  final OffsetPoint rightEye;
+}
+
+class OffsetPoint {
+  const OffsetPoint(this.x, this.y);
+
+  final double x;
+  final double y;
+}
+
+class _SimilarityTransform {
+  _SimilarityTransform({
+    required this.scale,
+    required this.angle,
+    required this.translationX,
+    required this.translationY,
+    required this.sourceEyeDistance,
+    required this.targetEyeDistance,
+  });
+
+  final double scale;
+  final double angle;
+  final double translationX;
+  final double translationY;
+  final double sourceEyeDistance;
+  final double targetEyeDistance;
+  bool boundaryPadding = false;
+}
+
+class _NormalizedLandmarks {
+  const _NormalizedLandmarks({
+    required this.leftEyeX,
+    required this.leftEyeY,
+    required this.rightEyeX,
+    required this.rightEyeY,
+    required this.faceCenterX,
+    required this.faceCenterY,
+  });
+
+  final double leftEyeX;
+  final double leftEyeY;
+  final double rightEyeX;
+  final double rightEyeY;
+  final double faceCenterX;
+  final double faceCenterY;
 }
