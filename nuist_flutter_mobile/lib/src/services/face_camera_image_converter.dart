@@ -18,6 +18,22 @@ class FaceCameraImageException implements Exception {
 class FaceCameraImageConverter {
   const FaceCameraImageConverter();
 
+  img.Image extractAlignedFaceCropFromRgb(
+    img.Image rgb,
+    Face face, {
+    double padding = 0.18,
+  }) {
+    final rotated = _rotateForLandmarks(rgb, face);
+    final crop = _cropWithPadding(rotated, face.boundingBox, padding: padding);
+    if (crop.width <= 0 || crop.height <= 0) {
+      throw FaceCameraImageException(
+        'CAMERA_IMAGE_CONVERSION_FAILED',
+        'Crop is empty after alignment.',
+      );
+    }
+    return crop;
+  }
+
   InputImage toInputImage(
     CameraImage image,
     CameraDescription camera,
@@ -82,15 +98,7 @@ class FaceCameraImageConverter {
     double padding = 0.18,
   }) {
     final rgb = convertToRgbImage(image);
-    final rotated = _rotateForLandmarks(rgb, face);
-    final crop = _cropWithPadding(rotated, face.boundingBox, padding: padding);
-    if (crop.width <= 0 || crop.height <= 0) {
-      throw FaceCameraImageException(
-        'CAMERA_IMAGE_CONVERSION_FAILED',
-        'Crop is empty after alignment.',
-      );
-    }
-    return crop;
+    return extractAlignedFaceCropFromRgb(rgb, face, padding: padding);
   }
 
   InputImageRotation rotationFromOrientation(

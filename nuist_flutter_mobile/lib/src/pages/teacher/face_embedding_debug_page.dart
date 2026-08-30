@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 
@@ -59,12 +60,19 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
   bool _mlKitReady = false;
   bool _tfliteReady = false;
   bool _processingFrame = false;
+  bool _isCapturing = false;
   FaceDebugStage _stage = FaceDebugStage.cameraFrame;
   String _status = 'Initializing debug harness...';
   String? _error;
+  String? _captureDisabledReason;
   double? _lastNorm;
   int? _lastEmbeddingSize;
   String? _lastTiming;
+  Face? _latestFace;
+  _OwnedCameraFrame? _latestFrame;
+  String? _latestSampleLabel;
+  final List<_SampleRecord> _samples = <_SampleRecord>[];
+  Map<String, double>? _latestSimilarityStats;
 
   @override
   void initState() {
@@ -170,12 +178,19 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
         if (mounted) {
           setState(() {
             _status = 'No face detected.';
+            _captureDisabledReason = 'Capture disabled: no valid face';
           });
         }
         return;
       }
 
       final face = faces.first;
+      _latestFace = face;
+      _latestFrame = _OwnedCameraFrame.fromCameraImage(
+        _converter.convertToRgbImage(image),
+        deviceOrientation: _controller!.value.deviceOrientation,
+      );
+
       final box = face.boundingBox;
       debugPrint(
         '[FACE_DEBUG][FACE_BOX] '
@@ -185,37 +200,99 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
         'height=${box.height.toStringAsFixed(2)}',
       );
 
-      _setStage(FaceDebugStage.frameCopy, 'copying camera frame to RGB path');
-      debugPrint('[FACE_DEBUG][OK][${FaceDebugStage.frameCopy.label}]');
+      final leftEye = face.landmarks[FaceLandmarkType.leftEye]?.position;
+      final rightEye = face.landmarks[FaceLandmarkType.rightEye]?.position;
+      final faceReady = leftEye != null && rightEye != null;
+      _captureDisabledReason = _buildCaptureDisabledReason(faceReady: faceReady);
 
-      _setStage(FaceDebugStage.rgbConversion, 'converting camera frame to RGB');
-      final rgbImage = _converter.convertToRgbImage(image);
       debugPrint(
-        '[FACE_DEBUG][OK][${FaceDebugStage.rgbConversion.label}] '
-        'source=${image.width}x${image.height} converted=${rgbImage.width}x${rgbImage.height}',
+        '[FACE_DEBUG][OK][${FaceDebugStage.landmarkMapping.label}] '
+        'leftEye=${leftEye != null} rightEye=${rightEye != null} '
+        'leftFinite=${_pointFinite(leftEye)} rightFinite=${_pointFinite(rightEye)}',
+      );
+      debugPrint(
+        '[FACE_DEBUG][OK][${FaceDebugStage.complete.label}] backgroundReady=true',
       );
 
-      _setStage(FaceDebugStage.landmarkMapping, 'checking landmarks for alignment');
+      if (mounted) {
+        setState(() {
+          _error = null;
+          _status = _captureDisabledReason == null
+              ? 'Wajah siap diambil. Tekan Capture Sample.'
+              : _captureDisabledReason!;
+        });
+      }
+    } catch (error, st) {
+      debugPrint(
+        '[FACE_DEBUG][ERROR][${_stage.label}] ${error.runtimeType}: $error',
+      );
+      debugPrintStack(stackTrace: st);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        final message = error.toString().replaceFirst('Exception: ', '');
+        _error = '${error.runtimeType}: $message';
+        _status = 'ERROR';
+      });
+    } finally {
+      _processingFrame = false;
+    }
+  }
+
+  Future<void> _captureSample() async {
+    debugPrint('[FACE_DEBUG][CAPTURE][PRESSED]');
+    if (_isCapturing || _processingFrame || !_cameraReady || !_mlKitReady || !_tfliteReady) {
+      return;
+    }
+
+    final frame = _latestFrame;
+    final face = _latestFace;
+    final controller = _controller;
+    if (frame == null || face == null || controller == null) {
+      setState(() {
+        _status = 'Wajah belum siap untuk diambil.';
+      });
+      return;
+    }
+
+    _isCapturing = true;
+    final startedAt = DateTime.now();
+    try {
+      final sampleLabel = String.fromCharCode(65 + _samples.length);
+      debugPrint('[FACE_DEBUG][CAPTURE][START] sample=$sampleLabel');
+
+      _setStage(FaceDebugStage.rgbConversion, 'converting owned frame to RGB');
+      final rgbImage = frame.rgbImage;
+      debugPrint(
+        '[FACE_DEBUG][OK][${FaceDebugStage.rgbConversion.label}] '
+        'source=${rgbImage.width}x${rgbImage.height} '
+        'converted=${rgbImage.width}x${rgbImage.height}',
+      );
+
+      _setStage(FaceDebugStage.faceDetection, 'reusing cached face detection');
+      debugPrint(
+        '[FACE_DEBUG][OK][${FaceDebugStage.faceDetection.label}] faces=1',
+      );
+
+      _setStage(FaceDebugStage.landmarkMapping, 'reusing cached landmark mapping');
       final leftEye = face.landmarks[FaceLandmarkType.leftEye]?.position;
       final rightEye = face.landmarks[FaceLandmarkType.rightEye]?.position;
       debugPrint(
         '[FACE_DEBUG][OK][${FaceDebugStage.landmarkMapping.label}] '
-        'leftEye=${leftEye != null} '
-        'rightEye=${rightEye != null} '
-        'leftFinite=${_pointFinite(leftEye)} '
-        'rightFinite=${_pointFinite(rightEye)}',
+        'leftEye=${leftEye != null} rightEye=${rightEye != null} '
+        'leftFinite=${_pointFinite(leftEye)} rightFinite=${_pointFinite(rightEye)}',
       );
 
-      _setStage(FaceDebugStage.alignment, 'aligning and cropping face');
-      final crop = _converter.extractAlignedFaceCrop(
-        image,
+      _setStage(FaceDebugStage.alignment, 'aligning from owned frame');
+      final crop = _converter.extractAlignedFaceCropFromRgb(
+        frame.rgbImage,
         face,
-        orientation: _controller!.value.deviceOrientation,
       );
       final eyeDistance = _eyeDistance(leftEye, rightEye);
       debugPrint(
         '[FACE_DEBUG][OK][${FaceDebugStage.alignment.label}] '
-        'source=${image.width}x${image.height} '
+        'source=${rgbImage.width}x${rgbImage.height} '
         'eyeDistance=${eyeDistance?.toStringAsFixed(2) ?? 'n/a'} '
         'crop=${crop.width}x${crop.height}',
       );
@@ -232,33 +309,37 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
         'crop=${crop.width}x${crop.height}',
       );
 
-      _setStage(FaceDebugStage.resize112, 'encoding crop for model input');
-      if (crop.width <= 0 || crop.height <= 0) {
-        throw FaceCameraImageException(
-          'FACE_ALIGNMENT_INVALID_CROP',
-          'crop=${crop.width}x${crop.height}',
-        );
-      }
+      _setStage(FaceDebugStage.resize112, 'preparing 112x112 sample');
+      final sample = img.copyResize(
+        crop,
+        width: 112,
+        height: 112,
+        interpolation: img.Interpolation.linear,
+      );
       debugPrint(
         '[FACE_DEBUG][OK][${FaceDebugStage.resize112.label}] '
-        'aligned=${crop.width}x${crop.height}',
+        'output=${sample.width}x${sample.height}',
       );
 
-      final cropBytes = img.encodeJpg(crop, quality: 95);
-      _setStage(FaceDebugStage.tflitePreprocess, 'preparing TFLite input');
+      _setStage(FaceDebugStage.tflitePreprocess, 'encoding sample for inference');
+      final sampleBytes = img.encodeJpg(sample, quality: 95);
       debugPrint(
         '[FACE_DEBUG][OK][${FaceDebugStage.tflitePreprocess.label}] '
         'inputShape=[1,112,112,3] expectedElements=${112 * 112 * 3} '
-        'encodedBytes=${cropBytes.length}',
+        'source=${sample.width}x${sample.height} encodedBytes=${sampleBytes.length}',
       );
 
       _setStage(FaceDebugStage.tfliteInference, 'running TFLite inference');
-      final startedAt = DateTime.now();
-      final embedding = await _recognitionService.generateEmbedding(cropBytes);
-      final elapsedMs = DateTime.now().difference(startedAt).inMilliseconds;
+      debugPrint(
+        '[FACE_DEBUG][START][${FaceDebugStage.tfliteInference.label}] '
+        'inputShape=[1,112,112,3] elementCount=${112 * 112 * 3}',
+      );
+      final inferenceStartedAt = DateTime.now();
+      final embedding = await _recognitionService.generateEmbedding(sampleBytes);
+      final inferenceMs = DateTime.now().difference(inferenceStartedAt).inMilliseconds;
       debugPrint(
         '[FACE_DEBUG][OK][${FaceDebugStage.tfliteInference.label}] '
-        'outputDim=${embedding.length} inferenceMs=$elapsedMs',
+        'outputDim=${embedding.length} inferenceMs=$inferenceMs',
       );
 
       _setStage(FaceDebugStage.embeddingValidation, 'validating embedding');
@@ -270,34 +351,114 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
         'dimension=${embedding.length} allFinite=$allFinite '
         'nonZero=$nonZero norm=${norm.toStringAsFixed(6)}',
       );
-      _setStage(FaceDebugStage.complete, 'debug pipeline complete');
 
-      if (!mounted) {
-        return;
+      _samples.add(
+        _SampleRecord(
+          label: sampleLabel,
+          embedding: List<double>.unmodifiable(embedding),
+          norm: norm,
+        ),
+      );
+      _latestSampleLabel = sampleLabel;
+      _lastEmbeddingSize = embedding.length;
+      _lastNorm = norm;
+      _lastTiming = '${DateTime.now().difference(startedAt).inMilliseconds}ms';
+      _latestSimilarityStats = _computeSimilarityStats();
+      _setStage(FaceDebugStage.complete, 'debug pipeline complete');
+      debugPrint('[FACE_DEBUG][OK][COMPLETE] sample=$sampleLabel');
+
+      if (mounted) {
+        setState(() {
+          _error = null;
+          _status = 'Sample $sampleLabel captured.';
+        });
       }
-      setState(() {
-        _lastNorm = norm;
-        _lastEmbeddingSize = embedding.length;
-        _lastTiming = '${elapsedMs}ms';
-        _status = 'Face detected and embedding validated.';
-      });
     } catch (error, st) {
       debugPrint(
-        '[FACE_DEBUG][ERROR][${_stage.label}] '
-        '${error.runtimeType}: $error',
+        '[FACE_DEBUG][ERROR][${_stage.label}] ${error.runtimeType}: $error',
       );
       debugPrintStack(stackTrace: st);
-      if (!mounted) {
-        return;
+      if (mounted) {
+        setState(() {
+          final message = error.toString().replaceFirst('Exception: ', '');
+          _error = '${error.runtimeType}: $message';
+          _status = 'ERROR';
+        });
       }
-      setState(() {
-        final message = error.toString().replaceFirst('Exception: ', '');
-        _error = '${error.runtimeType}: $message';
-        _status = 'ERROR';
-      });
     } finally {
-      _processingFrame = false;
+      _isCapturing = false;
     }
+  }
+
+  void _resetSamples() {
+    setState(() {
+      _samples.clear();
+      _latestSampleLabel = null;
+      _latestSimilarityStats = null;
+      _lastEmbeddingSize = null;
+      _lastNorm = null;
+      _lastTiming = null;
+      _error = null;
+      _status = 'Samples reset.';
+    });
+  }
+
+  String? _buildCaptureDisabledReason({required bool faceReady}) {
+    if (!_cameraReady) {
+      return 'Capture disabled: camera not ready';
+    }
+    if (!_mlKitReady) {
+      return 'Capture disabled: ML Kit not ready';
+    }
+    if (!_tfliteReady) {
+      return 'Capture disabled: model not ready';
+    }
+    if (_isCapturing || _processingFrame) {
+      return 'Capture disabled: processing';
+    }
+    if (_latestFrame == null) {
+      return 'Capture disabled: no valid owned frame';
+    }
+    if (!faceReady) {
+      return 'Capture disabled: no valid face';
+    }
+    return null;
+  }
+
+  Map<String, double> _computeSimilarityStats() {
+    if (_samples.length < 2) {
+      return {};
+    }
+
+    final similarities = <String, double>{};
+    final first = _samples.first;
+    for (var i = 1; i < _samples.length; i++) {
+      final other = _samples[i];
+      final similarity = _cosineSimilarity(first.embedding, other.embedding);
+      similarities['${first.label}${other.label}'] = similarity;
+    }
+
+    final values = similarities.values.toList(growable: false)..sort();
+    final sum = values.fold<double>(0.0, (acc, value) => acc + value);
+    similarities['min'] = values.first;
+    similarities['max'] = values.last;
+    similarities['average'] = sum / values.length;
+    similarities['median'] = values[values.length ~/ 2];
+    return similarities;
+  }
+
+  double _cosineSimilarity(List<double> a, List<double> b) {
+    final length = math.min(a.length, b.length);
+    var dot = 0.0;
+    var normA = 0.0;
+    var normB = 0.0;
+    for (var i = 0; i < length; i++) {
+      dot += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+    final denom = math.sqrt(normA) * math.sqrt(normB);
+    return denom <= 0 ? 0.0 : dot / denom;
   }
 
   void _setStage(
@@ -356,6 +517,12 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
       );
     }
 
+    final disabledReason = _buildCaptureDisabledReason(
+      faceReady: _latestFace != null &&
+          _latestFace!.landmarks[FaceLandmarkType.leftEye]?.position != null &&
+          _latestFace!.landmarks[FaceLandmarkType.rightEye]?.position != null,
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Face Debug Harness'),
@@ -370,10 +537,32 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
             _DiagnosticTile(label: 'TFLite', value: _tfliteReady ? 'ready' : 'failed'),
             _DiagnosticTile(label: 'Stage', value: _stage.label),
             _DiagnosticTile(label: 'Status', value: _status),
+            if (disabledReason != null) _DiagnosticTile(label: 'Capture', value: disabledReason),
             if (_error != null) _DiagnosticTile(label: 'Error', value: _error!),
+            _DiagnosticTile(label: 'Sample', value: _latestSampleLabel ?? '-'),
             _DiagnosticTile(label: 'Embedding Size', value: '${_lastEmbeddingSize ?? '-'}'),
             _DiagnosticTile(label: 'Embedding Norm', value: _lastNorm?.toStringAsFixed(4) ?? '-'),
             _DiagnosticTile(label: 'Timing', value: _lastTiming ?? '-'),
+            if (_latestSimilarityStats != null && _latestSimilarityStats!.isNotEmpty)
+              _SimilarityPanel(stats: _latestSimilarityStats!),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: disabledReason == null ? _captureSample : null,
+                    child: Text(
+                      disabledReason ?? (_isCapturing ? 'Capturing...' : 'Capture Sample'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton(
+                  onPressed: _samples.isEmpty ? null : _resetSamples,
+                  child: const Text('Reset Samples'),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             Expanded(
               child: ClipRRect(
@@ -394,6 +583,70 @@ class _FaceEmbeddingDebugPageState extends State<FaceEmbeddingDebugPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _OwnedCameraFrame {
+  _OwnedCameraFrame({
+    required this.rgbImage,
+    required this.orientation,
+  });
+
+  final img.Image rgbImage;
+  final DeviceOrientation orientation;
+
+  factory _OwnedCameraFrame.fromCameraImage(
+    img.Image rgbImage, {
+    required DeviceOrientation deviceOrientation,
+  }) {
+    return _OwnedCameraFrame(rgbImage: rgbImage, orientation: deviceOrientation);
+  }
+}
+
+class _SampleRecord {
+  const _SampleRecord({
+    required this.label,
+    required this.embedding,
+    required this.norm,
+  });
+
+  final String label;
+  final List<double> embedding;
+  final double norm;
+}
+
+class _SimilarityPanel extends StatelessWidget {
+  const _SimilarityPanel({required this.stats});
+
+  final Map<String, double> stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final pairs = stats.entries.where((entry) {
+      final key = entry.key;
+      return key.length == 2 && key.codeUnits.every((c) => c >= 65 && c <= 90);
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 4),
+        const Text(
+          'Cosine Similarity',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 8),
+        for (final entry in pairs)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text('${entry.key}: ${entry.value.toStringAsFixed(4)}'),
+          ),
+        if (stats.containsKey('min')) Text('min: ${stats['min']!.toStringAsFixed(4)}'),
+        if (stats.containsKey('max')) Text('max: ${stats['max']!.toStringAsFixed(4)}'),
+        if (stats.containsKey('average')) Text('average: ${stats['average']!.toStringAsFixed(4)}'),
+        if (stats.containsKey('median')) Text('median: ${stats['median']!.toStringAsFixed(4)}'),
+      ],
     );
   }
 }
