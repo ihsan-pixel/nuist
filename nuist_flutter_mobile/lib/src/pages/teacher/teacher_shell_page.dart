@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../controllers/session_controller.dart';
 import '../../services/teacher_mobile_repository.dart';
@@ -16,6 +17,7 @@ import 'report_page.dart';
 import 'schedule_page.dart';
 import 'staff_attendance_page.dart';
 import 'teaching_journal_page.dart';
+import 'face_embedding_debug_page.dart';
 
 class TeacherShellPage extends StatefulWidget {
   const TeacherShellPage({
@@ -102,6 +104,19 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 
   Future<void> _logout() async {
     await widget.controller.logout();
+  }
+
+  void _openDebugHarness() {
+    if (!kDebugMode) {
+      return;
+    }
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const FaceEmbeddingDebugPage(),
+        ),
+      ),
+    );
   }
 
   void _openProfile() {
@@ -241,6 +256,12 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
               currentIndex: _currentIndex,
               onSelect: _selectTab,
             ),
+      floatingActionButton: kDebugMode
+          ? FloatingActionButton.small(
+              onPressed: _openDebugHarness,
+              child: const Icon(Icons.science_rounded),
+            )
+          : null,
     );
   }
 }
