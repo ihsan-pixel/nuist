@@ -109,7 +109,15 @@ class BiometricVerificationService
             return $probe;
         }
 
+        $requestVectorType = get_debug_type($probe['embedding']);
         $requestStats = $this->vectorStats($probe['embedding']);
+        Log::debug('[BIOMETRIC_VERIFY][DIMENSION_TRACE]', [
+            'user_id' => $user->id,
+            'request_declared_dimension' => $dimension,
+            'request_embedding_count' => $requestStats['count'] ?? count($probe['embedding']),
+            'request_embedding_type' => $requestVectorType,
+        ]);
+
         Log::debug('[BIOMETRIC_VERIFY][REQUEST_VECTOR]', $requestStats);
 
         $profile = $this->findCompatibleProfile($user, $engine, $model, $dimension, $modelVersion);
@@ -147,7 +155,9 @@ class BiometricVerificationService
             ];
         }
 
-        $reference = $this->normalizeVector($profile->embedding);
+        $rawProfileEmbedding = $profile->embedding;
+        $profileVectorType = get_debug_type($rawProfileEmbedding);
+        $reference = $this->normalizeVector($rawProfileEmbedding);
         if ($reference === []) {
             Log::debug('[BIOMETRIC_VERIFY][PROFILE_VECTOR]', [
                 'profile_id' => $profile->id,
@@ -163,6 +173,13 @@ class BiometricVerificationService
         }
 
         $profileStats = $this->vectorStats($reference);
+        Log::debug('[BIOMETRIC_VERIFY][DIMENSION_TRACE]', [
+            'user_id' => $user->id,
+            'profile_id' => $profile->id,
+            'profile_dimension' => $profile->dimension,
+            'profile_embedding_count' => $profileStats['count'] ?? count($reference),
+            'profile_embedding_type' => $profileVectorType,
+        ]);
         Log::debug('[BIOMETRIC_VERIFY][PROFILE_VECTOR]', array_merge([
             'profile_id' => $profile->id,
             'declared_dimension' => $profile->dimension,
@@ -182,6 +199,18 @@ class BiometricVerificationService
         }
 
         $resolvedThreshold = (float) config('biometric.default_threshold', 0.75);
+        Log::info('[BIOMETRIC_TEST][VERIFY]', [
+            'user_id' => $user->id,
+            'profile_id' => $profile->id,
+            'engine' => $engine,
+            'model' => $model,
+            'dimension' => $dimension,
+            'request_embedding_count' => $requestStats['count'] ?? count($probe['embedding']),
+            'profile_embedding_count' => $profileStats['count'] ?? count($reference),
+            'similarity' => round($similarity, 4),
+            'threshold' => $resolvedThreshold,
+            'verified' => $similarity >= $resolvedThreshold,
+        ]);
 
         return [
             'ok' => true,
@@ -204,6 +233,27 @@ class BiometricVerificationService
     {
         if (!is_array($value)) {
             return [];
+        }
+
+        if (count($value) === 1 && is_array($value[0] ?? null)) {
+            $first = $value[0];
+            $flatFirst = [];
+            foreach ($first as $item) {
+                if (!is_numeric($item)) {
+                    $flatFirst = [];
+                    break;
+                }
+                $floatValue = (float) $item;
+                if (!is_finite($floatValue)) {
+                    $flatFirst = [];
+                    break;
+                }
+                $flatFirst[] = $floatValue;
+            }
+
+            if ($flatFirst !== []) {
+                return $flatFirst;
+            }
         }
 
         $normalized = [];

@@ -622,7 +622,9 @@ class TeacherAppController extends Controller
             ->first();
         $approvedPicketSubmission = $this->picketScheduleApprovalService->approvedSubmissionForDate($user, $tanggal);
 
-        if (($holiday || $tanggal->isSunday()) && !$approvedPicketSubmission) {
+        $allowSundayTest = (bool) config('attendance.allow_sunday_test', false)
+            && app()->environment(['local', 'testing']);
+        if (($holiday || ($tanggal->isSunday() && !$allowSundayTest)) && !$approvedPicketSubmission) {
             $reason = $holiday
                 ? 'hari libur (' . $holiday->name . ')'
                 : 'hari Minggu';
@@ -2747,7 +2749,7 @@ class TeacherAppController extends Controller
             ];
         }
 
-        if ($isSunday) {
+        if ($isSunday && !((bool) config('attendance.allow_sunday_test', false) && app()->environment(['local', 'testing']))) {
             return [
                 'status' => 'libur',
                 'status_label' => 'Hari Minggu',
@@ -2803,9 +2805,12 @@ class TeacherAppController extends Controller
         $completedToday = $hadirRecords
             ->contains(fn (Presensi $item) => !empty($item->waktu_masuk) && !empty($item->waktu_keluar));
 
+        $allowSundayTest = (bool) config('attendance.allow_sunday_test', false)
+            && app()->environment(['local', 'testing']);
+
         if ($holiday && !$approvedPicketSubmission) {
             $blockedMessage = 'Hari ini libur: ' . $holiday->name . '.';
-        } elseif ($isSunday) {
+        } elseif ($isSunday && !$allowSundayTest) {
             $blockedMessage = 'Presensi tidak tersedia pada hari Minggu.';
         } elseif ($approvedBlockingIzin) {
             $blockedMessage = ucfirst(str_replace('_', ' ', (string) $approvedBlockingIzin->type)) . ' Anda sudah disetujui untuk hari ini.';
