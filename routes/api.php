@@ -98,3 +98,6 @@ Route::post('github-commit', [GithubWebhookController::class, 'handle'])
 // Face enrollment (admin) and verification (mobile presensi) with rate-limiting
 Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/face/enroll', [FaceController::class, 'enroll']);
 Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/face/verify', [FaceController::class, 'verify']);
+Route::middleware(['auth:sanctum', 'throttle:30,1'])->get('/face/biometric/status', [FaceController::class, 'biometricStatus']);
+Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/biometric/enroll', [FaceController::class, 'biometricEnroll']);
+Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/biometric/verify', [FaceController::class, 'biometricVerify']);

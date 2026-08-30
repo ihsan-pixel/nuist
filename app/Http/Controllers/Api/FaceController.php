@@ -9,12 +9,20 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\FaceDiagnostic;
+use App\Services\BiometricProfileService;
+use App\Services\BiometricVerificationService;
 
 class FaceController extends Controller
 {
     // Thresholds - adjust as needed or move to config
     private float $FACE_SIMILARITY_THRESHOLD = 0.80;
     private float $LIVENESS_THRESHOLD = 0.55;
+
+    public function __construct(
+        private BiometricProfileService $biometricProfileService,
+        private BiometricVerificationService $biometricVerificationService,
+    ) {
+    }
 
     /**
      * Enroll face data for a user (admin or user self-enroll).
@@ -35,6 +43,10 @@ class FaceController extends Controller
             'face_embedding' => 'nullable|array',
             'face_data' => 'nullable',
             'face_samples' => 'nullable|array',
+            'engine' => 'nullable|string|max:64',
+            'model' => 'nullable|string|max:64',
+            'model_version' => 'nullable|string|max:32',
+            'dimension' => 'nullable|integer|min:1',
             'liveness_score' => 'required|numeric|min:0|max:1',
             'liveness_challenges' => 'nullable|array',
         ]);
@@ -61,6 +73,10 @@ class FaceController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found.'], 404);
         }
 
+        $engine = $request->input('engine');
+        $model = $request->input('model');
+        $modelVersion = $request->input('model_version');
+        $dimension = $request->filled('dimension') ? (int) $request->input('dimension') : null;
         $faceEmbedding = $this->normalizeDescriptor($request->input('face_embedding'));
         $legacyDescriptor = $this->normalizeDescriptor($request->input('face_data'));
 
@@ -102,6 +118,29 @@ class FaceController extends Controller
             $user->face_registered_at = now();
             $user->face_verification_required = true;
             $user->save();
+
+            if (is_string($engine) && $engine !== '' && is_string($model) && $model !== '' && $dimension !== null) {
+                $this->biometricProfileService->createProfile([
+                    'user_id' => $user->id,
+                    'engine' => $engine,
+                    'model' => $model,
+                    'model_version' => is_string($modelVersion) && $modelVersion !== '' ? $modelVersion : null,
+                    'dimension' => $dimension,
+                    'embedding' => $faceEmbedding !== [] ? $faceEmbedding : null,
+                    'samples' => $storedDescriptors,
+                    'quality_score' => null,
+                    'liveness_score' => $livenessScore,
+                    'source' => 'web',
+                    'status' => 'active',
+                    'metadata' => [
+                        'device_info' => is_string($request->input('device_info'))
+                            ? Str::limit($request->input('device_info'), 1000, '')
+                            : null,
+                        'legacy_face_id' => $user->face_id,
+                    ],
+                    'enrolled_at' => now(),
+                ]);
+            }
 
             FaceDiagnostic::create([
                 'user_id' => $user->id,
@@ -179,6 +218,10 @@ class FaceController extends Controller
             'liveness_score' => 'required|numeric',
             'liveness_challenges' => 'nullable',
             'user_id' => 'nullable|integer',
+            'engine' => 'nullable|string|max:64',
+            'model' => 'nullable|string|max:64',
+            'model_version' => 'nullable|string|max:32',
+            'dimension' => 'nullable|integer|min:1',
         ]);
 
         $targetUserId = $request->input('user_id') ?: $auth->id;
@@ -191,6 +234,64 @@ class FaceController extends Controller
         $user = User::find($targetUserId);
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        $engine = $request->input('engine');
+        $model = $request->input('model');
+        $modelVersion = $request->input('model_version');
+        $dimension = $request->filled('dimension') ? (int) $request->input('dimension') : null;
+
+        if (is_string($engine) && $engine !== '' && is_string($model) && $model !== '' && $dimension !== null) {
+            $embedding = $request->input('face_embedding');
+            if (!is_array($embedding)) {
+                return response()->json([
+                    'success' => false,
+                    'face_verified' => false,
+                    'code' => 'INVALID_BIOMETRIC_PAYLOAD',
+                    'message' => 'Data embedding wajah tidak valid. Silakan ulangi scan wajah.',
+                ], 422);
+            }
+
+            $verification = $this->biometricVerificationService->verify(
+                $user,
+                $embedding,
+                (string) $engine,
+                (string) $model,
+                $dimension,
+                is_string($modelVersion) && $modelVersion !== '' ? $modelVersion : null,
+                $this->FACE_SIMILARITY_THRESHOLD,
+            );
+
+            if (!($verification['ok'] ?? false)) {
+                return response()->json([
+                    'success' => false,
+                    'face_verified' => false,
+                    'code' => $verification['code'] ?? 'BIOMETRIC_PROFILE_NOT_FOUND',
+                    'message' => $verification['message'] ?? 'Profil wajah untuk aplikasi ini belum tersedia.',
+                ], 422);
+            }
+
+            $livenessScore = (float) $request->input('liveness_score');
+            $normalizedChallenges = $this->normalizeChallenges($request->input('liveness_challenges', []));
+            $faceMatched = ($verification['matched'] ?? false) === true;
+            $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
+            $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
+            $faceVerified = $faceMatched && $livenessVerified && $challengeVerified;
+
+            return response()->json([
+                'success' => $faceVerified,
+                'face_verified' => $faceVerified,
+                'code' => $faceVerified ? 'FACE_VERIFIED' : 'FACE_NOT_VERIFIED',
+                'message' => $faceVerified
+                    ? 'Wajah cocok dengan profil biometrik aktif.'
+                    : 'Wajah tidak cocok dengan profil biometrik aktif.',
+                'similarity' => $verification['similarity'] ?? null,
+                'matched' => $faceMatched,
+                'threshold' => $verification['threshold'] ?? $this->FACE_SIMILARITY_THRESHOLD,
+                'liveness_score' => $livenessScore,
+                'liveness_threshold' => $this->LIVENESS_THRESHOLD,
+                'liveness_challenges' => $normalizedChallenges,
+            ]);
         }
 
         $providedEmbedding = $this->normalizeDescriptor($request->input('face_embedding'));
@@ -273,6 +374,205 @@ class FaceController extends Controller
             'liveness_score' => $livenessScore,
             'liveness_threshold' => $this->LIVENESS_THRESHOLD,
             'liveness_challenges' => $normalizedChallenges,
+        ]);
+    }
+
+    public function biometricStatus(Request $request)
+    {
+        $auth = $request->user();
+        if (!$auth) {
+            return response()->json([
+                'success' => false,
+                'code' => 'UNAUTHENTICATED',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $profiles = $auth->biometricProfiles()
+            ->select(['id', 'enrollment_uuid', 'engine', 'model', 'model_version', 'dimension', 'status', 'enrolled_at'])
+            ->orderByDesc('enrolled_at')
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'profiles' => $profiles->map(fn ($profile) => [
+                'registered' => true,
+                'engine' => $profile->engine,
+                'model' => $profile->model,
+                'model_version' => $profile->model_version,
+                'dimension' => $profile->dimension,
+                'status' => $profile->status,
+                'enrolled_at' => optional($profile->enrolled_at)?->toIso8601String(),
+            ])->values(),
+        ]);
+    }
+
+    public function biometricEnroll(Request $request)
+    {
+        $auth = $request->user();
+        if (!$auth) {
+            return response()->json([
+                'success' => false,
+                'code' => 'UNAUTHENTICATED',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $validated = $request->validate([
+            'embedding' => 'required|array',
+            'samples' => 'nullable|array',
+            'engine' => 'required|string|max:64',
+            'model' => 'required|string|max:64',
+            'model_version' => 'nullable|string|max:32',
+            'dimension' => 'required|integer|min:1|max:2048',
+            'quality_score' => 'nullable|numeric|min:0|max:1',
+            'liveness_score' => 'nullable|numeric|min:0|max:1',
+            'metadata' => 'nullable|array',
+        ]);
+
+        $probe = $this->biometricVerificationService->validateProbe(
+            $validated['embedding'],
+            $validated['engine'],
+            $validated['model'],
+            (int) $validated['dimension'],
+            $validated['model_version'] ?? null
+        );
+
+        if (!($probe['ok'] ?? false)) {
+            return response()->json([
+                'success' => false,
+                'code' => $probe['code'] ?? 'INVALID_BIOMETRIC_PAYLOAD',
+                'message' => $probe['message'] ?? 'Payload biometric tidak valid.',
+            ], 422);
+        }
+
+        $profile = $this->biometricProfileService->createProfileWithReEnrollment(
+            $auth,
+            [
+                'engine' => $validated['engine'],
+                'model' => $validated['model'],
+                'model_version' => $validated['model_version'] ?? null,
+                'dimension' => (int) $validated['dimension'],
+                'embedding' => $probe['embedding'],
+                'samples' => $validated['samples'] ?? null,
+                'quality_score' => $validated['quality_score'] ?? null,
+                'liveness_score' => $validated['liveness_score'] ?? null,
+                'source' => 'flutter',
+                'status' => 'active',
+                'metadata' => array_merge($validated['metadata'] ?? [], [
+                    'source' => 'flutter',
+                    'enrolled_by_user_id' => $auth->id,
+                ]),
+                'enrolled_at' => now(),
+            ]
+        );
+
+        Log::info('biometric_v2_enroll', [
+            'user_id' => $auth->id,
+            'profile_id' => $profile->id,
+            'engine' => $profile->engine,
+            'model' => $profile->model,
+            'model_version' => $profile->model_version,
+            'dimension' => $profile->dimension,
+            'verified' => true,
+            'failure_code' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'code' => 'BIOMETRIC_ENROLLED',
+            'message' => 'Profil biometrik berhasil didaftarkan.',
+            'profile' => $profile->only([
+                'id',
+                'enrollment_uuid',
+                'engine',
+                'model',
+                'model_version',
+                'dimension',
+                'source',
+                'status',
+                'enrolled_at',
+            ]),
+        ]);
+    }
+
+    public function biometricVerify(Request $request)
+    {
+        $auth = $request->user();
+        if (!$auth) {
+            return response()->json([
+                'success' => false,
+                'code' => 'UNAUTHENTICATED',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $validated = $request->validate([
+            'embedding' => 'required|array',
+            'engine' => 'required|string|max:64',
+            'model' => 'required|string|max:64',
+            'model_version' => 'nullable|string|max:32',
+            'dimension' => 'required|integer|min:1|max:2048',
+            'liveness_score' => 'nullable|numeric|min:0|max:1',
+            'samples' => 'nullable|array',
+        ]);
+
+        $result = $this->biometricVerificationService->verify(
+            $auth,
+            $validated['embedding'],
+            $validated['engine'],
+            $validated['model'],
+            (int) $validated['dimension'],
+            $validated['model_version'] ?? null
+        );
+
+        if (!($result['ok'] ?? false)) {
+            Log::info('biometric_v2_verify', [
+                'user_id' => $auth->id,
+                'profile_id' => null,
+                'engine' => $validated['engine'],
+                'model' => $validated['model'],
+                'model_version' => $validated['model_version'] ?? null,
+                'dimension' => (int) $validated['dimension'],
+                'similarity' => null,
+                'threshold' => null,
+                'verified' => false,
+                'failure_code' => $result['code'] ?? 'BIOMETRIC_VECTOR_INVALID',
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'face_verified' => false,
+                'code' => $result['code'] ?? 'BIOMETRIC_VECTOR_INVALID',
+                'message' => $result['message'] ?? 'Verifikasi biometric gagal.',
+            ], 422);
+        }
+
+        Log::info('biometric_v2_verify', [
+            'user_id' => $auth->id,
+            'profile_id' => $result['profile']->id ?? null,
+            'engine' => $result['engine'] ?? null,
+            'model' => $result['model'] ?? null,
+            'model_version' => $result['model_version'] ?? null,
+            'dimension' => $result['dimension'] ?? null,
+            'similarity' => $result['similarity'] ?? null,
+            'threshold' => $result['threshold'] ?? null,
+            'verified' => $result['matched'] ?? false,
+            'failure_code' => $result['code'] ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'face_verified' => $result['matched'] ?? false,
+            'code' => $result['code'] ?? 'FACE_NOT_VERIFIED',
+            'message' => $result['message'] ?? 'Verifikasi biometric selesai.',
+            'similarity' => $result['similarity'] ?? null,
+            'threshold' => $result['threshold'] ?? null,
+            'engine' => $result['engine'] ?? null,
+            'model' => $result['model'] ?? null,
+            'model_version' => $result['model_version'] ?? null,
+            'dimension' => $result['dimension'] ?? null,
         ]);
     }
 
