@@ -284,7 +284,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     });
 
     try {
-      await _controller?.stopImageStream();
+      await _stopCameraStreamSafely(reason: 'capture_start');
       final file = await _controller!.takePicture();
       final processed = await _analyzeImage(file.path);
       if (processed == null) {
@@ -313,6 +313,11 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       final similarity = verification['similarity'];
 
       if (verified) {
+        debugPrint('[FACE_ATTENDANCE][CAMERA_STOP] reason=verification_complete');
+        await _stopCameraStreamSafely(reason: 'verification_complete');
+        if (!mounted) {
+          return;
+        }
         processed['face_verified'] = true;
         processed['face_verification'] = verification;
         Navigator.of(context).pop(processed);
@@ -403,6 +408,24 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         await _controller?.startImageStream(_processCameraImage);
       }
     } catch (_) {}
+  }
+
+  Future<void> _stopCameraStreamSafely({required String reason}) async {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) {
+      return;
+    }
+
+    if (!controller.value.isStreamingImages) {
+      return;
+    }
+
+    debugPrint('[FACE_ATTENDANCE][CAMERA_STOP] reason=$reason');
+    try {
+      await controller.stopImageStream();
+    } catch (_) {
+      // Cleanup only. The controller may already be stopped by the success path.
+    }
   }
 
   String? _friendlyVerificationMessage(String? code) {
@@ -562,10 +585,11 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
   @override
   void dispose() {
+    debugPrint('[FACE_ATTENDANCE][DISPOSE]');
     _autoCaptureTimer?.cancel();
-    unawaited(_controller?.stopImageStream());
-    _controller?.dispose();
-    _detector?.close();
+    unawaited(_stopCameraStreamSafely(reason: 'dispose'));
+    unawaited(_controller?.dispose());
+    unawaited(_detector?.close());
     super.dispose();
   }
 

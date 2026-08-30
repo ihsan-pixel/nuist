@@ -20,6 +20,7 @@ use App\Services\ApprovedIzinSyncService;
 use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
 use App\Services\FaceVerificationService;
+use App\Services\BiometricVerificationService;
 use App\Services\MobileAttendanceSettingsService;
 use App\Services\PicketScheduleApprovalService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -48,6 +49,7 @@ class TeacherAppController extends Controller
         private AttendanceObligationService $attendanceObligationService,
         private MobileAttendanceSettingsService $mobileAttendanceSettingsService,
         private FaceVerificationService $faceVerificationService,
+        private BiometricVerificationService $biometricVerificationService,
     )
     {
     }
@@ -590,7 +592,12 @@ class TeacherAppController extends Controller
 
         if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
             $validated = array_merge($validated, $request->validate([
-                'face_descriptor' => ['required', 'array', 'min:32'],
+                'engine' => ['required', 'string', 'max:64'],
+                'model' => ['required', 'string', 'max:64'],
+                'model_version' => ['nullable', 'string', 'max:32'],
+                'dimension' => ['required', 'integer', 'min:1'],
+                'face_embedding' => ['required', 'array'],
+                'face_embedding.*' => ['numeric'],
                 'liveness_score' => ['required', 'numeric', 'min:0', 'max:1'],
                 'liveness_challenges' => ['required', 'array', 'min:1'],
             ]));
@@ -714,23 +721,68 @@ class TeacherAppController extends Controller
             'verified' => false,
         ];
 
-        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
-            $faceVerification = $this->faceVerificationService->verifyForAttendance(
-                $user,
-                $validated['face_descriptor'] ?? null,
-                $validated['liveness_score'] ?? null,
-                $validated['liveness_challenges'] ?? [],
-                $validated['face_embedding'] ?? null,
-                $validated['device_info'] ?? null,
-            );
+        $biometricEngine = $request->input('engine');
+        $biometricModel = $request->input('model');
+        $biometricModelVersion = $request->input('model_version');
+        $biometricDimension = $request->filled('dimension') ? (int) $request->input('dimension') : null;
+        $biometricEmbedding = $request->input('face_embedding');
 
-            if (!$faceVerification['success']) {
+        $hasBiometricV2Payload = is_string($biometricEngine) && $biometricEngine !== ''
+            && is_string($biometricModel) && $biometricModel !== ''
+            && $biometricDimension !== null
+            && is_array($biometricEmbedding);
+
+        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
+            if ($hasBiometricV2Payload) {
+                $faceVerification = $this->biometricVerificationService->verify(
+                    $user,
+                    $biometricEmbedding,
+                    (string) $biometricEngine,
+                    (string) $biometricModel,
+                    $biometricDimension,
+                    is_string($biometricModelVersion) && $biometricModelVersion !== '' ? $biometricModelVersion : null,
+                    (float) config('biometric.default_threshold', 0.75),
+                );
+
+                if (!($faceVerification['ok'] ?? false)) {
+                    throw ValidationException::withMessages([
+                        'face_verification' => $faceVerification['message'] ?? 'Profil biometrik tidak kompatibel.',
+                    ]);
+                }
+
+                if (!($faceVerification['matched'] ?? false)) {
+                    throw ValidationException::withMessages([
+                        'face_verification' => $faceVerification['message'] ?? 'Wajah tidak cocok dengan profil biometrik aktif.',
+                    ]);
+                }
+
+                $livenessScore = (float) $validated['liveness_score'];
+                $normalizedChallenges = $this->normalizeChallenges($validated['liveness_challenges'] ?? []);
+                $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
+                $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
+
+                if (!$livenessVerified || !$challengeVerified) {
+                    throw ValidationException::withMessages([
+                        'face_verification' => !$livenessVerified
+                            ? 'Presensi ditolak karena verifikasi wajah belum valid. Silakan ulangi scan wajah.'
+                            : 'Challenge wajah belum valid. Silakan ulangi scan wajah.',
+                    ]);
+                }
+
+                $faceVerification = [
+                    'success' => true,
+                    'face_id_used' => $faceVerification['profile']->id ?? null,
+                    'similarity' => $faceVerification['similarity'] ?? null,
+                    'liveness_score' => $livenessScore,
+                    'challenges' => $normalizedChallenges,
+                    'notes' => 'biometric_v2_verified',
+                    'verified' => true,
+                ];
+            } else {
                 throw ValidationException::withMessages([
-                    'face_verification' => $faceVerification['message'],
+                    'face_verification' => 'Data biometrik v2 belum lengkap. Silakan ulangi scan wajah.',
                 ]);
             }
-
-            $faceVerification['verified'] = true;
         }
 
         $selfiePath = $this->processAndSaveSelfie(

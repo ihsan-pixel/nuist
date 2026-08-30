@@ -363,10 +363,16 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
+    final today = Map<String, dynamic>.from(
+      (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
+    );
     final timeRanges = Map<String, dynamic>.from(
       (data['time_ranges'] as Map?) ?? const <String, dynamic>{},
     );
-    final mode = form['next_mode'] as String?;
+    final mode = _resolveAttendanceMode(
+      form['next_mode'] as String?,
+      today: today,
+    );
 
     if (mode == null || mode.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -434,6 +440,12 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         if (_faceScanResult!['face_embedding'] != null)
           'face_embedding': _faceScanResult!['face_embedding'],
         'liveness_score': _faceScanResult!['liveness_score'],
+        if (_faceScanResult!['verification'] is Map) ...{
+          'engine': (_faceScanResult!['verification'] as Map)['engine'],
+          'model': (_faceScanResult!['verification'] as Map)['model'],
+          'model_version': (_faceScanResult!['verification'] as Map)['model_version'],
+          'dimension': (_faceScanResult!['verification'] as Map)['dimension'],
+        },
       };
 
       final result = await widget.repository.submitAttendance(payload: payload);
@@ -484,6 +496,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final faceEmbedding = raw['face_embedding'];
     final livenessScore = raw['liveness_score'];
     final livenessChallenges = raw['liveness_challenges'];
+    final verification = raw['verification'];
 
     if (selfieData == null ||
         selfieData.trim().isEmpty ||
@@ -497,6 +510,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       'face_embedding': List<dynamic>.from(faceEmbedding),
       'liveness_score': livenessScore,
       'liveness_challenges': _normalizedChallenges(livenessChallenges),
+      if (verification is Map)
+        'verification': Map<String, dynamic>.from(verification),
     };
   }
 
@@ -583,6 +598,32 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       return false;
     }
     return now.isBefore(parsedCheckoutTime);
+  }
+
+  String? _resolveAttendanceMode(
+    String? backendMode, {
+    required Map<String, dynamic> today,
+  }) {
+    if (backendMode != null && backendMode.trim().isNotEmpty) {
+      return backendMode.trim();
+    }
+
+    if (!kDebugMode) {
+      return null;
+    }
+
+    final checkIn = today['waktu_masuk']?.toString().trim();
+    final checkOut = today['waktu_keluar']?.toString().trim();
+
+    if (checkIn == null || checkIn.isEmpty) {
+      return 'masuk';
+    }
+
+    if (checkOut == null || checkOut.isEmpty) {
+      return 'keluar';
+    }
+
+    return null;
   }
 
   DateTime? _parseTodayTime(String? value, DateTime anchor) {
