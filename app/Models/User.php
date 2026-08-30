@@ -11,6 +11,7 @@ use App\Models\StatusKepegawaian;
 use App\Models\Madrasah;
 use App\Models\PushDeviceToken;
 use Illuminate\Support\Facades\Crypt;
+use App\Models\BiometricProfile;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -134,6 +135,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function approvedSppOperatorRegistration()
     {
         return $this->hasOne(SppOperatorRegistration::class, 'approved_user_id');
+    }
+
+    public function biometricProfiles()
+    {
+        return $this->hasMany(BiometricProfile::class);
     }
 
     public function decodedFaceData(): mixed
