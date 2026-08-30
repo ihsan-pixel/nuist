@@ -423,6 +423,17 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     });
 
     try {
+      final verification = _faceScanResult!['verification'];
+      debugPrint(
+        '[ATTENDANCE_V2][PAYLOAD] '
+        'engine=${verification is Map ? verification['engine'] ?? "" : ""} '
+        'model=${verification is Map ? verification['model'] ?? "" : ""} '
+        'model_version=${verification is Map ? verification['model_version'] ?? "" : ""} '
+        'dimension=${verification is Map ? verification['dimension'] ?? "" : ""} '
+        'embedding_count=${_faceScanResult!['face_embedding'] is List ? (_faceScanResult!['face_embedding'] as List).length : 0} '
+        'has_face_descriptor=${_faceScanResult!.containsKey('face_descriptor')} '
+        'has_face_embedding=${_faceScanResult!['face_embedding'] is List}',
+      );
       final payload = <String, dynamic>{
         'presensi_mode': mode,
         'latitude': _position!.latitude,

@@ -726,63 +726,107 @@ class TeacherAppController extends Controller
         $biometricModelVersion = $request->input('model_version');
         $biometricDimension = $request->filled('dimension') ? (int) $request->input('dimension') : null;
         $biometricEmbedding = $request->input('face_embedding');
+        $hasEngine = is_string($biometricEngine) && $biometricEngine !== '';
+        $hasModel = is_string($biometricModel) && $biometricModel !== '';
+        $hasModelVersion = is_string($biometricModelVersion) && $biometricModelVersion !== '';
+        $hasDimension = $biometricDimension !== null;
+        $hasFaceEmbedding = is_array($biometricEmbedding);
+        $hasBiometricV2Payload = $hasEngine && $hasModel && $hasModelVersion && $hasDimension && $hasFaceEmbedding;
 
-        $hasBiometricV2Payload = is_string($biometricEngine) && $biometricEngine !== ''
-            && is_string($biometricModel) && $biometricModel !== ''
-            && $biometricDimension !== null
-            && is_array($biometricEmbedding);
+        Log::info('[ATTENDANCE_V2][BRANCH]', [
+            'mode' => $hasBiometricV2Payload ? 'biometric_v2' : 'legacy',
+            'has_engine' => $hasEngine,
+            'has_model' => $hasModel,
+            'has_model_version' => $hasModelVersion,
+            'has_dimension' => $hasDimension,
+            'has_face_embedding' => $hasFaceEmbedding,
+        ]);
 
-        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
-            if ($hasBiometricV2Payload) {
-                $faceVerification = $this->biometricVerificationService->verify(
-                    $user,
-                    $biometricEmbedding,
-                    (string) $biometricEngine,
-                    (string) $biometricModel,
-                    $biometricDimension,
-                    is_string($biometricModelVersion) && $biometricModelVersion !== '' ? $biometricModelVersion : null,
-                    (float) config('biometric.default_threshold', 0.75),
-                );
+        if ($hasBiometricV2Payload) {
+            $embeddingCount = count($biometricEmbedding);
+            Log::info('[ATTENDANCE_V2][VERIFY_INPUT]', [
+                'declared_dimension' => $biometricDimension,
+                'embedding_count' => $embeddingCount,
+            ]);
 
-                if (!($faceVerification['ok'] ?? false)) {
-                    throw ValidationException::withMessages([
-                        'face_verification' => $faceVerification['message'] ?? 'Profil biometrik tidak kompatibel.',
-                    ]);
-                }
+            $faceVerification = $this->biometricVerificationService->verify(
+                $user,
+                $biometricEmbedding,
+                (string) $biometricEngine,
+                (string) $biometricModel,
+                $biometricDimension,
+                $hasModelVersion ? (string) $biometricModelVersion : null,
+                (float) config('biometric.default_threshold', 0.75),
+            );
 
-                if (!($faceVerification['matched'] ?? false)) {
-                    throw ValidationException::withMessages([
-                        'face_verification' => $faceVerification['message'] ?? 'Wajah tidak cocok dengan profil biometrik aktif.',
-                    ]);
-                }
+            if (!($faceVerification['ok'] ?? false)) {
+                Log::warning('[ATTENDANCE_V2][VERIFY_FAIL]', [
+                    'code' => $faceVerification['code'] ?? 'UNKNOWN',
+                    'request_dimension' => $biometricDimension,
+                    'request_embedding_count' => $embeddingCount,
+                    'profile_dimension' => $faceVerification['dimension'] ?? null,
+                    'profile_embedding_count' => isset($faceVerification['profile']) && is_object($faceVerification['profile']) && isset($faceVerification['profile']->embedding) && is_array($faceVerification['profile']->embedding)
+                        ? count($faceVerification['profile']->embedding)
+                        : null,
+                ]);
 
-                $livenessScore = (float) $validated['liveness_score'];
-                $normalizedChallenges = $this->normalizeChallenges($validated['liveness_challenges'] ?? []);
-                $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
-                $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
-
-                if (!$livenessVerified || !$challengeVerified) {
-                    throw ValidationException::withMessages([
-                        'face_verification' => !$livenessVerified
-                            ? 'Presensi ditolak karena verifikasi wajah belum valid. Silakan ulangi scan wajah.'
-                            : 'Challenge wajah belum valid. Silakan ulangi scan wajah.',
-                    ]);
-                }
-
-                $faceVerification = [
-                    'success' => true,
-                    'face_id_used' => $faceVerification['profile']->id ?? null,
-                    'similarity' => $faceVerification['similarity'] ?? null,
-                    'liveness_score' => $livenessScore,
-                    'challenges' => $normalizedChallenges,
-                    'notes' => 'biometric_v2_verified',
-                    'verified' => true,
-                ];
-            } else {
                 throw ValidationException::withMessages([
-                    'face_verification' => 'Data biometrik v2 belum lengkap. Silakan ulangi scan wajah.',
+                    'face_verification' => $faceVerification['message'] ?? 'Profil biometrik tidak kompatibel.',
                 ]);
             }
+
+            if (!($faceVerification['matched'] ?? false)) {
+                throw ValidationException::withMessages([
+                    'face_verification' => $faceVerification['message'] ?? 'Wajah tidak cocok dengan profil biometrik aktif.',
+                ]);
+            }
+
+            $livenessScore = (float) $validated['liveness_score'];
+            $normalizedChallenges = $this->normalizeChallenges($validated['liveness_challenges'] ?? []);
+            $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
+            $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
+
+            if (!$livenessVerified || !$challengeVerified) {
+                throw ValidationException::withMessages([
+                    'face_verification' => !$livenessVerified
+                        ? 'Presensi ditolak karena verifikasi wajah belum valid. Silakan ulangi scan wajah.'
+                        : 'Challenge wajah belum valid. Silakan ulangi scan wajah.',
+                ]);
+            }
+
+            $faceVerification = [
+                'success' => true,
+                'face_id_used' => $faceVerification['profile']->id ?? null,
+                'similarity' => $faceVerification['similarity'] ?? null,
+                'liveness_score' => $livenessScore,
+                'challenges' => $normalizedChallenges,
+                'notes' => 'biometric_v2_verified',
+                'verified' => true,
+            ];
+        } elseif ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
+            $validated = array_merge($validated, $request->validate([
+                'face_descriptor' => ['required', 'array', 'min:32'],
+                'face_descriptor.*' => ['numeric'],
+                'liveness_score' => ['required', 'numeric', 'min:0', 'max:1'],
+                'liveness_challenges' => ['required', 'array', 'min:1'],
+            ]));
+
+            $faceVerification = $this->faceVerificationService->verifyForAttendance(
+                $user,
+                $validated['face_descriptor'] ?? null,
+                $validated['liveness_score'] ?? null,
+                $validated['liveness_challenges'] ?? [],
+                $validated['face_embedding'] ?? null,
+                $validated['device_info'] ?? null,
+            );
+
+            if (!$faceVerification['success']) {
+                throw ValidationException::withMessages([
+                    'face_verification' => $faceVerification['message'],
+                ]);
+            }
+
+            $faceVerification['verified'] = true;
         }
 
         $selfiePath = $this->processAndSaveSelfie(
