@@ -77,10 +77,10 @@ class BiometricV2AuditTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')->getJson('/api/face/biometric/status');
 
         $response->assertOk()
-            ->assertJsonMissingPath('profiles.0.embedding')
-            ->assertJsonMissingPath('profiles.0.samples')
-            ->assertJsonPath('profiles.0.registered', true)
-            ->assertJsonPath('profiles.0.engine', 'mobilefacenet');
+            ->assertJsonMissingPath('profile.embedding')
+            ->assertJsonMissingPath('profile.samples')
+            ->assertJsonPath('registered', true)
+            ->assertJsonPath('profile.engine', 'mobilefacenet');
     }
 
     public function test_verify_rejects_invalid_vector_shapes_and_values(): void
@@ -181,15 +181,15 @@ class BiometricV2AuditTest extends TestCase
         $versionMismatch->assertStatus(422)->assertJsonPath('code', 'BIOMETRIC_MODEL_VERSION_MISMATCH');
     }
 
-    public function test_reenrollment_inactivates_only_compatible_profile(): void
+    public function test_reenrollment_updates_single_profile_record(): void
     {
         $user = User::factory()->create();
-        $oldCompatible = BiometricProfile::create([
+        $existing = BiometricProfile::create([
             'user_id' => $user->id,
             'enrollment_uuid' => (string) Str::uuid(),
             'engine' => 'mobilefacenet',
             'model' => 'mobilefacenet',
-            'model_version' => null,
+            'model_version' => 'old-version',
             'dimension' => 4,
             'embedding' => [1, 0, 0, 0],
             'samples' => [],
@@ -199,31 +199,18 @@ class BiometricV2AuditTest extends TestCase
             'enrolled_at' => now()->subDay(),
         ]);
 
-        $otherEngine = BiometricProfile::create([
-            'user_id' => $user->id,
-            'enrollment_uuid' => (string) Str::uuid(),
-            'engine' => 'faceapi',
-            'model' => 'faceapi',
-            'model_version' => null,
-            'dimension' => 4,
-            'embedding' => [0, 1, 0, 0],
-            'samples' => [],
-            'source' => 'web',
-            'status' => 'active',
-            'metadata' => [],
-            'enrolled_at' => now()->subDay(),
-        ]);
-
         $this->actingAs($user, 'sanctum')->postJson('/api/biometric/enroll', [
             'embedding' => [0, 1, 0, 0],
             'engine' => 'mobilefacenet',
             'model' => 'mobilefacenet',
-            'model_version' => null,
+            'model_version' => 'mobilefacenet-be4bc7cf',
             'dimension' => 4,
             'metadata' => [],
         ])->assertOk();
 
-        $this->assertSame('inactive', $oldCompatible->fresh()->status);
-        $this->assertSame('active', $otherEngine->fresh()->status);
+        $this->assertDatabaseCount('biometric_profiles', 1);
+        $fresh = $existing->fresh();
+        $this->assertSame('mobilefacenet-be4bc7cf', $fresh->model_version);
+        $this->assertSame('active', $fresh->status);
     }
 }

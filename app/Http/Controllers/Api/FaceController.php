@@ -388,23 +388,30 @@ class FaceController extends Controller
             ], 401);
         }
 
-        $profiles = $auth->biometricProfiles()
+        $profile = $auth->biometricProfiles()
             ->select(['id', 'enrollment_uuid', 'engine', 'model', 'model_version', 'dimension', 'status', 'enrolled_at'])
+            ->where('engine', 'tflite')
+            ->where('model', 'mobilefacenet')
+            ->where('model_version', 'mobilefacenet-be4bc7cf')
+            ->where('dimension', 192)
+            ->where('status', 'active')
             ->orderByDesc('enrolled_at')
             ->orderByDesc('id')
-            ->get();
+            ->first();
 
         return response()->json([
             'success' => true,
-            'profiles' => $profiles->map(fn ($profile) => [
-                'registered' => true,
+            'registered' => $profile !== null,
+            'profile' => $profile === null ? null : [
+                'id' => $profile->id,
+                'enrollment_uuid' => $profile->enrollment_uuid,
                 'engine' => $profile->engine,
                 'model' => $profile->model,
                 'model_version' => $profile->model_version,
                 'dimension' => $profile->dimension,
                 'status' => $profile->status,
                 'enrolled_at' => optional($profile->enrolled_at)?->toIso8601String(),
-            ])->values(),
+            ],
         ]);
     }
 

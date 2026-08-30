@@ -238,6 +238,24 @@ class TeacherMobileRepository {
     }
   }
 
+  Future<Map<String, dynamic>> getBiometricProfileStatus() async {
+    try {
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.get<Map<String, dynamic>>(
+          '/face/biometric/status',
+        ),
+        actionLabel: 'status biometrik',
+      );
+      return _responseDataWithMessage(response.data);
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher status biometrik request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> verifyFace({
     required Map<String, dynamic> payload,
   }) async {

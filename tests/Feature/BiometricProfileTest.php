@@ -19,28 +19,11 @@ class BiometricProfileTest extends TestCase
         $app['config']->set('database.connections.sqlite.foreign_key_constraints', true);
     }
 
-    public function test_user_can_have_two_biometric_profiles_with_different_engines(): void
+    public function test_user_has_single_biometric_profile_row(): void
     {
         $user = User::factory()->create([
             'face_id' => 'legacy-face-id',
             'face_data' => json_encode(['legacy' => true]),
-        ]);
-
-        BiometricProfile::create([
-            'user_id' => $user->id,
-            'enrollment_uuid' => (string) Str::uuid(),
-            'engine' => 'faceapi',
-            'model' => 'faceapi',
-            'model_version' => '1.0',
-            'dimension' => 128,
-            'embedding' => [0.1, 0.2],
-            'samples' => [['type' => 'front']],
-            'quality_score' => 0.9,
-            'liveness_score' => 0.92,
-            'source' => 'web',
-            'status' => 'active',
-            'metadata' => ['source' => 'web'],
-            'enrolled_at' => now(),
         ]);
 
         BiometricProfile::create([
@@ -60,7 +43,7 @@ class BiometricProfileTest extends TestCase
             'enrolled_at' => now(),
         ]);
 
-        $this->assertCount(2, $user->biometricProfiles);
+        $this->assertCount(1, $user->biometricProfiles);
     }
 
     public function test_biometric_profile_casts_work(): void

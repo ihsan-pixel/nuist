@@ -27,6 +27,31 @@ const _attendanceCardShadow = Color(0x14172A24);
 const _attendanceMapDefaultZoom = 15.6;
 const _attendanceMapUserZoom = 18.4;
 
+bool _isBiometricEnrolled(Map<String, dynamic> verification) {
+  return verification['face_enrolled'] == true ||
+      verification['enrolled'] == true ||
+      verification['biometric_enrolled'] == true ||
+      verification['biometric_profile'] == true ||
+      verification['biometric_profile_exists'] == true;
+}
+
+bool _isCompatibleBiometricRegistered(Map<String, dynamic> status) {
+  final profile = Map<String, dynamic>.from(
+    (status['profile'] as Map?) ?? const <String, dynamic>{},
+  );
+  final registered = status['registered'] == true;
+
+  if (!registered || profile.isEmpty) {
+    return false;
+  }
+
+  return profile['engine'] == 'tflite' &&
+      profile['model'] == 'mobilefacenet' &&
+      profile['model_version'] == 'mobilefacenet-be4bc7cf' &&
+      profile['dimension'] == 192 &&
+      profile['status'] == 'active';
+}
+
 class TeacherAttendancePage extends StatefulWidget {
   const TeacherAttendancePage({
     super.key,
@@ -50,6 +75,8 @@ class TeacherAttendancePage extends StatefulWidget {
 class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _future;
+  late Future<Map<String, dynamic>> _biometricStatusFuture;
+  late Future<Map<String, dynamic>> _combinedFuture;
   DateTime _now = DateTime.now();
   Timer? _clockTimer;
   Position? _position;
@@ -73,6 +100,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       });
     });
     _future = widget.repository.getAttendance();
+    _biometricStatusFuture = widget.repository.getBiometricProfileStatus();
+    _combinedFuture = _loadCombinedState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handlePageReactivated(refreshRemoteData: false);
     });
@@ -102,10 +131,22 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
   Future<void> _refresh() async {
     final future = widget.repository.getAttendance();
+    final biometricFuture = widget.repository.getBiometricProfileStatus();
     setState(() {
       _future = future;
+      _biometricStatusFuture = biometricFuture;
+      _combinedFuture = _loadCombinedState();
     });
-    await future;
+    await Future.wait([future, biometricFuture]);
+  }
+
+  Future<Map<String, dynamic>> _loadCombinedState() async {
+    final attendance = await _future;
+    final biometricStatus = await _biometricStatusFuture;
+    return {
+      'attendance': attendance,
+      'biometric_status': biometricStatus,
+    };
   }
 
   Future<void> _handlePageReactivated({
@@ -215,9 +256,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       (data['verification'] as Map?) ?? const <String, dynamic>{},
     );
     final requiresFaceScan = _requiresFaceScan(data);
-    final isFaceEnrolled = !requiresFaceScan ||
-        verification['face_enrolled'] == true ||
-        verification['enrolled'] == true;
+    final isFaceEnrolled = !requiresFaceScan || _isBiometricEnrolled(verification);
 
     if (!isFaceEnrolled) {
       final message = verification['message'] as String? ??
@@ -271,8 +310,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final verification = Map<String, dynamic>.from(
       (data['verification'] as Map?) ?? const <String, dynamic>{},
     );
-    final enrolled = verification['face_enrolled'] == true ||
-        verification['enrolled'] == true;
+    final enrolled = _isBiometricEnrolled(verification);
     if (enrolled) {
       return;
     }
@@ -722,7 +760,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
-      future: _future,
+      future: _combinedFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const ColoredBox(
@@ -743,8 +781,16 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           );
         }
 
+        final combined = snapshot.data ?? const <String, dynamic>{};
+        final attendanceData = Map<String, dynamic>.from(
+          (combined['attendance'] as Map?) ?? const <String, dynamic>{},
+        );
+        final biometricStatus = Map<String, dynamic>.from(
+          (combined['biometric_status'] as Map?) ?? const <String, dynamic>{},
+        );
         return _AttendanceContent(
-          data: snapshot.data ?? const <String, dynamic>{},
+          data: attendanceData,
+          biometricStatus: biometricStatus,
           now: _now,
           submitting: _submitting,
           position: _position,
@@ -755,9 +801,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           onCaptureLocation: _captureLocation,
           faceScanResult: _faceScanResult,
           capturingSelfie: false,
-          onCaptureSelfie: () => _captureVerification(
-            snapshot.data ?? const <String, dynamic>{},
-          ),
+          onCaptureSelfie: () => _captureVerification(attendanceData),
           onClearSelfie: () {
             setState(() {
               _faceScanResult = null;
@@ -781,6 +825,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 class _AttendanceContent extends StatelessWidget {
   const _AttendanceContent({
     required this.data,
+    required this.biometricStatus,
     required this.now,
     required this.submitting,
     required this.position,
@@ -801,6 +846,7 @@ class _AttendanceContent extends StatelessWidget {
   });
 
   final Map<String, dynamic> data;
+  final Map<String, dynamic> biometricStatus;
   final DateTime now;
   final bool submitting;
   final Position? position;
@@ -836,14 +882,13 @@ class _AttendanceContent extends StatelessWidget {
     final verification = Map<String, dynamic>.from(
       (data['verification'] as Map?) ?? const <String, dynamic>{},
     );
+    final biometricRegistered = _isCompatibleBiometricRegistered(biometricStatus);
     final canSubmit = form['can_submit'] == true;
     final nextModeLabel =
         form['next_mode_label'] as String? ?? 'Presensi Masuk';
     final verificationMode = verification['mode'] as String? ?? 'selfie';
     final isFaceScan = verificationMode == 'face_scan';
-    final isFaceEnrolled = verification['face_enrolled'] == true ||
-        verification['enrolled'] == true ||
-        !isFaceScan;
+    final isFaceEnrolled = !isFaceScan || biometricRegistered;
     final schoolName = data['school_name'] as String? ?? '-';
     final schoolLatitude = _findNumericValue(
       [data, form, today],
@@ -860,6 +905,7 @@ class _AttendanceContent extends StatelessWidget {
     );
     final canOpenFlow = canSubmit && isFaceEnrolled && !submitting && position != null;
     final requiresFaceEnrollment = isFaceScan && !isFaceEnrolled;
+    final primaryActionLabel = requiresFaceEnrollment ? 'Daftar Wajah' : nextModeLabel;
 
     return Stack(
       children: [
@@ -1083,7 +1129,7 @@ class _AttendanceContent extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      requiresFaceEnrollment ? 'Daftar Wajah' : nextModeLabel,
+                      primaryActionLabel,
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 13,
@@ -1095,11 +1141,21 @@ class _AttendanceContent extends StatelessWidget {
               if (isFaceScan && !isFaceEnrolled) ...[
                 const SizedBox(height: 8),
                 Text(
-                  verification['message'] as String? ??
+                  biometricStatus['message'] as String? ??
                       'Data wajah belum terdaftar. Silakan daftar wajah terlebih dahulu.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ] else if (isFaceScan && isFaceEnrolled) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Data wajah terdaftar. Tombol presensi sudah tersedia.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: _attendancePrimaryDark,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

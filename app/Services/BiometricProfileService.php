@@ -22,16 +22,15 @@ class BiometricProfileService
     public function createProfileWithReEnrollment(User $user, array $attributes): BiometricProfile
     {
         return DB::transaction(function () use ($user, $attributes) {
-            $profile = $this->createProfile(array_merge([
+            $payload = array_merge([
                 'user_id' => $user->id,
-            ], $attributes));
+                'enrollment_uuid' => (string) Str::uuid(),
+                'status' => 'active',
+            ], $attributes);
 
-            $this->deactivateCompatibleProfiles(
-                $user,
-                (string) $profile->engine,
-                (string) $profile->model,
-                (int) $profile->dimension,
-                $profile->model_version
+            $profile = BiometricProfile::query()->updateOrCreate(
+                ['user_id' => $user->id],
+                $payload,
             );
 
             return $profile->refresh();
