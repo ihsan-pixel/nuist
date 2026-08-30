@@ -308,7 +308,8 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         return;
       }
 
-      final verified = verification['success'] == true || verification['face_verified'] == true;
+      final verified = verification['verified'] == true ||
+          verification['face_verified'] == true;
       final code = verification['code']?.toString();
       final similarity = verification['similarity'];
 

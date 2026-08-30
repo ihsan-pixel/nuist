@@ -551,6 +551,7 @@ class FaceController extends Controller
             return response()->json([
                 'success' => false,
                 'face_verified' => false,
+                'verified' => false,
                 'code' => $result['code'] ?? 'BIOMETRIC_VECTOR_INVALID',
                 'message' => $result['message'] ?? 'Verifikasi biometric gagal.',
             ], 422);
@@ -572,6 +573,7 @@ class FaceController extends Controller
         return response()->json([
             'success' => true,
             'face_verified' => $result['matched'] ?? false,
+            'verified' => $result['matched'] ?? false,
             'code' => $result['code'] ?? 'FACE_NOT_VERIFIED',
             'message' => $result['message'] ?? 'Verifikasi biometric selesai.',
             'similarity' => $result['similarity'] ?? null,
