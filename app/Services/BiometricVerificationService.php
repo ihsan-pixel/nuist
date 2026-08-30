@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BiometricProfile;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class BiometricVerificationService
 {
@@ -108,6 +109,9 @@ class BiometricVerificationService
             return $probe;
         }
 
+        $requestStats = $this->vectorStats($probe['embedding']);
+        Log::debug('[BIOMETRIC_VERIFY][REQUEST_VECTOR]', $requestStats);
+
         $profile = $this->findCompatibleProfile($user, $engine, $model, $dimension, $modelVersion);
         if (!$profile) {
             $compatibleExists = $user->biometricProfiles()
@@ -145,12 +149,36 @@ class BiometricVerificationService
 
         $reference = $this->normalizeVector($profile->embedding);
         if ($reference === []) {
-            return $this->error('BIOMETRIC_PROFILE_INCOMPATIBLE', 'Profil biometrik tidak kompatibel dengan engine pengenalan wajah yang digunakan.');
+            Log::debug('[BIOMETRIC_VERIFY][PROFILE_VECTOR]', [
+                'profile_id' => $profile->id,
+                'declared_dimension' => $profile->dimension,
+                'count' => 0,
+                'numeric' => false,
+                'finite' => false,
+                'nonZero' => false,
+                'norm' => 0,
+            ]);
+
+            return $this->error('PROFILE_VECTOR_INVALID', 'Profil biometrik tersimpan tidak valid.');
+        }
+
+        $profileStats = $this->vectorStats($reference);
+        Log::debug('[BIOMETRIC_VERIFY][PROFILE_VECTOR]', array_merge([
+            'profile_id' => $profile->id,
+            'declared_dimension' => $profile->dimension,
+        ], $profileStats));
+
+        if (($profileStats['count'] ?? 0) !== $dimension) {
+            return $this->error('VECTOR_DIMENSION_MISMATCH', 'Dimensi vector profil tidak sesuai.');
+        }
+
+        if (($profileStats['norm'] ?? 0) <= 0) {
+            return $this->error('VECTOR_ZERO_NORM', 'Profil biometrik tersimpan tidak valid.');
         }
 
         $similarity = $this->cosineSimilarity($probe['embedding'], $reference);
         if ($similarity < 0) {
-            return $this->error('BIOMETRIC_VECTOR_INVALID', 'Embedding tidak valid untuk dibandingkan.');
+            return $this->error('VECTOR_DIMENSION_MISMATCH', 'Embedding tidak valid untuk dibandingkan.');
         }
 
         $resolvedThreshold = (float) config('biometric.default_threshold', 0.75);
@@ -191,6 +219,43 @@ class BiometricVerificationService
         }
 
         return $normalized;
+    }
+
+    private function vectorStats(array $vector): array
+    {
+        $count = count($vector);
+        $numeric = true;
+        $finite = true;
+        $nonZero = false;
+        $normSum = 0.0;
+
+        foreach ($vector as $value) {
+            if (!is_int($value) && !is_float($value) && !is_numeric($value)) {
+                $numeric = false;
+                $finite = false;
+                continue;
+            }
+
+            $floatValue = (float) $value;
+            if (!is_finite($floatValue)) {
+                $finite = false;
+                continue;
+            }
+
+            if ($floatValue != 0.0) {
+                $nonZero = true;
+            }
+
+            $normSum += $floatValue * $floatValue;
+        }
+
+        return [
+            'count' => $count,
+            'numeric' => $numeric,
+            'finite' => $finite,
+            'nonZero' => $nonZero,
+            'norm' => $normSum > 0 ? sqrt($normSum) : 0.0,
+        ];
     }
 
     private function error(string $code, string $message): array

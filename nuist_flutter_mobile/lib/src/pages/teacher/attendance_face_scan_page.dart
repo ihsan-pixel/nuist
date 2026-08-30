@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
 
-import '../../services/face_embedding_service.dart';
+import '../../services/face_camera_image_converter.dart';
+import '../../services/face_recognition_service.dart';
 import '../../services/teacher_mobile_repository.dart';
 
 const _scanPrimary = Color(0xFF00745A);
@@ -34,7 +37,9 @@ class AttendanceFaceScanPage extends StatefulWidget {
 class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   CameraController? _controller;
   FaceDetector? _detector;
-  final FaceEmbeddingService _embeddingService = FaceEmbeddingService();
+  final FaceCameraImageConverter _cameraImageConverter =
+      const FaceCameraImageConverter();
+  final FaceRecognitionService _recognitionService = FaceRecognitionService();
   bool _loading = true;
   bool _processingFrame = false;
   bool _hasFace = false;
@@ -43,6 +48,8 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   int _stableFrames = 0;
   Timer? _autoCaptureTimer;
   bool _autoCaptureArmed = false;
+  int _verificationAttempts = 0;
+  static const int _maxVerificationAttempts = 2;
   String _status = 'Menyiapkan kamera depan...';
   String? _error;
   DateTime _lastFrameAt = DateTime.fromMillisecondsSinceEpoch(0);
@@ -286,7 +293,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         );
       }
 
-      final embedding = await _embeddingService.extractEmbedding(File(file.path));
       if (!mounted) {
         return;
       }
@@ -294,33 +300,48 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         _verifying = true;
         _status = 'Mencocokkan wajah ke data terdaftar...';
       });
-
-      final verification = await widget.repository.verifyFace(
-        payload: {
-          'face_descriptor': processed['face_descriptor'],
-          'liveness_score': processed['liveness_score'],
-          'liveness_challenges': processed['liveness_challenges'],
-          if (embedding != null) 'face_embedding': embedding,
-        },
+      final verification = Map<String, dynamic>.from(
+        processed['verification'] as Map? ?? const <String, dynamic>{},
       );
 
       if (!mounted) {
         return;
       }
 
-      if (verification['success'] == true || verification['face_verified'] == true) {
-        if (embedding != null) {
-          processed['face_embedding'] = embedding;
-        }
+      final verified = verification['success'] == true || verification['face_verified'] == true;
+      final code = verification['code']?.toString();
+      final similarity = verification['similarity'];
+
+      if (verified) {
         processed['face_verified'] = true;
         processed['face_verification'] = verification;
         Navigator.of(context).pop(processed);
         return;
       }
 
-      final message = verification['_message'] as String? ??
+      final shouldRetryAutomatically =
+          _verificationAttempts < _maxVerificationAttempts &&
+          (code == 'SIMILARITY_BELOW_THRESHOLD' ||
+              code == 'BIOMETRIC_VECTOR_INVALID' ||
+              code == 'NO_FACE' ||
+              code == 'MULTIPLE_FACES');
+
+      if (shouldRetryAutomatically) {
+        _verificationAttempts++;
+        await _restartStreamWithStatus(
+          'Wajah belum terbaca dengan stabil. Mencoba lagi...',
+        );
+        return;
+      }
+
+      final message = _friendlyVerificationMessage(code) ??
+          verification['_message'] as String? ??
           verification['message'] as String? ??
-          'Wajah tidak cocok dengan data yang terdaftar.';
+          'Wajah belum dapat diverifikasi.';
+      debugPrint(
+        '[FACE_ATTENDANCE][VERIFY_RESULT] verified=false '
+        'code=${code ?? ""} similarity=${similarity ?? ""}',
+      );
       await _restartStreamWithError(message);
     } catch (error) {
       if (!mounted) {
@@ -347,6 +368,30 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     }
   }
 
+  void _resetAttempt() {
+    setState(() {
+      _error = null;
+      _status = 'Arahkan wajah ke dalam bingkai.';
+      _hasFace = false;
+      _readyToCapture = false;
+      _stableFrames = 0;
+      _verificationAttempts = 0;
+    });
+  }
+
+  Future<void> _restartStreamWithStatus(String message) async {
+    setState(() {
+      _error = null;
+      _status = message;
+      _verifying = false;
+    });
+    try {
+      if (_controller != null && !_controller!.value.isStreamingImages) {
+        await _controller?.startImageStream(_processCameraImage);
+      }
+    } catch (_) {}
+  }
+
   Future<void> _restartStreamWithError(String message) async {
     setState(() {
       _error = message;
@@ -358,6 +403,29 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         await _controller?.startImageStream(_processCameraImage);
       }
     } catch (_) {}
+  }
+
+  String? _friendlyVerificationMessage(String? code) {
+    switch (code) {
+      case 'SIMILARITY_BELOW_THRESHOLD':
+        return 'Wajah belum dapat diverifikasi.';
+      case 'BIOMETRIC_PROFILE_NOT_FOUND':
+        return 'Data wajah belum terdaftar.';
+      case 'BIOMETRIC_PROFILE_INCOMPATIBLE':
+        return 'Data wajah perlu diperbarui.';
+      case 'BIOMETRIC_DIMENSION_INVALID':
+        return 'Data pengenalan wajah tidak valid.';
+      case 'MODEL_LOAD_FAILED':
+        return 'Pengenalan wajah belum siap.';
+      case 'NO_FACE':
+        return 'Posisikan wajah di dalam bingkai.';
+      case 'MULTIPLE_FACES':
+        return 'Pastikan hanya satu wajah terlihat.';
+      case 'LIVENESS_FAILED':
+        return 'Verifikasi keaslian wajah belum berhasil.';
+      default:
+        return null;
+    }
   }
 
   Future<Map<String, dynamic>?> _analyzeImage(String path) async {
@@ -377,65 +445,68 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
       final face = faces.first;
       final imageBytes = await File(path).readAsBytes();
+      final source = img.decodeImage(imageBytes);
+      if (source == null) {
+        throw Exception('Gagal membaca gambar hasil capture.');
+      }
       final liveness = _estimateLiveness(face);
       final challenges = _normalizeChallenges(liveness['challenges']);
+      final aligned = _cameraImageConverter.extractAlignedFaceCropFromRgb(
+        source,
+        face,
+      );
+      await _recognitionService.initialize();
+      final embeddingBytes = Uint8List.fromList(img.encodeJpg(aligned.crop));
+      final embedding = await _recognitionService.generateEmbedding(embeddingBytes);
+
+      debugPrint(
+        '[FACE_ATTENDANCE][EMBEDDING] '
+        'dimension=${embedding.length} '
+        'finite=${embedding.every((value) => value.isFinite)} '
+        'norm=${_embeddingNorm(embedding).toStringAsFixed(6)}',
+      );
+
+      debugPrint(
+        '[FACE_ATTENDANCE][ALIGNMENT] '
+        'output=${aligned.crop.width}x${aligned.crop.height}',
+      );
+
+      debugPrint(
+        '[FACE_ATTENDANCE][VERIFY_START] '
+        'engine=${_recognitionService.modelInfo.engine} '
+        'model=${_recognitionService.modelInfo.model} '
+        'model_version=${_recognitionService.modelInfo.modelVersion} '
+        'dimension=${_recognitionService.modelInfo.dimension}',
+      );
+
+      final verification = await widget.repository.verifyFace(
+        payload: {
+          'engine': _recognitionService.modelInfo.engine,
+          'model': _recognitionService.modelInfo.model,
+          'model_version': _recognitionService.modelInfo.modelVersion,
+          'dimension': _recognitionService.modelInfo.dimension,
+          'embedding': embedding,
+          'quality_score': 1.0,
+          'liveness_score': liveness['score'],
+          'liveness_challenges': challenges,
+        },
+      );
+
+      debugPrint(
+        '[FACE_ATTENDANCE][VERIFY_RESULT] '
+        'verified=${verification['face_verified'] == true || verification['success'] == true}',
+      );
+
       return {
         'selfie_data': 'data:image/jpeg;base64,${base64Encode(imageBytes)}',
-        'face_descriptor': _buildDescriptor(face),
-        'face_embedding': null,
+        'face_embedding': embedding,
         'liveness_score': liveness['score'],
         'liveness_challenges': challenges,
+        'verification': verification,
       };
     } finally {
       await detector.close();
     }
-  }
-
-  List<double> _buildDescriptor(Face face) {
-    final box = face.boundingBox;
-    final landmarks = face.landmarks;
-    final width = box.width <= 0 ? 1.0 : box.width;
-    final height = box.height <= 0 ? 1.0 : box.height;
-    double normX(double x) => (x - box.left) / width;
-    double normY(double y) => (y - box.top) / height;
-
-    final points = <double>[
-      box.left,
-      box.top,
-      box.width,
-      box.height,
-      face.headEulerAngleX ?? 0,
-      face.headEulerAngleY ?? 0,
-      face.headEulerAngleZ ?? 0,
-      face.leftEyeOpenProbability ?? 0,
-      face.rightEyeOpenProbability ?? 0,
-      _landmarkValue(landmarks[FaceLandmarkType.leftEye], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.rightEye], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.noseBase], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.leftMouth], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.rightMouth], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.bottomMouth], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.leftEar], normX, normY),
-      _landmarkValue(landmarks[FaceLandmarkType.rightEar], normX, normY),
-    ];
-
-    final descriptor = <double>[];
-    for (var i = 0; i < 128; i++) {
-      descriptor.add(points[i % points.length]);
-    }
-    return descriptor;
-  }
-
-  double _landmarkValue(
-    FaceLandmark? landmark,
-    double Function(double x) normX,
-    double Function(double y) normY,
-  ) {
-    final position = landmark?.position;
-    if (position == null) {
-      return 0;
-    }
-    return (normX(position.x.toDouble()) + normY(position.y.toDouble())) / 2.0;
   }
 
   Map<String, dynamic> _estimateLiveness(Face face) {
@@ -461,6 +532,14 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       'score': score.clamp(0.0, 1.0),
       'challenges': challenges,
     };
+  }
+
+  double _embeddingNorm(List<double> values) {
+    var sum = 0.0;
+    for (final value in values) {
+      sum += value * value;
+    }
+    return sum == 0.0 ? 0.0 : math.sqrt(sum);
   }
 
   List<String> _normalizeChallenges(dynamic raw) {
@@ -543,24 +622,44 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
                 ),
               ),
               const Spacer(),
-              FilledButton(
-                onPressed: _loading || !_readyToCapture ? null : _capture,
-                style: FilledButton.styleFrom(
-                  backgroundColor: _scanPrimary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size.fromHeight(52),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  _loading
-                      ? 'Memproses...'
-                      : _readyToCapture
-                          ? 'Continue'
-                          : 'Menunggu Wajah Stabil',
-                ),
-              ),
+              if (_error != null)
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          _resetAttempt();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: FilledButton.styleFrom(
+                          backgroundColor: _scanPrimary,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text('Kembali'),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                const SizedBox.shrink(),
             ],
           ),
         ),

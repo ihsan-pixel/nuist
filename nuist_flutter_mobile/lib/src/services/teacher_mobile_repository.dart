@@ -246,7 +246,23 @@ class TeacherMobileRepository {
         ),
         actionLabel: 'status biometrik',
       );
-      return _responseDataWithMessage(response.data);
+      final body = response.data ?? const <String, dynamic>{};
+      final data = body['data'];
+      if (data is Map<String, dynamic>) {
+        final result = Map<String, dynamic>.from(data);
+        if (body['message'] is String) {
+          result['_message'] = body['message'];
+        }
+        return result;
+      }
+      if (data is Map) {
+        final result = Map<String, dynamic>.from(data);
+        if (body['message'] is String) {
+          result['_message'] = body['message'];
+        }
+        return result;
+      }
+      return Map<String, dynamic>.from(body);
     } on DioException catch (error) {
       debugPrint(
         'Teacher status biometrik request failed: '
@@ -262,22 +278,20 @@ class TeacherMobileRepository {
     try {
       final response = await _withRetry<Map<String, dynamic>>(
         request: () => _apiClient.dio.post<Map<String, dynamic>>(
-          '/face/verify',
+          '/biometric/verify',
           data: payload,
         ),
-        actionLabel: 'verifikasi wajah',
+        actionLabel: 'verifikasi biometrik',
       );
       final body = response.data ?? const <String, dynamic>{};
-      final result = body['success'] == true
-          ? Map<String, dynamic>.from(body)
-          : <String, dynamic>{};
+      final result = Map<String, dynamic>.from(body);
       if (body['message'] is String) {
         result['_message'] = body['message'];
       }
       return result;
     } on DioException catch (error) {
       debugPrint(
-        'Teacher verifikasi wajah request failed: '
+        'Teacher verifikasi biometrik request failed: '
         'status=${error.response?.statusCode} body=${error.response?.data}',
       );
       throw _mapDioError(error);
