@@ -599,7 +599,8 @@ class TeacherAppController extends Controller
                 'face_embedding' => ['required', 'array'],
                 'face_embedding.*' => ['numeric'],
                 'liveness_score' => ['required', 'numeric', 'min:0', 'max:1'],
-                'liveness_challenges' => ['required', 'array', 'min:1'],
+                'liveness_challenges' => ['nullable', 'array'],
+                'liveness_challenges.*' => ['string', 'max:64'],
             ]));
         }
 
