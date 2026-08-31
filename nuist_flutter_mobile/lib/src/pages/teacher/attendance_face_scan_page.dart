@@ -51,11 +51,10 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   int _stableFrames = 0;
   Timer? _autoCaptureTimer;
   bool _autoCaptureArmed = false;
-  int _verificationAttempts = 0;
-  static const int _maxVerificationAttempts = 2;
   String _status = 'Menyiapkan kamera depan...';
   String? _error;
   DateTime _lastFrameAt = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime? _verificationCooldownUntil;
   DateTime? _firstValidFaceAt;
   DateTime? _stableReadyAt;
   DateTime? _alignmentReadyAt;
@@ -65,6 +64,9 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   DateTime? _latestRgbFrameAt;
   Face? _latestFace;
   Size? _latestImageSize;
+  bool _completed = false;
+  bool _isDisposing = false;
+  Future<void>? _cameraStopFuture;
   late final Future<Map<String, dynamic>> _biometricStatusFuture;
 
   @override
@@ -147,25 +149,42 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   }
 
   Future<void> _processCameraImage(CameraImage image) async {
-    if (_processingFrame || _detector == null || _controller == null) {
+    if (_completed || _isDisposing || _processingFrame || _detector == null || _controller == null) {
       return;
     }
 
     final now = DateTime.now();
-    if (now.difference(_lastFrameAt).inMilliseconds < 95) {
+    if (_verificationCooldownUntil != null &&
+        now.isBefore(_verificationCooldownUntil!)) {
+      return;
+    }
+
+    if (now.difference(_lastFrameAt).inMilliseconds < 70) {
       return;
     }
     _lastFrameAt = now;
 
     _processingFrame = true;
     try {
+      if (_completed || _isDisposing || !mounted) {
+        return;
+      }
       final inputImage = _toInputImage(
         image,
         _controller!.description,
         _controller!.value.deviceOrientation,
       );
+      if (_completed || _isDisposing || !mounted) {
+        return;
+      }
       final rgbFrame = _cameraImageConverter.convertToRgbImage(image);
+      if (_completed || _isDisposing || !mounted) {
+        return;
+      }
       final faces = await _detector!.processImage(inputImage);
+      if (_completed || _isDisposing || !mounted) {
+        return;
+      }
       final face = faces.isNotEmpty ? faces.first : null;
       _latestRgbFrame = rgbFrame;
       _latestRgbFrameAt = now;
@@ -187,8 +206,8 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         if (face == null) {
           _status = 'Wajah belum terdeteksi. Posisikan wajah di tengah bingkai.';
         } else if (ready) {
-          _status = 'Wajah terdeteksi dengan stabil. Silakan ambil scan.';
-          if (_stableFrames >= 2 && _stableReadyAt == null) {
+          _status = 'Wajah terdeteksi. Silakan ambil scan.';
+          if (_stableFrames >= 1 && _stableReadyAt == null) {
             _stableReadyAt = now;
           }
         } else {
@@ -216,7 +235,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       return;
     }
 
-    if (_stableFrames < 2 || _autoCaptureArmed) {
+    if (_stableFrames < 1 || _autoCaptureArmed) {
       return;
     }
 
@@ -240,7 +259,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     final roll = (face.headEulerAngleZ ?? 0).abs();
     final leftEye = face.leftEyeOpenProbability ?? 1.0;
     final rightEye = face.rightEyeOpenProbability ?? 1.0;
-    return yaw <= 12 && pitch <= 12 && roll <= 12 && leftEye >= 0.2 && rightEye >= 0.2;
+    return yaw <= 18 && pitch <= 18 && roll <= 18 && leftEye >= 0.10 && rightEye >= 0.10;
   }
 
   InputImage _toInputImage(
@@ -319,7 +338,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   }
 
   Future<void> _capture() async {
-    if (_loading || !_readyToCapture || _controller == null || _verifying) {
+    if (_completed || _isDisposing || _loading || !_readyToCapture || _controller == null || _verifying) {
       return;
     }
 
@@ -340,6 +359,9 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         'profileReady=$_profileReady',
       );
       final processed = await _analyzeLatestFrame();
+      if (_completed || _isDisposing || !mounted) {
+        return;
+      }
       if (processed == null) {
         throw Exception(
           'Wajah tidak valid. Pastikan wajah terlihat jelas dan coba lagi.',
@@ -367,8 +389,11 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       final similarity = verification['similarity'];
 
       if (verified) {
-        debugPrint('[FACE_ATTENDANCE][CAMERA_STOP] reason=verification_complete');
+        _completed = true;
         await _stopCameraStreamSafely(reason: 'verification_complete');
+        if (_isDisposing || !mounted) {
+          return;
+        }
         final apiVerifyMs = _apiVerifyStartAt == null
             ? 0
             : DateTime.now().difference(_apiVerifyStartAt!).inMilliseconds;
@@ -392,26 +417,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         return;
       }
 
-      final shouldRetryAutomatically =
-          _verificationAttempts < _maxVerificationAttempts &&
-          (code == 'SIMILARITY_BELOW_THRESHOLD' ||
-              code == 'BIOMETRIC_VECTOR_INVALID' ||
-              code == 'NO_FACE' ||
-              code == 'MULTIPLE_FACES');
-
-      if (shouldRetryAutomatically) {
-        _verificationAttempts++;
-        _loading = false;
-        _verifying = false;
-        _stableFrames = 0;
-        _autoCaptureArmed = false;
-        await Future<void>.delayed(const Duration(milliseconds: 180));
-        await _restartStreamWithStatus(
-          'Wajah belum terbaca dengan stabil. Mencoba lagi...',
-        );
-        return;
-      }
-
       final message = _friendlyVerificationMessage(code) ??
           verification['_message'] as String? ??
           verification['message'] as String? ??
@@ -420,14 +425,30 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         '[FACE_ATTENDANCE][VERIFY_RESULT] verified=false '
         'code=${code ?? ""} similarity=${similarity ?? ""}',
       );
-      await _restartStreamWithError(message);
+      setState(() {
+        _error = message;
+        _status = message;
+        _verifying = false;
+        _loading = false;
+        _stableFrames = 0;
+        _autoCaptureArmed = false;
+        _readyToCapture = false;
+        _verificationCooldownUntil = DateTime.now().add(
+          Duration(milliseconds: code == 'SIMILARITY_BELOW_THRESHOLD' ? 250 : 900),
+        );
+      });
     } catch (error) {
       if (!mounted) {
         return;
       }
+      final message = error.toString().replaceFirst('Exception: ', '');
       setState(() {
-        _error = error.toString().replaceFirst('Exception: ', '');
-        _status = _error!;
+        _error = message;
+        _status = message;
+        _verificationCooldownUntil = DateTime.now().add(const Duration(milliseconds: 900));
+        _readyToCapture = false;
+        _stableFrames = 0;
+        _autoCaptureArmed = false;
       });
       try {
         if (_controller != null && !_controller!.value.isStreamingImages) {
@@ -453,37 +474,18 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       _hasFace = false;
       _readyToCapture = false;
       _stableFrames = 0;
-      _verificationAttempts = 0;
     });
-  }
-
-  Future<void> _restartStreamWithStatus(String message) async {
-    setState(() {
-      _error = null;
-      _status = message;
-      _verifying = false;
-    });
-    try {
-      if (_controller != null && !_controller!.value.isStreamingImages) {
-        await _controller?.startImageStream(_processCameraImage);
-      }
-    } catch (_) {}
-  }
-
-  Future<void> _restartStreamWithError(String message) async {
-    setState(() {
-      _error = message;
-      _status = message;
-      _verifying = false;
-    });
-    try {
-      if (_controller != null && !_controller!.value.isStreamingImages) {
-        await _controller?.startImageStream(_processCameraImage);
-      }
-    } catch (_) {}
   }
 
   Future<void> _stopCameraStreamSafely({required String reason}) async {
+    if (_cameraStopFuture != null) {
+      return _cameraStopFuture!;
+    }
+    _cameraStopFuture = _stopCameraStreamSafelyInternal(reason: reason);
+    return _cameraStopFuture!;
+  }
+
+  Future<void> _stopCameraStreamSafelyInternal({required String reason}) async {
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) {
       return;
@@ -521,6 +523,9 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   }
 
   Future<Map<String, dynamic>?> _analyzeLatestFrame() async {
+    if (_completed || _isDisposing || !mounted) {
+      return null;
+    }
     final frame = _latestRgbFrame;
     final face = _latestFace;
     final frameAt = _latestRgbFrameAt;
@@ -536,9 +541,15 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       frame,
       face,
     );
+    if (_completed || _isDisposing || !mounted) {
+      return null;
+    }
     _inferenceStartAt = DateTime.now();
     final embeddingBytes = Uint8List.fromList(img.encodeJpg(aligned.crop));
     final embedding = await _recognitionService.generateEmbedding(embeddingBytes);
+    if (_completed || _isDisposing || !mounted) {
+      return null;
+    }
 
       debugPrint(
         '[FACE_ATTENDANCE][EMBEDDING] '
@@ -597,10 +608,13 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
           'liveness_challenges': challenges,
         },
       );
+      if (_completed || _isDisposing || !mounted) {
+        return null;
+      }
 
       debugPrint(
         '[FACE_ATTENDANCE][API_RESPONSE_RECEIVED] '
-        'verified=${verification['face_verified'] == true || verification['success'] == true} '
+        'verified=${verification['face_verified'] == true} '
         'api_verify_ms=${_apiVerifyStartAt == null ? 0 : DateTime.now().difference(_apiVerifyStartAt!).inMilliseconds}',
       );
 
@@ -667,6 +681,8 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   @override
   void dispose() {
     debugPrint('[FACE_ATTENDANCE][DISPOSE]');
+    _completed = true;
+    _isDisposing = true;
     _autoCaptureTimer?.cancel();
     unawaited(_stopCameraStreamSafely(reason: 'dispose'));
     unawaited(_controller?.dispose());

@@ -4548,4 +4548,54 @@ class TeacherAppController extends Controller
             ELSE 8
         END";
     }
+
+    private function normalizeChallenges(mixed $value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return [];
+            }
+
+            $decoded = json_decode($trimmed, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $value = $decoded;
+            } else {
+                return [$trimmed];
+            }
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($value as $item) {
+            if (is_string($item)) {
+                $item = trim($item);
+                if ($item === '') {
+                    continue;
+                }
+
+                $normalized[] = $item;
+                continue;
+            }
+
+            if (is_array($item)) {
+                $type = trim((string) ($item['type'] ?? ''));
+                if ($type === '') {
+                    continue;
+                }
+
+                $normalized[] = $type;
+            }
+        }
+
+        return array_values($normalized);
+    }
 }
