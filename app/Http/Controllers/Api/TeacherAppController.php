@@ -788,24 +788,26 @@ class TeacherAppController extends Controller
             $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
             $livenessVerified = $livenessScore >= $livenessThreshold;
             $challengeVerified = $this->verifyBiometricV2ChallengeNames($normalizedChallenges);
-            $faceMatched = true;
-            $finalVerified = $faceMatched && $livenessVerified && $challengeVerified;
-            $failureReason = null;
-
-            if (!$livenessVerified) {
-                $failureReason = 'liveness_below_threshold';
-            } elseif (!$challengeVerified) {
-                $failureReason = 'challenge_not_completed';
-            }
+            $faceMatched = ($faceVerification['matched'] ?? false) === true;
+            $finalVerified = $faceMatched;
+            $failureReason = $faceMatched ? null : ($faceVerification['code'] ?? 'SIMILARITY_BELOW_THRESHOLD');
 
             Log::info('[ATTENDANCE_V2][FINAL_VERIFY]', [
                 'user_id' => $user->id,
+                'profile_id' => $faceVerification['profile']->id ?? null,
+                'profile_user_id' => $faceVerification['profile']->user_id ?? null,
                 'similarity' => $faceVerification['similarity'] ?? null,
                 'similarity_threshold' => config('biometric.default_threshold', 0.75),
                 'face_matched' => $faceMatched,
+                'engine' => $faceVerification['engine'] ?? $biometricEngine,
+                'model' => $faceVerification['model'] ?? $biometricModel,
+                'model_version' => $faceVerification['model_version'] ?? ($hasModelVersion ? $biometricModelVersion : null),
+                'dimension' => $faceVerification['dimension'] ?? $biometricDimension,
                 'liveness_score' => $livenessScore,
                 'liveness_threshold' => $livenessThreshold,
+                'liveness_verified' => $livenessVerified,
                 'challenge_count' => count($normalizedChallenges),
+                'challenge_names' => $normalizedChallenges,
                 'challenge_verified' => $challengeVerified,
                 'final_verified' => $finalVerified,
                 'failure_reason' => $failureReason,
@@ -813,9 +815,7 @@ class TeacherAppController extends Controller
 
             if (!$finalVerified) {
                 throw ValidationException::withMessages([
-                    'face_verification' => !$livenessVerified
-                        ? 'Presensi ditolak karena verifikasi wajah belum valid. Silakan ulangi scan wajah.'
-                        : 'Challenge wajah belum valid. Silakan ulangi scan wajah.',
+                    'face_verification' => $faceVerification['message'] ?? 'Wajah tidak cocok dengan profil biometrik aktif.',
                 ]);
             }
 

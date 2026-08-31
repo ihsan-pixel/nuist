@@ -277,7 +277,7 @@ class FaceController extends Controller
             $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
             $livenessVerified = $livenessScore >= $livenessThreshold;
             $challengeVerified = $this->verifyBiometricV2ChallengeNames($normalizedChallenges);
-            $faceVerified = $faceMatched && $livenessVerified && $challengeVerified;
+            $faceVerified = $faceMatched;
 
             return response()->json([
                 'success' => $faceVerified,
@@ -292,6 +292,8 @@ class FaceController extends Controller
                 'liveness_score' => $livenessScore,
                 'liveness_threshold' => $livenessThreshold,
                 'liveness_challenges' => $normalizedChallenges,
+                'liveness_verified' => $livenessVerified,
+                'challenge_verified' => $challengeVerified,
             ]);
         }
 

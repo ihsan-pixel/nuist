@@ -278,7 +278,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     }
   }
 
-  Future<void> _captureFaceScan(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>?> _captureFaceScan(Map<String, dynamic> data) async {
     final biometricStatus = Map<String, dynamic>.from(
       (data['biometric_status'] as Map?) ?? const <String, dynamic>{},
     );
@@ -288,13 +288,17 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       final message = biometricStatus['message'] as String? ??
           'Data wajah belum terdaftar. Hubungi admin untuk aktivasi scan wajah.';
       if (!mounted) {
-        return;
+        return null;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message)),
       );
-      return;
+      return null;
     }
+
+    setState(() {
+      _faceScanResult = null;
+    });
 
     final result = await Navigator.of(context).push<Map<String, dynamic>>(
       MaterialPageRoute(
@@ -308,7 +312,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     );
 
     if (!mounted || result == null) {
-      return;
+      return null;
     }
 
     final normalizedResult = _normalizeFaceScanResult(result);
@@ -320,16 +324,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           ),
         ),
       );
-      return;
+      return null;
     }
 
-    setState(() {
-      _faceScanResult = normalizedResult;
-    });
+    return normalizedResult;
   }
 
-  Future<void> _captureVerification(Map<String, dynamic> data) async {
-    await _captureFaceScan(data);
+  Future<Map<String, dynamic>?> _captureVerification(Map<String, dynamic> data) async {
+    return _captureFaceScan(data);
   }
 
   Future<void> _openFaceEnrollment(Map<String, dynamic> data) async {
@@ -356,7 +358,10 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     await _refresh();
   }
 
-  Future<bool> _submitAttendance(Map<String, dynamic> data) async {
+  Future<bool> _submitAttendance(
+    Map<String, dynamic> data,
+    Map<String, dynamic> faceScanResult,
+  ) async {
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
@@ -391,15 +396,6 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       return false;
     }
 
-    if (_faceScanResult == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selesaikan scan wajah biometrik terlebih dahulu.'),
-        ),
-      );
-      return false;
-    }
-
     if (mode == 'keluar') {
       final shouldConfirmEarlyCheckout = _isBeforeCheckoutTime(
         now: DateTime.now(),
@@ -420,16 +416,24 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     });
 
     try {
-      final verification = _faceScanResult!['verification'];
+      final verification = faceScanResult['verification'];
+      final livenessChallenges = _normalizedChallenges(
+        faceScanResult['liveness_challenges'],
+      );
+      final embeddingCount = faceScanResult['face_embedding'] is List
+          ? (faceScanResult['face_embedding'] as List).length
+          : 0;
+      final challengeNames = livenessChallenges.join(',');
       debugPrint(
-        '[ATTENDANCE_V2][PAYLOAD] '
+        '[ATTENDANCE_V2][HANDOFF] '
+        'liveness_score=${faceScanResult['liveness_score']} '
+        'challenge_count=${livenessChallenges.length} '
+        'challenge_names=$challengeNames '
+        'embedding_count=$embeddingCount '
         'engine=${verification is Map ? verification['engine'] ?? "" : ""} '
         'model=${verification is Map ? verification['model'] ?? "" : ""} '
         'model_version=${verification is Map ? verification['model_version'] ?? "" : ""} '
-        'dimension=${verification is Map ? verification['dimension'] ?? "" : ""} '
-        'embedding_count=${_faceScanResult!['face_embedding'] is List ? (_faceScanResult!['face_embedding'] as List).length : 0} '
-        'has_face_descriptor=${_faceScanResult!.containsKey('face_descriptor')} '
-        'has_face_embedding=${_faceScanResult!['face_embedding'] is List}',
+        'dimension=${verification is Map ? verification['dimension'] ?? "" : ""}',
       );
       final payload = <String, dynamic>{
         'presensi_mode': mode,
@@ -441,18 +445,16 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         'speed': _position!.speed,
         'device_info': 'flutter_mobile_${defaultTargetPlatform.name}',
         'location_readings': _locationReadings,
-        'selfie_data': _faceScanResult!['selfie_data'],
-        'liveness_challenges': _normalizedChallenges(
-          _faceScanResult!['liveness_challenges'],
-        ),
-        if (_faceScanResult!['face_embedding'] != null)
-          'face_embedding': _faceScanResult!['face_embedding'],
-        'liveness_score': _faceScanResult!['liveness_score'],
-        if (_faceScanResult!['verification'] is Map) ...{
-          'engine': (_faceScanResult!['verification'] as Map)['engine'],
-          'model': (_faceScanResult!['verification'] as Map)['model'],
-          'model_version': (_faceScanResult!['verification'] as Map)['model_version'],
-          'dimension': (_faceScanResult!['verification'] as Map)['dimension'],
+        'selfie_data': faceScanResult['selfie_data'],
+        'liveness_challenges': livenessChallenges,
+        if (faceScanResult['face_embedding'] != null)
+          'face_embedding': faceScanResult['face_embedding'],
+        'liveness_score': faceScanResult['liveness_score'],
+        if (faceScanResult['verification'] is Map) ...{
+          'engine': (faceScanResult['verification'] as Map)['engine'],
+          'model': (faceScanResult['verification'] as Map)['model'],
+          'model_version': (faceScanResult['verification'] as Map)['model_version'],
+          'dimension': (faceScanResult['verification'] as Map)['dimension'],
         },
       };
 
@@ -460,10 +462,6 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       if (!mounted) {
         return false;
       }
-
-      setState(() {
-        _faceScanResult = null;
-      });
 
       await _refresh();
 
@@ -534,11 +532,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       }
     }
 
-    if (items.isEmpty) {
-      return <String>['face_scan'];
-    }
-
-    return items;
+    return items.toSet().toList(growable: false);
   }
 
   Future<bool?> _confirmEarlyCheckout({
@@ -688,11 +682,16 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   }
 
   Future<void> _openAttendanceFlow(Map<String, dynamic> data) async {
-    await _captureVerification(data);
-    if (!mounted || _faceScanResult == null) {
+    final faceScanResult = await _captureVerification(data);
+    if (!mounted || faceScanResult == null) {
       return;
     }
-    await _submitAttendance(data);
+
+    setState(() {
+      _faceScanResult = faceScanResult;
+    });
+
+    await _submitAttendance(data, faceScanResult);
   }
 
   @override
