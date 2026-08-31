@@ -19,7 +19,11 @@
 
             <div class="auth-header">
                 <div class="brand-card brand-card-inline">
-                    <img src="{{ asset('images/nuist_logo.png') }}" alt="Nuist">
+                    <img
+                        src="{{ asset('build/images/logo-light.png') }}"
+                        alt="Nuist"
+                        onerror="this.onerror=null;this.src='{{ asset('build/images/logo-light.svg') }}';"
+                    >
                 </div>
 
                 <h1 class="welcome-title">Lupa Password</h1>
