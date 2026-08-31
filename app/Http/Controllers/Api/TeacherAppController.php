@@ -4599,4 +4599,39 @@ class TeacherAppController extends Controller
 
         return array_values($normalized);
     }
+
+    private function verifyCompletedChallengePayload(array $challenges): bool
+    {
+        if ($challenges === []) {
+            return true;
+        }
+
+        return $this->hasPassedChallenge($challenges, 'blink')
+            && $this->hasPassedChallenge($challenges, 'face_captured')
+            && $this->hasAnyPassedChallenge($challenges, ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'])
+            && $this->hasPassedChallenge($challenges, 'screen_replay_risk')
+            && $this->hasPassedChallenge($challenges, 'risk_score');
+    }
+
+    private function hasPassedChallenge(array $challenges, string $type): bool
+    {
+        foreach ($challenges as $challenge) {
+            if (($challenge['type'] ?? null) === $type && ($challenge['passed'] ?? false) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasAnyPassedChallenge(array $challenges, array $types): bool
+    {
+        foreach ($types as $type) {
+            if ($this->hasPassedChallenge($challenges, $type)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
