@@ -784,12 +784,34 @@ class TeacherAppController extends Controller
             }
 
             $livenessScore = (float) $validated['liveness_score'];
-            $normalizedChallenges = $this->normalizeChallenges($validated['liveness_challenges'] ?? []);
-            $livenessThreshold = (float) config('biometric.default_threshold', 0.75);
+            $normalizedChallenges = $this->normalizeBiometricV2ChallengeNames($validated['liveness_challenges'] ?? []);
+            $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
             $livenessVerified = $livenessScore >= $livenessThreshold;
-            $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
+            $challengeVerified = $this->verifyBiometricV2ChallengeNames($normalizedChallenges);
+            $faceMatched = true;
+            $finalVerified = $faceMatched && $livenessVerified && $challengeVerified;
+            $failureReason = null;
 
-            if (!$livenessVerified || !$challengeVerified) {
+            if (!$livenessVerified) {
+                $failureReason = 'liveness_below_threshold';
+            } elseif (!$challengeVerified) {
+                $failureReason = 'challenge_not_completed';
+            }
+
+            Log::info('[ATTENDANCE_V2][FINAL_VERIFY]', [
+                'user_id' => $user->id,
+                'similarity' => $faceVerification['similarity'] ?? null,
+                'similarity_threshold' => config('biometric.default_threshold', 0.75),
+                'face_matched' => $faceMatched,
+                'liveness_score' => $livenessScore,
+                'liveness_threshold' => $livenessThreshold,
+                'challenge_count' => count($normalizedChallenges),
+                'challenge_verified' => $challengeVerified,
+                'final_verified' => $finalVerified,
+                'failure_reason' => $failureReason,
+            ]);
+
+            if (!$finalVerified) {
                 throw ValidationException::withMessages([
                     'face_verification' => !$livenessVerified
                         ? 'Presensi ditolak karena verifikasi wajah belum valid. Silakan ulangi scan wajah.'
@@ -4628,6 +4650,71 @@ class TeacherAppController extends Controller
     {
         foreach ($types as $type) {
             if ($this->hasPassedChallenge($challenges, $type)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function normalizeBiometricV2ChallengeNames(mixed $value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return [];
+            }
+
+            $decoded = json_decode($trimmed, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $value = $decoded;
+            } else {
+                $value = [$trimmed];
+            }
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($value as $challenge) {
+            if (is_array($challenge)) {
+                $challenge = $challenge['type'] ?? '';
+            }
+
+            if (!is_string($challenge)) {
+                continue;
+            }
+
+            $challenge = trim($challenge);
+            if ($challenge === '') {
+                continue;
+            }
+
+            $normalized[] = $challenge;
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    private function verifyBiometricV2ChallengeNames(array $challenges): bool
+    {
+        if ($challenges === []) {
+            return false;
+        }
+
+        if (!in_array('blink', $challenges, true)) {
+            return false;
+        }
+
+        $directionalChallenges = ['turn_left', 'turn_right', 'head_tilt'];
+        foreach ($directionalChallenges as $challenge) {
+            if (in_array($challenge, $challenges, true)) {
                 return true;
             }
         }

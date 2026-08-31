@@ -272,10 +272,11 @@ class FaceController extends Controller
             }
 
             $livenessScore = (float) $request->input('liveness_score');
-            $normalizedChallenges = $this->normalizeChallenges($request->input('liveness_challenges', []));
+            $normalizedChallenges = $this->normalizeBiometricV2ChallengeNames($request->input('liveness_challenges', []));
             $faceMatched = ($verification['matched'] ?? false) === true;
-            $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
-            $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
+            $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
+            $livenessVerified = $livenessScore >= $livenessThreshold;
+            $challengeVerified = $this->verifyBiometricV2ChallengeNames($normalizedChallenges);
             $faceVerified = $faceMatched && $livenessVerified && $challengeVerified;
 
             return response()->json([
@@ -289,7 +290,7 @@ class FaceController extends Controller
                 'matched' => $faceMatched,
                 'threshold' => $verification['threshold'] ?? $this->FACE_SIMILARITY_THRESHOLD,
                 'liveness_score' => $livenessScore,
-                'liveness_threshold' => $this->LIVENESS_THRESHOLD,
+                'liveness_threshold' => $livenessThreshold,
                 'liveness_challenges' => $normalizedChallenges,
             ]);
         }
@@ -696,6 +697,71 @@ class FaceController extends Controller
             && $this->hasAnyPassedChallenge($challenges, ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'])
             && $this->hasPassedChallenge($challenges, 'screen_replay_risk')
             && $this->hasPassedChallenge($challenges, 'risk_score');
+    }
+
+    private function normalizeBiometricV2ChallengeNames(mixed $value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return [];
+            }
+
+            $decoded = json_decode($trimmed, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $value = $decoded;
+            } else {
+                $value = [$trimmed];
+            }
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($value as $challenge) {
+            if (is_array($challenge)) {
+                $challenge = $challenge['type'] ?? '';
+            }
+
+            if (!is_string($challenge)) {
+                continue;
+            }
+
+            $challenge = trim($challenge);
+            if ($challenge === '') {
+                continue;
+            }
+
+            $normalized[] = $challenge;
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    private function verifyBiometricV2ChallengeNames(array $challenges): bool
+    {
+        if ($challenges === []) {
+            return false;
+        }
+
+        if (!in_array('blink', $challenges, true)) {
+            return false;
+        }
+
+        $directionalChallenges = ['turn_left', 'turn_right', 'head_tilt'];
+        foreach ($directionalChallenges as $challenge) {
+            if (in_array($challenge, $challenges, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function hasPassedChallenge(array $challenges, string $type): bool
