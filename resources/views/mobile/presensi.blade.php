@@ -2995,6 +2995,7 @@ window.addEventListener('load', function() {
     let faceScanSessionId = 0;
     let faceScanCompleted = false;
     let faceScanReadyToSubmit = false;
+    let faceVerificationApproved = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
@@ -3940,6 +3941,7 @@ window.addEventListener('load', function() {
             error.notes = verification?.notes || 'face_similarity_below_threshold';
             error.similarity = verification?.similarity ?? null;
             error.fatal = true;
+            faceVerificationApproved = false;
             throw error;
         }
 
@@ -3949,6 +3951,7 @@ window.addEventListener('load', function() {
         });
         updateFaceInstruction('Wajah cocok dengan data terdaftar.');
         setSelfieStatus('Wajah cocok. Presensi sedang dikirim.', 'success');
+        faceVerificationApproved = true;
         faceScanReadyToSubmit = true;
 
         const submitPresensiBtn = $('#btn-submit-presensi');
@@ -4407,6 +4410,7 @@ window.addEventListener('load', function() {
             selfieCaptured = true;
             if (faceScanRequired) {
                 faceScanCompleted = true;
+                faceVerificationApproved = true;
                 faceScanReadyToSubmit = true;
                 if (faceScanRetryTimer) {
                     window.clearTimeout(faceScanRetryTimer);
@@ -4627,6 +4631,14 @@ window.addEventListener('load', function() {
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
         if (presensiSubmitInFlight) {
+            return;
+        }
+
+        if (faceScanRequired && !faceVerificationApproved) {
+            showFormalErrorAlert(
+                'Presensi Ditolak',
+                'Wajah belum berhasil diverifikasi. Silakan ulangi scan wajah terlebih dahulu.'
+            );
             return;
         }
 
