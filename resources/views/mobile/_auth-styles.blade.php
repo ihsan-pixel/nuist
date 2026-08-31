@@ -150,9 +150,9 @@
     }
 
     .brand-card-inline {
-        width: 152px;
-        height: 108px;
-        padding: 14px 18px;
+        width: 168px;
+        height: 82px;
+        padding: 8px 14px;
     }
 
     .brand-card img {
