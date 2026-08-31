@@ -20,9 +20,9 @@
             <div class="auth-header">
                 <div class="brand-card brand-card-inline">
                     <img
-                        src="{{ asset('build/images/logo.svg') }}"
+                        src="{{ asset('images/logo1.png') }}"
                         alt="Nuist"
-                        onerror="this.onerror=null;this.src='{{ asset('build/images/logo-light.svg') }}';"
+                        onerror="this.onerror=null;this.src='{{ asset('images/logo1.png') }}';"
                         style="width:100%;height:100%;max-width:64px;max-height:64px;display:block;object-fit:contain;"
                     >
                 </div>
