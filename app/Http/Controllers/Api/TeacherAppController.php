@@ -784,41 +784,16 @@ class TeacherAppController extends Controller
             }
 
             $livenessScore = (float) $validated['liveness_score'];
-            $normalizedChallenges = $this->normalizeChallengeNames($validated['liveness_challenges'] ?? []);
-            $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
+            $normalizedChallenges = $this->normalizeChallenges($validated['liveness_challenges'] ?? []);
+            $livenessThreshold = (float) config('biometric.default_threshold', 0.75);
             $livenessVerified = $livenessScore >= $livenessThreshold;
-            $challengeVerified = $this->verifyCompletedChallengeNames($normalizedChallenges);
-            $faceMatched = ($faceVerification['matched'] ?? false) === true;
-            $finalVerified = $faceMatched && $livenessVerified && $challengeVerified;
-            $failureReason = null;
-            if (!$faceMatched) {
-                $failureReason = 'face_not_matched';
-            } elseif (!$livenessVerified) {
-                $failureReason = 'liveness_below_threshold';
-            } elseif (!$challengeVerified) {
-                $failureReason = 'challenge_not_completed';
-            }
+            $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
 
-            Log::info('[ATTENDANCE_V2][FINAL_VERIFY]', [
-                'user_id' => $user->id,
-                'similarity' => $faceVerification['similarity'] ?? null,
-                'similarity_threshold' => config('biometric.default_threshold', 0.75),
-                'face_matched' => $faceMatched,
-                'liveness_score' => $livenessScore,
-                'liveness_threshold' => $livenessThreshold,
-                'challenge_count' => count($normalizedChallenges),
-                'challenge_verified' => $challengeVerified,
-                'final_verified' => $finalVerified,
-                'failure_reason' => $failureReason,
-            ]);
-
-            if (!$finalVerified) {
+            if (!$livenessVerified || !$challengeVerified) {
                 throw ValidationException::withMessages([
                     'face_verification' => !$livenessVerified
                         ? 'Presensi ditolak karena verifikasi wajah belum valid. Silakan ulangi scan wajah.'
-                        : (!$challengeVerified
-                            ? 'Challenge wajah belum valid. Silakan ulangi scan wajah.'
-                            : 'Wajah tidak cocok dengan profil biometrik aktif.'),
+                        : 'Challenge wajah belum valid. Silakan ulangi scan wajah.',
                 ]);
             }
 
@@ -4575,7 +4550,7 @@ class TeacherAppController extends Controller
         END";
     }
 
-    private function normalizeChallengeNames(mixed $value): array
+    private function normalizeChallenges(mixed $value): array
     {
         if ($value === null) {
             return [];
@@ -4625,13 +4600,38 @@ class TeacherAppController extends Controller
         return array_values($normalized);
     }
 
-    private function verifyCompletedChallengeNames(array $challenges): bool
+    private function verifyCompletedChallengePayload(array $challenges): bool
     {
         if ($challenges === []) {
-            return false;
+            return true;
         }
 
-        $allowed = ['blink', 'turn_left', 'turn_right', 'head_tilt'];
-        return array_values(array_intersect($challenges, $allowed)) !== [];
+        return $this->hasPassedChallenge($challenges, 'blink')
+            && $this->hasPassedChallenge($challenges, 'face_captured')
+            && $this->hasAnyPassedChallenge($challenges, ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'])
+            && $this->hasPassedChallenge($challenges, 'screen_replay_risk')
+            && $this->hasPassedChallenge($challenges, 'risk_score');
+    }
+
+    private function hasPassedChallenge(array $challenges, string $type): bool
+    {
+        foreach ($challenges as $challenge) {
+            if (($challenge['type'] ?? null) === $type && ($challenge['passed'] ?? false) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasAnyPassedChallenge(array $challenges, array $types): bool
+    {
+        foreach ($types as $type) {
+            if ($this->hasPassedChallenge($challenges, $type)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

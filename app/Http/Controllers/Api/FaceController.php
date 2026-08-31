@@ -16,6 +16,7 @@ class FaceController extends Controller
 {
     // Thresholds - adjust as needed or move to config
     private float $FACE_SIMILARITY_THRESHOLD = 0.80;
+    private float $LIVENESS_THRESHOLD = 0.55;
 
     public function __construct(
         private BiometricProfileService $biometricProfileService,
@@ -55,8 +56,7 @@ class FaceController extends Controller
         $livenessChallenges = $request->input('liveness_challenges');
 
         // Validate liveness requirements for enrollment
-        $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
-        if ($livenessScore < $livenessThreshold) {
+        if ($livenessScore < $this->LIVENESS_THRESHOLD) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scan wajah belum cukup stabil untuk pendaftaran. Posisikan wajah dengan jelas lalu coba lagi.'
@@ -92,7 +92,7 @@ class FaceController extends Controller
             $request->input('face_samples'),
             $faceEmbedding !== [] ? $faceEmbedding : $legacyDescriptor,
         );
-        $normalizedChallenges = $this->normalizeChallengeNames($livenessChallenges);
+        $normalizedChallenges = $this->normalizeChallenges($livenessChallenges);
         $replacingExistingFace = $user->hasFaceEnrollment();
 
         // Store encrypted face data as JSON string with additional metadata
@@ -272,11 +272,10 @@ class FaceController extends Controller
             }
 
             $livenessScore = (float) $request->input('liveness_score');
-            $normalizedChallenges = $this->normalizeChallengeNames($request->input('liveness_challenges', []));
+            $normalizedChallenges = $this->normalizeChallenges($request->input('liveness_challenges', []));
             $faceMatched = ($verification['matched'] ?? false) === true;
-            $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
-            $livenessVerified = $livenessScore >= $livenessThreshold;
-            $challengeVerified = $this->verifyCompletedChallengeNames($normalizedChallenges);
+            $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
+            $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
             $faceVerified = $faceMatched && $livenessVerified && $challengeVerified;
 
             return response()->json([
@@ -290,7 +289,7 @@ class FaceController extends Controller
                 'matched' => $faceMatched,
                 'threshold' => $verification['threshold'] ?? $this->FACE_SIMILARITY_THRESHOLD,
                 'liveness_score' => $livenessScore,
-                'liveness_threshold' => $livenessThreshold,
+                'liveness_threshold' => $this->LIVENESS_THRESHOLD,
                 'liveness_challenges' => $normalizedChallenges,
             ]);
         }
@@ -309,7 +308,7 @@ class FaceController extends Controller
 
         $livenessScore = (float) $request->input('liveness_score');
         $challenges = $request->input('liveness_challenges', []);
-        $normalizedChallenges = $this->normalizeChallengeNames($challenges);
+        $normalizedChallenges = $this->normalizeChallenges($challenges);
 
         // Retrieve stored face data, support encrypted string and legacy plain payloads
         $storedDescriptors = null;
@@ -347,9 +346,8 @@ class FaceController extends Controller
 
         $bestSimilarity ??= -1.0;
         $faceMatched = $bestSimilarity >= $this->FACE_SIMILARITY_THRESHOLD;
-        $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
-        $livenessVerified = $livenessScore >= $livenessThreshold;
-        $challengeVerified = $this->verifyCompletedChallengeNames($normalizedChallenges);
+        $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
+        $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
         $faceVerified = $faceMatched && $livenessVerified && $challengeVerified;
         $notes = 'face_verified';
         $message = 'Wajah cocok dengan data terdaftar.';
@@ -374,7 +372,7 @@ class FaceController extends Controller
             'matched' => $faceMatched,
             'threshold' => $this->FACE_SIMILARITY_THRESHOLD,
             'liveness_score' => $livenessScore,
-            'liveness_threshold' => $livenessThreshold,
+            'liveness_threshold' => $this->LIVENESS_THRESHOLD,
             'liveness_challenges' => $normalizedChallenges,
         ]);
     }
@@ -646,49 +644,25 @@ class FaceController extends Controller
         return $normalized;
     }
 
-    private function normalizeChallengeNames(mixed $challenges): array
+    private function normalizeChallenges(mixed $challenges): array
     {
-        if ($challenges === null) {
-            return [];
-        }
-
-        if (is_string($challenges)) {
-            $trimmed = trim($challenges);
-            if ($trimmed === '') {
-                return [];
-            }
-
-            $decoded = json_decode($trimmed, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $challenges = $decoded;
-            } else {
-                $challenges = [$trimmed];
-            }
-        }
-
         if (!is_array($challenges)) {
             return [];
         }
 
-        $normalized = [];
-        foreach ($challenges as $challenge) {
-            if (is_array($challenge)) {
-                $challenge = $challenge['type'] ?? '';
-            }
-
-            if (!is_string($challenge)) {
-                continue;
-            }
-
-            $challenge = trim($challenge);
-            if ($challenge === '') {
-                continue;
-            }
-
-            $normalized[] = $challenge;
-        }
-
-        return array_values(array_unique($normalized));
+        return collect($challenges)
+            ->filter(fn ($challenge) => is_array($challenge))
+            ->map(function (array $challenge) {
+                return [
+                    'type' => (string) ($challenge['type'] ?? 'unknown'),
+                    'passed' => (bool) ($challenge['passed'] ?? false),
+                    'score' => is_numeric($challenge['score'] ?? null) ? round((float) $challenge['score'], 4) : null,
+                    'detail' => isset($challenge['detail']) ? (string) $challenge['detail'] : null,
+                    'timestamp' => $challenge['timestamp'] ?? now()->timestamp,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     private function normalizeStoredDescriptors(mixed $samples, array $fallbackDescriptor): array
@@ -711,19 +685,39 @@ class FaceController extends Controller
         return $descriptors;
     }
 
-    private function verifyCompletedChallengeNames(array $challenges): bool
-    {
-        if ($challenges === []) {
-            return false;
-        }
-
-        $allowed = ['blink', 'turn_left', 'turn_right', 'head_tilt'];
-        return array_values(array_intersect($challenges, $allowed)) !== [];
-    }
-
     private function verifyCompletedChallengePayload(array $challenges): bool
     {
-        return $this->verifyCompletedChallengeNames($challenges);
+        if ($challenges === []) {
+            return true;
+        }
+
+        return $this->hasPassedChallenge($challenges, 'blink')
+            && $this->hasPassedChallenge($challenges, 'face_captured')
+            && $this->hasAnyPassedChallenge($challenges, ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'])
+            && $this->hasPassedChallenge($challenges, 'screen_replay_risk')
+            && $this->hasPassedChallenge($challenges, 'risk_score');
+    }
+
+    private function hasPassedChallenge(array $challenges, string $type): bool
+    {
+        foreach ($challenges as $challenge) {
+            if (($challenge['type'] ?? null) === $type && ($challenge['passed'] ?? false) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasAnyPassedChallenge(array $challenges, array $types): bool
+    {
+        foreach ($types as $type) {
+            if ($this->hasPassedChallenge($challenges, $type)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
