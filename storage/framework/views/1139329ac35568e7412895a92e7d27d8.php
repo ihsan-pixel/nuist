@@ -7,7 +7,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
-            background-color: #f8f9fb;
+            background-color: #f6f8f7;
             position: relative;
             min-height: 100vh;
             overflow-x: hidden;
@@ -43,15 +43,15 @@
             top: 0;
             z-index: 100;
             background: #ffffff;
-            padding-bottom: 16px;
+            padding-bottom: 12px;
         }
 
         .profile-header {
-            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: #fff;
-            border-radius: 12px;
-            padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(253, 189, 87, 0.3);
+            border-radius: 14px;
+            padding: 12px 12px;
+            box-shadow: 0 8px 18px rgba(4, 63, 49, 0.16);
             margin-bottom: 10px;
         }
 
@@ -66,38 +66,38 @@
 
         .profile-avatar {
             background: #fff;
-            border-radius: 12px;
-            padding: 20px 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 14px;
+            padding: 16px 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
             margin-bottom: 10px;
             text-align: center;
         }
 
         .profile-avatar img {
-            width: 80px;
-            height: 80px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            border: 3px solid #e9ecef;
-            margin-bottom: 12px;
+            border: 3px solid rgba(4, 63, 49, 0.12);
+            margin-bottom: 10px;
         }
 
         .profile-avatar h5 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             margin-bottom: 4px;
             color: #333;
         }
 
         .profile-avatar p {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
             margin-bottom: 8px;
         }
 
         .role-badge {
-            background: rgba(0, 123, 255, 0.1);
-            color: #007bff;
-            padding: 4px 12px;
+            background: rgba(4, 63, 49, 0.08);
+            color: #043F31;
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
@@ -105,15 +105,15 @@
 
         .info-section {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
             margin-bottom: 10px;
         }
 
         .info-header {
             padding: 0 0 10px 0;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid #edf1f3;
             margin-bottom: 12px;
         }
 
@@ -157,15 +157,15 @@
 
         .settings-section {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
             margin-bottom: 10px;
         }
 
         .settings-header {
             padding: 0 0 10px 0;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid #edf1f3;
             margin-bottom: 12px;
         }
 
@@ -184,10 +184,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 12px;
             text-decoration: none;
             color: #333;
             font-size: 12px;
@@ -197,7 +197,7 @@
         }
 
         .settings-button:hover {
-            background: #e9ecef;
+            background: #eef2f7;
             color: #333;
         }
 
@@ -207,9 +207,9 @@
         }
 
         .mgmp-presensi-card {
-            background: linear-gradient(135deg, #f7fffb 0%, #ffffff 100%);
-            border: 1px solid rgba(14, 133, 73, 0.12);
-            border-radius: 12px;
+            background: #fff;
+            border: 1px solid rgba(4, 63, 49, 0.08);
+            border-radius: 14px;
             padding: 10px;
             margin-bottom: 8px;
         }
@@ -217,7 +217,7 @@
         .mgmp-presensi-title {
             font-size: 12px;
             font-weight: 700;
-            color: #153c31;
+            color: #17312c;
             margin-bottom: 4px;
         }
 
@@ -257,6 +257,130 @@
             background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
         }
 
+        .ios-install-button {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
+        }
+
+        .ios-install-button i {
+            font-size: 18px;
+        }
+
+        .install-guide-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(15, 23, 42, 0.52);
+            padding: 16px;
+            align-items: flex-end;
+        }
+
+        .install-guide-modal.show {
+            display: flex;
+        }
+
+        .install-guide-sheet {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+        }
+
+        .install-guide-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .install-guide-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #17312c;
+            margin-bottom: 2px;
+        }
+
+        .install-guide-subtitle {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .install-guide-close {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 999px;
+            background: #f3f4f6;
+            color: #374151;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .install-step-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .install-step {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .install-step-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(4, 63, 49, 0.1);
+            color: #043F31;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .install-step strong {
+            display: block;
+            font-size: 12px;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .install-step p {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 0;
+            line-height: 1.45;
+        }
+
+        .install-guide-note {
+            margin-top: 12px;
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.45;
+        }
+
         .mgmp-presensi-badge {
             display: inline-flex;
             align-items: center;
@@ -268,8 +392,8 @@
         }
 
         .mgmp-presensi-badge.active {
-            background: #e7f7ee;
-            color: #0e8549;
+            background: rgba(4, 63, 49, 0.08);
+            color: #043F31;
         }
 
         .mgmp-presensi-badge.upcoming {
@@ -284,9 +408,9 @@
 
         .quick-actions {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
             margin-bottom: 60px;
         }
 
@@ -318,9 +442,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: white;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px 8px;
             text-decoration: none;
             font-size: 11px;
@@ -330,7 +454,7 @@
         }
 
         .action-button:hover {
-            background: linear-gradient(135deg, #e67e22 0%, #f89a3c 50%, #fdbd57 100%);
+            background: linear-gradient(135deg, #033529 0%, #074533 100%);
             color: white;
             transform: translateY(-1px);
         }
@@ -341,10 +465,10 @@
         }
 
         .alert-custom {
-            background: rgba(255, 193, 7, 0.1);
-            color: #856404;
-            border: 1px solid rgba(255, 193, 7, 0.2);
-            border-radius: 8px;
+            background: rgba(4, 63, 49, 0.06);
+            color: #17312c;
+            border: 1px solid rgba(4, 63, 49, 0.1);
+            border-radius: 10px;
             padding: 8px 12px;
             font-size: 11px;
             margin-bottom: 12px;
@@ -355,12 +479,13 @@
         }
 
         .dashboard-header {
-            background: #f8f9fb url('<?php echo e(asset("images/qwe1.png")); ?>') no-repeat center center;
+            background: linear-gradient(135deg, rgba(4, 63, 49, 0.04), rgba(9, 83, 65, 0.04)), #ffffff;
             background-size: cover;
             border-radius: 14px;
             padding: 12px;
-            color: #004b4c;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
+            color: #17312c;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(4, 63, 49, 0.08);
         }
 
         .id-card {
@@ -439,10 +564,10 @@
             font-size: 12px;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #004b4c;
+            color: #043F31;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(0,75,76,0.3);
+            border-bottom: 1px solid rgba(4,63,49,0.12);
             padding-bottom: 4px;
         }
     </style>
@@ -627,15 +752,10 @@
                 <i class="bx bx-download"></i>
                 Install Aplikasi PWA
             </a>
-            <?php
-                $showApkButton = (isset(Auth::user()->role) && Auth::user()->role === 'tenaga_pendidik') || (strtolower(Auth::user()->ketugasan ?? '') === 'tenaga pendidik');
-            ?>
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showApkButton): ?>
-            <a href="<?php echo e(route('download.app-nuist')); ?>" class="settings-button" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white;" download>
-                <i class="bx bx-download"></i>
-                Download APK Nuist
+            <a href="#" id="install-ios-btn" class="ios-install-button">
+                <i class="bx bx-apple"></i>
+                Install untuk iOS
             </a>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <div id="pwa-status" class="alert-custom" style="display: none;">
                 <i class="bx bx-check-circle"></i>
                 Aplikasi PWA sudah terinstall.
@@ -652,6 +772,48 @@
         </div>
     </div>
 
+    <div id="ios-install-guide" class="install-guide-modal" aria-hidden="true">
+        <div class="install-guide-sheet" role="dialog" aria-modal="true" aria-labelledby="ios-install-title">
+            <div class="install-guide-header">
+                <div>
+                    <div id="ios-install-title" class="install-guide-title">Panduan Instal di iPhone</div>
+                    <div class="install-guide-subtitle">Ikuti langkah berikut untuk menambahkan NUIST ke Home Screen di iOS.</div>
+                </div>
+                <button type="button" id="close-ios-install-guide" class="install-guide-close" aria-label="Tutup">
+                    <i class="bx bx-x"></i>
+                </button>
+            </div>
+
+            <div class="install-step-list">
+                <div class="install-step">
+                    <div class="install-step-icon"><i class="bx bx-share-alt"></i></div>
+                    <div>
+                        <strong>Buka menu Share</strong>
+                        <p>Di Safari, tekan tombol share di bagian bawah layar.</p>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="install-step-icon"><i class="bx bx-plus"></i></div>
+                    <div>
+                        <strong>Pilih Add to Home Screen</strong>
+                        <p>Geser opsi jika perlu, lalu pilih menu untuk menambahkan ke layar utama.</p>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="install-step-icon"><i class="bx bx-check"></i></div>
+                    <div>
+                        <strong>Simpan aplikasi</strong>
+                        <p>Tekan Add agar ikon NUIST muncul di layar utama iPhone Anda.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="install-guide-note">
+                Catatan: fitur instalasi ini hanya bekerja di Safari pada iPhone atau iPad.
+            </div>
+        </div>
+    </div>
+
 
 
 
@@ -660,6 +822,9 @@
 <script>
 let deferredPrompt = null;
 const installBtn = document.getElementById('install-pwa-btn');
+const installIosBtn = document.getElementById('install-ios-btn');
+const iosGuideModal = document.getElementById('ios-install-guide');
+const closeIosGuideBtn = document.getElementById('close-ios-install-guide');
 
 installBtn.style.opacity = '0.6';
 installBtn.style.pointerEvents = 'none';
@@ -667,6 +832,11 @@ installBtn.style.pointerEvents = 'none';
 function isInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches
         || window.navigator.standalone === true;
+}
+
+function isIosDevice() {
+    const ua = window.navigator.userAgent || '';
+    return /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 }
 
 function updateInstalledUI() {
@@ -678,6 +848,10 @@ function updateInstalledUI() {
 document.addEventListener('DOMContentLoaded', () => {
     if (isInstalled()) {
         updateInstalledUI();
+    }
+
+    if (isIosDevice()) {
+        installIosBtn.style.display = 'flex';
     }
 });
 
@@ -706,6 +880,26 @@ installBtn.addEventListener('click', async (e) => {
 window.addEventListener('appinstalled', () => {
     updateInstalledUI();
 });
+
+if (installIosBtn && iosGuideModal && closeIosGuideBtn) {
+    installIosBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        iosGuideModal.classList.add('show');
+        iosGuideModal.setAttribute('aria-hidden', 'false');
+    });
+
+    closeIosGuideBtn.addEventListener('click', () => {
+        iosGuideModal.classList.remove('show');
+        iosGuideModal.setAttribute('aria-hidden', 'true');
+    });
+
+    iosGuideModal.addEventListener('click', (e) => {
+        if (e.target === iosGuideModal) {
+            iosGuideModal.classList.remove('show');
+            iosGuideModal.setAttribute('aria-hidden', 'true');
+        }
+    });
+}
 </script>
 <?php $__env->stopSection(); ?>
 

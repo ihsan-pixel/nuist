@@ -11,97 +11,104 @@
 @section('content')
     @include('mobile._auth-loader')
     <div class="mobile-auth-page">
-        <div class="welcome-card {{ $errors->any() ? 'is-open' : '' }}" id="welcomeCard">
-            <div class="card-top">
+        <div class="login-shell">
+            <div class="login-backdrop" aria-hidden="true">
+                <span class="backdrop-orb backdrop-orb-left"></span>
+                <span class="backdrop-orb backdrop-orb-right"></span>
             </div>
 
-            <div class="card-body">
-                <div class="brand-pill">
-                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
-                </div>
-                <h1 class="welcome-title">Welcome!</h1>
-                <p class="welcome-subtitle">Nuist Mobile LP. Ma'arif NU PWNU DIY</p>
-
-                {{-- <img
-                    class="hero-illustration"
-                    src="{{ asset('build/images/verification-img.png') }}"
-                    alt="Ilustrasi login Nuist"
-                > --}}
-
-                @if (session('status'))
-                    <div class="status-stack">
-                        <div class="status-alert success">{{ session('status') }}</div>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="status-stack">
-                        <div class="status-alert error">{{ session('error') }}</div>
-                    </div>
-                @endif
-
-                <div class="login-panel" id="loginPanel">
-                    <p class="panel-title">Masuk ke akun Anda</p>
-
-                    <form method="POST" action="{{ route('mobile.login.authenticate') }}">
-                        @csrf
-
-                        <div class="input-group">
-                            <label class="input-label" for="email">Email / NIS / NISN</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="text"
-                                class="input-control"
-                                value="{{ old('email') }}"
-                                placeholder="Masukkan email, NIS, atau NISN"
-                                required
-                            >
-                            @error('email')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label" for="password">Password</label>
-                            {{-- <div class="password-wrap"> --}}
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                class="input-control"
-                                placeholder="Masukkan password"
-                                required
-                            >
-                            <button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password">
-                                &#128065;
-                            </button>
-                            {{-- </div> --}}
-                            @error('password')
-                                <div class="field-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <button class="submit-btn" type="submit">Login Sekarang</button>
-                    </form>
-
-                    <div class="panel-footer">
-                        <a href="{{ route('mobile.password.request') }}">Forgot password?</a>
-                    </div>
+            <div class="auth-header">
+                <div class="brand-card brand-card-inline">
+                    <img src="{{ asset('images/nuist_logo.png') }}" alt="Nuist">
                 </div>
 
-                <div class="action-stack">
-                    <button
-                        type="button"
-                        class="action-btn action-btn-secondary"
-                        id="toggleLoginPanel"
-                        aria-expanded="{{ $errors->any() ? 'true' : 'false' }}"
-                        aria-controls="loginPanel"
-                    >
-                        Login
-                    </button>
+                <h1 class="welcome-title">Selamat Datang Kembali</h1>
+                <p class="welcome-subtitle">Masuk untuk mengakses seluruh layanan NUIST Mobile.</p>
+            </div>
+
+            <div class="welcome-card {{ $errors->any() ? 'is-open' : '' }}" id="welcomeCard">
+                <div class="card-body">
+                    @if (session('status'))
+                        <div class="status-stack">
+                            <div class="status-alert success">{{ session('status') }}</div>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="status-stack">
+                            <div class="status-alert error">{{ session('error') }}</div>
+                        </div>
+                    @endif
+
+                    <div class="login-panel" id="loginPanel">
+                        <form method="POST" action="{{ route('mobile.login.authenticate') }}" class="login-form">
+                            @csrf
+
+                            <div class="auth-field-group">
+                                <label class="input-label" for="email">Email</label>
+                                <div class="field-shell">
+                                    <span class="field-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" role="presentation">
+                                            <path d="M12 13.5a5.5 5.5 0 1 0-5.5-5.5 5.5 5.5 0 0 0 5.5 5.5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"/>
+                                        </svg>
+                                    </span>
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="text"
+                                        class="input-control"
+                                        value="{{ old('email', request()->cookie('mobile_login_email')) }}"
+                                        placeholder="Masukkan email"
+                                        required
+                                    >
+                                </div>
+                                @error('email')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label class="input-label" for="password">Password</label>
+                                <div class="field-shell field-shell-password">
+                                    <span class="field-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" role="presentation">
+                                            <path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-5 8a2 2 0 1 1 2-2 2 2 0 0 1-2 2Zm-2-8V6a2 2 0 0 1 4 0v2Z"/>
+                                        </svg>
+                                    </span>
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type="password"
+                                        class="input-control"
+                                        placeholder="Masukkan password"
+                                        required
+                                    >
+                                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password">
+                                        <svg viewBox="0 0 24 24" role="presentation">
+                                            <path d="M12 5c5.33 0 9.73 3.61 11 7-1.27 3.39-5.67 7-11 7S2.27 15.39 1 12c1.27-3.39 5.67-7 11-7Zm0 2C8.08 7 4.72 9.37 3.34 12 4.72 14.63 8.08 17 12 17s7.28-2.37 8.66-5C19.28 9.37 15.92 7 12 7Zm0 2.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5Z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                @error('password')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-actions">
+                                <label class="remember-check">
+                                    <input type="checkbox" name="remember" value="1" {{ old('remember', request()->cookie('mobile_login_remember')) ? 'checked' : '' }}>
+                                    <span>Ingat saya</span>
+                                </label>
+                                <a href="{{ route('mobile.password.request') }}" class="forgot-link">Lupa Password?</a>
+                            </div>
+
+                            <button class="submit-btn" type="submit">Masuk</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+
+            <p class="page-version">NUIST Mobile v1.0.0</p>
         </div>
     </div>
 @endsection
@@ -110,42 +117,13 @@
     @include('mobile._auth-loader-script')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var card = document.getElementById('welcomeCard');
-            var panel = document.getElementById('loginPanel');
-            var togglePanelBtn = document.getElementById('toggleLoginPanel');
             var passwordInput = document.getElementById('password');
             var togglePasswordBtn = document.getElementById('togglePassword');
-
-            function setPanelState(isOpen) {
-                if (!card || !togglePanelBtn) return;
-
-                card.classList.toggle('is-open', isOpen);
-                togglePanelBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-
-                if (isOpen) {
-                    var emailInput = document.getElementById('email');
-                    if (emailInput) {
-                        setTimeout(function () {
-                            emailInput.focus();
-                        }, 120);
-                    }
-                }
-            }
-
-            if (togglePanelBtn) {
-                togglePanelBtn.addEventListener('click', function () {
-                    setPanelState(!card.classList.contains('is-open'));
-                });
-            }
 
             if (togglePasswordBtn && passwordInput) {
                 togglePasswordBtn.addEventListener('click', function () {
                     passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
                 });
-            }
-
-            if (panel && card.classList.contains('is-open')) {
-                setPanelState(true);
             }
         });
     </script>

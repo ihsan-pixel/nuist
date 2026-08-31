@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\SiswaMobileAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\ValidationException;
 
 class MobileAuthController extends Controller
@@ -30,15 +31,25 @@ class MobileAuthController extends Controller
             }
 
             if (!$user) {
-                return redirect()->route('mobile.login')
-                    ->withErrors(['email' => 'Email atau password salah'])
-                    ->withInput($request->only('email'));
-            }
+            return redirect()->route('mobile.login')
+                ->withErrors(['email' => 'Email atau password salah'])
+                ->withInput($request->only('email'));
+        }
 
-            Auth::login($user, $request->boolean('remember'));
+        Auth::login($user, $request->boolean('remember'));
         }
 
         $request->session()->regenerate();
+
+        $queuedCookies = [];
+
+        if ($request->boolean('remember')) {
+            $queuedCookies[] = Cookie::forever('mobile_login_email', $credentials['email']);
+            $queuedCookies[] = Cookie::forever('mobile_login_remember', '1');
+        } else {
+            $queuedCookies[] = Cookie::forget('mobile_login_email');
+            $queuedCookies[] = Cookie::forget('mobile_login_remember');
+        }
 
         $user = Auth::user();
 
@@ -49,7 +60,8 @@ class MobileAuthController extends Controller
 
             return redirect()->route('mobile.login')
                 ->withErrors(['email' => 'Akun Anda saat ini dinonaktifkan.'])
-                ->withInput($request->only('email'));
+                ->withInput($request->only('email'))
+                ->withCookies($queuedCookies);
         }
 
         if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa', 'dps'])) {
@@ -59,17 +71,18 @@ class MobileAuthController extends Controller
 
             return redirect()->route('mobile.login')
                 ->withErrors(['email' => 'Akun tidak memiliki akses mobile.'])
-                ->withInput($request->only('email'));
+                ->withInput($request->only('email'))
+                ->withCookies($queuedCookies);
         }
 
         if ($user->role === 'siswa') {
-            return redirect()->route('mobile.siswa.dashboard');
+            return redirect()->route('mobile.siswa.dashboard')->withCookies($queuedCookies);
         }
 
         if ($user->role === 'dps') {
-            return redirect()->route('mobile.dps.dashboard');
+            return redirect()->route('mobile.dps.dashboard')->withCookies($queuedCookies);
         }
 
-        return redirect()->route('mobile.dashboard');
+        return redirect()->route('mobile.dashboard')->withCookies($queuedCookies);
     }
 }

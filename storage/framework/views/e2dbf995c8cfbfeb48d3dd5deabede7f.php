@@ -34,7 +34,7 @@ if ($hour >= 0 && $hour <= 11) {
                         alt="User"
                     >
                 <?php else: ?>
-                    <div class="avatar-img rounded-circle d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #ff9a56, #ff6b35); width: 40px; height: 40px; border-radius: 50%;">
+                    <div class="avatar-img rounded-circle d-flex align-items-center justify-content-center" style="background: #095341; width: 40px; height: 40px; border-radius: 50%;">
                         <i class="bx bx-user" style="font-size: 20px; color: white;"></i>
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

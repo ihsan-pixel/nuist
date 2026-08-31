@@ -273,6 +273,21 @@
                             <a href="{{ route('school-kiosk.index') }}" class="btn btn-primary">
                                 <i class="bx bx-right-arrow-alt me-1"></i>Buka Kiosk
                             </a>
+                            @if(auth()->user()?->role === 'super_admin')
+                                <form method="GET" action="{{ route('kiosk.face-enrollment.index') }}" class="d-flex gap-2 flex-wrap align-items-center">
+                                    <select name="madrasah_id" class="form-select" style="min-width: 220px;">
+                                        <option value="">Pilih sekolah untuk Kiosk 2</option>
+                                        @foreach($schools as $school)
+                                            <option value="{{ $school->id }}" {{ (int) $selectedMadrasahId === (int) $school->id ? 'selected' : '' }}>
+                                                {{ $school->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-dark">
+                                        <i class="bx bx-id-card me-1"></i>Mode Kiosk 2
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

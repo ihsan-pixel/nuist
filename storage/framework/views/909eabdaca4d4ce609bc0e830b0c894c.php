@@ -143,12 +143,12 @@
 
                                 <div class="d-grid gap-2">
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                        <?php
-                                            $schedule = $item['schedule'] ?? null;
-                                            $status = $item['status'] ?? 'belum';
-                                            $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : 'warning');
-                                            $journalFilled = ($status === 'hadir' || $status === 'izin');
-                                        ?>
+                                            <?php
+                                                $schedule = $item['schedule'] ?? null;
+                                                $status = $item['status'] ?? 'belum';
+                                                $statusClass = $status === 'hadir' ? 'success' : ($status === 'izin' ? 'info' : ($status === 'libur' ? 'secondary' : 'warning'));
+                                                $journalFilled = ($status === 'hadir' || $status === 'izin');
+                                            ?>
                                         <div class="border rounded-3 p-3" style="background: #fbfcfb;">
                                             <div class="d-flex justify-content-between gap-3">
                                                 <div class="flex-grow-1" style="min-width: 0;">
@@ -168,12 +168,26 @@
 
                                                 <div class="text-end flex-shrink-0">
                                                     <div class="badge rounded-pill bg-<?php echo e($statusClass); ?>-subtle text-<?php echo e($statusClass); ?> border border-<?php echo e($statusClass); ?>-subtle mb-1">
-                                                        <?php echo e(strtoupper($status)); ?>
+                                                        <?php echo e($status === 'libur' ? 'LIBUR' : strtoupper($status)); ?>
 
                                                     </div>
-                                                    <div class="small text-muted"><?php echo e($journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal'); ?></div>
+                                                    <div class="small text-muted">
+                                                        <?php echo e($status === 'izin'
+                                                            ? 'Izin kegiatan terdeteksi'
+                                                            : ($status === 'libur'
+                                                                ? 'Tanggal merah, tidak perlu jurnal'
+                                                                : ($journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal'))); ?>
+
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($status === 'libur'): ?>
+                                                <div class="mt-2 small text-muted">
+                                                    <?php echo e($item['holiday']?->name ?? 'Tanggal merah'); ?>
+
+                                                </div>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 </div>
@@ -228,6 +242,8 @@
                                             <span class="text-success">Hadir <?php echo e($daily['hadir']); ?></span>
                                             <span class="mx-1">•</span>
                                             <span class="text-info">Izin <?php echo e($daily['izin']); ?></span>
+                                            <span class="mx-1">•</span>
+                                            <span class="text-secondary">Libur <?php echo e($daily['libur'] ?? 0); ?></span>
                                             <span class="mx-1">•</span>
                                             <span class="text-warning">Belum <?php echo e($daily['belum']); ?></span>
                                         </div>

@@ -171,8 +171,14 @@
 <div class="dropdown d-inline-block">
             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img class="rounded-circle header-profile-user" src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}"
-                    alt="Header Avatar">
+                @if(Auth::user()->avatar)
+                    <img class="rounded-circle header-profile-user" src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                        alt="Header Avatar">
+                @else
+                    <div class="rounded-circle header-profile-user d-inline-flex align-items-center justify-content-center" style="background: #095341; color: #fff;">
+                        <i class="bx bx-user" style="font-size: 18px;"></i>
+                    </div>
+                @endif
                 <span class="d-none d-xl-inline-block ms-1" key="t-henry">{{ucfirst(Auth::user()->name)}}</span>
                 <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
             </button>
@@ -238,4 +244,3 @@ aria-labelledby="myLargeModalLabel" aria-hidden="true">
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-

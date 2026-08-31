@@ -5,47 +5,51 @@
 <div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
         body {
-            background: #f8f9fb;
+            background: #f6f8f7;
             font-family: 'Poppins', sans-serif;
-            font-size: 12px;
+            font-size: 13px;
         }
 
-        .settings-header {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        .page-head {
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: #fff;
-            border-radius: 12px;
-            padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 18px rgba(4, 63, 49, 0.16);
+            margin-bottom: 12px;
         }
 
-        .settings-header h6 {
+        .page-head h6 {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
+            opacity: 0.85;
+            margin-bottom: 2px;
         }
 
-        .settings-header h5 {
-            font-size: 14px;
+        .page-head h5 {
+            font-size: 15px;
+            margin-bottom: 0;
         }
 
         .settings-section {
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+            margin-bottom: 12px;
             overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .section-header {
-            background: #f8f9fa;
+            background: #f8fafc;
             padding: 10px 12px;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid #edf1f3;
         }
 
         .section-header h6 {
             font-weight: 600;
-            font-size: 14px;
-            color: #333;
+            font-size: 13px;
+            color: #1f2937;
             margin: 0;
         }
 
@@ -55,65 +59,86 @@
 
         .avatar-section {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .avatar-section img {
-            width: 80px;
-            height: 80px;
+            width: 74px;
+            height: 74px;
             border-radius: 50%;
-            border: 3px solid #e9ecef;
-            margin-bottom: 12px;
+            border: 3px solid rgba(4, 63, 49, 0.12);
+            margin-bottom: 10px;
+            object-fit: cover;
+            background: #f8fafc;
+        }
+
+        .avatar-fallback {
+            width: 74px;
+            height: 74px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            border: 3px solid rgba(4, 63, 49, 0.12);
+            background: #f8fafc;
+            color: #043F31;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .avatar-fallback i {
+            font-size: 34px;
         }
 
         .avatar-section .btn {
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 12px;
-            padding: 8px 16px;
+            padding: 9px 14px;
         }
 
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .form-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
-            color: #333;
+            color: #374151;
             margin-bottom: 4px;
         }
 
         .form-control {
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+            font-size: 12px;
+            box-shadow: none;
+        }
+
+        .form-control:focus {
+            border-color: #095341;
+            box-shadow: 0 0 0 0.16rem rgba(9, 83, 65, 0.12);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
             padding: 10px 12px;
             font-size: 12px;
         }
 
-        .form-control:focus {
-            border-color: #556ee6;
-            box-shadow: 0 0 0 0.2rem rgba(85, 110, 230, 0.25);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #014d4e 0%, #0e8549 100%);
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            padding: 12px;
-            font-size: 12px;
-        }
-
         .btn-primary:hover {
-            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            background: linear-gradient(135deg, #033529 0%, #074533 100%);
         }
 
         .alert {
-            border-radius: 8px;
+            border-radius: 10px;
             border: none;
             font-size: 11px;
             padding: 8px 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .alert-success {
@@ -132,23 +157,29 @@
         }
     </style>
 
-    <!-- Back Button -->
-    <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
-        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
-            <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
-        </button>
-        <span class="fw-bold" style="color: #004b4c; font-size: 12px;">Kembali</span>
-    </div>
+    <?php
+        $avatarPath = $user->avatar ?? null;
+        $hasCustomAvatar = $avatarPath
+            && !str_contains($avatarPath, 'avatar-1.jpg')
+            && \Illuminate\Support\Facades\Storage::disk('public')->exists($avatarPath);
+    ?>
 
-    <!-- Header -->
-    <div class="settings-header">
+    <!-- Back Button -->
+    <div class="page-head">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h6 class="mb-1">Pengaturan</h6>
                 <h5 class="fw-bold mb-0"><?php echo e($user->name); ?></h5>
             </div>
-            <img src="<?php echo e(isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/avatar-1.jpg')); ?>"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasCustomAvatar): ?>
+                <img src="<?php echo e(asset('storage/' . $avatarPath)); ?>"
+                     class="rounded-circle border border-white" width="36" height="36" alt="User">
+            <?php else: ?>
+                <div class="d-flex align-items-center justify-content-center rounded-circle border border-white"
+                     style="width: 36px; height: 36px; background: rgba(255,255,255,0.12); color: #fff;">
+                    <i class="bx bx-user" style="font-size: 20px;"></i>
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 
@@ -184,8 +215,15 @@
         </div>
         <div class="section-content">
             <div class="avatar-section">
-                <img src="<?php echo e(isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/avatar-1.jpg')); ?>"
-                     alt="Current Avatar" id="current-avatar">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasCustomAvatar): ?>
+                    <img src="<?php echo e(asset('storage/' . $avatarPath)); ?>"
+                         alt="Current Avatar" id="current-avatar"
+                         onerror="this.onerror=null; this.outerHTML='<div id=&quot;current-avatar&quot; class=&quot;avatar-fallback&quot;><i class=&quot;bx bx-user&quot;></i></div>';">
+                <?php else: ?>
+                    <div id="current-avatar" class="avatar-fallback">
+                        <i class="bx bx-user"></i>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <form action="<?php echo e(route('mobile.profile.update-avatar')); ?>" method="POST" enctype="multipart/form-data" id="avatar-form">
                     <?php echo csrf_field(); ?>
                     <input type="file" name="avatar" id="avatar-input" accept="image/*" style="display: none;">
@@ -248,7 +286,7 @@
                     <label for="password" class="form-label">Password Baru</label>
                     <input type="password" class="form-control" id="password" name="password" required placeholder="Minimal 8 karakter, kombinasi huruf besar, kecil, angka & simbol">
                     <div id="password-strength" class="mt-2">
-                        <small id="password-strength-text" class="text-muted">Password harus mengandung huruf besar, huruf kecil, angka, dan simbol</small>
+                        <small id="password-strength-text" class="text-muted" style="font-size: 10px;">Password harus mengandung huruf besar, huruf kecil, angka, dan simbol</small>
                         <div class="progress mt-1" style="height: 6px;">
                             <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%; background-color: #dc3545;"></div>
                         </div>
@@ -275,7 +313,12 @@ document.getElementById('avatar-input').addEventListener('change', function() {
         // Preview the selected image
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById('current-avatar').src = e.target.result;
+            const currentAvatar = document.getElementById('current-avatar');
+            if (currentAvatar.tagName === 'IMG') {
+                currentAvatar.src = e.target.result;
+            } else {
+                currentAvatar.outerHTML = `<img src="${e.target.result}" alt="Current Avatar" id="current-avatar" class="avatar-preview-img">`;
+            }
         };
         reader.readAsDataURL(this.files[0]);
 

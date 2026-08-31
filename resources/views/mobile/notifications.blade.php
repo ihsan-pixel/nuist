@@ -4,75 +4,126 @@
 @section('subtitle', 'Pesan & Pengingat')
 
 @section('content')
-<div class="container py-2" style="max-width: 420px; margin: auto;">
-    <!-- Back Button -->
-    <div class="d-flex align-items-center mb-3">
-        <button onclick="window.history.back()" class="btn btn-outline-secondary btn-sm me-2" style="border-radius: 6px; padding: 6px 10px;">
-            <i class="bx bx-arrow-back"></i>
-        </button>
-        <h6 class="mb-0 fw-bold">Kembali</h6>
-    </div>
-
+<div class="notifications-page">
     <style>
         body {
-            background: #f8f9fb;
+            background: #f4f7f5;
             font-family: 'Poppins', sans-serif;
+        }
+
+        .notifications-page {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 6px 2px 0;
+        }
+
+        .notification-topbar {
+            display: grid;
+            grid-template-columns: 40px 1fr auto;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 0 2px;
+        }
+
+        .notification-back {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid rgba(4, 63, 49, 0.08);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #043F31;
+            text-decoration: none;
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(4, 63, 49, 0.04);
+        }
+
+        .notification-back i {
+            font-size: 16px;
+        }
+
+        .notification-title {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #17312c;
+            text-align: center;
+            justify-self: center;
+        }
+
+        .notification-topbar-spacer {
+            width: 1px;
+            height: 34px;
+        }
+
+        .notification-subtitle {
+            display: none;
+        }
+
+        .notification-toolbar {
+            display: none;
         }
 
         .notification-item {
             background: #fff;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-            border-left: 3px solid #556ee6;
+            border-radius: 12px;
+            padding: 9px 10px;
+            margin-bottom: 7px;
+            box-shadow: 0 3px 10px rgba(4, 63, 49, 0.04);
+            border: 1px solid rgba(4, 63, 49, 0.04);
             position: relative;
+            overflow: hidden;
         }
 
         .notification-item.unread {
-            border-left-color: #0e8549;
-            background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%);
+            border-color: rgba(4, 63, 49, 0.12);
+            background: linear-gradient(135deg, #f7fffb 0%, #ffffff 52%);
         }
 
         .notification-item.read {
-            opacity: 0.7;
+            opacity: 0.9;
         }
 
         .notification-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            gap: 8px;
         }
 
         .notification-title {
             font-weight: 600;
-            font-size: 12px;
-            color: #333;
+            font-size: 0.74rem;
+            color: #17312c;
             margin: 0;
         }
 
         .notification-time {
-            font-size: 10px;
-            color: #999;
+            font-size: 0.62rem;
+            color: #7a8a8f;
             margin: 0;
+            white-space: nowrap;
         }
 
         .notification-message {
-            font-size: 11px;
-            color: #666;
-            line-height: 1.3;
+            font-size: 0.68rem;
+            color: #5e6d72;
+            line-height: 1.34;
             margin: 0;
         }
 
         .notification-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 8px;
+            margin-right: 7px;
             flex-shrink: 0;
         }
 
@@ -101,46 +152,71 @@
         }
 
         .mark-read-btn {
-            background: none;
+            background: transparent;
             border: none;
-            color: #999;
-            font-size: 10px;
-            padding: 3px 6px;
-            border-radius: 4px;
+            color: #095341;
+            font-size: 0.66rem;
+            padding: 4px 0 0;
+            border-radius: 0;
             cursor: pointer;
+            font-weight: 600;
         }
 
         .mark-read-btn:hover {
-            background: #f8f9fa;
+            background: transparent;
         }
 
         .empty-state {
             text-align: center;
-            padding: 30px 15px;
-            color: #999;
+            padding: 22px 14px;
+            color: #7a8a8f;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px dashed rgba(4, 63, 49, 0.12);
         }
 
         .empty-state i {
             font-size: 36px;
-            margin-bottom: 12px;
-            opacity: 0.5;
+            margin-bottom: 10px;
+            opacity: 0.65;
+            color: #095341;
         }
 
         .empty-state p {
-            font-size: 12px;
+            font-size: 0.74rem;
             margin: 0;
         }
 
         .mark-all-read {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: white;
             border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
-            font-size: 12px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+            min-height: 30px;
+            max-width: 30px;
+            max-height: 30px;
+            padding: 0;
+            font-size: 0;
             font-weight: 500;
-            width: 100%;
-            margin-bottom: 12px;
+            margin-bottom: 0;
+            box-shadow: 0 8px 18px rgba(4, 63, 49, 0.12);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 30px;
+            aspect-ratio: 1 / 1;
+            line-height: 1;
+            overflow: hidden;
+        }
+
+        .mark-all-read i {
+            font-size: 15px;
+            line-height: 1;
+            margin: 0 !important;
+            display: block;
         }
 
         .mark-all-read:disabled {
@@ -155,16 +231,38 @@
 
         .loading i {
             font-size: 18px;
-            color: #0e8549;
+            color: #095341;
+        }
+
+        @media (max-width: 420px) {
+            .notifications-page {
+                padding-inline: 2px;
+            }
+
+            .notification-hero {
+                border-radius: 16px;
+                padding: 11px 11px 10px;
+            }
+
+            .notification-item {
+                border-radius: 13px;
+                padding: 9px 10px;
+            }
         }
     </style>
 
-    <!-- Mark All as Read Button -->
-    @if($notifications->count() > 0)
-    <button id="markAllReadBtn" class="mark-all-read">
-        <i class="bx bx-check-double me-2"></i>Tandai Semua Sudah Dibaca
-    </button>
-    @endif
+    <div class="notification-topbar">
+        <a href="javascript:void(0)" onclick="window.history.back()" class="notification-back" aria-label="Kembali">
+                <i class="bx bx-arrow-back"></i>
+            </a>
+        <h1 class="notification-title">Notifikasi</h1>
+        @if($notifications->count() > 0)
+            <button id="markAllReadBtn" class="mark-all-read" style="width:auto; margin:0;">
+                <i class="bx bx-check-double"></i>
+            </button>
+        @endif
+        <div class="notification-topbar-spacer" aria-hidden="true"></div>
+    </div>
 
     <!-- Notifications List -->
     <div id="notificationsContainer">
@@ -180,7 +278,7 @@
                         <h6 class="notification-title">{{ $notification->title }}</h6>
                         <small class="notification-time">{{ $notification->created_at->diffForHumans() }}</small>
                     </div>
-                    <p class="notification-message">{{ $notification->message }}</p>
+                    <p class="notification-message">{{ \Illuminate\Support\Str::limit($notification->message, 72) }}</p>
                     @if(!$notification->is_read)
                     <button class="mark-read-btn mt-2" onclick="markAsRead({{ $notification->id }})">
                         <i class="bx bx-check"></i> Tandai Dibaca

@@ -60,14 +60,21 @@
         /* Bottom navigation */
         .mobile-nav {
             position: fixed;
-            bottom: 0;
+            bottom: 10px;
             left: 0;
             right: 0;
-            background: white;
-            border-top: 1px solid #e9ecef;
-            padding: 12px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(4, 63, 49, 0.10);
+            padding: 10px 10px 8px;
             z-index: 1030;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 26px rgba(4, 63, 49, 0.14);
+            border-radius: 24px;
+            width: min(100%, 520px);
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .mobile-nav .nav-item {
@@ -76,25 +83,26 @@
         }
 
         .mobile-nav .nav-link {
-            padding: 8px 4px;
-            color: #0e8549;
-            font-size: 11px;
-            font-weight: 500;
+            padding: 7px 6px 6px;
+            color: #6b7b84;
+            font-size: 10px;
+            font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            background: white;
-            border-radius: 8px;
-            margin: 0 2px;
-            transition: all 0.2s;
-            min-height: 50px;
+            background: transparent;
+            border-radius: 18px;
+            margin: 0 1px;
+            transition: all 0.2s ease;
+            min-height: 48px;
             justify-content: center;
         }
 
         .mobile-nav .nav-link.active {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: white !important;
+            box-shadow: 0 6px 14px rgba(4, 63, 49, 0.18);
         }
 
         .mobile-nav .nav-link.active i {
@@ -106,8 +114,13 @@
         }
 
         .mobile-nav .nav-link i {
-            font-size: 18px;
-            margin-bottom: 2px;
+            font-size: 20px;
+            margin-bottom: 3px;
+            width: 1em;
+            min-width: 1em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .mobile-nav .nav-link.active {
@@ -120,12 +133,12 @@
         }
 
         .mobile-nav .nav-link:not(.active) span {
-            display: none;
+            opacity: 0.96;
         }
 
         /* Content padding for bottom nav */
         .mobile-content {
-            padding-bottom: 90px;
+            padding-bottom: 104px;
         }
 
         /* Card optimizations for mobile */
@@ -266,17 +279,22 @@
         /* Custom Bottom Navigation (Floating Center Button) */
         .custom-bottom-nav {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            border-top: 1px solid #eaeaea;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-            height: 70px;
+            bottom: 10px;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            width: min(100%, 520px);
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(4, 63, 49, 0.10);
+            box-shadow: 0 10px 26px rgba(4, 63, 49, 0.14);
+            border-radius: 24px;
+            height: 76px;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .custom-bottom-nav .nav-container {
@@ -288,24 +306,27 @@
         }
 
         .custom-bottom-nav .nav-link {
-            color: #0e8549;
+            color: #6b7b84;
             text-align: center;
             flex: 1;
             text-decoration: none;
-            font-size: 11px;
-            font-weight: 500;
+            font-size: 10px;
+            font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 6px 4px 4px;
         }
 
         .custom-bottom-nav .nav-link i {
             font-size: 20px;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
 
         .custom-bottom-nav .nav-link.active {
-            color: #004b4c;
+            color: #043F31;
+            background: rgba(4, 63, 49, 0.08);
+            border-radius: 18px;
         }
 
         /* Tombol tengah melingkar */
@@ -318,17 +339,18 @@
         }
 
         .center-action {
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(135deg, #004b4c, #0e8549);
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #043F31, #095341);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 22px rgba(4, 63, 49, 0.22);
             color: #fff;
             font-size: 26px;
             transition: all 0.3s ease;
+            border: 4px solid #fff;
         }
 
         .center-action:hover {
@@ -543,4 +565,3 @@
 </body>
 
 </html>
-

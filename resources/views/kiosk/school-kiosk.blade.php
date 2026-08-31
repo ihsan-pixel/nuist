@@ -1589,15 +1589,15 @@
                                 </div>
 
                                 <div class="camera-panel-footer">
-                                    <div class="camera-panel-actions">
-                                        <button type="button" class="camera-panel-button" id="openEnrollmentRefreshButton">
-                                            <i class="bx bx-refresh"></i>Daftar Wajah
-                                        </button>
-                                        <div class="scan-badge" id="scanBadge">
-                                            <i class="bx bx-loader-circle"></i>
-                                            <span>Menyiapkan</span>
-                                        </div>
+                                <div class="camera-panel-actions">
+                                    <button type="button" class="camera-panel-button" id="openEnrollmentRefreshButton">
+                                        <i class="bx bx-refresh"></i>Daftar Wajah
+                                    </button>
+                                    <div class="scan-badge" id="scanBadge">
+                                        <i class="bx bx-loader-circle"></i>
+                                        <span>Menyiapkan</span>
                                     </div>
+                                </div>
                                 </div>
 
                                 <div class="camera-placeholder" id="cameraPlaceholder">

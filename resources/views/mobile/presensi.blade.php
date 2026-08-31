@@ -10,7 +10,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
-            background: #f8f9fb;
+            background: #f6f8f7;
             min-height: 100vh;
         }
 
@@ -22,8 +22,8 @@
             position: sticky;
             top: 0;
             z-index: 1200;
-            background: #f8f9fb;
-            padding-bottom: 14px;
+            background: linear-gradient(180deg, #f6f8f7 0%, rgba(246, 248, 247, 0.86) 100%);
+            padding-bottom: 10px;
         }
 
         .user-location-map-container,
@@ -44,38 +44,38 @@
 
         .page-heading {
             text-align: center;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
         .page-heading h5 {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 4px;
+            color: #17312c;
+            margin-bottom: 2px;
         }
 
         .page-heading small {
-            font-size: 12px;
-            color: #6b7280;
+            font-size: 11px;
+            color: #6b7b84;
         }
 
         .realtime-clock-card {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: #fff;
             border-radius: 14px;
-            padding: 14px 16px;
+            padding: 12px 14px;
             text-align: center;
-            box-shadow: 0 10px 24px rgba(14, 133, 73, 0.18);
-            margin-bottom: 12px;
+            box-shadow: 0 8px 18px rgba(4, 63, 49, 0.16);
+            margin-bottom: 10px;
         }
 
         .clock-time {
-            font-size: 28px;
+            font-size: 26px;
             line-height: 1;
             font-weight: 700;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.04em;
             font-variant-numeric: tabular-nums;
-            margin-bottom: 4px;
+            margin-bottom: 0;
         }
 
         .clock-caption {
@@ -84,24 +84,24 @@
         }
 
         .presensi-header {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: #fff;
             border-radius: 14px;
-            padding: 14px;
-            box-shadow: 0 8px 20px rgba(0, 75, 76, 0.18);
-            margin-bottom: 12px;
+            padding: 12px;
+            box-shadow: 0 8px 18px rgba(4, 63, 49, 0.14);
+            margin-bottom: 10px;
         }
 
         .presensi-header h6 {
             font-weight: 600;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             opacity: 0.85;
         }
 
         .presensi-header h5 {
-            font-size: 16px;
+            font-size: 15px;
         }
 
         .school-meta {
@@ -116,14 +116,14 @@
         .status-card {
             background: #fff;
             border-radius: 14px;
-            padding: 14px;
-            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
-            margin-bottom: 12px;
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            padding: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+            margin-bottom: 10px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .status-card.success {
-            border-left: 4px solid #0e8549;
+            border-left: 4px solid #043F31;
         }
 
         .status-card.warning {
@@ -131,36 +131,36 @@
         }
 
         .status-icon {
-            width: 34px;
-            height: 34px;
-            background: rgba(14, 133, 73, 0.1);
+            width: 30px;
+            height: 30px;
+            background: rgba(4, 63, 49, 0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 10px;
+            margin-right: 8px;
             flex-shrink: 0;
         }
 
         .status-icon i {
-            color: #0e8549;
-            font-size: 16px;
+            color: #043F31;
+            font-size: 15px;
         }
 
         .presensi-form {
             background: #fff;
             border-radius: 14px;
-            padding: 14px;
-            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
-            margin-bottom: 12px;
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            padding: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+            margin-bottom: 10px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .user-location-map-container {
             position: relative;
             overflow: hidden;
             border-radius: 14px;
-            border: 1px solid rgba(14, 133, 73, 0.14);
+            border: 1px solid rgba(4, 63, 49, 0.12);
             background: #f8fafc;
         }
 
@@ -191,7 +191,7 @@
         }
 
         .form-section {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .form-section:last-child {
@@ -203,7 +203,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .section-header-main {
@@ -214,8 +214,8 @@
 
         .section-title {
             font-weight: 600;
-            font-size: 13px;
-            margin-bottom: 6px;
+            font-size: 12px;
+            margin-bottom: 0;
             color: #1f2937;
         }
 
@@ -224,9 +224,9 @@
             align-items: center;
             gap: 6px;
             border-radius: 999px;
-            padding: 6px 10px;
+            padding: 5px 9px;
             margin-bottom: 0;
-            font-size: 11px;
+            font-size: 10px;
             line-height: 1;
             white-space: nowrap;
             flex-shrink: 0;
@@ -262,16 +262,16 @@
 
         .location-info {
             background: #f8f9fa;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 999px;
+            padding: 5px 9px;
             margin-bottom: 6px;
             word-wrap: break-word;
             border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .location-info.success {
-            background: rgba(14, 133, 73, 0.1);
-            border: 1px solid rgba(14, 133, 73, 0.2);
+            background: rgba(4, 63, 49, 0.08);
+            border: 1px solid rgba(4, 63, 49, 0.14);
         }
 
         .location-info.error {
@@ -287,9 +287,9 @@
         .coordinate-input {
             background: #fff;
             border-radius: 10px;
-            padding: 10px 12px;
+            padding: 9px 11px;
             border: 1px solid #e5e7eb;
-            font-size: 12px;
+            font-size: 11px;
             width: 100%;
         }
 
@@ -306,16 +306,16 @@
         }
 
         .presensi-btn {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             border: none;
-            border-radius: 10px;
-            padding: 12px 14px;
+            border-radius: 12px;
+            padding: 11px 14px;
             color: #fff;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             width: 100%;
             margin-top: 8px;
-            box-shadow: 0 8px 18px rgba(14, 133, 73, 0.16);
+            box-shadow: 0 8px 18px rgba(4, 63, 49, 0.18);
         }
 
         .presensi-btn:disabled {
@@ -327,9 +327,9 @@
             background: #fff;
             border-radius: 14px;
             padding: 12px;
-            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
-            margin-bottom: 12px;
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+            margin-bottom: 10px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .schedule-grid {
@@ -341,9 +341,9 @@
         .schedule-item {
             background: rgba(248, 250, 252, 0.95);
             border-radius: 12px;
-            padding: 9px 10px;
+            padding: 10px;
             text-align: left;
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .schedule-item.masuk {
@@ -351,7 +351,7 @@
         }
 
         .schedule-item.pulang {
-            border-top: 3px solid #0e8549;
+            border-top: 3px solid #043F31;
         }
 
         .schedule-item i {
@@ -400,14 +400,14 @@
         .alert-custom {
             background: #fff;
             border-radius: 14px;
-            padding: 14px;
-            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
-            margin-bottom: 12px;
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            padding: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+            margin-bottom: 10px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .alert-custom.warning {
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid #043F31;
         }
 
         .alert-custom.danger {
@@ -419,9 +419,9 @@
         }
 
         .btn-primary-custom {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 10px 14px;
             color: #fff;
             font-weight: 600;
@@ -433,12 +433,12 @@
 
         .btn-primary-custom:hover {
             color: #fff;
-            background: linear-gradient(135deg, #003d3e 0%, #0c6a42 100%);
+            background: linear-gradient(135deg, #033529 0%, #074533 100%);
         }
 
         .status-detail-list {
             display: grid;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
@@ -446,7 +446,7 @@
             border-radius: 12px;
             background: #f8fafc;
             border: 1px solid #e5e7eb;
-            padding: 10px 12px;
+            padding: 9px 11px;
         }
 
         .status-detail-item small {
@@ -1566,14 +1566,14 @@
         }
 
         .selfie-progress-item.active {
-            background: rgba(14, 133, 73, 0.16);
-            color: #0e8549;
+            background: rgba(4, 63, 49, 0.14);
+            color: #043F31;
             font-weight: 600;
         }
 
         .selfie-progress-item.done {
-            background: rgba(14, 133, 73, 0.22);
-            color: #0e8549;
+            background: rgba(4, 63, 49, 0.18);
+            color: #043F31;
             font-weight: 700;
         }
 
@@ -1792,8 +1792,15 @@
                         <span>{{ Auth::user()->name }}</span>
                     </div>
                 </div>
-                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}"
-                     class="rounded-circle border border-white" width="42" height="42" alt="User">
+                @if(Auth::user()->avatar)
+                    <img src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                         class="rounded-circle border border-white" width="42" height="42" alt="User">
+                @else
+                    <div class="d-flex align-items-center justify-content-center rounded-circle border border-white"
+                         style="width: 42px; height: 42px; background: rgba(255,255,255,0.12); color: #fff;">
+                        <i class="bx bx-user" style="font-size: 22px;"></i>
+                    </div>
+                @endif
             </div>
         </div> --}}
         <div class="d-flex align-items-center mb-2">
@@ -1808,12 +1815,6 @@
                 <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
             </div>
             <div id="user-location-map" style="height: 100%; width: 100%;"></div>
-        </div>
-        <div class="mt-2 text-center">
-            <small class="text-muted" style="font-size: 10px;">
-                <i class="bx bx-info-circle me-1"></i>
-                Titik hijau menunjukkan lokasi Anda saat ini
-            </small>
         </div>
     </div>
 
@@ -1994,9 +1995,6 @@
 
         <!-- Address -->
         <div class="form-section">
-            <div class="compact-section-head">
-                <label class="section-title">Alamat Lokasi</label>
-            </div>
             <div class="address-compact">
                 <i class="bx bx-map-pin"></i>
                 <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
@@ -2382,7 +2380,7 @@
             </button>
             <button type="button" id="btn-submit-presensi"
                     class="presensi-btn"
-                    style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    style="display: none; background: linear-gradient(135deg, #043F31 0%, #095341 100%);">
                 <i class="bx bx-send me-1"></i>
                 Kirim Presensi
             </button>
@@ -3953,6 +3951,12 @@ window.addEventListener('load', function() {
         setSelfieStatus('Wajah cocok. Presensi sedang dikirim.', 'success');
         faceScanReadyToSubmit = true;
 
+        const submitPresensiBtn = $('#btn-submit-presensi');
+        if (submitPresensiBtn && !presensiSubmitInFlight) {
+            submitPresensiBtn.prop('disabled', false);
+            submitPresensiBtn.trigger('click');
+        }
+
         return verification;
     }
 
@@ -4442,13 +4446,7 @@ window.addEventListener('load', function() {
 
             const submitPresensiBtn = $('#btn-submit-presensi');
             submitPresensiBtn.prop('disabled', false);
-            if (faceScanRequired) {
-                window.setTimeout(() => {
-                    if (!presensiSubmitInFlight && faceScanReadyToSubmit) {
-                        submitPresensiBtn.trigger('click');
-                    }
-                }, 80);
-            } else {
+            if (!faceScanRequired) {
                 submitPresensiBtn.show();
             }
         } catch (error) {

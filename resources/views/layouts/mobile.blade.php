@@ -58,14 +58,21 @@
         /* Bottom navigation */
         .mobile-nav {
             position: fixed;
-            bottom: 0;
+            bottom: 10px;
             left: 0;
             right: 0;
-            background: white;
-            border-top: 1px solid #e9ecef;
-            padding: 12px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(4, 63, 49, 0.10);
+            padding: 10px 10px 8px;
             z-index: 1030;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 26px rgba(4, 63, 49, 0.14);
+            border-radius: 24px;
+            width: min(100%, 520px);
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .mobile-nav .nav-item {
@@ -74,30 +81,36 @@
         }
 
         .mobile-nav .nav-link {
-            padding: 8px 4px;
-            color: #0e8549;
-            font-size: 11px;
-            font-weight: 500;
+            padding: 7px 6px 6px;
+            color: #6b7b84;
+            font-size: 10px;
+            font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            background: white;
-            border-radius: 8px;
-            margin: 0 2px;
-            transition: all 0.2s;
-            min-height: 50px;
+            background: transparent;
+            border-radius: 18px;
+            margin: 0 1px;
+            transition: all 0.2s ease;
+            min-height: 48px;
             justify-content: center;
         }
 
         .mobile-nav .nav-link.active {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             color: white;
+            box-shadow: 0 6px 14px rgba(4, 63, 49, 0.18);
         }
 
         .mobile-nav .nav-link i {
-            font-size: 18px;
-            margin-bottom: 2px;
+            font-size: 20px;
+            margin-bottom: 3px;
+            width: 1em;
+            min-width: 1em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .mobile-nav .nav-link.active {
@@ -110,12 +123,12 @@
         }
 
         .mobile-nav .nav-link:not(.active) span {
-            display: none;
+            opacity: 0.96;
         }
 
         /* Content padding for bottom nav */
         .mobile-content {
-            padding-bottom: 90px;
+            padding-bottom: 104px;
         }
 
         /* Card optimizations for mobile */
@@ -256,17 +269,22 @@
         /* Custom Bottom Navigation (Floating Center Button) */
         .custom-bottom-nav {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            border-top: 1px solid #eaeaea;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-            height: 70px;
+            bottom: 10px;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            width: min(100%, 520px);
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(4, 63, 49, 0.10);
+            box-shadow: 0 10px 26px rgba(4, 63, 49, 0.14);
+            border-radius: 24px;
+            height: 76px;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .custom-bottom-nav .nav-container {
@@ -278,24 +296,27 @@
         }
 
         .custom-bottom-nav .nav-link {
-            color: #0e8549;
+            color: #6b7b84;
             text-align: center;
             flex: 1;
             text-decoration: none;
-            font-size: 11px;
-            font-weight: 500;
+            font-size: 10px;
+            font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 6px 4px 4px;
         }
 
         .custom-bottom-nav .nav-link i {
             font-size: 20px;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
 
         .custom-bottom-nav .nav-link.active {
-            color: #ffffff;
+            color: #043F31;
+            background: rgba(4, 63, 49, 0.08);
+            border-radius: 18px;
         }
 
         /* Tombol tengah melingkar */
@@ -308,22 +329,35 @@
         }
 
         .center-action {
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(135deg, #0e8549, #004b4c);
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #043F31, #095341);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 22px rgba(4, 63, 49, 0.22);
             color: #fff;
             font-size: 26px;
             transition: all 0.3s ease;
+            border: 4px solid #fff;
         }
 
         .center-action:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+        }
+
+        .avatar-fallback {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #095341;
+            color: #ffffff;
+            flex: 0 0 40px;
         }
     </style>
 </head>
@@ -335,16 +369,109 @@
         window.DISABLE_PAGE_LOADER = @json(request()->routeIs('mobile.kelola-izin') || request()->routeIs('mobile.siswa.*'));
     </script>
     <!-- Global page loader (used for navigation & form submits) -->
-    <div id="pageLoader" aria-hidden="true" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(3,9,23,0.46);z-index:2200;transition:opacity .28s ease, visibility .28s ease;">
-        <div class="loader-card" role="status" aria-live="polite" style="background:linear-gradient(180deg,#006b67,#004b4c);color:#fff;padding:12px 18px;border-radius:12px;display:flex;gap:12px;align-items:center;box-shadow:0 12px 36px rgba(2,70,64,0.18);">
-            <div class="loader-ring" aria-hidden="true" style="width:42px;height:42px;border-radius:50%;border:4px solid rgba(255,255,255,0.18);border-top-color:#fff;animation:loader-spin 1s linear infinite"></div>
-            <div class="loader-text" style="font-weight:700;font-size:14px;letter-spacing:0.2px">Memuat...</div>
+    <div id="pageLoader" aria-hidden="true" class="hidden page-loader-overlay">
+        <div class="page-loader-card" role="status" aria-live="polite">
+            <div class="page-loader-mark" aria-hidden="true">
+                <div class="page-loader-ring"></div>
+            </div>
+            <div class="page-loader-title">Memuat</div>
+            <div class="page-loader-text">Menyiapkan dashboard, mohon tunggu sebentar.</div>
         </div>
     </div>
 
     <style>
-        @keyframes loader-spin{ to { transform:rotate(360deg) } }
-        #pageLoader.hidden{ opacity:0; visibility:hidden; pointer-events:none }
+        .page-loader-overlay{
+            position:fixed;
+            inset:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+            background:rgba(8,16,24,0.28);
+            backdrop-filter:blur(12px);
+            -webkit-backdrop-filter:blur(12px);
+            opacity:1;
+            visibility:visible;
+            pointer-events:auto;
+            z-index:2200;
+            transition:opacity .22s ease, visibility .22s ease;
+        }
+
+        .page-loader-overlay.hidden{
+            opacity:0;
+            visibility:hidden;
+            pointer-events:none;
+        }
+
+        .page-loader-card{
+            min-width:220px;
+            max-width:300px;
+            border-radius:26px;
+            background:rgba(255,255,255,0.97);
+            box-shadow:0 22px 60px rgba(0,58,48,0.18);
+            padding:22px 20px 18px;
+            text-align:center;
+            transform:translateY(0);
+            animation:page-loader-pop .28s ease-out;
+        }
+
+        .page-loader-mark{
+            width:68px;
+            height:68px;
+            margin:0 auto 14px;
+            position:relative;
+            display:grid;
+            place-items:center;
+        }
+
+        .page-loader-ring,
+        .page-loader-ring::before,
+        .page-loader-ring::after{
+            content:"";
+            position:absolute;
+            inset:0;
+            border-radius:50%;
+        }
+
+        .page-loader-ring{
+            border:3px solid rgba(4,63,49,0.14);
+            border-top-color:#043F31;
+            animation:page-loader-spin .9s linear infinite;
+        }
+
+        .page-loader-ring::before{
+            inset:8px;
+            border:3px solid rgba(4,63,49,0.10);
+            border-bottom-color:#095341;
+            animation:page-loader-spin-reverse 1.3s linear infinite;
+        }
+
+        .page-loader-ring::after{
+            inset:18px;
+            background:radial-gradient(circle at 30% 30%, #0b5b47, #043F31);
+            box-shadow:0 8px 16px rgba(4,63,49,0.22);
+        }
+
+        .page-loader-title{
+            margin:0;
+            font-size:.9rem;
+            font-weight:700;
+            color:#17312c;
+        }
+
+        .page-loader-text{
+            margin:6px 0 0;
+            font-size:.74rem;
+            line-height:1.45;
+            color:#6b7b84;
+        }
+
+        @keyframes page-loader-spin{ to { transform:rotate(360deg) } }
+        @keyframes page-loader-spin-reverse{ to { transform:rotate(-360deg) } }
+        @keyframes page-loader-pop{
+            from{ transform:translateY(10px) scale(.98); opacity:.2; }
+            to{ transform:translateY(0) scale(1); opacity:1; }
+        }
     </style>
     <!-- Offline indicator -->
     <div id="offline-indicator" class="offline-indicator">

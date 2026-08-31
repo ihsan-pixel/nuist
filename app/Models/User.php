@@ -219,4 +219,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(SkYayasanEmployeeData::class, 'user_id');
     }
+
+    public function faceEnrollmentSessions()
+    {
+        return $this->hasMany(FaceEnrollmentSession::class);
+    }
 }

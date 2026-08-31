@@ -27,38 +27,51 @@ if ($hour >= 0 && $hour <= 11) {
 $red = 255 - (int)($kinerjaPercent * 2.55);
 $green = (int)($kinerjaPercent * 2.55);
 $progressColor = "rgb($red, $green, 0)";
+$avatarPath = Auth::user()->avatar ?? null;
+$showAvatarImage = $avatarPath
+    && !in_array($avatarPath, ['build/images/users/avatar-11.jpg', 'build/images/avatar-1.jpg'], true)
+    && \Illuminate\Support\Facades\Storage::disk('public')->exists($avatarPath);
 
 ?>
 <header class="mobile-header d-md-none" style="position: sticky; top: 0; z-index: 1050;">
-    <div class="container-fluid px-0 py-0" style="background: transparent;">
-        <div class="d-flex align-items-center justify-content-between">
+    <div class="container-fluid px-0 py-0" style="background: transparent; padding-top: 4px; padding-bottom: 4px;">
+        <div class="mobile-topbar-row">
             <!-- User Avatar (Left) -->
-            <div class="avatar-sm me-3 ms-3">
-                <img
-                    src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                    class="avatar-img rounded-circle"
-                    alt="User"
-                >
+            <div class="avatar-sm ms-2 me-2">
+                @if($showAvatarImage)
+                    <img
+                        src="{{ asset('storage/' . $avatarPath) }}"
+                        class="avatar-img rounded-circle"
+                        style="border: 1px solid #ffffff;"
+                        alt="User"
+                    >
+                @else
+                    <div class="avatar-fallback" style="border: 1px solid #ffffff;">
+                        <i class="bx bx-user" style="font-size: 20px; color: white;"></i>
+                    </div>
+                @endif
             </div>
 
-            <!-- Welcome Text (Right-aligned) -->
-            <div class="text-start grow">
-                <small class="text-dark fw-medium" style="font-size: 11px;">{{ $congrat }}</small>
-                <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
+            <!-- School Name -->
+            <div class="text-start flex-grow-1" style="margin-left: 2px; min-width: 0;">
+                <small class="header-text fw-medium d-block" style="font-size: 11px; line-height: 1.2;">
+                    {{ Auth::user()->madrasah?->name ?? 'Asal sekolah belum diatur' }}
+                </small>
+                <h6 class="header-text mb-0 fw-semibold" style="font-size: 14px; line-height: 1.2;">{{ Auth::user()->name }}</h6>
             </div>
 
             <!-- Notification and Menu Buttons (Right) -->
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center flex-shrink-0 mobile-topbar-actions">
                 <!-- Notification Bell -->
                 <a href="{{ route('mobile.notifications') }}" class="btn btn-link text-decoration-none p-0 me-2 position-relative">
-                    <i class="bx bx-bell" style="font-size: 22px; color: #db3434;"></i>
+                    <i class="bx bx-bell header-icon" style="font-size: 22px;"></i>
                     <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 9px; padding: 2px 5px; top: -4px; right: -4px; display: none;">0</span>
                 </a>
 
                 <!-- Dropdown Menu -->
                 <div class="dropdown">
                     <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
-                        <i class="bx bx-dots-vertical-rounded" style="font-size: 22px; color: #000000;"></i>
+                        <i class="bx bx-dots-vertical-rounded header-icon" style="font-size: 22px;"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                         <li><a class="dropdown-item py-2" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
@@ -84,10 +97,27 @@ $progressColor = "rgb($red, $green, 0)";
         body {
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
-            background-color: #f8f9fb;
+            background-color: #ffffff;
             position: relative;
             min-height: 100vh; /* 🔥 minimal tinggi layar */
             overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 34vh;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                linear-gradient(135deg, rgba(4, 63, 49, 0.92) 0%, rgba(9, 83, 65, 0.86) 38%, rgba(251, 181, 36, 0.28) 72%, rgba(251, 181, 36, 0) 100%),
+                linear-gradient(155deg, rgba(4, 63, 49, 0.20) 0 16%, transparent 16% 30%, rgba(251, 181, 36, 0.24) 30% 44%, transparent 44% 100%),
+                linear-gradient(25deg, transparent 0 24%, rgba(4, 63, 49, 0.14) 24% 31%, transparent 31% 57%, rgba(251, 181, 36, 0.18) 57% 64%, transparent 64% 100%),
+                linear-gradient(118deg, transparent 0 46%, rgba(4, 63, 49, 0.12) 46% 52%, transparent 52% 77%, rgba(251, 181, 36, 0.16) 77% 83%, transparent 83% 100%);
+            opacity: 1;
         }
 
         body::after {
@@ -115,6 +145,7 @@ $progressColor = "rgb($red, $green, 0)";
             padding: 12px;
             color: #004b4c;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
+            margin-bottom: 16px;
         }
 
         .id-card {
@@ -209,10 +240,50 @@ $progressColor = "rgb($red, $green, 0)";
         .mobile-header {
             box-shadow: none !important;
             border: none !important;
+            background-color: transparent !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+            transition: background-color 0.25s ease, box-shadow 0.25s ease;
+            min-height: 68px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
-        body {
-            background-color: transparent !important;
+        .mobile-header.scrolled {
+            background-color: #ffffff !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+            min-height: 68px;
+        }
+
+        .mobile-header .container-fluid {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .mobile-topbar-row {
+            width: 100%;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            column-gap: 4px;
+        }
+
+        .mobile-topbar-actions {
+            justify-self: end;
+            margin-left: auto;
+        }
+
+        .mobile-header .header-text,
+        .mobile-header .header-icon {
+            color: #ffffff !important;
+            transition: color 0.25s ease;
+        }
+
+        .mobile-header.scrolled .header-text,
+        .mobile-header.scrolled .header-icon {
+            color: #000000 !important;
         }
 
         .name-form {
@@ -265,49 +336,72 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .services-form {
-            /* background: #fff; */
-            border-radius: 12px;
-            padding: 12px;
-            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
+            border-radius: 14px;
+            padding: 4px 0 2px;
             margin-bottom: 12px;
             min-height: 50px;
         }
 
         .services-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            display: flex;
+            gap: 10px;
             text-align: center;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 2px 8px;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x proximity;
+            scrollbar-width: none;
+        }
+
+        .services-grid::-webkit-scrollbar {
+            display: none;
         }
 
         .service-wrapper {
             text-align: center;
+            min-width: 60px;
+            flex: 0 0 60px;
+            scroll-snap-align: start;
         }
 
         .service-item {
             position: relative;
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 16px;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease-in-out;
-            height: 64px;
-            width: 100%;
+            height: 60px;
+            width: 60px;
             box-sizing: border-box;
-            border: 0px solid rgba(0,75,76,0.2);
-            box-shadow: #000000
-        }
-
-        .extra-service {
-            visibility: hidden;
-            height: 0;
+            border: 1px solid rgba(251, 181, 36, 0.14);
+            box-shadow: 0 8px 18px rgba(251, 181, 36, 0.10);
             overflow: hidden;
+            background: linear-gradient(135deg, #FBB524 0%, #e09f17 100%);
         }
 
-        .extra-service.show {
-            visibility: visible;
-            height: auto;
+        .service-item.icon-card {
+            background: linear-gradient(135deg, #FBB524 0%, #e09f17 100%);
+        }
+
+        .service-item.icon-card i {
+            font-size: 28px;
+            color: #ffffff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-item.menu-all-card {
+            background: #ffffff;
+            border: 1px solid rgba(251, 181, 36, 0.16);
+            color: #FBB524;
+        }
+
+        .service-item.menu-all-card i {
+            color: #FBB524;
+            font-size: 32px;
         }
 
         .service-item:hover {
@@ -315,28 +409,39 @@ $progressColor = "rgb($red, $green, 0)";
             box-shadow: 0 3px 8px rgba(0,0,0,0.1);
         }
 
-        .service-item i {
-            font-size: 30px;
-            color: #003d3d;
-        }
-
         .service-label {
-            font-size: 10px;
+            font-size: 7.5px;
             font-weight: 600;
             margin-top: 6px;
             color: #333;
+            line-height: 1.25;
+            min-height: 20px;
         }
 
-        .service-item i {
-            font-size: 28px;
-            color: #003d3d;
+        .services-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
         }
 
-        .service-item h6 {
+        .services-see-all {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(4, 63, 49, 0.08);
+            color: #043F31;
             font-size: 10px;
-            margin-bottom: 0;
-            font-weight: 600;
-            color: #ffffff;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .services-see-all:hover {
+            color: #043F31;
+            background: rgba(4, 63, 49, 0.12);
         }
 
         .info-section {
@@ -370,11 +475,12 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .schedule-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid #e9eef3;
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
+            border-radius: 16px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
             margin-bottom: 12px;
+            box-shadow: 0 10px 24px rgba(4, 63, 49, 0.14);
         }
 
         .schedule-section-header {
@@ -389,13 +495,13 @@ $progressColor = "rgb($red, $green, 0)";
             margin: 0;
             font-size: 13px;
             font-weight: 700;
-            color: #173a3a;
+            color: #ffffff;
         }
 
         .schedule-section-subtitle {
             margin: 2px 0 0;
             font-size: 10px;
-            color: #6b7b84;
+            color: rgba(255,255,255,0.82);
             line-height: 1.45;
         }
 
@@ -406,8 +512,8 @@ $progressColor = "rgb($red, $green, 0)";
             gap: 4px;
             padding: 5px 8px;
             border-radius: 999px;
-            background: #eef8f3;
-            color: #0e8549;
+            background: rgba(255,255,255,0.14);
+            color: #ffffff;
             font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
@@ -416,38 +522,52 @@ $progressColor = "rgb($red, $green, 0)";
 
         .schedule-list {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 2px 2px 10px;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x proximity;
+        }
+
+        .schedule-list::-webkit-scrollbar {
+            display: none;
         }
 
         .schedule-row {
+            flex: 0 0 260px;
             display: flex;
-            align-items: flex-start;
+            flex-direction: column;
             gap: 10px;
             padding: 12px;
-            border-radius: 12px;
-            background: linear-gradient(180deg, #fffdf8 0%, #fff7ea 100%);
-            border: 1px solid #f3dfba;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.96);
+            border: 1px solid rgba(255,255,255,0.20);
+            scroll-snap-align: start;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
         }
 
         .schedule-row.is-complete {
-            background: linear-gradient(180deg, #f5fff9 0%, #ecfff4 100%);
-            border-color: #cdeed9;
+            border-left: 4px solid #16a34a;
         }
 
         .schedule-row.is-excused {
-            background: linear-gradient(180deg, #f4fbff 0%, #eef8ff 100%);
-            border-color: #cfe4ff;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .schedule-row.is-pending {
+            border-left: 4px solid #0f766e;
         }
 
         .schedule-row-marker {
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            margin-top: 5px;
+            margin-top: 2px;
             flex-shrink: 0;
-            background: #f59e0b;
-            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+            background: #0f766e;
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
         }
 
         .schedule-row.is-complete .schedule-row-marker {
@@ -456,8 +576,8 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .schedule-row.is-excused .schedule-row-marker {
-            background: #2563eb;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            background: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
         }
 
         .schedule-row-body {
@@ -469,21 +589,28 @@ $progressColor = "rgb($red, $green, 0)";
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 8px;
+            gap: 10px;
         }
 
         .schedule-row-subject {
             font-size: 13px;
             font-weight: 700;
-            color: #163637;
+            color: #173a3a;
             line-height: 1.35;
             margin-bottom: 2px;
         }
 
         .schedule-row-class {
             font-size: 11px;
-            color: #4f6770;
+            color: #5a6770;
             line-height: 1.4;
+        }
+
+        .schedule-row-school {
+            font-size: 11px;
+            color: #5a6770;
+            line-height: 1.4;
+            margin-top: 2px;
         }
 
         .schedule-row-meta {
@@ -499,10 +626,10 @@ $progressColor = "rgb($red, $green, 0)";
             gap: 4px;
             padding: 4px 8px;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.72);
-            border: 1px solid rgba(15, 23, 42, 0.06);
+            background: rgba(4, 63, 49, 0.06);
+            border: 1px solid rgba(4, 63, 49, 0.08);
             font-size: 10px;
-            color: #455a64;
+            color: #36515b;
             line-height: 1;
         }
 
@@ -520,18 +647,66 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .schedule-status-badge.is-complete {
-            background: #dcfce7;
+            background: rgba(22, 163, 74, 0.14);
             color: #166534;
         }
 
         .schedule-status-badge.is-excused {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: rgba(245, 158, 11, 0.16);
+            color: #92400e;
         }
 
         .schedule-status-badge.is-pending {
-            background: #fef3c7;
-            color: #92400e;
+            background: rgba(15, 118, 110, 0.14);
+            color: #0f766e;
+        }
+
+        .schedule-empty-row {
+            flex: 0 0 260px;
+            background: rgba(255,255,255,0.96);
+            border-radius: 16px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.20);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+            scroll-snap-align: start;
+        }
+
+        .schedule-empty-row i {
+            font-size: 24px;
+            color: #095341;
+            margin-bottom: 8px;
+        }
+
+        .schedule-empty-row p {
+            margin: 0 0 4px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #173a3a;
+        }
+
+        .schedule-empty-row small {
+            color: #5a6770;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .schedule-see-all {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .schedule-see-all:hover {
+            color: #ffffff;
+            background: rgba(255,255,255,0.20);
         }
 
         .schedule-grid {
@@ -936,13 +1111,13 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .performance-card {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
             border-radius: 14px;
-            padding: 14px;
+            padding: 14px 14px 12px;
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            gap: 12px;
+            gap: 10px;
             box-shadow: 0 4px 16px rgba(0,0,0,.15);
             margin-bottom: 12px;
             cursor: pointer;
@@ -962,22 +1137,25 @@ $progressColor = "rgb($red, $green, 0)";
         .performance-level {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 10px;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 2px;
         }
 
         .level-badge {
             font-size: 9px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.16);
             color: white;
-            padding: 2px 6px;
-            border-radius: 6px;
+            padding: 3px 8px;
+            border-radius: 999px;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .performance-level strong {
-            font-size: 10px;
+            font-size: 11px;
             color: white;
+            text-align: right;
         }
 
         /* TIMELINE */
@@ -1009,11 +1187,11 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .timeline-item.done {
-            color: #0e8549;
+            color: #095341;
         }
 
         .timeline-item.done .dot {
-            background: #0e8549;
+            background: #095341;
         }
 
         /* RIGHT */
@@ -1025,8 +1203,8 @@ $progressColor = "rgb($red, $green, 0)";
 
         .progress-bar {
             width: 100%;
-            height: 6px;
-            background: white;
+            height: 7px;
+            background: rgba(255,255,255,0.18);
             border-radius: 999px;
             overflow: hidden;
         }
@@ -1034,18 +1212,19 @@ $progressColor = "rgb($red, $green, 0)";
         .progress-fill {
             height: 100%;
             width: {{ $kinerjaPercent }}%;
-            background: #0e8549;
+            background: #095341;
             border-radius: 999px;
             transition: width .4s ease;
         }
 
         .progress-text {
             text-align: center;
+            min-width: 38px;
         }
 
         .progress-text strong {
-            font-size: 14px;
-            color: #fcffff;
+            font-size: 13px;
+            color: #ffffff;
         }
 
         .progress-text small {
@@ -1058,7 +1237,7 @@ $progressColor = "rgb($red, $green, 0)";
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .progress-bar {
@@ -1069,8 +1248,8 @@ $progressColor = "rgb($red, $green, 0)";
             position: relative;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding-left: 20px;
+            gap: 10px;
+            padding-left: 22px;
         }
 
         .timeline-accordion::before {
@@ -1080,32 +1259,32 @@ $progressColor = "rgb($red, $green, 0)";
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            background: linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0.2));
             border-radius: 1px;
         }
 
         .timeline-item-accordion {
             position: relative;
             display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.96);
+            border: 1px solid rgba(255,255,255,0.3);
             transition: all 0.3s ease;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .timeline-item-accordion:hover {
-            transform: translateX(4px);
+            transform: translateX(2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .timeline-item-accordion.done {
-            background: #d4edda;
-            border-color: #c3e6cb;
-            border-left: 4px solid #28a745;
+            background: rgba(9, 83, 65, 0.12);
+            border-color: rgba(9, 83, 65, 0.2);
+            border-left: 4px solid #095341;
         }
 
         .timeline-item-accordion .timeline-icon {
@@ -1126,60 +1305,63 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .timeline-item-accordion.done .timeline-icon {
-            background: #28a745;
+            background: #095341;
             color: white;
         }
 
         .timeline-item-accordion .timeline-content {
             flex: 1;
+            min-width: 0;
         }
 
         .timeline-item-accordion .timeline-content strong {
             display: block;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
-            color: #495057;
-            margin-bottom: 4px;
+            color: #172a24;
+            margin-bottom: 3px;
         }
 
         .timeline-item-accordion .timeline-content small {
-            font-size: 11px;
-            color: #6c757d;
+            display: block;
+            font-size: 9px;
+            color: #66737a;
+            line-height: 1.35;
         }
 
         .timeline-item-accordion.done .timeline-content strong {
-            color: #155724;
+            color: #095341;
         }
 
         .timeline-item-accordion.done .timeline-content small {
-            color: #155724;
+            color: #095341;
         }
 
         .timeline-item-accordion.excused {
-            background: #eef6ff;
-            border-color: #d6e7ff;
-            border-left: 4px solid #3b82f6;
+            background: rgba(251, 181, 36, 0.12);
+            border-color: rgba(251, 181, 36, 0.22);
+            border-left: 4px solid #FBB524;
         }
 
         .timeline-item-accordion.excused .timeline-icon {
-            background: #3b82f6;
+            background: #FBB524;
             color: white;
         }
 
         .timeline-item-accordion.excused .timeline-content strong,
         .timeline-item-accordion.excused .timeline-content small {
-            color: #1d4ed8;
+            color: #a16207;
         }
 
         .timeline-item-accordion .timeline-pill {
             display: inline-flex;
             align-items: center;
-            margin-top: 6px;
-            padding: 3px 7px;
+            margin-top: 4px;
+            padding: 2px 7px;
             border-radius: 999px;
             background: #ffffff;
             color: #60717b;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 600;
             border: 1px solid #e6edf2;
         }
@@ -1187,13 +1369,13 @@ $progressColor = "rgb($red, $green, 0)";
         .timeline-item-accordion.done .timeline-pill {
             background: #f6fff8;
             border-color: #bfe5c9;
-            color: #166534;
+            color: #095341;
         }
 
         .timeline-item-accordion.excused .timeline-pill {
             background: #f8fbff;
-            border-color: #cfe1ff;
-            color: #1d4ed8;
+            border-color: #f5d27a;
+            color: #a16207;
         }
 
     </style>
@@ -1223,8 +1405,14 @@ $progressColor = "rgb($red, $green, 0)";
                 <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
                 <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
             </div>
-            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+            @if(Auth::user()->avatar)
+                <img src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                     class="rounded-circle border border-white" width="32" height="32" alt="User">
+            @else
+                <div class="rounded-circle border border-white d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #095341; color: #fff;">
+                    <i class="bx bx-user" style="font-size: 16px;"></i>
+                </div>
+            @endif
         </div>
     </div> --}}
 
@@ -1254,10 +1442,16 @@ $progressColor = "rgb($red, $green, 0)";
         <div class="id-card">
             <!-- Foto -->
             <div class="id-card-photo">
-                <img
-                    src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                    alt="User"
-                >
+                @if(Auth::user()->avatar)
+                    <img
+                        src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                        alt="User"
+                    >
+                @else
+                    <div class="d-flex align-items-center justify-content-center" style="width: 100%; height: 100%; background: #095341; color: #fff; border-radius: 10px;">
+                        <i class="bx bx-user" style="font-size: 20px;"></i>
+                    </div>
+                @endif
             </div>
 
             <!-- Detail -->
@@ -1300,87 +1494,86 @@ $progressColor = "rgb($red, $green, 0)";
         </div>
     </div> --}}
 
-    <div class="performance-card">
-        <div class="performance-level">
-            <span class="level-badge">LEVEL HARI INI</span>
-            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik Sekali' : ($kinerjaPercent >= 50 ? 'Baik' : ($kinerjaPercent >= 10 ? 'Cukup Baik' : 'Belum Ada Progress'))) }}</strong>
-        </div>
-
-        <div class="performance-progress">
-            <div class="progress-bar">
-                <div class="progress-fill" style="background: {{ $progressColor }}"></div>
+    <div class="stats-form">
+        <div class="performance-card">
+            <div class="performance-level">
+                <span class="level-badge">LEVEL HARI INI</span>
+                <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik Sekali' : ($kinerjaPercent >= 50 ? 'Baik' : ($kinerjaPercent >= 10 ? 'Cukup Baik' : 'Belum Ada Progress'))) }}</strong>
             </div>
-            <div class="progress-text">
-                <strong>{{ $kinerjaPercent }}%</strong>
+
+            <div class="performance-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="background: {{ $progressColor }}"></div>
+                </div>
+                <div class="progress-text">
+                    <strong>{{ $kinerjaPercent }}%</strong>
+                </div>
             </div>
-        </div>
 
-        <div class="text-center mt-2" style="font-size: 10px">
-            <a href="#" class="text-light text-decoration-none" data-bs-toggle="collapse" data-bs-target="#performanceAccordion" aria-expanded="false" aria-controls="performanceAccordion" style="font-size: 10px; font-weight: 500;">
-                Lihat Detail <i class="bx bx-chevron-down" id="detailArrow"></i>
-            </a>
-        </div>
-        <div class="collapse" id="performanceAccordion">
-            <div class="accordion-content" style="background: rgba(255, 255, 255, 0); border-radius: 0 0 14px 14px; padding: 16px 14px 12px 14px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
-                <h6 class="accordion-title" style="font-size: 10px; font-weight: 600; color: white; margin-bottom: 12px; text-align: center;">Detail Aktivitas Hari Ini</h6>
-                <div class="timeline-accordion">
-                    <!-- Presensi Masuk -->
-                    <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
-                        <div class="timeline-icon">
-                            <i class="bx bx-log-in"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <strong>Presensi Masuk</strong>
-                            <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
-                            <span class="timeline-pill">{{ $presensiMasukStatus === 'sudah' ? 'Aktivitas selesai' : 'Menunggu presensi' }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Presensi Mengajar - tampilkan per jadwal -->
-                    @if(count($teachingSteps) > 0)
-                        @foreach($teachingSteps as $step)
-                        <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : ($step['status'] === 'excused' ? 'excused' : '') }}">
+            <div class="text-center mt-2" style="font-size: 10px">
+                <a href="#" class="text-light text-decoration-none" data-bs-toggle="collapse" data-bs-target="#performanceAccordion" aria-expanded="false" aria-controls="performanceAccordion" style="font-size: 10px; font-weight: 500;">
+                    Lihat Detail <i class="bx bx-chevron-down" id="detailArrow"></i>
+                </a>
+            </div>
+            <div class="collapse" id="performanceAccordion">
+                <div class="accordion-content" style="background: rgba(255, 255, 255, 0); border-radius: 0 0 14px 14px; padding: 16px 14px 12px 14px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <h6 class="accordion-title" style="font-size: 10px; font-weight: 600; color: white; margin-bottom: 12px; text-align: center;">Detail Aktivitas Hari Ini</h6>
+                    <div class="timeline-accordion">
+                        <!-- Presensi Masuk -->
+                        <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
                             <div class="timeline-icon">
-                                <i class="bx bx-chalkboard"></i>
+                                <i class="bx bx-log-in"></i>
                             </div>
                             <div class="timeline-content">
-                                <strong>{{ $step['label'] }}</strong>
-                                <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : ($step['status'] === 'excused' ? 'Izin disetujui' : 'Belum dilakukan') }}</small>
-                                @if(!empty($step['subtitle']))
-                                    <span class="timeline-pill">{{ $step['subtitle'] }}</span>
-                                @endif
+                                <strong>Presensi Masuk</strong>
+                                <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                                <span class="timeline-pill">{{ $presensiMasukStatus === 'sudah' ? 'Aktivitas selesai' : 'Menunggu presensi' }}</span>
                             </div>
                         </div>
-                        @endforeach
-                    @endif
 
-                    <!-- Presensi Keluar -->
-                    <div class="timeline-item-accordion {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
-                        <div class="timeline-icon">
-                            <i class="bx bx-log-out"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <strong>Presensi Keluar</strong>
-                            <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
-                            <span class="timeline-pill">{{ $presensiKeluarStatus === 'sudah' ? 'Aktivitas selesai' : 'Menunggu presensi' }}</span>
+                        <!-- Presensi Mengajar - tampilkan per jadwal -->
+                        @if(count($teachingSteps) > 0)
+                            @foreach($teachingSteps as $step)
+                            <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : ($step['status'] === 'excused' ? 'excused' : '') }}">
+                                <div class="timeline-icon">
+                                    <i class="bx bx-chalkboard"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <strong>{{ $step['label'] }}</strong>
+                                    <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : ($step['status'] === 'excused' ? 'Izin disetujui' : 'Belum dilakukan') }}</small>
+                                    @if(!empty($step['subtitle']))
+                                        <span class="timeline-pill">{{ $step['subtitle'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        @endif
+
+                        <!-- Presensi Keluar -->
+                        <div class="timeline-item-accordion {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
+                            <div class="timeline-icon">
+                                <i class="bx bx-log-out"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <strong>Presensi Keluar</strong>
+                                <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                                <span class="timeline-pill">{{ $presensiKeluarStatus === 'sudah' ? 'Aktivitas selesai' : 'Menunggu presensi' }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
+    <div class="text-center" style="margin-bottom: 10px; font-style: italic; font-size: 11px;">Aktivitas Presensi Bulan {{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->locale('id')->monthName }} {{ $currentYear }}</div>
 
-    <small class="name-form" style="font-style: italic">Aktivitas Presensi Bulan {{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->locale('id')->monthName }} {{ $currentYear }}</small>
-
-    <div class="stats-form">
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="icon-container">
                     <i class="bx bx-check-circle text-success"></i>
                 </div>
                 <h6>{{ $kehadiranPercent }}%</h6>
-                <small>Kehadiran</small>
+                <small>Ketertiban</small>
             </div>
             <div class="stat-item">
                 <div class="icon-container">
@@ -1408,164 +1601,65 @@ $progressColor = "rgb($red, $green, 0)";
         </div>
     </div>
 
-    <small>Layanan</small>
+    <div class="services-header">
+        <small>Layanan</small>
+        <a href="{{ url('/mobile/menu-layanan') }}" class="services-see-all" data-no-loader="true" onclick="event.preventDefault(); window.location.href='{{ url('/mobile/menu-layanan') }}'; return false;">See All</a>
+    </div>
 
     <!-- Services Form -->
     <div class="services-form">
         <div class="services-grid" id="servicesGrid">
             <div class="service-wrapper">
-                <a href="{{ route('mobile.presensi') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="{{ route('mobile.presensi') }}" class="service-item icon-card">
+                    <i class="bx bx-qr-scan"></i>
                 </a>
                 <div class="service-label">Presensi</div>
             </div>
             <div class="service-wrapper">
-                <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/2.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-chalkboard" style="position: relative; z-index: 1;"></i> --}}
+                <a href="{{ route('mobile.teaching-attendances') }}" class="service-item icon-card">
+                    <i class="bx bx-chalkboard"></i>
                 </a>
-                <div class="service-label">Presensi Mengajar</div>
+                <div class="service-label">Mengajar</div>
             </div>
             <div class="service-wrapper">
-                <a href="{{ route('mobile.izin', ['type' => 'tidak_masuk']) }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/3.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="{{ route('mobile.izin', ['type' => 'tidak_masuk']) }}" class="service-item icon-card">
+                    <i class="bx bx-user-x"></i>
                 </a>
-                <div class="service-label">Izin Tidak Masuk</div>
+                <div class="service-label">Izin</div>
             </div>
             <div class="service-wrapper">
-                <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/3.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-calendar-star" style="position: relative; z-index: 1;"></i> --}}
+                <a href="{{ route('mobile.profile') }}" class="service-item icon-card">
+                    <i class="bx bx-user"></i>
                 </a>
-                <div class="service-label">Izin Cuti</div>
+                <div class="service-label">Profil</div>
             </div>
             <div class="service-wrapper">
-                <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/4.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-time-five" style="position: relative; z-index: 1;"></i> --}}
+                <a href="{{ url('/mobile/menu-layanan') }}" class="service-item menu-all-card" data-no-loader="true" onclick="event.preventDefault(); window.location.href='{{ url('/mobile/menu-layanan') }}'; return false;">
+                    <i class="bx bx-grid-alt"></i>
                 </a>
-                <div class="service-label">Izin Terlambat</div>
+                <div class="service-label">See All</div>
             </div>
-            <div class="service-wrapper">
-                <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/5.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-plus-medical" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Izin Sakit</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/6.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-briefcase"></i> --}}
-                </a>
-                <div class="service-label">Izin Dinas Luar</div>
-            </div>
-            <div id="viewAllBtn" class="service-wrapper">
-                <a href="#" class="service-item" onclick="return toggleServices(event)">
-                    <img src="{{ asset('images/menu_icon/12.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-plus" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label" id="serviceLabel">Lihat Semua</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.jadwal') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/7.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-calendar" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Jadwal Mengajar</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.profile') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/8.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-user" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Profile</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.laporan') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/11.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-file" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Laporan</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/9.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-cog" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Pengaturan</div>
-            </div>
-            @if(Auth::user()->pemenuhan_beban_kerja_lain)
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.izin', ['type' => 'mengajar_sekolah_lain']) }}" class="service-item" style="background: #fff; border: 1px solid rgba(0,75,76,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                    <i class="bx bx-buildings" style="position: relative; z-index: 1;"></i>
-                </a>
-                <div class="service-label">Mengajar Sekolah Lain</div>
-            </div>
-            @endif
-
-            @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/10.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-edit" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Kelola Izin</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/13.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-calendar-check" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Data Presensi</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.monitor-jurnal-mengajar') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/7.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Jurnal Mengajar</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.academic-calendar-approvals') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/11.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Approval Event</div>
-            </div>
-
-            @endif
         </div>
     </div>
 
     <script>
-        function toggleServices(event) {
-            event.preventDefault();
-
-            const extraServices = document.querySelectorAll('.extra-service');
-            const viewAllBtn = document.getElementById('viewAllBtn');
-            const servicesGrid = document.getElementById('servicesGrid');
-            const label = document.getElementById('serviceLabel');
-
-            const isHidden = !extraServices[0].classList.contains('show');
-
-            extraServices.forEach(service => {
-                service.classList.toggle('show', isHidden);
-            });
-
-            if (isHidden) {
-                // Move button to the end
-                servicesGrid.appendChild(viewAllBtn);
-                label.textContent = 'Tutup';
-            } else {
-                // Move button back to original position (before first extra-service)
-                const firstExtra = extraServices[0];
-                servicesGrid.insertBefore(viewAllBtn, firstExtra);
-                label.textContent = 'Lihat Semua';
-            }
-        }
-
         function togglePerformanceDetails() {
             const modal = new bootstrap.Modal(document.getElementById('performanceModal'));
             modal.show();
+        }
+
+        function prefetchMenuLayanan() {
+            const href = @json(url('/mobile/menu-layanan'));
+            if (document.querySelector('link[data-prefetch-menu-layanan="true"]')) {
+                return;
+            }
+
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.as = 'document';
+            link.href = href;
+            link.setAttribute('data-prefetch-menu-layanan', 'true');
+            document.head.appendChild(link);
         }
 
         // Handle accordion toggle text change and icon rotation
@@ -1573,6 +1667,17 @@ $progressColor = "rgb($red, $green, 0)";
             const accordion = document.getElementById('performanceAccordion');
             const detailLink = document.querySelector('.performance-card a[data-bs-toggle="collapse"]');
             const detailIcon = document.getElementById('detailArrow');
+            const header = document.querySelector('.mobile-header');
+            const servicesSeeAll = document.querySelector('.services-see-all');
+            const servicesSeeAllCard = document.querySelector('.menu-all-card');
+
+            const syncHeaderState = function () {
+                if (!header) {
+                    return;
+                }
+
+                header.classList.toggle('scrolled', window.scrollY > 10);
+            };
 
             if (accordion && detailLink && detailIcon) {
                 accordion.addEventListener('show.bs.collapse', function() {
@@ -1582,6 +1687,19 @@ $progressColor = "rgb($red, $green, 0)";
                 accordion.addEventListener('hide.bs.collapse', function() {
                     detailLink.innerHTML = 'Lihat Detail <i class="bx bx-chevron-down" id="detailArrow"></i>';
                 });
+            }
+
+            syncHeaderState();
+            window.addEventListener('scroll', syncHeaderState, { passive: true });
+
+            if (servicesSeeAll) {
+                servicesSeeAll.addEventListener('mouseenter', prefetchMenuLayanan, { once: true });
+                servicesSeeAll.addEventListener('touchstart', prefetchMenuLayanan, { once: true, passive: true });
+            }
+
+            if (servicesSeeAllCard) {
+                servicesSeeAllCard.addEventListener('mouseenter', prefetchMenuLayanan, { once: true });
+                servicesSeeAllCard.addEventListener('touchstart', prefetchMenuLayanan, { once: true, passive: true });
             }
         });
 
@@ -1655,16 +1773,8 @@ $progressColor = "rgb($red, $green, 0)";
         <div class="schedule-section-header">
             <div>
                 <h6 class="schedule-section-title">Jadwal Mengajar Aktif Hari Ini</h6>
-                <p class="schedule-section-subtitle">
-                    Hanya jadwal dari periode mengajar yang aktif pada hari ini yang ditampilkan.
-                </p>
             </div>
-            @if(!empty($activeTeachingPeriod))
-                <span class="schedule-period-pill">
-                    <i class="bx bx-calendar-event"></i>
-                    {{ $activeTeachingPeriod->semester_label }}
-                </span>
-            @endif
+            <a href="{{ route('mobile.jadwal') }}" class="schedule-see-all">See All</a>
         </div>
 
         @if($todaySchedulesWithAttendance->count() > 0)
@@ -1680,8 +1790,13 @@ $progressColor = "rgb($red, $green, 0)";
                         <div class="schedule-row-body">
                             <div class="schedule-row-top">
                                 <div>
+                                    <div class="schedule-row-time">
+                                        <i class="bx bx-time-five"></i>
+                                        <span>{{ $schedule->time_range }}</span>
+                                    </div>
                                     <div class="schedule-row-subject">{{ $schedule->subject ?: 'Mata pelajaran belum diisi' }}</div>
                                     <div class="schedule-row-class">{{ $schedule->class_label ?: 'Kelas belum diatur' }}</div>
+                                    <div class="schedule-row-school">{{ $schedule->school_name ?? Auth::user()->madrasah?->name ?? 'Asal sekolah belum diatur' }}</div>
                                 </div>
                                 <span class="schedule-status-badge {{ $statusClass }}">
                                     <i class="bx {{ $schedule->attendance_status === 'sudah' ? 'bx-check-circle' : ($schedule->attendance_status === 'izin' ? 'bx-info-circle' : 'bx-time-five') }}"></i>
@@ -1689,14 +1804,15 @@ $progressColor = "rgb($red, $green, 0)";
                                 </span>
                             </div>
                             <div class="schedule-row-meta">
-                                <span class="schedule-meta-chip">
-                                    <i class="bx bx-time-five"></i>
-                                    {{ $schedule->time_range }}
-                                </span>
                                 @if(!empty($schedule->period))
                                     <span class="schedule-meta-chip">
                                         <i class="bx bx-calendar"></i>
                                         {{ $schedule->period->summary_label }}
+                                    </span>
+                                @else
+                                    <span class="schedule-meta-chip">
+                                        <i class="bx bx-buildings"></i>
+                                        {{ Auth::user()->madrasah?->name ?? 'Asal sekolah belum diatur' }}
                                     </span>
                                 @endif
                             </div>
@@ -1705,12 +1821,14 @@ $progressColor = "rgb($red, $green, 0)";
                 @endforeach
             </div>
         @else
-            <div class="no-schedule">
-                <i class="bx bx-calendar-x"></i>
-                <p>Tidak ada jadwal mengajar aktif hari ini</p>
-                <small>
-                    {{ !empty($activeTeachingPeriod) ? 'Jadwal untuk hari ini belum tersedia pada periode aktif.' : 'Belum ada periode jadwal mengajar yang aktif pada hari ini.' }}
-                </small>
+            <div class="schedule-list">
+                <div class="schedule-empty-row">
+                    <i class="bx bx-calendar-x"></i>
+                    <p>Tidak ada jadwal hari ini</p>
+                    <small>
+                        {{ !empty($activeTeachingPeriod) ? 'Periode aktif sudah tersedia, tetapi belum ada jadwal untuk hari ini.' : 'Belum ada periode jadwal mengajar yang aktif saat ini.' }}
+                    </small>
+                </div>
             </div>
         @endif
     </div>
@@ -1811,14 +1929,6 @@ $progressColor = "rgb($red, $green, 0)";
             </div>
             @endif
         </div>
-    </div>
-
-    <small>Informasi Aplikasi</small>
-
-    <!-- Information Section -->
-    <div class="schedule-section">
-        {{-- <h6 class="section-title">Informasi Aplikasi</h6> --}}
-        <!-- Content will be added here -->
     </div>
 
     <!-- Performance Details Modal -->

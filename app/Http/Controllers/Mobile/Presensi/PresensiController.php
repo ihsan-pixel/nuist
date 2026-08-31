@@ -530,6 +530,13 @@ class PresensiController extends \App\Http\Controllers\Controller
             ],
         ]);
 
+        $selfiePath = $this->processAndSaveSelfie(
+            $request->input('selfie_data'),
+            $user->id,
+            $tanggal,
+            $isPresensiMasuk
+        );
+
         // Prevent double submission for masuk if already exists
         if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {
             return response()->json([
@@ -584,6 +591,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed' => $request->speed,
                 'device_info' => $request->device_info,
                 'location_readings' => $request->location_readings,
+                'selfie_masuk_path' => $selfiePath,
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 'is_fake_location' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis' => $locationValidation['analysis'] ?? null,
@@ -625,6 +633,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed_keluar' => $request->speed,
                 'device_info_keluar' => $request->device_info,
                 'location_readings_keluar' => $request->location_readings,
+                'selfie_keluar_path' => $selfiePath,
                 'keterangan' => $newKeterangan,
                 'is_fake_location_keluar' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,

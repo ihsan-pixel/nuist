@@ -124,6 +124,9 @@ Route::domain('sekolah.nuist.id')->group(function () {
             ->whereNumber('id');
 
         Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/mobile/menu-layanan', function () {
+            return view('mobile.menu-layanan');
+        })->name('mobile.menu-layanan');
 
         Route::middleware(['role:super_admin,admin,pengurus'])->prefix('masterdata')->group(function () {
             Route::get('/admin', [AdminController::class, 'index']);
@@ -1503,6 +1506,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/school-kiosk/enroll-face', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'enrollFace'])->name('school-kiosk.enroll-face');
     Route::post('/school-kiosk/auto-presensi', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'autoSubmit'])->name('school-kiosk.auto-submit');
     Route::post('/school-kiosk/presensi', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'submit'])->name('school-kiosk.submit');
+    Route::get('/kiosk-face-enrollment', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'index'])->name('kiosk.face-enrollment.index');
+    Route::post('/kiosk-face-enrollment/sessions', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'startSession'])->name('kiosk.face-enrollment.sessions.start');
+    Route::post('/kiosk-face-enrollment/sessions/{session}/captures', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'storeCapture'])->name('kiosk.face-enrollment.captures.store');
+    Route::post('/kiosk-face-enrollment/sessions/{session}/complete', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'complete'])->name('kiosk.face-enrollment.complete');
 
     // Laporan Presensi Mingguan - Super Admin Only
     Route::middleware(['role:super_admin'])->group(function () {

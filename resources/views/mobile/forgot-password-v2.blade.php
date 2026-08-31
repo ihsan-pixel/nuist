@@ -11,60 +11,68 @@
 @section('content')
     @include('mobile._auth-loader')
     <div class="mobile-auth-page">
-        <div class="forgot-card">
-            <div class="card-top">
+        <div class="login-shell">
+            <div class="login-backdrop" aria-hidden="true">
+                <span class="backdrop-orb backdrop-orb-left"></span>
+                <span class="backdrop-orb backdrop-orb-right"></span>
             </div>
 
-            <div class="card-body">
-                <div class="brand-pill">
-                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
+            <div class="auth-header">
+                <div class="brand-card brand-card-inline">
+                    <img src="{{ asset('images/nuist_logo.png') }}" alt="Nuist">
                 </div>
-                <h1 class="welcome-title">Welcome!</h1>
-                <p class="welcome-subtitle">Reset your password through your email</p>
 
-                {{-- <img
-                    class="hero-illustration"
-                    src="{{ asset('build/images/verification-img.png') }}"
-                    alt="Ilustrasi forgot password Nuist"
-                > --}}
+                <h1 class="welcome-title">Lupa Password</h1>
+                <p class="welcome-subtitle">Masukkan email akun Anda untuk menerima tautan reset password.</p>
+            </div>
 
-                @if (session('status'))
-                    <div class="status-stack">
-                        <div class="status-alert success">{{ session('status') }}</div>
+            <div class="forgot-card welcome-card">
+                <div class="card-body">
+                    @if (session('status'))
+                        <div class="status-stack">
+                            <div class="status-alert success">{{ session('status') }}</div>
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="status-stack">
+                            <div class="status-alert error">Periksa kembali email yang Anda masukkan.</div>
+                        </div>
+                    @endif
+
+                    <div class="login-panel" id="loginPanel">
+                        <form class="forgot-form login-form" method="POST" action="{{ route('mobile.password.email') }}">
+                            @csrf
+
+                            <div class="auth-field-group">
+                                <label class="input-label" for="email">Email</label>
+                                <div class="field-shell">
+                                    <span class="field-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" role="presentation">
+                                            <path d="M12 13.5a5.5 5.5 0 1 0-5.5-5.5 5.5 5.5 0 0 0 5.5 5.5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"/>
+                                        </svg>
+                                    </span>
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        class="input-control"
+                                        value="{{ old('email', request()->cookie('mobile_login_email')) }}"
+                                        placeholder="Masukkan email akun"
+                                        required
+                                    >
+                                </div>
+                                @error('email')
+                                    <div class="field-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <button class="submit-btn" type="submit">Kirim Tautan Reset</button>
+                            <div class="form-actions">
+                                <a class="forgot-link" href="{{ route('mobile.login') }}">Kembali ke Login</a>
+                            </div>
+                        </form>
                     </div>
-                @endif
-
-                @if ($errors->any())
-                    <div class="status-stack">
-                        <div class="status-alert error">Periksa kembali email yang Anda masukkan.</div>
-                    </div>
-                @endif
-
-                <form class="forgot-form" method="POST" action="{{ route('mobile.password.email') }}">
-                    @csrf
-
-                    <div class="input-group">
-                        <label class="input-label" for="email">Email</label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            class="input-control"
-                            value="{{ old('email') }}"
-                            placeholder="Masukkan email akun"
-                            required
-                        >
-                        @error('email')
-                            <div class="field-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <button class="submit-btn" type="submit">Kirim Tautan Reset</button>
-                    <a class="secondary-btn" href="{{ route('mobile.login') }}">Kembali ke Login</a>
-                </form>
-
-                <div class="panel-footer">
-                    Ingat password Anda? <a href="{{ route('mobile.login') }}">Masuk di sini</a>
                 </div>
             </div>
         </div>
