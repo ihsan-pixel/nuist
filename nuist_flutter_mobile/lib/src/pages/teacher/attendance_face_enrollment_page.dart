@@ -735,6 +735,80 @@ class _AttendanceFaceEnrollmentPageState
     );
   }
 
+  void _logEnrollmentSampleDiagnostics(_EnrollmentSample sample) {
+    final stats = _embeddingStats(sample.embedding);
+    final face = _latestFace;
+    final yaw = face?.headEulerAngleY ?? 0.0;
+    final pitch = face?.headEulerAngleX ?? 0.0;
+    final roll = face?.headEulerAngleZ ?? 0.0;
+    debugPrint(
+      '[FACE_ENROLL][SAMPLE] '
+      'pose=${sample.pose} '
+      'dimension=${sample.embedding.length} '
+      'norm=${sample.norm.toStringAsFixed(6)} '
+      'valid_frames=${_poseCandidateState.validFrameCount} '
+      'stable_ms=${_poseCandidateState.startedAt == null ? 0 : DateTime.now().difference(_poseCandidateState.startedAt!).inMilliseconds} '
+      'yaw=${yaw.toStringAsFixed(2)} '
+      'pitch=${pitch.toStringAsFixed(2)} '
+      'roll=${roll.toStringAsFixed(2)}',
+    );
+    debugPrint(
+      '[FACE_ENROLL][EMBED_STATS] '
+      'pose=${sample.pose} '
+      'norm=${stats.norm.toStringAsFixed(6)} '
+      'mean=${stats.mean.toStringAsFixed(6)} '
+      'stddev=${stats.stddev.toStringAsFixed(6)} '
+      'min=${stats.min.toStringAsFixed(6)} '
+      'max=${stats.max.toStringAsFixed(6)}',
+    );
+    debugPrint(
+      '[FACE_ENROLL][POSE_ACCEPT] '
+      'pose=${sample.pose} '
+      'yaw=${yaw.toStringAsFixed(2)} '
+      'pitch=${pitch.toStringAsFixed(2)} '
+      'roll=${roll.toStringAsFixed(2)}',
+    );
+  }
+
+  void _logPairwiseDiagnostics() {
+    if (_sampleEmbeddings.length != 5) {
+      return;
+    }
+
+    final pairwise = <String, double>{
+      'front_left': _math.cosineSimilarity(_sampleEmbeddings[0], _sampleEmbeddings[1]),
+      'front_right': _math.cosineSimilarity(_sampleEmbeddings[0], _sampleEmbeddings[2]),
+      'front_up': _math.cosineSimilarity(_sampleEmbeddings[0], _sampleEmbeddings[3]),
+      'front_down': _math.cosineSimilarity(_sampleEmbeddings[0], _sampleEmbeddings[4]),
+      'left_right': _math.cosineSimilarity(_sampleEmbeddings[1], _sampleEmbeddings[2]),
+      'left_up': _math.cosineSimilarity(_sampleEmbeddings[1], _sampleEmbeddings[3]),
+      'left_down': _math.cosineSimilarity(_sampleEmbeddings[1], _sampleEmbeddings[4]),
+      'right_up': _math.cosineSimilarity(_sampleEmbeddings[2], _sampleEmbeddings[3]),
+      'right_down': _math.cosineSimilarity(_sampleEmbeddings[2], _sampleEmbeddings[4]),
+      'up_down': _math.cosineSimilarity(_sampleEmbeddings[3], _sampleEmbeddings[4]),
+    };
+    final values = pairwise.values.toList(growable: false);
+    final min = values.reduce((a, b) => a < b ? a : b);
+    final max = values.reduce((a, b) => a > b ? a : b);
+    final mean = values.reduce((a, b) => a + b) / values.length;
+    debugPrint(
+      '[FACE_ENROLL][PAIRWISE] '
+      'front_left=${pairwise['front_left']!.toStringAsFixed(6)} '
+      'front_right=${pairwise['front_right']!.toStringAsFixed(6)} '
+      'front_up=${pairwise['front_up']!.toStringAsFixed(6)} '
+      'front_down=${pairwise['front_down']!.toStringAsFixed(6)} '
+      'left_right=${pairwise['left_right']!.toStringAsFixed(6)} '
+      'left_up=${pairwise['left_up']!.toStringAsFixed(6)} '
+      'left_down=${pairwise['left_down']!.toStringAsFixed(6)} '
+      'right_up=${pairwise['right_up']!.toStringAsFixed(6)} '
+      'right_down=${pairwise['right_down']!.toStringAsFixed(6)} '
+      'up_down=${pairwise['up_down']!.toStringAsFixed(6)} '
+      'min=${min.toStringAsFixed(6)} '
+      'max=${max.toStringAsFixed(6)} '
+      'mean=${mean.toStringAsFixed(6)}',
+    );
+  }
+
   void _logCentroidDiagnostics(List<double> centroid) {
     if (_sampleEmbeddings.isEmpty) {
       return;
@@ -753,14 +827,38 @@ class _AttendanceFaceEnrollmentPageState
     }
 
     final min = similarities.reduce((a, b) => a < b ? a : b);
+    final max = similarities.reduce((a, b) => a > b ? a : b);
     final mean = similarities.reduce((a, b) => a + b) / similarities.length;
     debugPrint(
-      '[BIOMETRIC_ENROLL][CENTROID_CHECK] '
+      '[FACE_ENROLL][CENTROID] '
       'sample_count=${_sampleEmbeddings.length} '
-      'dimension=${centroid.length} '
+      'centroid_norm=${_embeddingStats(centroid).norm.toStringAsFixed(6)} '
+      'front=${similarities.isNotEmpty ? similarities[0].toStringAsFixed(6) : "0.000000"} '
+      'left=${similarities.length > 1 ? similarities[1].toStringAsFixed(6) : "0.000000"} '
+      'right=${similarities.length > 2 ? similarities[2].toStringAsFixed(6) : "0.000000"} '
+      'up=${similarities.length > 3 ? similarities[3].toStringAsFixed(6) : "0.000000"} '
+      'down=${similarities.length > 4 ? similarities[4].toStringAsFixed(6) : "0.000000"} '
       'min=${min.toStringAsFixed(6)} '
+      'max=${max.toStringAsFixed(6)} '
       'mean=${mean.toStringAsFixed(6)}',
     );
+  }
+
+  _EmbeddingStats _embeddingStats(List<double> values) {
+    if (values.isEmpty) {
+      return const _EmbeddingStats(0, 0, 0, 0, 0);
+    }
+
+    final norm = _math.l2Norm(values);
+    final mean = values.reduce((a, b) => a + b) / values.length;
+    final variance = values.fold<double>(0.0, (acc, value) {
+      final diff = value - mean;
+      return acc + diff * diff;
+    }) / values.length;
+    final stddev = math.sqrt(variance);
+    final min = values.reduce((a, b) => a < b ? a : b);
+    final max = values.reduce((a, b) => a > b ? a : b);
+    return _EmbeddingStats(norm, mean, stddev, min, max);
   }
 
   String _fingerprintEmbedding(List<double> values) {
@@ -1028,6 +1126,7 @@ class _AttendanceFaceEnrollmentPageState
         'finite=${sample.embedding.every((value) => value.isFinite)} '
         'norm=${sample.norm.toStringAsFixed(6)}',
       );
+      _logEnrollmentSampleDiagnostics(sample);
 
       debugPrint(
         '[FACE_ENROLL][POSE_COMPLETE] '
@@ -1046,6 +1145,7 @@ class _AttendanceFaceEnrollmentPageState
       _logConsistencyDiagnostics();
 
       if (_sampleEmbeddings.length == 5) {
+        _logPairwiseDiagnostics();
         debugPrint('[FACE_ENROLL][AUTO_SUBMIT] sampleCount=5');
         await _submitEnrollment();
         return;
@@ -1571,4 +1671,14 @@ class PoseValidationResult {
   final bool valid;
   final String? failureReason;
   final String rule;
+}
+
+class _EmbeddingStats {
+  const _EmbeddingStats(this.norm, this.mean, this.stddev, this.min, this.max);
+
+  final double norm;
+  final double mean;
+  final double stddev;
+  final double min;
+  final double max;
 }

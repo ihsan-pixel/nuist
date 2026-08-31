@@ -3,22 +3,36 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-class FaceRecognitionModelInfo {
-  const FaceRecognitionModelInfo({
-    required this.engine,
-    required this.model,
-    required this.modelVersion,
-    required this.dimension,
+class FaceEmbeddingModelConfig {
+  const FaceEmbeddingModelConfig({
+    required this.name,
+    required this.version,
+    required this.assetPath,
     required this.inputWidth,
     required this.inputHeight,
+    required this.channels,
+    required this.outputDimension,
+    required this.normalization,
+    required this.colorOrder,
+    required this.tensorLayout,
+    this.engine = 'tflite',
   });
 
-  final String engine;
-  final String model;
-  final String modelVersion;
-  final int dimension;
+  final String name;
+  final String version;
+  final String assetPath;
   final int inputWidth;
   final int inputHeight;
+  final int channels;
+  final int outputDimension;
+  final String normalization;
+  final String colorOrder;
+  final String tensorLayout;
+  final String engine;
+
+  String get model => name;
+  String get modelVersion => version;
+  int get dimension => outputDimension;
 }
 
 class FaceModelContractException implements Exception {
@@ -34,30 +48,34 @@ class FaceModelContractException implements Exception {
 class FaceRecognitionService {
   FaceRecognitionService({
     Future<Interpreter> Function()? interpreterFactory,
-    FaceRecognitionModelInfo? modelInfo,
+    FaceEmbeddingModelConfig? modelConfig,
   })  : _interpreterFactory = interpreterFactory ?? _defaultInterpreterFactory,
-        modelInfo = modelInfo ??
-            const FaceRecognitionModelInfo(
-              engine: 'tflite',
-              model: 'mobilefacenet',
-              modelVersion: 'mobilefacenet-be4bc7cf',
-              dimension: 192,
+        modelConfig = modelConfig ??
+            const FaceEmbeddingModelConfig(
+              name: 'mobilefacenet',
+              version: 'mobilefacenet-be4bc7cf',
+              assetPath: 'assets/models/mobilefacenet.tflite',
               inputWidth: 112,
               inputHeight: 112,
+              channels: 3,
+              outputDimension: 192,
+              normalization: '(pixel - 127.5) / 128.0',
+              colorOrder: 'rgb',
+              tensorLayout: 'nhwc',
             );
 
-  static const String _assetPath = 'assets/models/mobilefacenet.tflite';
   static const List<int> _expectedInputShape = <int>[1, 112, 112, 3];
   static const List<int> _expectedOutputShape = <int>[1, 192];
 
   final Future<Interpreter> Function() _interpreterFactory;
-  final FaceRecognitionModelInfo modelInfo;
+  final FaceEmbeddingModelConfig modelConfig;
+  FaceEmbeddingModelConfig get modelInfo => modelConfig;
 
   Interpreter? _interpreter;
   bool _initialized = false;
 
   static Future<Interpreter> _defaultInterpreterFactory() {
-    return Interpreter.fromAsset(_assetPath);
+    return Interpreter.fromAsset('assets/models/mobilefacenet.tflite');
   }
 
   bool get isInitialized => _initialized;
@@ -91,9 +109,10 @@ class FaceRecognitionService {
     }
 
     final normalizedInput = _prepareInput(decoded);
+    _logInputStats(normalizedInput);
     final output = List.generate(
       1,
-      (_) => List<double>.filled(modelInfo.dimension, 0.0, growable: false),
+      (_) => List<double>.filled(modelConfig.dimension, 0.0, growable: false),
       growable: false,
     );
 
@@ -109,14 +128,15 @@ class FaceRecognitionService {
     debugPrint(
       '[FACE_DEBUG][MODEL_CONTRACT] '
       'outputTensorShape=${outputTensor.shape} '
-      'providedOutputShape=[1, ${modelInfo.dimension}]',
+      'providedOutputShape=[1, ${modelConfig.dimension}]',
     );
 
     interpreter.run(normalizedInput, output);
 
     final rawEmbedding = List<double>.from(output[0]);
+    _logRawOutputStats(rawEmbedding);
 
-    if (rawEmbedding.length != modelInfo.dimension) {
+    if (rawEmbedding.length != modelConfig.dimension) {
       throw FaceModelContractException(
         'FACE_MODEL_OUTPUT_INVALID',
         'Unexpected embedding length: ${rawEmbedding.length}.',
@@ -132,6 +152,7 @@ class FaceRecognitionService {
     }
 
     final normalizedEmbedding = rawEmbedding.map((value) => value / norm).toList(growable: false);
+    _logNormalizedOutputStats(normalizedEmbedding);
     debugPrint(
       '[FACE_DEBUG][OK][TFLITE_INFERENCE] '
       'outputShape=[1,192] '
@@ -173,10 +194,10 @@ class FaceRecognitionService {
       );
     }
 
-    if (modelInfo.dimension != _expectedOutputShape[1]) {
+    if (modelConfig.dimension != _expectedOutputShape[1]) {
       throw FaceModelContractException(
         'FACE_MODEL_CONTRACT_INVALID',
-        'Model info dimension ${modelInfo.dimension} does not match output dimension ${_expectedOutputShape[1]}.',
+        'Model config dimension ${modelConfig.dimension} does not match output dimension ${_expectedOutputShape[1]}.',
       );
     }
   }
@@ -184,17 +205,17 @@ class FaceRecognitionService {
   List<List<List<List<double>>>> _prepareInput(img.Image source) {
     final resized = img.copyResize(
       source,
-      width: modelInfo.inputWidth,
-      height: modelInfo.inputHeight,
+      width: modelConfig.inputWidth,
+      height: modelConfig.inputHeight,
       interpolation: img.Interpolation.linear,
     );
 
     final buffer = List.generate(
       1,
       (_) => List.generate(
-        modelInfo.inputHeight,
+        modelConfig.inputHeight,
         (_) => List.generate(
-          modelInfo.inputWidth,
+          modelConfig.inputWidth,
           (_) => List<double>.filled(3, 0.0, growable: false),
           growable: false,
         ),
@@ -203,8 +224,8 @@ class FaceRecognitionService {
       growable: false,
     );
 
-    for (var y = 0; y < modelInfo.inputHeight; y++) {
-      for (var x = 0; x < modelInfo.inputWidth; x++) {
+    for (var y = 0; y < modelConfig.inputHeight; y++) {
+      for (var x = 0; x < modelConfig.inputWidth; x++) {
         final pixel = resized.getPixel(x, y);
         buffer[0][y][x][0] = (pixel.r.toDouble() - 127.5) / 128.0;
         buffer[0][y][x][1] = (pixel.g.toDouble() - 127.5) / 128.0;
@@ -213,6 +234,55 @@ class FaceRecognitionService {
     }
 
     return buffer;
+  }
+
+  void _logInputStats(List<List<List<List<double>>>> input) {
+    if (!kDebugMode) {
+      return;
+    }
+
+    final values = input.expand((b) => b).expand((row) => row).expand((pixel) => pixel).toList(growable: false);
+    _logVectorStats('[FACE_MODEL][INPUT_STATS]', values);
+  }
+
+  void _logRawOutputStats(List<double> values) {
+    if (!kDebugMode) {
+      return;
+    }
+    _logVectorStats('[FACE_MODEL][RAW_OUTPUT_STATS]', values);
+  }
+
+  void _logNormalizedOutputStats(List<double> values) {
+    if (!kDebugMode) {
+      return;
+    }
+    _logVectorStats('[FACE_MODEL][NORMALIZED_OUTPUT_STATS]', values);
+  }
+
+  void _logVectorStats(String tag, List<double> values) {
+    if (values.isEmpty) {
+      return;
+    }
+
+    final min = values.reduce((a, b) => a < b ? a : b);
+    final max = values.reduce((a, b) => a > b ? a : b);
+    final mean = values.reduce((a, b) => a + b) / values.length;
+    final variance = values.fold<double>(0.0, (acc, value) {
+      final diff = value - mean;
+      return acc + diff * diff;
+    }) / values.length;
+    final stddev = math.sqrt(variance);
+    final norm = _l2Norm(values);
+
+    debugPrint(
+      '$tag '
+      'dimension=${values.length} '
+      'norm=${norm.toStringAsFixed(6)} '
+      'mean=${mean.toStringAsFixed(6)} '
+      'stddev=${stddev.toStringAsFixed(6)} '
+      'min=${min.toStringAsFixed(6)} '
+      'max=${max.toStringAsFixed(6)}',
+    );
   }
 
   static double _l2Norm(List<double> values) {

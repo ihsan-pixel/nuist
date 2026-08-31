@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/services.dart';
@@ -62,12 +64,18 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   DateTime? _alignmentReadyAt;
   DateTime? _inferenceStartAt;
   DateTime? _apiVerifyStartAt;
+  int _frameSequence = 0;
+  int _lastAcceptedFrameSequence = 0;
+  DateTime? _lastAcceptedFrameAt;
+  Completer<_RecognitionFrameSnapshot>? _pendingSampleRequest;
+  Uint8List? _debugModelInputPreviewBytes;
+  String _debugModelInputLabel = 'Batch 0 • Sample 0/3';
   static const int _sampleTargetCount = 3;
   static const int _maxVerificationAttempts = 3;
-  static const Duration _sampleInterval = Duration(milliseconds: 220);
-  static const Duration _retryCooldown = Duration(milliseconds: 420);
+  static const Duration _retryCooldown = Duration(milliseconds: 320);
+  static const Duration _frameThrottle = Duration(milliseconds: 120);
+  static const Duration _faceStabilityWindow = Duration(milliseconds: 260);
   img.Image? _latestRgbFrame;
-  Face? _latestFace;
   bool _completed = false;
   bool _isDisposing = false;
   Future<void>? _cameraStopFuture;
@@ -163,10 +171,12 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       return;
     }
 
-    if (now.difference(_lastFrameAt).inMilliseconds < 70) {
+    if (now.difference(_lastFrameAt) < _frameThrottle) {
       return;
     }
     _lastFrameAt = now;
+    _frameSequence += 1;
+    final frameSeq = _frameSequence;
 
     _processingFrame = true;
     try {
@@ -181,7 +191,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       if (_completed || _isDisposing || !mounted) {
         return;
       }
-      final rgbFrame = _cameraImageConverter.convertToRgbImage(image);
       if (_completed || _isDisposing || !mounted) {
         return;
       }
@@ -190,11 +199,21 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         return;
       }
       final face = faces.isNotEmpty ? faces.first : null;
-      _latestRgbFrame = rgbFrame;
-      _latestFace = face;
+      if (face != null) {
+        _latestRgbFrame = _cameraImageConverter.convertToRgbImage(image);
+      } else {
+        _latestRgbFrame = null;
+      }
+      _maybeFulfillPendingSample(
+        frameSeq: frameSeq,
+        frame: _latestRgbFrame,
+        face: face,
+        capturedAt: now,
+      );
       final ready = _isFaceReady(face);
       if (face != null && _firstValidFaceAt == null) {
         _firstValidFaceAt = now;
+        _stableReadyAt ??= now;
       }
 
       if (!mounted) {
@@ -203,12 +222,14 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
       setState(() {
         _hasFace = face != null;
-        _readyToCapture = ready;
+        _readyToCapture = ready && _isFaceStable(now);
         _stableFrames = ready ? _stableFrames + 1 : 0;
         if (face == null) {
           _status = 'Wajah belum terdeteksi. Posisikan wajah di tengah bingkai.';
         } else if (ready) {
-          _status = 'Wajah terdeteksi. Silakan ambil scan.';
+          _status = _readyToCapture
+              ? 'Wajah stabil. Silakan ambil scan.'
+              : 'Tahan sebentar, wajah sedang distabilkan.';
           if (_stableFrames >= 1 && _stableReadyAt == null) {
             _stableReadyAt = now;
           }
@@ -412,7 +433,15 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       final code = verification['code']?.toString();
       final similarity = (verification['similarity'] as num?)?.toDouble();
       _similarityScore = similarity;
-      _verificationAttempts = verified ? 0 : _verificationAttempts + 1;
+      _verificationAttempts += 1;
+      debugPrint(
+        '[FACE_ATTENDANCE][VERIFY_RESULT] '
+        'attempt=$_verificationAttempts '
+        'verified=$verified '
+        'similarity=${similarity ?? ""} '
+        'threshold=${verification['threshold'] ?? ""} '
+        'code=${code ?? ""}',
+      );
 
       if (verified) {
         _completed = true;
@@ -449,10 +478,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         return;
       }
 
-      debugPrint(
-        '[FACE_ATTENDANCE][VERIFY_RESULT] verified=false '
-        'code=${code ?? ""} similarity=${similarity ?? ""}',
-      );
       if (_verificationAttempts >= _maxVerificationAttempts) {
         setState(() {
           _error = 'Wajah Tidak Cocok';
@@ -543,33 +568,40 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   }
 
   Future<_RecognitionBatch?> _collectRecognitionBatch() async {
-    final embeddings = <List<double>>[];
+    final samples = <_RecognitionFrameSnapshot>[];
+    final sampleVectors = <List<double>>[];
     final challenges = <String>{};
     double livenessTotal = 0.0;
-    Uint8List? latestImageBytes;
 
-    while (embeddings.length < _sampleTargetCount) {
+    while (samples.length < _sampleTargetCount) {
       if (_completed || _isDisposing || !mounted) {
         return null;
       }
 
-      final frame = _latestRgbFrame;
-      final face = _latestFace;
-      if (frame == null || face == null || !_isFaceReady(face)) {
-        _resetSampleBuffer();
+      final snapshot = await _waitForNextRecognitionFrame();
+      if (snapshot == null) {
         return null;
       }
 
+      final face = snapshot.face;
+      final frame = snapshot.frame;
+      if (frame == null || face == null || !_isFaceReady(face)) {
+        continue;
+      }
+
       final aligned = _cameraImageConverter.extractAlignedFaceCropFromRgb(frame, face);
-      final embeddingBytes = Uint8List.fromList(img.encodeJpg(aligned.crop));
+      final embeddingBytes = Uint8List.fromList(img.encodeJpg(aligned.crop, quality: 95));
+      _logAlignedCropDebug(
+        frameSeq: snapshot.frameSeq,
+        crop: aligned.crop,
+      );
       final embedding = await _recognitionService.generateEmbedding(embeddingBytes);
       if (_completed || _isDisposing || !mounted) {
         return null;
       }
 
       if (embedding.length != 192 || embedding.any((value) => !value.isFinite)) {
-        _resetSampleBuffer();
-        return null;
+        continue;
       }
 
       final liveness = _estimateLiveness(face);
@@ -578,22 +610,53 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
           .where((item) => item.isNotEmpty)
           .toList(growable: false);
 
-      embeddings.add(embedding);
+      if (mounted && kDebugMode) {
+        setState(() {
+          _debugModelInputPreviewBytes = Uint8List.fromList(embeddingBytes);
+          _debugModelInputLabel =
+              'Batch ${_verificationAttempts + 1} • Sample ${samples.length + 1}/3 • Frame ${snapshot.frameSeq}';
+        });
+      }
+
+      samples.add(snapshot.copyWith(
+        embedding: embedding,
+        livenessScore: (liveness['score'] as num).toDouble(),
+        challenges: sampleChallenges,
+      ));
+      sampleVectors.add(embedding);
       challenges.addAll(sampleChallenges);
       livenessTotal += (liveness['score'] as num).toDouble();
-      latestImageBytes = Uint8List.fromList(img.encodeJpg(frame));
-
-      if (embeddings.length < _sampleTargetCount) {
-        await Future<void>.delayed(_sampleInterval);
-      }
+      _logEmbeddingStats(samples.length, embedding);
+      debugPrint(
+        '[FACE_ATTENDANCE][SAMPLE_ACCEPT] '
+        'batch=${_verificationAttempts + 1} '
+        'sample=${samples.length} '
+        'frame_seq=${snapshot.frameSeq} '
+        'frame_age_ms=${snapshot.frameAgeMs} '
+        'delta_from_previous_ms=${snapshot.deltaFromPreviousMs} '
+        'norm=${_embeddingNorm(embedding).toStringAsFixed(6)}',
+      );
     }
 
-    final centroid = _averageAndNormalize(embeddings);
+    final intraBatchSimilarities = _buildIntraBatchSimilarities(sampleVectors);
+    debugPrint(
+      '[FACE_ATTENDANCE][INTRA_BATCH] '
+      's1_s2=${intraBatchSimilarities[0].toStringAsFixed(6)} '
+      's1_s3=${intraBatchSimilarities[1].toStringAsFixed(6)} '
+      's2_s3=${intraBatchSimilarities[2].toStringAsFixed(6)} '
+      'min=${intraBatchSimilarities.reduce((a, b) => a < b ? a : b).toStringAsFixed(6)} '
+      'max=${intraBatchSimilarities.reduce((a, b) => a > b ? a : b).toStringAsFixed(6)} '
+      'mean=${(intraBatchSimilarities.reduce((a, b) => a + b) / intraBatchSimilarities.length).toStringAsFixed(6)}',
+    );
+
+    final centroid = _averageAndNormalize(sampleVectors);
+    final latestBytes = samples.isNotEmpty ? samples.last.latestImageBytes : Uint8List(0);
     return _RecognitionBatch(
       centroid: centroid,
-      latestImageBytes: latestImageBytes ?? Uint8List(0),
-      livenessScore: livenessTotal / embeddings.length,
+      latestImageBytes: latestBytes,
+      livenessScore: livenessTotal / samples.length,
       challenges: challenges.toList(growable: false),
+      intraBatchSimilarities: intraBatchSimilarities,
     );
   }
 
@@ -659,7 +722,152 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   }
 
   void _resetSampleBuffer() {
-    // Intentionally left minimal: batch state is implicit in the current frame stream.
+    _latestRgbFrame = null;
+    _pendingSampleRequest = null;
+    _lastAcceptedFrameAt = null;
+  }
+
+  void _maybeFulfillPendingSample({
+    required int frameSeq,
+    required img.Image? frame,
+    required Face? face,
+    required DateTime capturedAt,
+  }) {
+    final pending = _pendingSampleRequest;
+    if (pending == null || pending.isCompleted) {
+      return;
+    }
+    if (face == null || frame == null || !_isFaceReady(face)) {
+      return;
+    }
+    if (frameSeq <= _lastAcceptedFrameSequence) {
+      return;
+    }
+
+    final delta = _lastAcceptedFrameAt == null
+        ? 0
+        : capturedAt.difference(_lastAcceptedFrameAt!).inMilliseconds;
+    _lastAcceptedFrameSequence = frameSeq;
+    _lastAcceptedFrameAt = capturedAt;
+      pending.complete(
+        _RecognitionFrameSnapshot(
+        frameSeq: frameSeq,
+        frameAgeMs: 0,
+        deltaFromPreviousMs: delta,
+        capturedAt: capturedAt,
+        frame: frame,
+        face: face,
+        latestImageBytes: Uint8List.fromList(img.encodeJpg(frame)),
+      ),
+    );
+    _pendingSampleRequest = null;
+  }
+
+  void _logAlignedCropDebug({
+    required int frameSeq,
+    required img.Image crop,
+  }) {
+    if (!kDebugMode) {
+      return;
+    }
+
+    try {
+      final debugDir = Directory('${Directory.systemTemp.path}/nuist_face_debug');
+      if (!debugDir.existsSync()) {
+        debugDir.createSync(recursive: true);
+      }
+      final fileName = 'aligned_batch${_verificationAttempts + 1}_frame${frameSeq}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final path = '${debugDir.path}/$fileName';
+      File(path).writeAsBytesSync(Uint8List.fromList(img.encodeJpg(crop, quality: 95)));
+      debugPrint(
+        '[FACE_DEBUG][ALIGNED_CROP] '
+        'frame_seq=$frameSeq '
+        'path=$path '
+        'width=${crop.width} '
+        'height=${crop.height}',
+      );
+    } catch (error) {
+      debugPrint(
+        '[FACE_DEBUG][ALIGNED_CROP_ERROR] '
+        'frame_seq=$frameSeq '
+        'message=$error',
+      );
+    }
+  }
+
+  Future<_RecognitionFrameSnapshot?> _waitForNextRecognitionFrame() async {
+    if (_completed || _isDisposing || !mounted) {
+      return null;
+    }
+
+    final completer = Completer<_RecognitionFrameSnapshot>();
+    _pendingSampleRequest = completer;
+    try {
+      return await completer.future.timeout(const Duration(seconds: 3));
+    } catch (_) {
+      if (_pendingSampleRequest == completer) {
+        _pendingSampleRequest = null;
+      }
+      return null;
+    }
+  }
+
+  void _logEmbeddingStats(int sampleIndex, List<double> embedding) {
+    final norm = _embeddingNorm(embedding);
+    final mean = embedding.reduce((a, b) => a + b) / embedding.length;
+    final variance = embedding.fold<double>(0.0, (acc, value) {
+      final diff = value - mean;
+      return acc + diff * diff;
+    }) / embedding.length;
+    final stddev = math.sqrt(variance);
+    final min = embedding.reduce((a, b) => a < b ? a : b);
+    final max = embedding.reduce((a, b) => a > b ? a : b);
+    debugPrint(
+      '[FACE_ATTENDANCE][EMBED_STATS] '
+      'sample=$sampleIndex '
+      'norm=${norm.toStringAsFixed(6)} '
+      'mean=${mean.toStringAsFixed(6)} '
+      'stddev=${stddev.toStringAsFixed(6)} '
+      'min=${min.toStringAsFixed(6)} '
+      'max=${max.toStringAsFixed(6)}',
+    );
+  }
+
+  List<double> _buildIntraBatchSimilarities(List<List<double>> embeddings) {
+    if (embeddings.length < 3) {
+      return <double>[0.0, 0.0, 0.0];
+    }
+    return <double>[
+      _cosineSimilarity(embeddings[0], embeddings[1]),
+      _cosineSimilarity(embeddings[0], embeddings[2]),
+      _cosineSimilarity(embeddings[1], embeddings[2]),
+    ];
+  }
+
+  double _cosineSimilarity(List<double> a, List<double> b) {
+    var dot = 0.0;
+    var normA = 0.0;
+    var normB = 0.0;
+    for (var i = 0; i < a.length; i++) {
+      final va = a[i];
+      final vb = b[i];
+      dot += va * vb;
+      normA += va * va;
+      normB += vb * vb;
+    }
+    if (normA <= 0 || normB <= 0) {
+      return 0.0;
+    }
+    return dot / (math.sqrt(normA) * math.sqrt(normB));
+  }
+
+  bool _isFaceStable(DateTime now) {
+    final readyAt = _stableReadyAt;
+    if (readyAt == null) {
+      return false;
+    }
+
+    return now.difference(readyAt) >= _faceStabilityWindow;
   }
 
   @override
@@ -733,6 +941,13 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
                     ? 'Sedang membaca wajah...'
                     : '${((_similarityScore!.clamp(0.0, 1.0)) * 100).round()}%',
               ),
+              if (kDebugMode) ...[
+                const SizedBox(height: 14),
+                _ModelInputDebugPreview(
+                  imageBytes: _debugModelInputPreviewBytes,
+                  label: _debugModelInputLabel,
+                ),
+              ],
               const Spacer(),
               if (_error != null)
                 Row(
@@ -949,12 +1164,59 @@ class _RecognitionBatch {
     required this.latestImageBytes,
     required this.livenessScore,
     required this.challenges,
+    required this.intraBatchSimilarities,
   });
 
   final List<double> centroid;
   final Uint8List latestImageBytes;
   final double livenessScore;
   final List<String> challenges;
+  final List<double> intraBatchSimilarities;
+}
+
+class _RecognitionFrameSnapshot {
+  const _RecognitionFrameSnapshot({
+    required this.frameSeq,
+    required this.frameAgeMs,
+    required this.deltaFromPreviousMs,
+    required this.capturedAt,
+    required this.frame,
+    required this.face,
+    required this.latestImageBytes,
+    this.embedding,
+    this.livenessScore,
+    this.challenges,
+  });
+
+  final int frameSeq;
+  final int frameAgeMs;
+  final int deltaFromPreviousMs;
+  final DateTime capturedAt;
+  final img.Image? frame;
+  final Face? face;
+  final Uint8List latestImageBytes;
+  final List<double>? embedding;
+  final double? livenessScore;
+  final List<String>? challenges;
+
+  _RecognitionFrameSnapshot copyWith({
+    List<double>? embedding,
+    double? livenessScore,
+    List<String>? challenges,
+  }) {
+    return _RecognitionFrameSnapshot(
+      frameSeq: frameSeq,
+      frameAgeMs: frameAgeMs,
+      deltaFromPreviousMs: deltaFromPreviousMs,
+      capturedAt: capturedAt,
+      frame: frame,
+      face: face,
+      latestImageBytes: latestImageBytes,
+      embedding: embedding ?? this.embedding,
+      livenessScore: livenessScore ?? this.livenessScore,
+      challenges: challenges ?? this.challenges,
+    );
+  }
 }
 
 class _CameraPreviewFit extends StatelessWidget {
@@ -1038,6 +1300,92 @@ class _SimilarityBar extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ModelInputDebugPreview extends StatelessWidget {
+  const _ModelInputDebugPreview({
+    required this.imageBytes,
+    required this.label,
+  });
+
+  final Uint8List? imageBytes;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        width: 150,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _scanPrimaryBorder),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 12,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'DEBUG - Model Input',
+              style: TextStyle(
+                color: _scanText,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: 112,
+              height: 112,
+              decoration: BoxDecoration(
+                color: _scanPrimarySoft,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: _scanPrimaryBorder),
+              ),
+              child: imageBytes == null
+                  ? const Center(
+                      child: Text(
+                        '112x112\nFACE',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _scanMuted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.memory(
+                        imageBytes!,
+                        gaplessPlayback: true,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: _scanMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

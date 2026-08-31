@@ -130,7 +130,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     _biometricStatusFuture = widget.repository.getBiometricProfileStatus();
     _combinedFuture = _loadCombinedState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _handlePageReactivated(refreshRemoteData: false);
+      _handlePageReactivated(refreshRemoteData: true);
     });
   }
 
@@ -163,6 +163,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       _future = future;
       _biometricStatusFuture = biometricFuture;
       _combinedFuture = _loadCombinedState();
+      _faceScanResult = null;
     });
     await Future.wait([future, biometricFuture]);
   }
