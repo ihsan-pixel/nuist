@@ -785,7 +785,8 @@ class TeacherAppController extends Controller
 
             $livenessScore = (float) $validated['liveness_score'];
             $normalizedChallenges = $this->normalizeChallenges($validated['liveness_challenges'] ?? []);
-            $livenessVerified = $livenessScore >= $this->LIVENESS_THRESHOLD;
+            $livenessThreshold = (float) config('biometric.default_threshold', 0.75);
+            $livenessVerified = $livenessScore >= $livenessThreshold;
             $challengeVerified = $this->verifyCompletedChallengePayload($normalizedChallenges);
 
             if (!$livenessVerified || !$challengeVerified) {
