@@ -4844,6 +4844,9 @@ window.addEventListener('load', function() {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if map is already initialized
     const container = document.getElementById('presensi-map');
+    if (!container) {
+        return;
+    }
     if (container && container._leaflet_id) {
         return; // Map already initialized
     }
