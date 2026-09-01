@@ -4174,7 +4174,6 @@ window.addEventListener('load', function() {
             if (faceScanRequired) {
                 await faceScanner.initializeCamera(video);
                 facePresensiLog('camera', 'initializeCamera() selesai.', facePresensiSnapshot(video), 'info');
-                await waitForVideoPlaybackReady(video);
                 video.style.display = 'block';
 
                 const placeholder = container.querySelector('.selfie-placeholder');
@@ -4183,11 +4182,9 @@ window.addEventListener('load', function() {
                 }
 
                 setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
-                // Initial detection only needs the lightweight detection models.
-                // Recognition is loaded later before creating the face descriptor.
-                await faceScanner.loadDetectionModels();
+                await faceScanner.loadModels();
                 setFaceLoadingState(false);
-                facePresensiLog('model', 'loadDetectionModels() selesai pada jalur face_scan.', facePresensiSnapshot(video), 'info');
+                facePresensiLog('model', 'loadModels() selesai pada jalur face_scan.', facePresensiSnapshot(video), 'info');
                 updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {
                 captureBtn.disabled = true;
