@@ -33,7 +33,7 @@
     <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/images/logo-light.png') }}">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('build/images/logo-light.png') }}">
 
     <!-- Open Graph for better social sharing -->
     <meta property="og:title" content="@yield('title') | NUIST Mobile" />
@@ -713,7 +713,8 @@
         // });
 
         // Show install prompt if not dismissed before
-        if (!localStorage.getItem('pwa-install-dismissed')) {
+        const installPrompt = document.getElementById('pwa-install-prompt');
+        if (installPrompt && !localStorage.getItem('pwa-install-dismissed')) {
             setTimeout(() => {
                 installPrompt.style.display = 'block';
             }, 3000);
@@ -873,8 +874,6 @@
                         }
                     });
                 }
-            } else {
-                console.log('Success message element not found');
             }
 
             // ===============================

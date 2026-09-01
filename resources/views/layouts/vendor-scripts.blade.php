@@ -65,7 +65,7 @@
 @yield('script')   {{-- ← FIX WAJIB AGAR DATATABLES JALAN --}}
 
 <!-- App JS utama -->
-<script src="{{ asset('build/js/app.js')}}"></script>
+<script type="module" src="{{ asset('build/js/app.js')}}"></script>
 
 <!-- Script tambahan di paling bawah (jika ada) -->
 @yield('script-bottom')

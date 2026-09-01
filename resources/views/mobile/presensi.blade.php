@@ -2869,13 +2869,9 @@ window.addEventListener('load', function() {
         // Defensive: avoid initializing the same Leaflet container more than once.
         const container = document.getElementById('user-location-map');
         if (!container) return;
-        // If Leaflet already attached an id to the element, skip initialization
+        // If Leaflet already attached an id to the element, another initializer owns it.
         if (container._leaflet_id) {
-            // Remove existing map instance if it exists
-            if (userLocationMap) {
-                userLocationMap.remove();
-                userLocationMap = null;
-            }
+            return;
         }
         if (userLocationMap) return; // Already initialized
 
