@@ -3949,12 +3949,6 @@ window.addEventListener('load', function() {
         faceVerificationApproved = true;
         faceScanReadyToSubmit = true;
 
-        const submitPresensiBtn = $('#btn-submit-presensi');
-        if (submitPresensiBtn && !presensiSubmitInFlight) {
-            submitPresensiBtn.prop('disabled', false);
-            submitPresensiBtn.trigger('click');
-        }
-
         return verification;
     }
 
@@ -4444,6 +4438,9 @@ window.addEventListener('load', function() {
             submitPresensiBtn.prop('disabled', false);
             if (!faceScanRequired) {
                 submitPresensiBtn.show();
+            } else if (!presensiSubmitInFlight) {
+                // Submit only after all face fields have been written to the form.
+                submitPresensiBtn.trigger('click');
             }
         } catch (error) {
             console.error('Face scan failed:', error);
