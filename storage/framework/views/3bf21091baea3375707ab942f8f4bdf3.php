@@ -2235,8 +2235,7 @@
 
 <?php $__env->startSection('script'); ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="<?php echo e(asset('models/face-api.js')); ?>"></script>
-<script src="<?php echo e(asset('js/face-recognition.js')); ?>"></script>
+
 <script src="<?php echo e(asset('js/face-attendance-mobile.js')); ?>"></script>
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -2407,6 +2406,7 @@ window.addEventListener('load', function() {
 
     let lastFormalAlertSignature = '';
     let lastFormalAlertShownAt = 0;
+    let activeFormalAlertPromise = null;
 
     function showFormalAlert(options = {}) {
         const signature = [
@@ -2420,6 +2420,10 @@ window.addEventListener('load', function() {
             return Promise.resolve({ isDismissed: true, isDuplicate: true });
         }
 
+        if (activeFormalAlertPromise && window.Swal && Swal.isVisible()) {
+            return activeFormalAlertPromise;
+        }
+
         lastFormalAlertSignature = signature;
         lastFormalAlertShownAt = now;
 
@@ -2427,10 +2431,14 @@ window.addEventListener('load', function() {
             Swal.close();
         }
 
-        return Swal.fire({
+        activeFormalAlertPromise = Swal.fire({
             confirmButtonText: 'Tutup',
             ...options
+        }).finally(() => {
+            activeFormalAlertPromise = null;
         });
+
+        return activeFormalAlertPromise;
     }
 
     function showFormalErrorAlert(title, text, options = {}) {
@@ -2709,13 +2717,9 @@ window.addEventListener('load', function() {
         // Defensive: avoid initializing the same Leaflet container more than once.
         const container = document.getElementById('user-location-map');
         if (!container) return;
-        // If Leaflet already attached an id to the element, skip initialization
+        // If Leaflet already attached an id to the element, another initializer owns it.
         if (container._leaflet_id) {
-            // Remove existing map instance if it exists
-            if (userLocationMap) {
-                userLocationMap.remove();
-                userLocationMap = null;
-            }
+            return;
         }
         if (userLocationMap) return; // Already initialized
 
@@ -2834,6 +2838,7 @@ window.addEventListener('load', function() {
     let faceScanSessionId = 0;
     let faceScanCompleted = false;
     let faceScanReadyToSubmit = false;
+    let faceVerificationApproved = false;
     let currentFaceInstructionIcon = 'bx-scan';
     let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
     let faceModelWarmupReady = false;
@@ -3779,6 +3784,7 @@ window.addEventListener('load', function() {
             error.notes = verification?.notes || 'face_similarity_below_threshold';
             error.similarity = verification?.similarity ?? null;
             error.fatal = true;
+            faceVerificationApproved = false;
             throw error;
         }
 
@@ -3788,13 +3794,8 @@ window.addEventListener('load', function() {
         });
         updateFaceInstruction('Wajah cocok dengan data terdaftar.');
         setSelfieStatus('Wajah cocok. Presensi sedang dikirim.', 'success');
+        faceVerificationApproved = true;
         faceScanReadyToSubmit = true;
-
-        const submitPresensiBtn = $('#btn-submit-presensi');
-        if (submitPresensiBtn && !presensiSubmitInFlight) {
-            submitPresensiBtn.prop('disabled', false);
-            submitPresensiBtn.trigger('click');
-        }
 
         return verification;
     }
@@ -3851,6 +3852,7 @@ window.addEventListener('load', function() {
         pendingSelfieData = '';
         faceScanCompleted = false;
         faceScanReadyToSubmit = false;
+        faceVerificationApproved = false;
         earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
         faceScanInProgress = false;
@@ -4011,9 +4013,6 @@ window.addEventListener('load', function() {
 
             facePresensiLog('camera', 'Inisialisasi kamera dimulai.', facePresensiSnapshot(video), 'info');
             stopSelfieStream();
-
-            await faceScanner.loadModels();
-            facePresensiLog('model', 'loadModels() selesai sebelum inisialisasi kamera.', facePresensiSnapshot(video), 'info');
 
             if (faceScanRequired) {
                 await faceScanner.initializeCamera(video);
@@ -4246,6 +4245,7 @@ window.addEventListener('load', function() {
             selfieCaptured = true;
             if (faceScanRequired) {
                 faceScanCompleted = true;
+                faceVerificationApproved = true;
                 faceScanReadyToSubmit = true;
                 if (faceScanRetryTimer) {
                     window.clearTimeout(faceScanRetryTimer);
@@ -4287,6 +4287,9 @@ window.addEventListener('load', function() {
             submitPresensiBtn.prop('disabled', false);
             if (!faceScanRequired) {
                 submitPresensiBtn.show();
+            } else if (!presensiSubmitInFlight) {
+                // Submit only after all face fields have been written to the form.
+                submitPresensiBtn.trigger('click');
             }
         } catch (error) {
             console.error('Face scan failed:', error);
@@ -4469,6 +4472,14 @@ window.addEventListener('load', function() {
             return;
         }
 
+        if (faceScanRequired && !faceVerificationApproved) {
+            showFormalErrorAlert(
+                'Presensi Ditolak',
+                'Wajah belum berhasil diverifikasi. Silakan ulangi scan wajah terlebih dahulu.'
+            );
+            return;
+        }
+
         presensiSubmitInFlight = true;
         presensiFinalAlertShown = false;
         const submitButton = $(this);
@@ -4504,8 +4515,8 @@ window.addEventListener('load', function() {
             showFormalErrorAlert(
                 faceScanRequired ? 'Scan Wajah Belum Lengkap' : 'Selfie Belum Lengkap',
                 faceScanRequired
-                //    ? 'Silakan selesaikan scan wajah terlebih dahulu sebelum mengirim presensi.'
-                //   : 'Silakan ambil selfie terlebih dahulu sebelum mengirim presensi.'
+                    ? 'Silakan selesaikan scan wajah terlebih dahulu sebelum mengirim presensi.'
+                    : 'Silakan ambil selfie terlebih dahulu sebelum mengirim presensi.'
             );
             return;
         }
@@ -4679,6 +4690,9 @@ window.addEventListener('load', function() {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if map is already initialized
     const container = document.getElementById('presensi-map');
+    if (!container) {
+        return;
+    }
     if (container && container._leaflet_id) {
         return; // Map already initialized
     }
