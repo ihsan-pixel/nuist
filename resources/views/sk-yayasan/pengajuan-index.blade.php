@@ -1068,6 +1068,7 @@
                                 <th>Batch Terakhir</th>
                                 <th>Ditolak</th>
                                 <th>Belum Match</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1104,10 +1105,27 @@
                                         <span class="sky-data-secondary">{{ number_format($row['rejected_batch_count'] ?? 0) }} batch ditolak</span>
                                     </td>
                                     <td>{{ number_format($row['latest_batch_unmatched_count']) }}</td>
+                                    <td>
+                                        @if(($row['rejected_batch_count'] ?? 0) > 0 && !empty($row['latest_rejected_batch_id']))
+                                            <form method="POST" action="{{ route('sk-yayasan.import-batches.restore', $row['latest_rejected_batch_id']) }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-success"
+                                                        data-sk-swal-confirm
+                                                        data-sk-swal-title="Kembalikan batch sekolah ini?"
+                                                        data-sk-swal-text="Batch akan dikembalikan ke status Pending Review.">
+                                                    Kembalikan ke Review
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-muted small">-</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="9">
                                         <div class="sky-empty-state py-4">
                                             <i class="bx bx-buildings"></i>
                                             <strong>Belum ada data sekolah</strong>

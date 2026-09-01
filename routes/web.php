@@ -2026,6 +2026,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::get('/pengajuan/import-batches/{batch}/export-pdf', [SkYayasanController::class, 'exportImportBatchPdf'])->name('pengajuan.export-batch-pdf');
         Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus'])->name('pengajuan.update-status');
         Route::patch('/pengajuan/{submission}/restore', [SkYayasanController::class, 'restoreRejectedSubmission'])->name('pengajuan.restore');
+        Route::patch('/import-batches/{batch}/restore', [SkYayasanController::class, 'restoreRejectedImportBatch'])->name('import-batches.restore');
         Route::patch('/import-batches/{batch}/rows', [SkYayasanController::class, 'updateImportBatchRows'])->name('import-batches.rows.update');
         Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch'])->name('import-batches.review');
         Route::delete('/import-batches/{batch}', [SkYayasanController::class, 'destroyImportBatch'])->name('import-batches.destroy');

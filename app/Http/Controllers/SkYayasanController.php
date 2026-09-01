@@ -1291,6 +1291,34 @@ class SkYayasanController extends Controller
         return back()->with('success', $message);
     }
 
+    public function restoreRejectedImportBatch(SkYayasanImportBatch $batch): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        if ($batch->status !== 'rejected') {
+            return back()->with('error', 'Batch ini bukan berstatus ditolak, jadi tidak perlu dipulihkan.');
+        }
+
+        DB::transaction(function () use ($batch) {
+            $batch->update([
+                'status' => 'pending_review',
+                'reviewed_by' => null,
+                'review_notes' => null,
+                'reviewed_at' => null,
+                'synced_at' => null,
+            ]);
+
+            $batch->requests()->update([
+                'current_status' => 'submitted',
+                'review_notes' => null,
+                'reviewed_by' => null,
+                'reviewed_at' => null,
+            ]);
+        });
+
+        return back()->with('success', 'Batch sekolah berhasil dikembalikan ke Pending Review.');
+    }
+
     public function destroyImportBatch(SkYayasanImportBatch $batch): RedirectResponse
     {
         $this->ensureSuperAdmin();
@@ -4820,6 +4848,13 @@ class SkYayasanController extends Controller
             ->groupBy('madrasah_id')
             ->pluck('total', 'madrasah_id');
 
+        $latestRejectedBatchIdsBySchool = SkYayasanImportBatch::query()
+            ->where('status', 'rejected')
+            ->orderByDesc('uploaded_at')
+            ->get(['id', 'madrasah_id'])
+            ->groupBy('madrasah_id')
+            ->map(fn (Collection $batches) => (int) $batches->first()->id);
+
         $schoolSummaries = $schools->mapWithKeys(function (Madrasah $school) use ($keteranganOptions) {
             $keteranganCounts = [];
 
@@ -4840,6 +4875,7 @@ class SkYayasanController extends Controller
                     'latest_batch_unmatched_count' => 0,
                     'rejected_requests_count' => 0,
                     'rejected_batch_count' => 0,
+                    'latest_rejected_batch_id' => null,
                     'keterangan_counts' => $keteranganCounts,
                 ],
             ];
@@ -4892,6 +4928,7 @@ class SkYayasanController extends Controller
             $summary['latest_batch_unmatched_count'] = (int) ($latestBatch ? ($latestBatchUnmatchedCounts->get($latestBatch->id) ?? 0) : 0);
             $summary['rejected_requests_count'] = (int) ($rejectedRequestCountsBySchool->get((int) $schoolId) ?? 0);
             $summary['rejected_batch_count'] = (int) ($rejectedBatchCountsBySchool->get((int) $schoolId) ?? 0);
+            $summary['latest_rejected_batch_id'] = $latestRejectedBatchIdsBySchool->get((int) $schoolId);
 
             if ($summary['total_requests'] > 0 || $summary['active_batch_count'] > 0) {
                 $summary['submission_status_label'] = 'Sudah Mengajukan';
