@@ -458,7 +458,7 @@
 
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw-v2.js?v=4', {
+            navigator.serviceWorker.register('/sw-v2.js?v=5', {
                 updateViaCache: 'none'
             }).then(reg => {
                 reg.update();

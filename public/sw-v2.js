@@ -1,7 +1,7 @@
 // NUIST Mobile PWA Service Worker
 // Production-safe version.
 
-const APP_VERSION = 'v2.3.1';
+const APP_VERSION = 'v2.3.3';
 const CACHE_PREFIX = 'presensi-static-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const OFFLINE_URL = null;
@@ -20,9 +20,19 @@ async function saveToCache(request, response) {
         return;
     }
 
+    // Clone before any await so the page cannot consume the response body first.
+    let responseCopy;
+
+    try {
+        responseCopy = response.clone();
+    } catch (error) {
+        console.warn('[SW] Response clone failed:', error);
+        return;
+    }
+
     try {
         const cache = await caches.open(CACHE_NAME);
-        await cache.put(request, response.clone());
+        await cache.put(request, responseCopy);
     } catch (error) {
         console.warn('[SW] Cache gagal disimpan:', error);
     }
