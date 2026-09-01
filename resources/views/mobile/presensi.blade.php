@@ -2396,8 +2396,7 @@
 
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('models/face-api.js') }}"></script>
-<script src="{{ asset('js/face-recognition.js') }}"></script>
+{{-- face-api.js and face-recognition.js are loaded once by layouts.mobile. --}}
 <script src="{{ asset('js/face-attendance-mobile.js') }}"></script>
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -4175,9 +4174,6 @@ window.addEventListener('load', function() {
 
             facePresensiLog('camera', 'Inisialisasi kamera dimulai.', facePresensiSnapshot(video), 'info');
             stopSelfieStream();
-
-            await faceScanner.loadModels();
-            facePresensiLog('model', 'loadModels() selesai sebelum inisialisasi kamera.', facePresensiSnapshot(video), 'info');
 
             if (faceScanRequired) {
                 await faceScanner.initializeCamera(video);
