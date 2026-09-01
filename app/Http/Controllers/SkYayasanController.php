@@ -1457,7 +1457,7 @@ class SkYayasanController extends Controller
         $this->ensureSuperAdmin();
 
         $validated = $request->validate([
-            'current_status' => ['required', 'in:reviewed,approved,rejected'],
+            'current_status' => ['required', 'in:submitted,reviewed,approved,rejected'],
             'review_notes' => ['nullable', 'string'],
             'template_id' => ['nullable', 'integer', 'exists:sk_yayasan_templates,id'],
         ]);
@@ -1471,6 +1471,24 @@ class SkYayasanController extends Controller
         ]);
 
         return back()->with('success', 'Status pengajuan SK Yayasan berhasil diperbarui.');
+    }
+
+    public function restoreRejectedSubmission(SkYayasanRequest $submission): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        if ($submission->current_status !== 'rejected') {
+            return back()->with('error', 'Pengajuan ini bukan status ditolak, jadi tidak perlu dipulihkan.');
+        }
+
+        $submission->update([
+            'current_status' => 'submitted',
+            'review_notes' => null,
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+        ]);
+
+        return back()->with('success', 'Pengajuan yang ditolak berhasil dikembalikan ke antrian review.');
     }
 
     public function templateIndex(): View

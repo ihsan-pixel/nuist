@@ -986,6 +986,9 @@
                                                     Menunggu review yayasan
                                                 @endif
                                             </span>
+                                            @if($submission->current_status === 'rejected')
+                                                <span class="badge bg-danger-subtle text-danger mt-1">Bisa dipulihkan</span>
+                                            @endif
                                         </td>
                                         <td>
                                             <span class="sky-data-primary">{{ $submission->template?->name ?? 'Belum dipilih' }}</span>
@@ -1000,6 +1003,15 @@
                                                     <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                                                         PDF
                                                     </a>
+                                                @endif
+                                                @if($submission->current_status === 'rejected')
+                                                    <form method="POST" action="{{ route('sk-yayasan.pengajuan.restore', $submission) }}" class="d-inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" class="btn btn-sm btn-outline-success" data-sk-swal-confirm data-sk-swal-title="Kembalikan pengajuan ini?" data-sk-swal-text="Pengajuan akan dipindahkan kembali ke antrian review.">
+                                                            Kembalikan
+                                                        </button>
+                                                    </form>
                                                 @endif
                                                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $submission->id }}">
                                                     Review
@@ -1173,6 +1185,7 @@
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select name="current_status" class="form-select" required>
+                                <option value="submitted" @selected($submission->current_status === 'submitted')>Kembalikan ke Review</option>
                                 <option value="reviewed" @selected($submission->current_status === 'reviewed')>Direview</option>
                                 <option value="approved" @selected($submission->current_status === 'approved')>Setujui</option>
                                 <option value="rejected" @selected($submission->current_status === 'rejected')>Tolak</option>

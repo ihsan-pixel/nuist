@@ -4677,8 +4677,8 @@ window.addEventListener('load', function() {
             showFormalErrorAlert(
                 faceScanRequired ? 'Scan Wajah Belum Lengkap' : 'Selfie Belum Lengkap',
                 faceScanRequired
-                //    ? 'Silakan selesaikan scan wajah terlebih dahulu sebelum mengirim presensi.'
-                //   : 'Silakan ambil selfie terlebih dahulu sebelum mengirim presensi.'
+                    ? 'Silakan selesaikan scan wajah terlebih dahulu sebelum mengirim presensi.'
+                    : 'Silakan ambil selfie terlebih dahulu sebelum mengirim presensi.'
             );
             return;
         }
