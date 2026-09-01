@@ -2567,6 +2567,7 @@ window.addEventListener('load', function() {
 
     let lastFormalAlertSignature = '';
     let lastFormalAlertShownAt = 0;
+    let activeFormalAlertPromise = null;
 
     function showFormalAlert(options = {}) {
         const signature = [
@@ -2580,6 +2581,10 @@ window.addEventListener('load', function() {
             return Promise.resolve({ isDismissed: true, isDuplicate: true });
         }
 
+        if (activeFormalAlertPromise && window.Swal && Swal.isVisible()) {
+            return activeFormalAlertPromise;
+        }
+
         lastFormalAlertSignature = signature;
         lastFormalAlertShownAt = now;
 
@@ -2587,10 +2592,14 @@ window.addEventListener('load', function() {
             Swal.close();
         }
 
-        return Swal.fire({
+        activeFormalAlertPromise = Swal.fire({
             confirmButtonText: 'Tutup',
             ...options
+        }).finally(() => {
+            activeFormalAlertPromise = null;
         });
+
+        return activeFormalAlertPromise;
     }
 
     function showFormalErrorAlert(title, text, options = {}) {
@@ -4004,6 +4013,7 @@ window.addEventListener('load', function() {
         pendingSelfieData = '';
         faceScanCompleted = false;
         faceScanReadyToSubmit = false;
+        faceVerificationApproved = false;
         earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
         faceScanInProgress = false;
