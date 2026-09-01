@@ -1212,6 +1212,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        @if($submission->current_status === 'rejected')
+                            <button type="submit"
+                                    class="btn btn-outline-success"
+                                    formaction="{{ route('sk-yayasan.pengajuan.restore', $submission) }}"
+                                    data-sk-swal-confirm
+                                    data-sk-swal-title="Kembalikan pengajuan ini?"
+                                    data-sk-swal-text="Pengajuan akan dipindahkan kembali ke antrian review.">
+                                Kembalikan ke Review
+                            </button>
+                        @endif
                         <button type="submit" class="btn btn-primary">Simpan Review</button>
                     </div>
                 </form>
