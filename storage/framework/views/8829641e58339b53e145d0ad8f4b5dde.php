@@ -985,6 +985,9 @@
                                                     Menunggu review yayasan
                                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </span>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->current_status === 'rejected'): ?>
+                                                <span class="badge bg-danger-subtle text-danger mt-1">Bisa dipulihkan</span>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                         <td>
                                             <span class="sky-data-primary"><?php echo e($submission->template?->name ?? 'Belum dipilih'); ?></span>
@@ -999,6 +1002,15 @@
                                                     <a href="<?php echo e(route('sk-yayasan.documents.download', $submission->document)); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                                                         PDF
                                                     </a>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->current_status === 'rejected'): ?>
+                                                    <form method="POST" action="<?php echo e(route('sk-yayasan.pengajuan.restore', $submission)); ?>" class="d-inline">
+                                                        <?php echo csrf_field(); ?>
+                                                        <?php echo method_field('PATCH'); ?>
+                                                        <button type="submit" class="btn btn-sm btn-outline-success" data-sk-swal-confirm data-sk-swal-title="Kembalikan pengajuan ini?" data-sk-swal-text="Pengajuan akan dipindahkan kembali ke antrian review.">
+                                                            Kembalikan
+                                                        </button>
+                                                    </form>
                                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal<?php echo e($submission->id); ?>">
                                                     Review
@@ -1056,6 +1068,7 @@
                                 <th>Batch Terakhir</th>
                                 <th>Ditolak</th>
                                 <th>Belum Match</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1092,10 +1105,27 @@
                                         <span class="sky-data-secondary"><?php echo e(number_format($row['rejected_batch_count'] ?? 0)); ?> batch ditolak</span>
                                     </td>
                                     <td><?php echo e(number_format($row['latest_batch_unmatched_count'])); ?></td>
+                                    <td>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($row['rejected_batch_count'] ?? 0) > 0 && !empty($row['latest_rejected_batch_id'])): ?>
+                                            <form method="POST" action="<?php echo e(route('sk-yayasan.import-batches.restore', $row['latest_rejected_batch_id'])); ?>">
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('PATCH'); ?>
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-success"
+                                                        data-sk-swal-confirm
+                                                        data-sk-swal-title="Kembalikan batch sekolah ini?"
+                                                        data-sk-swal-text="Batch akan dikembalikan ke status Pending Review.">
+                                                    Kembalikan ke Review
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="text-muted small">-</span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </td>
                                 </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="9">
                                         <div class="sky-empty-state py-4">
                                             <i class="bx bx-buildings"></i>
                                             <strong>Belum ada data sekolah</strong>
@@ -1173,6 +1203,7 @@
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select name="current_status" class="form-select" required>
+                                <option value="submitted" <?php if($submission->current_status === 'submitted'): echo 'selected'; endif; ?>>Kembalikan ke Review</option>
                                 <option value="reviewed" <?php if($submission->current_status === 'reviewed'): echo 'selected'; endif; ?>>Direview</option>
                                 <option value="approved" <?php if($submission->current_status === 'approved'): echo 'selected'; endif; ?>>Setujui</option>
                                 <option value="rejected" <?php if($submission->current_status === 'rejected'): echo 'selected'; endif; ?>>Tolak</option>
@@ -1199,6 +1230,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->current_status === 'rejected'): ?>
+                            <button type="submit"
+                                    class="btn btn-outline-success"
+                                    formaction="<?php echo e(route('sk-yayasan.pengajuan.restore', $submission)); ?>"
+                                    data-sk-swal-confirm
+                                    data-sk-swal-title="Kembalikan pengajuan ini?"
+                                    data-sk-swal-text="Pengajuan akan dipindahkan kembali ke antrian review.">
+                                Kembalikan ke Review
+                            </button>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <button type="submit" class="btn btn-primary">Simpan Review</button>
                     </div>
                 </form>

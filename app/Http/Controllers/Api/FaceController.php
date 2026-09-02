@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\FaceDiagnostic;
 use App\Services\BiometricProfileService;
 use App\Services\BiometricVerificationService;
+use App\Services\KioskFaceEngineService;
 
 class FaceController extends Controller
 {
@@ -21,6 +22,7 @@ class FaceController extends Controller
     public function __construct(
         private BiometricProfileService $biometricProfileService,
         private BiometricVerificationService $biometricVerificationService,
+        private KioskFaceEngineService $faceEngine,
     ) {
     }
 
@@ -77,6 +79,7 @@ class FaceController extends Controller
         $model = $request->input('model');
         $modelVersion = $request->input('model_version');
         $dimension = $request->filled('dimension') ? (int) $request->input('dimension') : null;
+
         $faceEmbedding = $this->normalizeDescriptor($request->input('face_embedding'));
         $legacyDescriptor = $this->normalizeDescriptor($request->input('face_data'));
 
@@ -274,7 +277,7 @@ class FaceController extends Controller
             $livenessScore = (float) $request->input('liveness_score');
             $normalizedChallenges = $this->normalizeBiometricV2ChallengeNames($request->input('liveness_challenges', []));
             $faceMatched = ($verification['matched'] ?? false) === true;
-            $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
+            $livenessThreshold = (float) config('biometric_v2.liveness_threshold', 0.55);
             $livenessVerified = $livenessScore >= $livenessThreshold;
             $challengeVerified = $this->verifyBiometricV2ChallengeNames($normalizedChallenges);
             $faceVerified = $faceMatched;
@@ -393,10 +396,10 @@ class FaceController extends Controller
 
         $profile = $auth->biometricProfiles()
             ->select(['id', 'enrollment_uuid', 'engine', 'model', 'model_version', 'dimension', 'status', 'enrolled_at'])
-            ->where('engine', 'tflite')
-            ->where('model', 'mobilefacenet')
-            ->where('model_version', 'mobilefacenet-be4bc7cf')
-            ->where('dimension', 192)
+            ->where('engine', config('biometric_v2.engine', 'opencv'))
+            ->where('model', config('biometric_v2.model', 'sface'))
+            ->where('model_version', config('biometric_v2.model_version', 'v1'))
+            ->where('dimension', config('biometric_v2.dimension', 128))
             ->where('status', 'active')
             ->orderByDesc('enrolled_at')
             ->orderByDesc('id')
@@ -448,6 +451,17 @@ class FaceController extends Controller
             (int) $validated['dimension'],
             $validated['model_version'] ?? null
         );
+
+        if ($validated['engine'] !== config('biometric_v2.engine', 'opencv')
+            || $validated['model'] !== config('biometric_v2.model', 'sface')
+            || ($validated['model_version'] ?? null) !== config('biometric_v2.model_version', 'v1')
+            || (int) $validated['dimension'] !== (int) config('biometric_v2.dimension', 128)) {
+            return response()->json([
+                'success' => false,
+                'code' => 'LEGACY_FACE_ENGINE_DISABLED',
+                'message' => 'MobileFaceNet tidak lagi menjadi sumber embedding final. Gunakan enrollment Python SFace.',
+            ], 422);
+        }
 
         if (!($probe['ok'] ?? false)) {
             return response()->json([
@@ -519,14 +533,61 @@ class FaceController extends Controller
         }
 
         $validated = $request->validate([
-            'embedding' => 'required|array',
-            'engine' => 'required|string|max:64',
-            'model' => 'required|string|max:64',
+            'embedding' => 'nullable|array',
+            'frames' => 'nullable|array|min:1|max:8',
+            'frames.*' => 'required_with:frames|string|starts_with:data:image/',
+            'engine' => 'nullable|string|max:64',
+            'model' => 'nullable|string|max:64',
             'model_version' => 'nullable|string|max:32',
-            'dimension' => 'required|integer|min:1|max:2048',
+            'dimension' => 'nullable|integer|min:1|max:2048',
             'liveness_score' => 'nullable|numeric|min:0|max:1',
             'samples' => 'nullable|array',
         ]);
+
+        if (!empty($validated['frames'])) {
+            $result = $this->faceEngine->identify(
+                [$auth],
+                ['selfie_frames' => $validated['frames'], 'device_info' => $request->userAgent()],
+                ['verification_mode' => '1:1'],
+            );
+            $verified = ($result['success'] ?? false) && (int) ($result['user_id'] ?? 0) === (int) $auth->id;
+
+            return response()->json([
+                'success' => $verified,
+                'face_verified' => $verified,
+                'verified' => $verified,
+                'code' => $verified ? 'FACE_VERIFIED' : ($result['notes'] ?? 'FACE_NOT_VERIFIED'),
+                'message' => $verified ? 'Wajah cocok dengan akun aktif.' : ($result['message'] ?? 'Wajah tidak cocok dengan akun aktif.'),
+                'similarity' => $result['similarity'] ?? null,
+                'threshold' => config('kiosk_face_v2.thresholds.similarity', 0.55),
+                'provider' => $result['provider'] ?? config('kiosk_face_v2.provider'),
+                'model' => $result['model'] ?? config('kiosk_face_v2.model'),
+                'model_version' => $result['model_version'] ?? config('kiosk_face_v2.model_version'),
+                'liveness_score' => $result['liveness_score'] ?? null,
+                'liveness_challenges' => $result['liveness_challenges'] ?? [],
+                'face_embedding' => $result['face_embedding'] ?? null,
+            ], $verified ? 200 : 422);
+        }
+
+        if (empty($validated['embedding'])) {
+            return response()->json([
+                'success' => false,
+                'face_verified' => false,
+                'verified' => false,
+                'code' => 'INVALID_BIOMETRIC_PAYLOAD',
+                'message' => 'Kirim frame wajah atau embedding biometrik yang valid.',
+            ], 422);
+        }
+
+        if (empty($validated['engine']) || empty($validated['model']) || empty($validated['dimension'])) {
+            return response()->json([
+                'success' => false,
+                'face_verified' => false,
+                'verified' => false,
+                'code' => 'INVALID_BIOMETRIC_PAYLOAD',
+                'message' => 'Metadata engine biometrik tidak lengkap.',
+            ], 422);
+        }
 
         $result = $this->biometricVerificationService->verify(
             $auth,
@@ -534,7 +595,8 @@ class FaceController extends Controller
             $validated['engine'],
             $validated['model'],
             (int) $validated['dimension'],
-            $validated['model_version'] ?? null
+            $validated['model_version'] ?? null,
+            (float) config('biometric_v2.default_threshold', 0.55),
         );
 
         if (!($result['ok'] ?? false)) {

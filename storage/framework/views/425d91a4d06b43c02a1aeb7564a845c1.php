@@ -5,7 +5,7 @@
             <div class="navbar-brand-box">
                 <a href="" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="<?php echo e(asset('images/logo favicon 1.png')); ?>" alt="" height="22">
+                        <img src="<?php echo e(asset('build/images/logo-light.png')); ?>" alt="" height="22">
                     </span>
                     <span class="logo-lg">
                         <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="" height="40">
@@ -14,7 +14,7 @@
 
                 <a href="" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="<?php echo e(asset('images/logo favicon 1.png')); ?>" alt="" height="30">
+                        <img src="<?php echo e(asset('build/images/logo-light.png')); ?>" alt="" height="30">
                     </span>
                     <span class="logo-lg">
                         <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="" height="50">

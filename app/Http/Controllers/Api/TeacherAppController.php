@@ -225,7 +225,10 @@ class TeacherAppController extends Controller
                 'user_card' => [
                     'name' => $user->name,
                     'school_name' => $user->madrasah?->name ?? '-',
-                    'avatar_url' => $user->avatar ? asset('storage/' . ltrim($user->avatar, '/')) : null,
+                    'avatar_url' => $user->avatar
+                        && Storage::disk('public')->exists(ltrim($user->avatar, '/'))
+                        ? asset('storage/' . ltrim($user->avatar, '/'))
+                        : null,
                     'nuist_id' => $user->nuist_id ?? '-',
                     'status_kepegawaian' => $user->statusKepegawaian?->name ?? '-',
                     'ketugasan' => $user->ketugasan ?? '-',
@@ -581,6 +584,7 @@ class TeacherAppController extends Controller
             'longitude' => ['required', 'numeric'],
             'lokasi' => ['nullable', 'string'],
             'accuracy' => ['nullable', 'numeric'],
+            'is_mocked' => ['nullable', 'boolean'],
             'altitude' => ['nullable', 'numeric'],
             'speed' => ['nullable', 'numeric'],
             'device_info' => ['nullable', 'string'],
@@ -759,7 +763,7 @@ class TeacherAppController extends Controller
                 (string) $biometricModel,
                 $biometricDimension,
                 $hasModelVersion ? (string) $biometricModelVersion : null,
-                (float) config('biometric.default_threshold', 0.75),
+                (float) config('biometric_v2.default_threshold', 0.55),
             );
 
             if (!($faceVerification['ok'] ?? false)) {
@@ -798,7 +802,7 @@ class TeacherAppController extends Controller
                 'profile_id' => $faceVerification['profile']->id ?? null,
                 'profile_user_id' => $faceVerification['profile']->user_id ?? null,
                 'similarity' => $faceVerification['similarity'] ?? null,
-                'similarity_threshold' => config('biometric.default_threshold', 0.75),
+                'similarity_threshold' => config('biometric_v2.default_threshold', 0.55),
                 'face_matched' => $faceMatched,
                 'engine' => $faceVerification['engine'] ?? $biometricEngine,
                 'model' => $faceVerification['model'] ?? $biometricModel,
@@ -3110,8 +3114,14 @@ class TeacherAppController extends Controller
         if ($accuracy !== null && $accuracy > 0 && $accuracy < 3) {
             $analysis['accuracy_check'] = true;
             $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
+            // A real Android GPS can report 1-2m accuracy. Keep this as an
+            // audit indicator, but do not reject a request on this alone.
+        }
+
+        if (filter_var($payload['is_mocked'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $analysis['suspicious_indicators'][] = 'device_mock_location';
             $isFake = true;
-            $messages[] = 'Akurasi GPS terlalu sempurna (Terindikasi Lokasi Palsu)';
+            $messages[] = 'Perangkat melaporkan penggunaan lokasi palsu';
         }
 
         if (!empty($payload['location_readings'])) {

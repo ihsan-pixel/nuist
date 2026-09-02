@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'driver' => env('KIOSK_FACE_DRIVER', 'browser'),
+    // Legacy school kiosk is intentionally isolated from the Python v2 driver.
+    'driver' => env('KIOSK_FACE_LEGACY_DRIVER', 'browser'),
     'python_service' => [
         'base_url' => rtrim((string) env('KIOSK_FACE_SERVICE_URL', 'http://127.0.0.1:8800'), '/'),
         'api_key' => env('KIOSK_FACE_SERVICE_KEY'),

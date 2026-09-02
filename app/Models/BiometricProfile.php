@@ -16,6 +16,7 @@ class BiometricProfile extends Model
         'engine',
         'model',
         'model_version',
+        'pose',
         'dimension',
         'embedding',
         'samples',

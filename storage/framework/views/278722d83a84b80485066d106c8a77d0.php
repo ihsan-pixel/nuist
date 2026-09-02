@@ -8,7 +8,7 @@
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="<?php echo e(asset('build/images/logo%20favicon%201.png')); ?>">
+    <link rel="shortcut icon" href="<?php echo e(asset('build/images/favicon.ico')); ?>">
     <?php echo $__env->make('layouts.head-css', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 </head>
 
@@ -45,5 +45,4 @@
 </body>
 
 </html>
-
 <?php /**PATH /Users/lpmnudiymacpro/Documents/Project Nuist/nuist/resources/views/layouts/master-layouts.blade.php ENDPATH**/ ?>

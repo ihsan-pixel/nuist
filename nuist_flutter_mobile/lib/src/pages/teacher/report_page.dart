@@ -10,7 +10,6 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
 class _ReportPalette {
-  static const background = Color(0xFFF7F9FC);
   static const surface = Color(0xFFFFFFFF);
   static const primary = Color(0xFF00745A);
   static const primaryDark = Color(0xFF00553F);
@@ -246,44 +245,50 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
     final bottomInset = MediaQuery.paddingOf(context).bottom + 24;
 
     return Scaffold(
-      backgroundColor: _ReportPalette.background,
+      backgroundColor: Colors.white,
       body: SafeArea(
         bottom: false,
         child: FutureBuilder<Map<String, dynamic>>(
           future: _future,
           builder: (context, snapshot) {
-            return RefreshIndicator(
-              onRefresh: _refresh,
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(14, 12, 14, bottomInset),
-                children: [
-                  TeacherPageHeader(
-                    title: widget.pageTitle,
-                    onBack: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(height: 12),
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    const _ReportLoading()
-                  else if (snapshot.hasError)
-                    _ReportError(
-                      message: snapshot.error.toString(),
-                      onRetry: _refresh,
-                    )
-                  else
-                    _ReportContent(
-                      data: snapshot.data ?? const <String, dynamic>{},
-                      scope: _scope,
-                      month: _month,
-                      exportingAttendance: _exportingAttendance,
-                      exportingTeaching: _exportingTeaching,
-                      onScopeChange: _changeScope,
-                      onPickMonth: _pickMonth,
-                      onTeacherChange: _changeTeacher,
-                      onDownloadAttendance: _downloadAttendancePdf,
-                      onDownloadTeaching: _downloadTeachingPdf,
+            return Column(
+              children: [
+                TeacherOverlayPageHeader(
+                  title: widget.pageTitle,
+                  onBack: () => Navigator.of(context).pop(),
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(14, 16, 14, bottomInset),
+                      children: [
+                        if (snapshot.connectionState == ConnectionState.waiting)
+                          const _ReportLoading()
+                        else if (snapshot.hasError)
+                          _ReportError(
+                            message: snapshot.error.toString(),
+                            onRetry: _refresh,
+                          )
+                        else
+                          _ReportContent(
+                            data: snapshot.data ?? const <String, dynamic>{},
+                            scope: _scope,
+                            month: _month,
+                            exportingAttendance: _exportingAttendance,
+                            exportingTeaching: _exportingTeaching,
+                            onScopeChange: _changeScope,
+                            onPickMonth: _pickMonth,
+                            onTeacherChange: _changeTeacher,
+                            onDownloadAttendance: _downloadAttendancePdf,
+                            onDownloadTeaching: _downloadTeachingPdf,
+                          ),
+                      ],
                     ),
-                ],
-              ),
+                  ),
+                ),
+              ],
             );
           },
         ),

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import logging
 import math
 import os
 import time
@@ -12,11 +13,16 @@ from typing import Any
 
 import cv2
 import numpy as np
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 
 APP_VERSION = "0.2.0"
+logger = logging.getLogger("kiosk_face_engine")
+logging.basicConfig(
+    level=os.getenv("KIOSK_FACE_LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 
 
 def env_bool(name: str, default: bool) -> bool:
@@ -60,6 +66,10 @@ class ScanRequest(BaseModel):
     context: dict[str, Any] = Field(default_factory=dict)
 
 
+class AnalyzeRequest(ScanRequest):
+    expected_pose: str | None = None
+
+
 class EnrollRequest(ScanRequest):
     teacher_id: int
     teacher_name: str | None = None
@@ -94,6 +104,7 @@ class FaceFrameAnalysis:
     brightness: float
     contrast: float
     frame_data: str
+    pose: str | None = None
 
 
 class Settings:
@@ -122,10 +133,33 @@ class Settings:
     min_similarity = float(os.getenv("KIOSK_FACE_MIN_SIMILARITY", "0.55"))
     min_liveness = float(os.getenv("KIOSK_FACE_MIN_LIVENESS", "0.68"))
     min_face_size = int(os.getenv("KIOSK_FACE_MIN_FACE_SIZE", "96"))
+    min_quality = float(os.getenv("FACE_MIN_QUALITY", "0.45"))
+    model = os.getenv("FACE_MODEL", "sface")
+    model_version = os.getenv("FACE_MODEL_VERSION", "v1")
+    min_frames = int(os.getenv("FACE_MIN_STABLE_FRAMES", "3"))
 
 
 settings = Settings()
 app = FastAPI(title="NUIST Kiosk Face Engine", version=APP_VERSION)
+
+
+@app.middleware("http")
+async def log_engine_request(request: Request, call_next):
+    started_at = time.perf_counter()
+    try:
+        response = await call_next(request)
+        elapsed_ms = (time.perf_counter() - started_at) * 1000
+        logger.info(
+            "REQUEST method=%s path=%s status=%s elapsed_ms=%.0f",
+            request.method,
+            request.url.path,
+            response.status_code,
+            elapsed_ms,
+        )
+        return response
+    except Exception:
+        logger.exception("REQUEST method=%s path=%s unhandled_error", request.method, request.url.path)
+        raise
 
 
 def require_api_key(x_kiosk_service_key: str | None = Header(default=None)) -> None:
@@ -230,7 +264,58 @@ def sample_crop_metrics(crop: np.ndarray) -> tuple[float, float, float]:
     return blur_score, brightness, contrast
 
 
-def detect_face(image: np.ndarray, engine: ModelBundle) -> tuple[np.ndarray, tuple[float, float, float, float], float] | None:
+def improve_low_light(image: np.ndarray) -> np.ndarray:
+    """Apply a conservative illumination lift before detection and embedding."""
+    if image.size == 0:
+        return image
+
+    brightness = float(np.mean(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)))
+    if brightness >= 105.0:
+        return image
+
+    # CLAHE lifts shadow detail while limiting global overexposure. This same
+    # preprocessing is used for enrollment and recognition.
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    lightness, channel_a, channel_b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=1.6, tileGridSize=(8, 8))
+    lightness = clahe.apply(lightness)
+    enhanced = cv2.cvtColor(
+        cv2.merge((lightness, channel_a, channel_b)),
+        cv2.COLOR_LAB2BGR,
+    )
+    return cv2.convertScaleAbs(enhanced, alpha=1.04, beta=3)
+
+
+def estimate_pose(face: np.ndarray) -> str | None:
+    """Estimate coarse pose from YuNet's five facial landmarks."""
+    if face.shape[0] < 14:
+        return None
+
+    left_eye = np.asarray(face[4:6], dtype=np.float32)
+    right_eye = np.asarray(face[6:8], dtype=np.float32)
+    nose = np.asarray(face[8:10], dtype=np.float32)
+    mouth_left = np.asarray(face[10:12], dtype=np.float32)
+    mouth_right = np.asarray(face[12:14], dtype=np.float32)
+    eye_span = max(float(np.linalg.norm(right_eye - left_eye)), 1.0)
+    eye_center = (left_eye + right_eye) / 2.0
+    mouth_center = (mouth_left + mouth_right) / 2.0
+    yaw = float((nose[0] - eye_center[0]) / eye_span)
+    pitch = float((nose[1] - eye_center[1]) / max(float(mouth_center[1] - eye_center[1]), 1.0))
+
+    # YuNet receives the unmirrored camera frame. A user's left therefore
+    # appears on the image's right side, opposite to the mirrored preview.
+    if yaw <= -0.10:
+        return "right"
+    if yaw >= 0.10:
+        return "left"
+    if pitch <= 0.34:
+        return "up"
+    if pitch >= 0.58:
+        return "down"
+    return "front"
+
+
+def detect_face(image: np.ndarray, engine: ModelBundle) -> tuple[np.ndarray, tuple[float, float, float, float], float, str | None] | None:
     try:
         engine.detector.setInputSize((image.shape[1], image.shape[0]))
         _, faces = engine.detector.detect(image)
@@ -255,7 +340,7 @@ def detect_face(image: np.ndarray, engine: ModelBundle) -> tuple[np.ndarray, tup
 
     det_score = float(face[14]) if face.shape[0] > 14 else 0.0
 
-    return embedding, bbox, det_score
+    return embedding, bbox, det_score, estimate_pose(face)
 
 
 def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
@@ -267,13 +352,28 @@ def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
     analyses: list[FaceFrameAnalysis] = []
 
     for frame_data in frame_payloads:
-        image = decode_data_url(frame_data)
-        detection = detect_face(image, engine)
-        if detection is None:
+        image = improve_low_light(decode_data_url(frame_data))
+        # Mobile camera frames may arrive in the sensor's landscape
+        # orientation even when the preview is portrait. Try the native frame
+        # first, then the three rotated variants before rejecting the sample.
+        oriented_image = None
+        detection = None
+        for candidate_image in (
+            image,
+            cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE),
+            cv2.rotate(image, cv2.ROTATE_180),
+            cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE),
+        ):
+            detection = detect_face(candidate_image, engine)
+            if detection is not None:
+                oriented_image = candidate_image
+                break
+
+        if detection is None or oriented_image is None:
             continue
 
-        embedding, bbox_values, det_score = detection
-        crop = crop_with_padding(image, bbox_values)
+        embedding, bbox_values, det_score, pose = detection
+        crop = crop_with_padding(oriented_image, bbox_values)
         blur_score, brightness, contrast = sample_crop_metrics(crop)
 
         analyses.append(
@@ -285,6 +385,7 @@ def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
                 brightness=brightness,
                 contrast=contrast,
                 frame_data=frame_data,
+                pose=pose,
             )
         )
 
@@ -446,12 +547,30 @@ def enroll(request: EnrollRequest, _: None = Depends(require_api_key)) -> dict[s
     analyses = analyze_frames(request.frames)
     best = choose_best_analysis(analyses)
     liveness_score, challenges, metadata = compute_liveness(analyses)
+    quality_score = round(clamp(
+        clamp(best.blur_score / 220.0) * 0.55
+        + clamp(best.contrast / 42.0) * 0.25
+        + clamp(best.brightness / 160.0) * 0.20
+    ), 4)
+    expected_pose = request.context.get("expected_pose")
+    if best.det_score < settings.det_score_threshold:
+        raise HTTPException(status_code=422, detail={"message": "Deteksi wajah terlalu rendah.", "reason": "LOW_DETECTION_SCORE"})
+    if quality_score < settings.min_quality:
+        raise HTTPException(status_code=422, detail={"message": "Kualitas frame wajah terlalu rendah.", "reason": "LOW_QUALITY"})
+    enrollment_phase = request.context.get("enrollment_phase")
+    if expected_pose and best.pose and expected_pose != best.pose and not enrollment_phase:
+        raise HTTPException(status_code=422, detail={"message": "Pose wajah tidak sesuai instruksi.", "reason": "INVALID_POSE", "pose": best.pose})
 
-    if liveness_score < settings.min_liveness:
+    # The kiosk performs the directional challenge before taking this burst.
+    # Since the burst is captured after the movement, its server-side motion
+    # heuristic is diagnostic only during enrollment. Attendance verification
+    # still enforces the configured liveness threshold.
+    if liveness_score < settings.min_liveness and not enrollment_phase and not request.context.get("rebuild", False):
         raise HTTPException(
             status_code=422,
             detail={
                 "message": "Registrasi wajah ditolak karena liveness belum meyakinkan.",
+                "reason": "LOW_LIVENESS",
                 "notes": "liveness_below_threshold",
                 "provider": settings.provider,
                 "liveness_score": liveness_score,
@@ -460,18 +579,102 @@ def enroll(request: EnrollRequest, _: None = Depends(require_api_key)) -> dict[s
             },
         )
 
-    return {
+    result = {
         "success": True,
         "message": "Data wajah berhasil diproses oleh engine Python.",
         "notes": "face_enrolled_python",
         "provider": settings.provider,
+        "model": settings.model,
+        "model_version": settings.model_version,
         "face_embedding": best.embedding.astype(float).tolist(),
         "liveness_score": liveness_score,
         "liveness_challenges": challenges,
         "captured_image": best.frame_data,
-        "quality_score": round(clamp(best.blur_score / 220.0), 4),
+        "quality_score": quality_score,
+        "metadata": metadata,
+        "pose": best.pose,
+        "detection_score": round(best.det_score, 4),
+    }
+    logger.info(
+        "ENROLL success=true teacher_id=%s teacher=%s pose=%s detection=%.4f quality=%.4f liveness=%.4f frames=%s",
+        request.teacher_id,
+        request.teacher_name or "-",
+        best.pose or "unknown",
+        best.det_score,
+        quality_score,
+        liveness_score,
+        len(analyses),
+    )
+    return result
+
+
+@app.post("/api/v1/analyze")
+def analyze(request: AnalyzeRequest, _: None = Depends(require_api_key)) -> dict[str, Any]:
+    analyses = analyze_frames(request.frames[:1])
+    if not analyses:
+        raise HTTPException(status_code=422, detail={
+            "message": "Tidak ditemukan tepat satu wajah yang valid pada frame.",
+            "reason": "NO_FACE",
+        })
+
+    best = choose_best_analysis(analyses)
+    liveness_score, challenges, metadata = compute_liveness(analyses)
+    quality_score = round(clamp(
+        clamp(best.blur_score / 220.0) * 0.55
+        + clamp(best.contrast / 42.0) * 0.25
+        + clamp(best.brightness / 160.0) * 0.20
+    ), 4)
+    expected_pose = request.expected_pose or request.context.get("expected_pose")
+    if best.det_score < settings.det_score_threshold:
+        reason = "LOW_DETECTION_SCORE"
+    elif quality_score < settings.min_quality:
+        reason = "LOW_QUALITY"
+    elif expected_pose and best.pose and expected_pose != best.pose:
+        reason = "INVALID_POSE"
+    elif liveness_score < settings.min_liveness:
+        reason = "LOW_LIVENESS"
+    else:
+        reason = None
+
+    if reason:
+        raise HTTPException(status_code=422, detail={
+            "message": "Frame wajah tidak memenuhi syarat enrollment.",
+            "reason": reason,
+            "provider": settings.provider,
+            "model": settings.model,
+            "model_version": settings.model_version,
+            "detection_score": round(best.det_score, 4),
+            "quality_score": quality_score,
+            "liveness_score": liveness_score,
+            "face_bbox": list(best.bbox),
+            "pose": best.pose,
+            "liveness_challenges": challenges,
+            "metadata": metadata,
+        })
+
+    result = {
+        "success": True,
+        "provider": settings.provider,
+        "model": settings.model,
+        "model_version": settings.model_version,
+        "embedding": best.embedding.astype(float).tolist(),
+        "detection_score": round(best.det_score, 4),
+        "quality_score": quality_score,
+        "liveness_score": liveness_score,
+        "face_bbox": list(best.bbox),
+        "pose": best.pose,
+        "liveness_challenges": challenges,
         "metadata": metadata,
     }
+    logger.info(
+        "ANALYZE success=true pose=%s detection=%.4f quality=%.4f liveness=%.4f frames=%s",
+        best.pose or "unknown",
+        best.det_score,
+        quality_score,
+        liveness_score,
+        len(analyses),
+    )
+    return result
 
 
 @app.post("/api/v1/identify")
@@ -539,6 +742,43 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
             },
         )
 
+    if len(analyses) >= settings.min_frames:
+        frame_winners: list[int] = []
+        for analysis in analyses:
+            winner_id = None
+            winner_similarity = -1.0
+            for candidate in request.candidates:
+                for vector in candidate.vectors:
+                    if not is_vector_compatible(vector.type):
+                        continue
+                    similarity = candidate_similarity(analysis.embedding, vector.values)
+                    if similarity > winner_similarity:
+                        winner_similarity = similarity
+                        winner_id = candidate.user_id
+            if winner_id is not None:
+                frame_winners.append(winner_id)
+
+        consensus_required = max(2, math.ceil(len(analyses) * 0.6))
+        consensus_count = frame_winners.count(best_candidate.user_id)
+        if consensus_count < consensus_required:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "message": "Hasil pembacaan wajah tidak konsisten. Silakan ulangi scan.",
+                    "notes": "identity_unstable",
+                    "reason": "IDENTITY_UNSTABLE",
+                    "provider": settings.provider,
+                    "model": settings.model,
+                    "model_version": settings.model_version,
+                    "similarity": round(best_similarity, 4),
+                    "consensus_count": consensus_count,
+                    "consensus_required": consensus_required,
+                    "liveness_score": liveness_score,
+                    "liveness_challenges": challenges,
+                    "metadata": metadata,
+                },
+            )
+
     if best_similarity < settings.min_similarity:
         raise HTTPException(
             status_code=422,
@@ -554,11 +794,13 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
             },
         )
 
-    return {
+    result = {
         "success": True,
         "message": "Identitas wajah berhasil dikenali oleh engine Python.",
         "notes": "face_identified_python",
         "provider": settings.provider,
+        "model": settings.model,
+        "model_version": settings.model_version,
         "user_id": best_candidate.user_id,
         "face_id_used": best_face_id,
         "similarity": round(best_similarity, 4),
@@ -569,10 +811,20 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         "face_embedding": best.embedding.astype(float).tolist(),
         "metadata": metadata,
     }
+    logger.info(
+        "IDENTIFY result=MATCH user_id=%s face_id=%s similarity=%.4f threshold=%.4f liveness=%.4f frames=%s",
+        best_candidate.user_id,
+        best_face_id or "-",
+        best_similarity,
+        settings.min_similarity,
+        liveness_score,
+        len(analyses),
+    )
+    return result
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(_, exc: HTTPException) -> Any:
+async def http_exception_handler(request: Request, exc: HTTPException) -> Any:
     detail = exc.detail
     if isinstance(detail, dict):
         payload = {"success": False, **detail}
@@ -583,11 +835,23 @@ async def http_exception_handler(_, exc: HTTPException) -> Any:
             "notes": "engine_request_failed",
         }
 
+    logger.warning(
+        "RESULT result=REJECTED path=%s status=%s reason=%s message=%s user_id=%s pose=%s similarity=%s liveness=%s",
+        request.url.path,
+        exc.status_code,
+        payload.get("reason") or payload.get("notes") or "HTTP_ERROR",
+        payload.get("message") or "-",
+        payload.get("user_id") or payload.get("teacher_id") or "-",
+        payload.get("pose") or "-",
+        payload.get("similarity", "-"),
+        payload.get("liveness_score", "-"),
+    )
     return fastapi_json_response(payload, exc.status_code)
 
 
 @app.exception_handler(Exception)
-async def generic_exception_handler(_, exc: Exception) -> Any:
+async def generic_exception_handler(request: Request, exc: Exception) -> Any:
+    logger.exception("RESULT result=ENGINE_ERROR path=%s message=%s", request.url.path, exc)
     return fastapi_json_response(
         {
             "success": False,

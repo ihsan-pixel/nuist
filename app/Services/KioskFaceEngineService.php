@@ -10,17 +10,28 @@ class KioskFaceEngineService
 {
     public function driver(): string
     {
-        return 'browser';
+        return (string) config('kiosk_face_v2.driver', 'python');
     }
 
     public function usesPython(): bool
     {
-        return false;
+        return $this->driver() === 'python';
     }
 
     public function displayLabel(): string
     {
-        return 'Browser Face API';
+        return $this->usesPython() ? 'Python YuNet + SFace' : 'Browser Face API';
+    }
+
+    public function analyzeFrame(string $frame, ?string $expectedPose = null): array
+    {
+        $response = $this->postJson('/api/v1/analyze', [
+            'frames' => [$frame],
+            'expected_pose' => $expectedPose,
+            'context' => ['expected_pose' => $expectedPose],
+        ]);
+
+        return $response;
     }
 
     public function enroll(User $teacher, array $payload, array $context = []): array
@@ -57,6 +68,9 @@ class KioskFaceEngineService
             'success' => true,
             'message' => (string) ($response['message'] ?? 'Data wajah berhasil diproses oleh engine Python.'),
             'provider' => $this->normalizeProvider($response['provider'] ?? data_get($response, 'metadata.provider')),
+            'model' => (string) ($response['model'] ?? config('kiosk_face_v2.model', 'sface')),
+            'model_version' => (string) ($response['model_version'] ?? config('kiosk_face_v2.model_version', 'v1')),
+            'detection_score' => $this->normalizeFloat($response['detection_score'] ?? null),
             'face_embedding' => $embedding,
             'face_embedding_dimension' => count($embedding),
             'liveness_score' => $this->normalizeFloat($response['liveness_score'] ?? null),
@@ -137,11 +151,19 @@ class KioskFaceEngineService
             if (!$response->successful()) {
                 $json = $response->json();
 
-                return $this->failure(
+                $failure = $this->failure(
                     is_array($json) ? (string) ($json['message'] ?? 'Engine wajah Python menolak permintaan.') : 'Engine wajah Python menolak permintaan.',
                     is_array($json) ? (string) ($json['notes'] ?? 'engine_request_failed') : 'engine_request_failed',
                     $response->status()
                 );
+                if (is_array($json)) {
+                    foreach (['reason', 'provider', 'model', 'model_version', 'quality_score', 'liveness_score', 'detection_score', 'similarity', 'face_distance', 'consensus_count', 'consensus_required', 'metadata'] as $key) {
+                        if (array_key_exists($key, $json)) {
+                            $failure[$key] = $json[$key];
+                        }
+                    }
+                }
+                return $failure;
             }
 
             $json = $response->json();
@@ -167,11 +189,11 @@ class KioskFaceEngineService
     {
         $request = Http::acceptJson()
             ->contentType('application/json')
-            ->baseUrl((string) config('kiosk_face.python_service.base_url'))
-            ->timeout((int) config('kiosk_face.python_service.timeout', 20))
-            ->connectTimeout((int) config('kiosk_face.python_service.connect_timeout', 5));
+            ->baseUrl((string) config('kiosk_face_v2.python_service.base_url'))
+            ->timeout((int) config('kiosk_face_v2.python_service.timeout', 20))
+            ->connectTimeout((int) config('kiosk_face_v2.python_service.connect_timeout', 5));
 
-        $apiKey = trim((string) config('kiosk_face.python_service.api_key'));
+        $apiKey = trim((string) config('kiosk_face_v2.python_service.api_key'));
         if ($apiKey !== '') {
             $request = $request->withHeaders([
                 'X-Kiosk-Service-Key' => $apiKey,
@@ -202,14 +224,28 @@ class KioskFaceEngineService
     private function buildCandidate(User $user): ?array
     {
         $stored = $user->decodedFaceData();
-        if (!is_array($stored) || $stored === []) {
-            return null;
-        }
-
         $vectors = [];
 
+        foreach ($user->biometricProfiles()
+            ->where('status', 'active')
+            ->where('engine', 'opencv')
+            ->where('model', config('kiosk_face_v2.model', 'sface'))
+            ->where('model_version', config('kiosk_face_v2.model_version', 'v1'))
+            ->get() as $profile) {
+            $profileEmbedding = $this->normalizeVector($profile->embedding);
+            if ($profileEmbedding !== []) {
+                $vectors[] = [
+                    'type' => 'face_embedding:'.config('kiosk_face_v2.provider', 'opencv_sface'),
+                    'dimension' => count($profileEmbedding),
+                    'values' => $profileEmbedding,
+                    'pose' => $profile->pose,
+                ];
+            }
+        }
+
+        $stored = is_array($stored) ? $stored : [];
         $embedding = $this->normalizeVector($stored['face_embedding'] ?? null);
-        if ($embedding !== []) {
+        if ($embedding !== [] && $vectors === []) {
             $vectors[] = [
                 'type' => $this->embeddingVectorType($stored),
                 'dimension' => count($embedding),
@@ -274,7 +310,7 @@ class KioskFaceEngineService
             }
         }
 
-        $maxFrames = max(1, (int) config('kiosk_face.capture.max_frames', 8));
+        $maxFrames = max(1, (int) config('kiosk_face_v2.capture.max_frames', 8));
 
         return collect($frames)
             ->filter(fn ($frame) => is_string($frame) && str_starts_with($frame, 'data:image/'))

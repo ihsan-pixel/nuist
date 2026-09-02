@@ -16,10 +16,10 @@
     <meta property="og:description" content="Sistem Informasi Digital LP. Ma'arif NU PWNU DIY - Platform terintegrasi untuk manajemen madrasah, presensi, dan data pendidikan." />
     <meta property="og:url" content="<?php echo e(url()->current()); ?>" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="<?php echo e(asset('images/logo favicon 1.png')); ?>" />
+    <meta property="og:image" content="<?php echo e(asset('build/images/logo-light.png')); ?>" />
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="<?php echo e(asset('images/logo favicon 1.png')); ?>">
+    <link rel="shortcut icon" href="<?php echo e(asset('build/images/favicon.ico')); ?>">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">

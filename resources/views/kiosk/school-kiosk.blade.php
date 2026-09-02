@@ -7,6 +7,7 @@
 @endsection
 
 @section('css')
+<link rel="stylesheet" href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}">
 <style>
     body.kiosk-fullscreen-page {
         margin: 0;
@@ -1913,6 +1914,7 @@
 
 @section('script')
 @if($accessGranted)
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
 <script src="{{ asset('js/vendor/lottie.min.js') }}"></script>
 <script src="{{ asset('models/face-api.js') }}"></script>
 <script src="{{ asset('js/face-recognition.js') }}"></script>
@@ -2286,15 +2288,23 @@
             return referenceDate < cutoff;
         }
 
-        function confirmEarlyCheckoutIfNeeded(teacherName) {
+        async function confirmEarlyCheckoutIfNeeded(teacherName) {
             if (!isEarlyCheckoutTime()) {
                 return true;
             }
 
             const pulangStartLabel = String(schoolPulangStart || '').slice(0, 5);
-            const answer = window.confirm(
-                `${teacherName || 'Guru'} belum masuk jam pulang (${pulangStartLabel}). Setujukah melakukan presensi pulang awal?`
-            );
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'Konfirmasi Presensi Pulang Awal',
+                text: `${teacherName || 'Guru'} belum masuk jam pulang (${pulangStartLabel}). Apakah presensi pulang awal tetap dilakukan?`,
+                showCancelButton: true,
+                confirmButtonText: 'Ya, proses presensi',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusCancel: true,
+            });
+            const answer = result.isConfirmed;
 
             if (!answer) {
                 setPrimaryNotice('Presensi pulang dibatalkan', 'Operator memilih untuk tidak mengirim presensi pulang awal.');
@@ -2702,27 +2712,32 @@
             if (kioskFlashModal) {
                 kioskFlashModal.hidden = true;
             }
+
+            if (window.Swal) {
+                Swal.close();
+            }
         }
 
         function showFlashModal(options) {
-            if (!kioskFlashModal || !kioskFlashCard) {
+            if (!window.Swal) {
                 return;
             }
 
-            const tone = options?.tone === 'warning' ? 'warning' : 'success';
-            kioskFlashCard.classList.remove('is-success', 'is-warning');
-            kioskFlashCard.classList.add(tone === 'warning' ? 'is-warning' : 'is-success');
-            kioskFlashIcon.innerHTML = `<i class="bx ${tone === 'warning' ? 'bx-error-circle' : 'bx-check-circle'}"></i>`;
-            kioskFlashTitle.textContent = options?.title || 'Informasi Presensi';
-            kioskFlashCopy.textContent = options?.copy || '';
-            kioskFlashMeta.textContent = options?.meta || '';
-            kioskFlashModal.hidden = false;
+            const tone = ['success', 'warning', 'error', 'info'].includes(options?.tone)
+                ? options.tone
+                : 'info';
 
-            if (flashTimer) {
-                window.clearTimeout(flashTimer);
-            }
-
-            flashTimer = window.setTimeout(hideFlashModal, options?.duration ?? 2400);
+            Swal.fire({
+                icon: tone,
+                title: options?.title || 'Informasi Presensi',
+                text: options?.copy || '',
+                footer: options?.meta || undefined,
+                timer: options?.duration ?? 2400,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                allowOutsideClick: true,
+                allowEscapeKey: true,
+            });
         }
 
         function createRequestError(payload, fallbackMessage) {
@@ -2932,6 +2947,13 @@
                 setScanBadge('Kamera gagal', 'danger');
                 setCameraGuide('Izinkan kamera lalu mulai ulang scanner.', 'bx-camera-off');
                 restartScannerButton.hidden = false;
+                showFlashModal({
+                    tone: 'error',
+                    title: 'Kamera Tidak Dapat Diakses',
+                    copy: error.message || 'Izinkan akses kamera agar kiosk dapat digunakan.',
+                    meta: 'Periksa izin kamera pada browser lalu coba mulai ulang scanner.',
+                    duration: 4200,
+                });
                 throw error;
             }
         }
@@ -2940,7 +2962,7 @@
             const teacherName = matchedTeacherCandidate?.name || 'Guru';
             const isCheckoutCandidate = Boolean(matchedTeacherCandidate?.has_open_attendance);
             if (isCheckoutCandidate && isEarlyCheckoutTime()) {
-                const confirmed = confirmEarlyCheckoutIfNeeded(teacherName);
+                const confirmed = await confirmEarlyCheckoutIfNeeded(teacherName);
                 if (!confirmed) {
                     finishMatchHud(false, 'Dibatalkan');
                     clearCameraGuideLock();
@@ -3219,6 +3241,15 @@
                 setPrimaryNotice('Scan belum berhasil', message);
                 setScanBadge('Scan diulang', 'warning');
                 setCameraGuide(message, 'bx-refresh', { force: true });
+                if (error.statusCode !== 'attendance_checkout_too_early') {
+                    showFlashModal({
+                        tone: 'error',
+                        title: 'Presensi Belum Berhasil',
+                        copy: message,
+                        meta: 'Scanner akan mencoba kembali secara otomatis.',
+                        duration: 3000,
+                    });
+                }
                 if (error.statusCode === 'attendance_checkout_too_early') {
                     showFlashModal({
                         tone: 'warning',
@@ -3441,6 +3472,14 @@
                 enrollmentGuideText.textContent = 'Registrasi selesai. Menutup modal dan kembali ke mode presensi.';
                 setEnrollmentQualityState(100, 'success', 'Tersimpan', 'Data wajah sudah berhasil disimpan dan siap dipakai untuk presensi.');
 
+                showFlashModal({
+                    tone: 'success',
+                    title: 'Data Wajah Berhasil Disimpan',
+                    copy: `${selectedEnrollmentTeacher?.name || 'Guru'} sudah dapat melakukan presensi melalui kiosk.`,
+                    meta: payload.message || 'Data wajah tersimpan pada enrollment kiosk presensi.',
+                    duration: 3000,
+                });
+
                 window.setTimeout(function () {
                     if (faceEnrollmentModal) {
                         faceEnrollmentModal.hide();
@@ -3451,6 +3490,13 @@
                 enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah gagal disimpan.';
                 enrollmentGuideText.textContent = 'Penyimpanan gagal. Periksa hasil scan lalu coba simpan kembali.';
                 setEnrollmentQualityState(100, 'warning', 'Siap simpan', 'Hasil scan masih tersedia. Anda bisa mencoba menyimpan kembali tanpa scan ulang.');
+                showFlashModal({
+                    tone: 'error',
+                    title: 'Penyimpanan Data Wajah Gagal',
+                    copy: error.message || 'Data wajah belum berhasil disimpan.',
+                    meta: 'Periksa hasil scan lalu coba simpan kembali.',
+                    duration: 3600,
+                });
             } finally {
                 enrollmentBusy = false;
                 updateEnrollmentActionState();

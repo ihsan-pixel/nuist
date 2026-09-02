@@ -51,7 +51,7 @@ $showAvatarImage = $avatarPath
             </div>
 
             <!-- School Name -->
-            <div class="text-start flex-grow-1" style="margin-left: 2px; min-width: 0;">
+            <div class="text-start grow" style="margin-left: 2px; min-width: 0;">
                 <small class="header-text fw-medium d-block" style="font-size: 11px; line-height: 1.2;">
                     <?php echo e(Auth::user()->madrasah?->name ?? 'Asal sekolah belum diatur'); ?>
 
@@ -60,7 +60,7 @@ $showAvatarImage = $avatarPath
             </div>
 
             <!-- Notification and Menu Buttons (Right) -->
-            <div class="d-flex align-items-center flex-shrink-0 mobile-topbar-actions">
+            <div class="d-flex align-items-center shrink mobile-topbar-actions">
                 <!-- Notification Bell -->
                 <a href="<?php echo e(route('mobile.notifications')); ?>" class="btn btn-link text-decoration-none p-0 me-2 position-relative">
                     <i class="bx bx-bell header-icon" style="font-size: 22px;"></i>

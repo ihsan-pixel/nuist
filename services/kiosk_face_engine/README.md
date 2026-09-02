@@ -22,6 +22,7 @@ Versi ini sengaja tidak lagi memakai `insightface`, karena shared hosting umumny
 
 - `GET /health`
 - `POST /api/v1/enroll`
+- `POST /api/v1/analyze`
 - `POST /api/v1/identify`
 
 ## Request ringkas
@@ -71,6 +72,8 @@ Jika Anda menaruh model di lokasi lain, atur path lewat environment variable.
 
 ## Menjalankan service
 
+Pada macOS ARM dengan Python 3.14, gunakan ONNX Runtime `1.24.1` atau lebih baru dan Pydantic `2.12.5` atau lebih baru. Versi lama tidak menyediakan wheel yang kompatibel dengan kombinasi platform tersebut.
+
 ```bash
 cd services/kiosk_face_engine
 python3 -m venv .venv
@@ -110,4 +113,6 @@ KIOSK_FACE_MIN_LIVENESS=0.68
 
 - Liveness saat ini masih berbasis heuristic burst-frame, blur, texture, contrast, motion, dan replay-risk score.
 - Untuk anti-spoof yang lebih kuat, langkah berikutnya sebaiknya menambah model dedicated anti-spoof/liveness.
-- Laravel sudah mendukung driver `browser` dan `python` melalui `config/kiosk_face.php`.
+- Laravel menggunakan driver `python` sebagai default melalui `config/kiosk_face.php`.
+- Metadata embedding produksi adalah `provider=opencv_sface`, `model=sface`, `model_version=v1`, `dimension=128`.
+- Flutter hanya mengirim 3-5 frame ke Laravel untuk verifikasi 1:1; Flutter tidak menghasilkan embedding final.

@@ -33,7 +33,7 @@
         ? trim((string) $__env->yieldContent('title')) . ' | Nuist.id - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY'
         : 'Nuist.id - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY';
     $canonicalUrl = url()->current();
-    $ogImage = asset('images/logo favicon 1.png');
+    $ogImage = asset('build/images/logo-light.png');
 @endphp
 
 <head>

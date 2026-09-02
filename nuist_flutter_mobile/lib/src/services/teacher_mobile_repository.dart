@@ -195,7 +195,7 @@ class TeacherMobileRepository {
     try {
       final response = await _withRetry<Map<String, dynamic>>(
         request: () => _apiClient.dio.post<Map<String, dynamic>>(
-          '/face/enroll',
+          '/v2/face/enroll',
           data: payload,
         ),
         actionLabel: 'daftar wajah',
@@ -223,7 +223,7 @@ class TeacherMobileRepository {
     try {
       final response = await _withRetry<Map<String, dynamic>>(
         request: () => _apiClient.dio.post<Map<String, dynamic>>(
-          '/biometric/enroll',
+          '/v2/biometric/enroll',
           data: payload,
         ),
         actionLabel: 'daftar biometrik',
@@ -242,7 +242,7 @@ class TeacherMobileRepository {
     try {
       final response = await _withRetry<Map<String, dynamic>>(
         request: () => _apiClient.dio.get<Map<String, dynamic>>(
-          '/face/biometric/status',
+          '/v2/face/biometric/status',
         ),
         actionLabel: 'status biometrik',
       );
@@ -278,7 +278,7 @@ class TeacherMobileRepository {
     try {
       final response = await _withRetry<Map<String, dynamic>>(
         request: () => _apiClient.dio.post<Map<String, dynamic>>(
-          '/biometric/verify',
+          '/v2/biometric/verify',
           data: payload,
         ),
         actionLabel: 'verifikasi biometrik',

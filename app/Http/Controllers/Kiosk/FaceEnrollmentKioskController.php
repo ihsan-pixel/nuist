@@ -7,6 +7,8 @@ use App\Models\FaceEnrollmentCapture;
 use App\Models\Madrasah;
 use App\Models\FaceEnrollmentSession;
 use App\Models\User;
+use App\Services\BiometricProfileService;
+use App\Services\KioskFaceEngineService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,12 +19,17 @@ class FaceEnrollmentKioskController extends Controller
 {
     private array $phases = [
         ['key' => 'front', 'label' => 'Lihat Depan'],
+        ['key' => 'front_2', 'label' => 'Lihat Depan (Template 2)'],
         ['key' => 'left', 'label' => 'Lihat Kiri'],
         ['key' => 'right', 'label' => 'Lihat Kanan'],
         ['key' => 'up', 'label' => 'Lihat Atas'],
+        ['key' => 'down', 'label' => 'Lihat Bawah'],
     ];
 
-    public function __construct()
+    public function __construct(
+        private KioskFaceEngineService $faceEngine,
+        private BiometricProfileService $profileService,
+    )
     {
         $this->middleware(['auth', 'role:super_admin']);
     }
@@ -104,16 +111,46 @@ class FaceEnrollmentKioskController extends Controller
         $this->authorizeSession($session);
 
         $validated = $request->validate([
-            'phase_key' => ['required', 'string', 'in:front,left,right,up'],
+            'phase_key' => ['required', 'string', 'in:front,front_2,left,right,up,down'],
             'phase_label' => ['required', 'string', 'max:64'],
-            'capture_index' => ['required', 'integer', 'min:1', 'max:4'],
+            'capture_index' => ['required', 'integer', 'min:1', 'max:6'],
             'captured_image' => ['required', 'string', 'min:100'],
+            'frames' => ['required', 'array', 'min:1', 'max:8'],
+            'frames.*' => ['required', 'string', 'starts_with:data:image/'],
             'face_descriptor' => ['nullable', 'array'],
             'face_descriptor.*' => ['numeric'],
             'quality_score' => ['nullable', 'numeric', 'min:0', 'max:1'],
             'liveness_score' => ['nullable', 'numeric', 'min:0', 'max:1'],
             'metadata' => ['nullable', 'array'],
         ]);
+
+        $engineResult = $this->faceEngine->enroll(
+            $session->user,
+            ['selfie_frames' => $validated['frames']],
+            ['expected_pose' => str_starts_with($validated['phase_key'], 'front') ? 'front' : $validated['phase_key'], 'enrollment_phase' => $validated['phase_key']],
+        );
+
+        if (!($engineResult['success'] ?? false)) {
+            return response()->json([
+                'success' => false,
+                'code' => $this->mapEngineReason($engineResult),
+                'message' => $engineResult['message'] ?? 'Engine wajah menolak capture ini.',
+                'reason' => $engineResult['reason'] ?? null,
+                'quality_score' => $engineResult['quality_score'] ?? null,
+                'liveness_score' => $engineResult['liveness_score'] ?? null,
+                'pose' => $engineResult['pose'] ?? null,
+                'engine' => $engineResult,
+            ], (int) ($engineResult['status'] ?? 422));
+        }
+
+        $embedding = $engineResult['face_embedding'] ?? [];
+        if (!is_array($embedding) || count($embedding) !== (int) config('biometric_v2.dimension', 128)) {
+            return response()->json([
+                'success' => false,
+                'code' => 'INVALID_EMBEDDING',
+                'message' => 'Embedding SFace dari engine tidak valid.',
+            ], 422);
+        }
 
         $capture = FaceEnrollmentCapture::updateOrCreate(
             [
@@ -123,19 +160,25 @@ class FaceEnrollmentKioskController extends Controller
             [
                 'phase_label' => $validated['phase_label'],
                 'capture_index' => $validated['capture_index'],
-                'captured_image' => $validated['captured_image'],
-                'face_descriptor' => $validated['face_descriptor'] ?? null,
-                'quality_score' => $validated['quality_score'] ?? null,
-                'liveness_score' => $validated['liveness_score'] ?? null,
-                'metadata' => $validated['metadata'] ?? null,
+                'captured_image' => $engineResult['captured_image'] ?? $validated['captured_image'],
+                'face_descriptor' => $embedding,
+                'quality_score' => $engineResult['quality_score'] ?? null,
+                'liveness_score' => $engineResult['liveness_score'] ?? null,
+                'metadata' => array_merge($validated['metadata'] ?? [], [
+                    'provider' => $engineResult['provider'] ?? config('kiosk_face_v2.provider'),
+                    'model' => $engineResult['model'] ?? config('kiosk_face_v2.model'),
+                    'model_version' => $engineResult['model_version'] ?? config('kiosk_face_v2.model_version'),
+                    'detection_score' => $engineResult['detection_score'] ?? null,
+                    'engine_metadata' => $engineResult['metadata'] ?? [],
+                ]),
             ]
         );
 
         $session->update([
             'active_phase' => $validated['phase_key'],
-            'face_descriptor' => $validated['face_descriptor'] ?? $session->face_descriptor,
-            'quality_score' => $validated['quality_score'] ?? $session->quality_score,
-            'liveness_score' => $validated['liveness_score'] ?? $session->liveness_score,
+            'face_descriptor' => $embedding,
+            'quality_score' => $engineResult['quality_score'] ?? null,
+            'liveness_score' => $engineResult['liveness_score'] ?? null,
         ]);
 
         return response()->json([
@@ -151,8 +194,6 @@ class FaceEnrollmentKioskController extends Controller
         $this->authorizeSession($session);
 
         $validated = $request->validate([
-            'face_descriptor' => ['required', 'array', 'min:32'],
-            'face_descriptor.*' => ['numeric'],
             'liveness_score' => ['nullable', 'numeric', 'min:0', 'max:1'],
             'quality_score' => ['nullable', 'numeric', 'min:0', 'max:1'],
             'metadata' => ['nullable', 'array'],
@@ -166,9 +207,32 @@ class FaceEnrollmentKioskController extends Controller
             ]);
         }
 
+        $requiredKeys = collect($this->phases)->pluck('key')->sort()->values()->all();
+        $actualKeys = $captures->pluck('phase_key')->sort()->values()->all();
+        if ($requiredKeys !== $actualKeys) {
+            throw ValidationException::withMessages([
+                'captures' => 'Fase enrollment tidak lengkap atau tidak valid.',
+            ]);
+        }
+
+        $embeddings = $captures->map(fn (FaceEnrollmentCapture $capture) => $capture->face_descriptor)
+            ->filter(fn ($embedding) => is_array($embedding) && count($embedding) === (int) config('biometric_v2.dimension', 128))
+            ->values();
+        if ($embeddings->count() !== $requiredPhaseCount) {
+            throw ValidationException::withMessages([
+                'captures' => 'Tidak semua fase memiliki embedding SFace yang valid.',
+            ]);
+        }
+
         $teacher = $session->user;
         $faceData = [
-            'face_descriptor' => $validated['face_descriptor'],
+            'face_embedding' => $embeddings->first(),
+            'face_embedding_dimension' => (int) config('biometric_v2.dimension', 128),
+            'face_provider' => config('kiosk_face_v2.provider', 'opencv_sface'),
+            'face_model' => config('kiosk_face_v2.model', 'sface'),
+            'face_model_version' => config('kiosk_face_v2.model_version', 'v1'),
+            'descriptors' => $embeddings->all(),
+            'face_descriptor' => null,
             'captured_faces' => $captures->map(fn (FaceEnrollmentCapture $capture) => [
                 'phase_key' => $capture->phase_key,
                 'phase_label' => $capture->phase_label,
@@ -180,8 +244,8 @@ class FaceEnrollmentKioskController extends Controller
                 'created_at' => optional($capture->created_at)?->toIso8601String(),
             ])->values()->all(),
             'enrollment_phase_count' => $captures->count(),
-            'liveness_score' => $validated['liveness_score'] ?? null,
-            'quality_score' => $validated['quality_score'] ?? null,
+            'liveness_score' => $captures->min('liveness_score'),
+            'quality_score' => $captures->min('quality_score'),
             'enrolled_at' => now()->toIso8601String(),
             'enrolled_by' => Auth::id(),
             'enrollment_channel' => 'kiosk_2_admin_only',
@@ -190,18 +254,37 @@ class FaceEnrollmentKioskController extends Controller
             'metadata' => $validated['metadata'] ?? [],
         ];
 
-        $teacher->face_data = json_encode($faceData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-        $teacher->face_id = (string) Str::uuid();
-        $teacher->face_registered_at = now();
-        $teacher->face_verification_required = true;
-        $teacher->save();
+        $this->profileService->deactivateCompatibleProfiles(
+            $teacher,
+            'opencv',
+            config('kiosk_face_v2.model', 'sface'),
+            (int) config('biometric_v2.dimension', 128),
+            config('kiosk_face_v2.model_version', 'v1'),
+        );
+        foreach ($captures as $capture) {
+            $this->profileService->createProfile([
+                'user_id' => $teacher->id,
+                'engine' => 'opencv',
+                'model' => config('kiosk_face_v2.model', 'sface'),
+                'model_version' => config('kiosk_face_v2.model_version', 'v1'),
+                'pose' => $capture->phase_key,
+                'dimension' => (int) config('biometric_v2.dimension', 128),
+                'embedding' => $capture->face_descriptor,
+                'quality_score' => $capture->quality_score,
+                'liveness_score' => $capture->liveness_score,
+                'source' => 'kiosk_enrollment',
+                'status' => 'active',
+                'metadata' => $capture->metadata ?? [],
+                'enrolled_at' => now(),
+            ]);
+        }
 
         $session->update([
             'status' => 'completed',
-            'face_descriptor' => $validated['face_descriptor'],
+            'face_descriptor' => $embeddings->first(),
             'face_data' => $faceData,
-            'quality_score' => $validated['quality_score'] ?? $session->quality_score,
-            'liveness_score' => $validated['liveness_score'] ?? $session->liveness_score,
+            'quality_score' => $captures->min('quality_score'),
+            'liveness_score' => $captures->min('liveness_score'),
             'completed_at' => now(),
             'metadata' => array_merge($session->metadata ?? [], $validated['metadata'] ?? []),
         ]);
@@ -212,10 +295,29 @@ class FaceEnrollmentKioskController extends Controller
             'teacher' => [
                 'id' => $teacher->id,
                 'name' => $teacher->name,
-                'face_registered_at' => optional($teacher->face_registered_at)?->toIso8601String(),
-                'face_id' => $teacher->face_id,
+                'biometric_v2_registered' => true,
             ],
             'session' => $session->fresh(['captures']),
+        ]);
+    }
+
+    public function reset(FaceEnrollmentSession $session): JsonResponse
+    {
+        $this->authorizeSession($session);
+
+        if ($session->status === 'completed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi yang sudah selesai tidak dapat diulang dari awal.',
+            ], 422);
+        }
+
+        // Capture draft ikut terhapus melalui foreign key cascade.
+        $session->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sesi enrollment berhasil direset dari awal.',
         ]);
     }
 
@@ -224,5 +326,20 @@ class FaceEnrollmentKioskController extends Controller
         if ($session->operator_user_id !== Auth::id() && Auth::user()?->role !== 'super_admin') {
             abort(403, 'Unauthorized');
         }
+    }
+
+    private function mapEngineReason(array $result): string
+    {
+        $reason = strtoupper((string) ($result['reason'] ?? $result['notes'] ?? data_get($result, 'metadata.reason', 'ENGINE_ERROR')));
+
+        return match ($reason) {
+            'NO_FACE' => 'NO_FACE',
+            'MULTIPLE_FACES' => 'MULTIPLE_FACES',
+            'FACE_TOO_SMALL' => 'FACE_TOO_SMALL',
+            'LOW_QUALITY' => 'LOW_QUALITY',
+            'LOW_LIVENESS', 'LIVENESS_BELOW_THRESHOLD' => 'LOW_LIVENESS',
+            'INVALID_POSE' => 'INVALID_POSE',
+            default => 'ENGINE_ERROR',
+        };
     }
 }

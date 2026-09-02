@@ -66,7 +66,6 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
   late Future<Map<String, dynamic>> _future;
   late final ScrollController _scrollController;
   DateTime? _selectedCalendarMonth;
-  Map<String, dynamic> _profileData = const <String, dynamic>{};
   bool _hasScrolled = false;
 
   @override
@@ -76,7 +75,6 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
     _scrollController = ScrollController()..addListener(_handleScroll);
     _selectedCalendarMonth = _currentMonthAnchor();
     _future = _requestDashboardForMonth(_selectedCalendarMonth!);
-    unawaited(_loadProfileData());
   }
 
   @override
@@ -125,10 +123,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
     setState(() {
       _future = future;
     });
-    await Future.wait<void>([
-      future.then((_) {}),
-      _loadProfileData(),
-    ]);
+    await future;
   }
 
   DateTime _currentMonthAnchor() {
@@ -289,37 +284,6 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
     await future;
   }
 
-  Future<void> _loadProfileData() async {
-    try {
-      final data = await widget.repository.getProfile();
-      if (!mounted) {
-        return;
-      }
-
-      final profileUser = Map<String, dynamic>.from(
-        (data['user'] as Map?) ?? const <String, dynamic>{},
-      );
-      final avatarUrl = _normalizedAvatarUrl(
-        (profileUser['avatar_url'] as String?)?.trim(),
-      );
-
-      setState(() {
-        _profileData = data;
-      });
-
-      if (avatarUrl != null) {
-        unawaited(
-          precacheImage(
-            NetworkImage(avatarUrl),
-            context,
-          ).catchError((_) {}),
-        );
-      }
-    } catch (_) {
-      // Keep dashboard usable even when profile summary fails to load.
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -333,7 +297,9 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
+              physics: const ClampingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: const [
                 _LoadingBlock(),
@@ -346,7 +312,9 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
+              physics: const ClampingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 _ErrorBlock(
@@ -360,7 +328,6 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
 
         final headerData = _resolveDashboardHeaderData(
           data: data,
-          profileData: _profileData,
         );
 
         return RefreshIndicator(
@@ -369,7 +336,9 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
             children: [
               ListView(
                 controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const ClampingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
                 padding: const EdgeInsets.only(bottom: 28),
                 children: [
                   const _DashboardTopBackdrop(),
@@ -557,9 +526,8 @@ class _DashboardContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              IntrinsicHeight(
-                child: Row(
-                  children: [
+              Row(
+                children: [
                     Expanded(
                       child: _MonthlyStatTile(
                         label: 'Kehadiran',
@@ -599,8 +567,7 @@ class _DashboardContent extends StatelessWidget {
                         icon: Icons.cancel_rounded,
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ],
           ),
@@ -919,26 +886,25 @@ class _DashboardHeaderData {
 
 _DashboardHeaderData _resolveDashboardHeaderData({
   required Map<String, dynamic> data,
-  required Map<String, dynamic> profileData,
 }) {
-  final profileUser = Map<String, dynamic>.from(
-    (profileData['user'] as Map?) ?? const <String, dynamic>{},
-  );
   final user = Map<String, dynamic>.from(
     (data['user'] as Map?) ?? const <String, dynamic>{},
+  );
+  final userCard = Map<String, dynamic>.from(
+    (data['user_card'] as Map?) ?? const <String, dynamic>{},
   );
 
   final userName = (data['user_name'] as String?)?.trim().isNotEmpty == true
       ? data['user_name'] as String
-      : ((profileUser['name'] as String?)?.trim().isNotEmpty == true
-          ? (profileUser['name'] as String).trim()
+      : ((userCard['name'] as String?)?.trim().isNotEmpty == true
+          ? (userCard['name'] as String).trim()
           : ((user['name'] as String?)?.trim().isNotEmpty == true
               ? (user['name'] as String).trim()
               : 'Pengguna'));
 
   final schoolName =
-      (profileUser['school_name'] as String?)?.trim().isNotEmpty == true
-          ? (profileUser['school_name'] as String).trim()
+      (userCard['school_name'] as String?)?.trim().isNotEmpty == true
+          ? (userCard['school_name'] as String).trim()
           : (user['school_name'] as String?)?.trim().isNotEmpty == true
               ? (user['school_name'] as String).trim()
               : ((data['school_name'] as String?)?.trim().isNotEmpty == true
@@ -946,8 +912,8 @@ _DashboardHeaderData _resolveDashboardHeaderData({
                   : '-');
 
   final avatarUrl = _normalizedAvatarUrl(
-    (profileUser['avatar_url'] as String?)?.trim().isNotEmpty == true
-        ? (profileUser['avatar_url'] as String).trim()
+    (userCard['avatar_url'] as String?)?.trim().isNotEmpty == true
+        ? (userCard['avatar_url'] as String).trim()
         : (user['avatar_url'] as String?)?.trim().isNotEmpty == true
             ? (user['avatar_url'] as String).trim()
             : ((data['avatar_url'] as String?)?.trim().isNotEmpty == true
@@ -1088,6 +1054,8 @@ class _DashboardHeaderAvatar extends StatelessWidget {
               ? Image.network(
                   avatarUrl!.trim(),
                   fit: BoxFit.cover,
+                  cacheWidth: 104,
+                  cacheHeight: 104,
                   errorBuilder: (_, __, ___) => _DashboardAvatarFallback(
                     initials: initials,
                   ),
@@ -1328,21 +1296,14 @@ class _PerformanceCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              TweenAnimationBuilder<int>(
-                tween: IntTween(begin: 0, end: percent),
-                duration: const Duration(milliseconds: 900),
-                curve: Curves.easeOutCubic,
-                builder: (context, value, _) {
-                  return Text(
-                    '$value%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      height: 1,
-                    ),
-                  );
-                },
+              Text(
+                '$percent%',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  height: 1,
+                ),
               ),
             ],
           ),
@@ -1359,20 +1320,13 @@ class _PerformanceCard extends StatelessWidget {
           const SizedBox(height: 14),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
-            child: TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: progress.toDouble()),
-              duration: const Duration(milliseconds: 1000),
-              curve: Curves.easeOutCubic,
-              builder: (context, animatedValue, _) {
-                return LinearProgressIndicator(
-                  minHeight: 8,
-                  value: animatedValue,
-                  backgroundColor: const Color(0x1AFFFFFF),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFFF8D77A),
-                  ),
-                );
-              },
+            child: LinearProgressIndicator(
+              minHeight: 8,
+              value: progress.toDouble(),
+              backgroundColor: const Color(0x1AFFFFFF),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFFF8D77A),
+              ),
             ),
           ),
         ],
@@ -1857,25 +1811,18 @@ class _MonthlyStatTile extends StatelessWidget {
             child: Icon(icon, color: iconColor, size: 13),
           ),
           const SizedBox(height: 4),
-          TweenAnimationBuilder<int>(
-            tween: IntTween(begin: 0, end: numericValue),
-            duration: const Duration(milliseconds: 900),
-            curve: Curves.easeOutCubic,
-            builder: (context, animatedValue, _) {
-              return FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  '$animatedValue$suffix',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: _DashboardPalette.textPrimary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    height: 1,
-                  ),
-                ),
-              );
-            },
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '$numericValue$suffix',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: _DashboardPalette.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                height: 1,
+              ),
+            ),
           ),
           const SizedBox(height: 2),
           Text(
@@ -2084,7 +2031,9 @@ class _AllServicesPage extends StatelessWidget {
                     crossAxisCount: 4,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.85,
+                    // Leave room for the 58px icon and two-line labels on
+                    // devices using a larger system font.
+                    mainAxisExtent: 104,
                   ),
                   itemBuilder: (context, itemIndex) {
                     final item = section.items[itemIndex];

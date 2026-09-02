@@ -1312,6 +1312,7 @@ class FaceRecognition {
         }
 
         for (let index = 0; index < totalFrames; index += 1) {
+            // Keep the engine input in camera orientation; the preview mirror is UI-only.
             const frame = this.captureFrame(videoElement);
             const stats = this.sampleFrameStats(videoElement);
             const quality = this.estimateLightingScore(stats.brightness, stats.contrast);

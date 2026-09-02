@@ -4633,7 +4633,14 @@ window.addEventListener('load', function() {
             return;
         }
 
-        if (faceScanRequired && !faceVerificationApproved) {
+        // The automatic scan submits as soon as verification finishes. Ignore
+        // manual clicks during that async window instead of showing a false
+        // rejection alert while the scan is still running.
+        if (faceScanRequired && faceScanInProgress) {
+            return;
+        }
+
+        if (faceScanRequired && (!faceVerificationApproved || !faceScanReadyToSubmit)) {
             showFormalErrorAlert(
                 'Presensi Ditolak',
                 'Wajah belum berhasil diverifikasi. Silakan ulangi scan wajah terlebih dahulu.'

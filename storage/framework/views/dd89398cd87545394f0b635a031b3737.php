@@ -137,9 +137,9 @@
     }
 
     .brand-card {
-        width: 102px;
-        height: 102px;
-        padding: 15px;
+        width: 132px;
+        height: 96px;
+        padding: 14px 16px;
         border-radius: 20px;
         background: #ffffff;
         box-shadow: 0 10px 22px rgba(0, 85, 63, 0.08);
@@ -150,15 +150,17 @@
     }
 
     .brand-card-inline {
-        width: 88px;
-        height: 88px;
-        padding: 12px;
+        width: 168px;
+        height: 82px;
+        padding: 8px 14px;
     }
 
     .brand-card img {
         width: 100%;
-        height: 100%;
+        height: auto;
         object-fit: contain;
+        max-width: 100%;
+        max-height: 100%;
     }
 
     .welcome-title {

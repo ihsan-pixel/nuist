@@ -66,6 +66,7 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
   Timer? _clockTimer;
   String? _submissionFeedbackMessage;
   bool? _submissionFeedbackSuccess;
+  bool _checkingJournalLocation = false;
 
   final TextEditingController _materiController = TextEditingController();
   final TextEditingController _classTotalController = TextEditingController();
@@ -325,7 +326,65 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
         'Presensi mengajar berhasil dicatat.';
   }
 
+  Future<bool> _ensureJournalLocation(Map<String, dynamic> schedule) async {
+    if (_checkingJournalLocation) {
+      return false;
+    }
+
+    setState(() {
+      _checkingJournalLocation = true;
+    });
+
+    try {
+      if (_position == null) {
+        await _captureLocation();
+      }
+
+      if (!mounted || _position == null) {
+        throw Exception(
+          _locationError?.trim().isNotEmpty == true
+              ? _locationError!
+              : 'Lokasi belum tersedia. Aktifkan GPS lalu coba lagi.',
+        );
+      }
+
+      final locationCheck = await widget.repository.checkTeachingJournalLocation(
+        scheduleId: (schedule['id'] as num).toInt(),
+        latitude: _position!.latitude,
+        longitude: _position!.longitude,
+      );
+
+      if (locationCheck['is_within_polygon'] == true) {
+        return true;
+      }
+
+      throw Exception(
+        (locationCheck['_message'] as String?) ??
+            'Lokasi Anda berada di luar area polygon sekolah.',
+      );
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.toString().replaceFirst('Exception: ', '')),
+          ),
+        );
+      }
+      return false;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _checkingJournalLocation = false;
+        });
+      }
+    }
+  }
+
   Future<void> _openAttendanceSheet(Map<String, dynamic> schedule) async {
+    if (!await _ensureJournalLocation(schedule)) {
+      return;
+    }
+
     final storedClassTotal =
         (schedule['class_total_students'] as num?)?.toInt();
     final timeState = schedule['time_state'] as String? ?? 'after';

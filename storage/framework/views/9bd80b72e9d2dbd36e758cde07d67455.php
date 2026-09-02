@@ -17,7 +17,12 @@
 
             <div class="auth-header">
                 <div class="brand-card brand-card-inline">
-                    <img src="<?php echo e(asset('images/nuist_logo.png')); ?>" alt="Nuist">
+                    <img
+                        src="<?php echo e(asset('images/logo1.png')); ?>"
+                        alt="Nuist"
+                        onerror="this.onerror=null;this.src='<?php echo e(asset('images/logo1.png')); ?>';"
+                        style="width:100%;height:100%;max-width:64px;max-height:64px;display:block;object-fit:contain;"
+                    >
                 </div>
 
                 <h1 class="welcome-title">Lupa Password</h1>

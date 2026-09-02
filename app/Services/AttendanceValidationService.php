@@ -130,8 +130,14 @@ class AttendanceValidationService
         if ($accuracy !== null && $accuracy > 0 && $accuracy < 3) {
             $analysis['accuracy_check'] = true;
             $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
+            // A real Android GPS can report 1-2m accuracy. Keep this as an
+            // audit indicator, but do not reject a request on this alone.
+        }
+
+        if (filter_var($payload['is_mocked'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $analysis['suspicious_indicators'][] = 'device_mock_location';
             $isFake = true;
-            $messages[] = 'Akurasi GPS terlalu sempurna (Terindikasi Lokasi Palsu)';
+            $messages[] = 'Perangkat melaporkan penggunaan lokasi palsu';
         }
 
         if (!empty($payload['location_readings'])) {

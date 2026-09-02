@@ -146,6 +146,23 @@ class FaceCameraImageConverter {
     }
   }
 
+  img.Image convertToOrientedRgbImage(
+    CameraImage image,
+    CameraDescription camera,
+    DeviceOrientation orientation,
+  ) {
+    final rgb = convertToRgbImage(image);
+    final rotation = rotationFromOrientation(camera, orientation);
+    final angle = switch (rotation) {
+      InputImageRotation.rotation90deg => 90,
+      InputImageRotation.rotation180deg => 180,
+      InputImageRotation.rotation270deg => 270,
+      InputImageRotation.rotation0deg => 0,
+    };
+
+    return angle == 0 ? rgb : img.copyRotate(rgb, angle: angle);
+  }
+
   img.Image extractAlignedFaceCrop(
     CameraImage image,
     Face face, {

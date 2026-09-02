@@ -8,7 +8,7 @@
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/logo%20favicon%201.png') }}">
+    <link rel="shortcut icon" href="{{ asset('build/images/favicon.ico') }}">
     @include('layouts.head-css')
 </head>
 
@@ -45,4 +45,3 @@
 </body>
 
 </html>
-

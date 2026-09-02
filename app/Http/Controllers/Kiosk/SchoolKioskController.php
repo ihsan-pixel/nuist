@@ -10,7 +10,7 @@ use App\Services\AttendanceKioskAccessService;
 use App\Services\AttendanceValidationService;
 use App\Services\AttendanceWorkflowService;
 use App\Services\FaceVerificationService;
-use App\Services\KioskFaceEngineService;
+use App\Services\LegacyKioskFaceEngineService;
 use App\Services\MobileAttendanceSettingsService;
 use App\Services\SchoolKioskAttendanceService;
 use Carbon\Carbon;
@@ -32,7 +32,7 @@ class SchoolKioskController extends Controller
         private FaceVerificationService $faceVerificationService,
         private AttendanceValidationService $attendanceValidationService,
         private AttendanceWorkflowService $attendanceWorkflowService,
-        private KioskFaceEngineService $kioskFaceEngineService,
+        private LegacyKioskFaceEngineService $kioskFaceEngineService,
     ) {
         $this->middleware(['auth']);
         $this->middleware(function ($request, $next) {

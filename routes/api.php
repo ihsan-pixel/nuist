@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GithubWebhookController;
 use App\Http\Controllers\Api\FaceController;
+use App\Http\Controllers\Api\FaceV2Controller;
 use App\Http\Controllers\Api\MobileController;
 use App\Http\Controllers\Api\StudentAppController;
 use App\Http\Controllers\Api\TeacherAppController;
@@ -101,3 +102,11 @@ Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/face/verify', [Face
 Route::middleware(['auth:sanctum', 'throttle:30,1'])->get('/face/biometric/status', [FaceController::class, 'biometricStatus']);
 Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/biometric/enroll', [FaceController::class, 'biometricEnroll']);
 Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/biometric/verify', [FaceController::class, 'biometricVerify']);
+
+// Versioned biometric contract for Flutter and Kiosk 2. Legacy routes above
+// remain available for the existing web application and school kiosk.
+Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/v2/face/enroll', [FaceV2Controller::class, 'enroll']);
+Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/v2/face/verify', [FaceV2Controller::class, 'verify']);
+Route::middleware(['auth:sanctum', 'throttle:30,1'])->get('/v2/face/biometric/status', [FaceV2Controller::class, 'biometricStatus']);
+Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/v2/biometric/enroll', [FaceV2Controller::class, 'biometricEnroll']);
+Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/v2/biometric/verify', [FaceV2Controller::class, 'biometricVerify']);

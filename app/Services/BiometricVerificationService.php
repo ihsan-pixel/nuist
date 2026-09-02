@@ -121,8 +121,19 @@ class BiometricVerificationService
 
         Log::debug('[BIOMETRIC_VERIFY][REQUEST_VECTOR]', $requestStats);
 
-        $profile = $this->findCompatibleProfile($user, $engine, $model, $dimension, $modelVersion);
-        if (!$profile) {
+        $profiles = $user->biometricProfiles()
+            ->where('engine', $engine)
+            ->where('model', $model)
+            ->where('dimension', $dimension)
+            ->where('status', 'active')
+            ->when($modelVersion === null || $modelVersion === '',
+                fn ($query) => $query->whereNull('model_version'),
+                fn ($query) => $query->where('model_version', $modelVersion))
+            ->orderByDesc('enrolled_at')
+            ->orderByDesc('id')
+            ->get();
+
+        if ($profiles->isEmpty()) {
             $compatibleExists = $user->biometricProfiles()
                 ->where('engine', $engine)
                 ->where('model', $model)
@@ -156,72 +167,63 @@ class BiometricVerificationService
             ];
         }
 
-        $rawProfileEmbedding = $profile->embedding;
-        $profileVectorType = get_debug_type($rawProfileEmbedding);
-        $reference = $this->normalizeVector($rawProfileEmbedding);
-        if ($reference === []) {
-            Log::debug('[BIOMETRIC_VERIFY][PROFILE_VECTOR]', [
-                'profile_id' => $profile->id,
-                'declared_dimension' => $profile->dimension,
-                'count' => 0,
-                'numeric' => false,
-                'finite' => false,
-                'nonZero' => false,
-                'norm' => 0,
-            ]);
+        $bestProfile = null;
+        $bestSimilarity = null;
+        $bestProfileStats = null;
+        $validProfileCount = 0;
 
-            return $this->error('PROFILE_VECTOR_INVALID', 'Profil biometrik tersimpan tidak valid.');
+        foreach ($profiles as $profile) {
+            $reference = $this->normalizeVector($profile->embedding);
+            $profileStats = $this->vectorStats($reference);
+
+            if (($profileStats['count'] ?? 0) !== $dimension || ($profileStats['norm'] ?? 0) <= 0) {
+                continue;
+            }
+
+            $validProfileCount++;
+            try {
+                $similarity = $this->cosineSimilarity($probe['embedding'], $reference);
+            } catch (\InvalidArgumentException) {
+                continue;
+            }
+
+            if ($bestSimilarity === null || $similarity > $bestSimilarity) {
+                $bestSimilarity = $similarity;
+                $bestProfile = $profile;
+                $bestProfileStats = $profileStats;
+            }
         }
 
-        $profileStats = $this->vectorStats($reference);
-        Log::debug('[BIOMETRIC_VERIFY][DIMENSION_TRACE]', [
-            'user_id' => $user->id,
-            'profile_id' => $profile->id,
-            'profile_dimension' => $profile->dimension,
-            'profile_embedding_count' => $profileStats['count'] ?? count($reference),
-            'profile_norm' => $profileStats['norm'] ?? null,
-            'profile_embedding_type' => $profileVectorType,
-        ]);
-        Log::debug('[BIOMETRIC_VERIFY][PROFILE_VECTOR]', array_merge([
-            'profile_id' => $profile->id,
-            'declared_dimension' => $profile->dimension,
-        ], $profileStats));
-
-        if (($profileStats['count'] ?? 0) !== $dimension) {
-            return $this->error('PROFILE_VECTOR_DIMENSION_MISMATCH', 'Dimensi vector profil tidak sesuai.');
+        if (!$bestProfile || $bestSimilarity === null) {
+            return $validProfileCount === 0
+                ? $this->error('PROFILE_VECTOR_INVALID', 'Profil biometrik tersimpan tidak valid.')
+                : $this->error('BIOMETRIC_VECTOR_INVALID', 'Embedding tidak valid untuk dibandingkan.');
         }
 
-        if (($profileStats['norm'] ?? 0) <= 0) {
-            return $this->error('VECTOR_ZERO_NORM', 'Profil biometrik tersimpan tidak valid.');
-        }
-
-        try {
-            $similarity = $this->cosineSimilarity($probe['embedding'], $reference);
-        } catch (\InvalidArgumentException) {
-            return $this->error('BIOMETRIC_VECTOR_INVALID', 'Embedding tidak valid untuk dibandingkan.');
-        }
-
-        $resolvedThreshold = (float) config('biometric.default_threshold', 0.75);
+        $similarity = $bestSimilarity;
+        $resolvedThreshold = (float) ($threshold ?? config('biometric_v2.default_threshold', config('biometric.default_threshold', 0.75)));
         Log::info('[BIOMETRIC_TEST][VERIFY]', [
             'user_id' => $user->id,
-            'profile_id' => $profile->id,
+            'profile_id' => $bestProfile->id,
+            'profile_count' => $profiles->count(),
             'engine' => $engine,
             'model' => $model,
             'dimension' => $dimension,
             'request_embedding_count' => $requestStats['count'] ?? count($probe['embedding']),
-            'profile_embedding_count' => $profileStats['count'] ?? count($reference),
+            'profile_embedding_count' => $bestProfileStats['count'] ?? 0,
             'similarity' => round($similarity, 4),
             'threshold' => $resolvedThreshold,
             'verified' => $similarity >= $resolvedThreshold,
         ]);
         Log::info('[BIOMETRIC_VERIFY][RESULT]', [
             'auth_user_id' => $user->id,
-            'profile_user_id' => $profile->user_id,
-            'profile_id' => $profile->id,
+            'profile_user_id' => $bestProfile->user_id,
+            'profile_id' => $bestProfile->id,
+            'profile_count' => $profiles->count(),
             'request_dimension' => $dimension,
-            'profile_dimension' => $profile->dimension,
+            'profile_dimension' => $bestProfile->dimension,
             'request_norm' => $requestStats['norm'] ?? null,
-            'profile_norm' => $profileStats['norm'] ?? null,
+            'profile_norm' => $bestProfileStats['norm'] ?? null,
             'similarity' => round($similarity, 4),
             'threshold' => $resolvedThreshold,
             'verified' => $similarity >= $resolvedThreshold,
@@ -230,7 +232,7 @@ class BiometricVerificationService
 
         return [
             'ok' => true,
-            'profile' => $profile,
+            'profile' => $bestProfile,
             'similarity' => round($similarity, 4),
             'threshold' => $resolvedThreshold,
             'matched' => $similarity >= $resolvedThreshold,

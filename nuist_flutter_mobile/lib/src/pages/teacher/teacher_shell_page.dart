@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../controllers/session_controller.dart';
 import '../../services/teacher_mobile_repository.dart';
@@ -103,12 +102,6 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 
   Future<void> _logout() async {
     await widget.controller.logout();
-  }
-
-  void _openDebugHarness() {
-    if (!kDebugMode) {
-      return;
-    }
   }
 
   void _openProfile() {
@@ -248,12 +241,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
               currentIndex: _currentIndex,
               onSelect: _selectTab,
             ),
-      floatingActionButton: kDebugMode
-          ? FloatingActionButton.small(
-              onPressed: _openDebugHarness,
-              child: const Icon(Icons.science_rounded),
-            )
-          : null,
+      floatingActionButton: null,
     );
   }
 }

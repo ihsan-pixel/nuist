@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 
 import '../../services/face_camera_image_converter.dart';
-import '../../services/face_recognition_service.dart';
 import '../../services/teacher_mobile_repository.dart';
 
 const _scanPrimary = Color(0xFF00745A);
@@ -40,7 +37,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   FaceDetector? _detector;
   final FaceCameraImageConverter _cameraImageConverter =
       const FaceCameraImageConverter();
-  final FaceRecognitionService _recognitionService = FaceRecognitionService();
   bool _loading = true;
   bool _processingFrame = false;
   bool _hasFace = false;
@@ -68,13 +64,9 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
   int _lastAcceptedFrameSequence = 0;
   DateTime? _lastAcceptedFrameAt;
   Completer<_RecognitionFrameSnapshot>? _pendingSampleRequest;
-  Uint8List? _debugModelInputPreviewBytes;
-  String _debugModelInputLabel = 'Batch 0 • Sample 0/3';
   static const int _sampleTargetCount = 3;
-  static const int _maxVerificationAttempts = 3;
-  static const Duration _retryCooldown = Duration(milliseconds: 320);
-  static const Duration _frameThrottle = Duration(milliseconds: 120);
-  static const Duration _faceStabilityWindow = Duration(milliseconds: 260);
+  static const Duration _frameThrottle = Duration(milliseconds: 80);
+  static const Duration _faceStabilityWindow = Duration(milliseconds: 160);
   img.Image? _latestRgbFrame;
   bool _completed = false;
   bool _isDisposing = false;
@@ -110,20 +102,13 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
           enableClassification: true,
           enableLandmarks: true,
           enableContours: false,
-          performanceMode: FaceDetectorMode.accurate,
+          // ML Kit only gates capture; identity is still verified by Python.
+          performanceMode: FaceDetectorMode.fast,
         ),
       );
       _detectorReady = true;
 
-      unawaited(_recognitionService.initialize().then((_) {
-        if (mounted) {
-          setState(() {
-            _modelReady = true;
-          });
-        } else {
-          _modelReady = true;
-        }
-      }));
+      _modelReady = true;
       unawaited(_biometricStatusFuture.then((_) {
         if (mounted) {
           setState(() {
@@ -200,7 +185,11 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       }
       final face = faces.isNotEmpty ? faces.first : null;
       if (face != null) {
-        _latestRgbFrame = _cameraImageConverter.convertToRgbImage(image);
+        _latestRgbFrame = _cameraImageConverter.convertToOrientedRgbImage(
+          image,
+          _controller!.description,
+          _controller!.value.deviceOrientation,
+        );
       } else {
         _latestRgbFrame = null;
       }
@@ -375,7 +364,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     try {
       debugPrint(
         '[FACE_ATTENDANCE][MODEL] '
-        'cache_hit=${_recognitionService.isInitialized} '
+        'local_detector_only=true '
         'cameraReady=$_cameraReady '
         'detectorReady=$_detectorReady '
         'modelReady=$_modelReady '
@@ -402,21 +391,13 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       _apiVerifyStartAt = DateTime.now();
       debugPrint(
         '[FACE_ATTENDANCE][VERIFY_START] '
-        'engine=${_recognitionService.modelInfo.engine} '
-        'model=${_recognitionService.modelInfo.model} '
-        'model_version=${_recognitionService.modelInfo.modelVersion} '
-        'dimension=${_recognitionService.modelInfo.dimension}',
+        'engine=python '
+        'model=sface '
+        'model_version=v1',
       );
       final verification = await widget.repository.verifyFace(
         payload: {
-          'engine': _recognitionService.modelInfo.engine,
-          'model': _recognitionService.modelInfo.model,
-          'model_version': _recognitionService.modelInfo.modelVersion,
-          'dimension': _recognitionService.modelInfo.dimension,
-          'embedding': batch.centroid,
-          'quality_score': 1.0,
-          'liveness_score': batch.livenessScore,
-          'liveness_challenges': batch.challenges,
+          'frames': batch.frames,
         },
       );
       if (_completed || _isDisposing || !mounted) {
@@ -468,9 +449,10 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         }
         Navigator.of(context).pop({
           'selfie_data': 'data:image/jpeg;base64,${base64Encode(batch.latestImageBytes)}',
-          'face_embedding': batch.centroid,
-          'liveness_score': batch.livenessScore,
-          'liveness_challenges': batch.challenges,
+          'selfie_frames': batch.frames,
+          'face_embedding': verification['face_embedding'],
+          'liveness_score': verification['liveness_score'],
+          'liveness_challenges': verification['liveness_challenges'] ?? const <dynamic>[],
           'verification': verification,
           'face_verified': true,
           'face_verification': verification,
@@ -478,32 +460,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         return;
       }
 
-      if (_verificationAttempts >= _maxVerificationAttempts) {
-        setState(() {
-          _error = 'Wajah Tidak Cocok';
-          _status = 'Pastikan yang melakukan presensi adalah pemilik akun ini.';
-          _verifying = false;
-          _loading = false;
-          _stableFrames = 0;
-          _autoCaptureArmed = false;
-          _readyToCapture = false;
-          _verificationCooldownUntil = DateTime.now().add(_retryCooldown);
-        });
-        _resetSampleBuffer();
-        return;
-      }
-
-      setState(() {
-        _error = null;
-        _status = 'Membaca wajah...';
-        _verifying = false;
-        _loading = false;
-        _stableFrames = 0;
-        _autoCaptureArmed = false;
-        _readyToCapture = false;
-        _verificationCooldownUntil = DateTime.now().add(_retryCooldown);
-      });
-      _resetSampleBuffer();
+      await _showFaceMismatchAlertAndExit(similarity: similarity);
     } catch (error) {
       if (!mounted) {
         return;
@@ -532,6 +489,37 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
           _verifying = false;
         });
       }
+    }
+  }
+
+  Future<void> _showFaceMismatchAlertAndExit({double? similarity}) async {
+    _completed = true;
+    await _stopCameraStreamSafely(reason: 'face_not_matched');
+    if (!mounted) {
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Wajah Tidak Cocok'),
+        content: Text(
+          similarity == null
+              ? 'Wajah tidak cocok dengan akun yang digunakan. Silakan gunakan akun dan wajah yang terdaftar.'
+              : 'Wajah tidak cocok dengan data wajah terdaftar (kemiripan ${(similarity * 100).round()}%).',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Kembali'),
+          ),
+        ],
+      ),
+    );
+
+    if (mounted) {
+      Navigator.of(context).pop();
     }
   }
 
@@ -569,7 +557,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
 
   Future<_RecognitionBatch?> _collectRecognitionBatch() async {
     final samples = <_RecognitionFrameSnapshot>[];
-    final sampleVectors = <List<double>>[];
     final challenges = <String>{};
     double livenessTotal = 0.0;
 
@@ -589,44 +576,18 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         continue;
       }
 
-      final aligned = _cameraImageConverter.extractAlignedFaceCropFromRgb(frame, face);
-      final embeddingBytes = Uint8List.fromList(img.encodeJpg(aligned.crop, quality: 95));
-      _logAlignedCropDebug(
-        frameSeq: snapshot.frameSeq,
-        crop: aligned.crop,
-      );
-      final embedding = await _recognitionService.generateEmbedding(embeddingBytes);
-      if (_completed || _isDisposing || !mounted) {
-        return null;
-      }
-
-      if (embedding.length != 192 || embedding.any((value) => !value.isFinite)) {
-        continue;
-      }
-
       final liveness = _estimateLiveness(face);
       final sampleChallenges = (liveness['challenges'] as List)
           .map((item) => item.toString().trim())
           .where((item) => item.isNotEmpty)
           .toList(growable: false);
 
-      if (mounted && kDebugMode) {
-        setState(() {
-          _debugModelInputPreviewBytes = Uint8List.fromList(embeddingBytes);
-          _debugModelInputLabel =
-              'Batch ${_verificationAttempts + 1} • Sample ${samples.length + 1}/3 • Frame ${snapshot.frameSeq}';
-        });
-      }
-
       samples.add(snapshot.copyWith(
-        embedding: embedding,
         livenessScore: (liveness['score'] as num).toDouble(),
         challenges: sampleChallenges,
       ));
-      sampleVectors.add(embedding);
       challenges.addAll(sampleChallenges);
       livenessTotal += (liveness['score'] as num).toDouble();
-      _logEmbeddingStats(samples.length, embedding);
       debugPrint(
         '[FACE_ATTENDANCE][SAMPLE_ACCEPT] '
         'batch=${_verificationAttempts + 1} '
@@ -634,29 +595,19 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         'frame_seq=${snapshot.frameSeq} '
         'frame_age_ms=${snapshot.frameAgeMs} '
         'delta_from_previous_ms=${snapshot.deltaFromPreviousMs} '
-        'norm=${_embeddingNorm(embedding).toStringAsFixed(6)}',
+        'local_frame_only=true',
       );
     }
 
-    final intraBatchSimilarities = _buildIntraBatchSimilarities(sampleVectors);
-    debugPrint(
-      '[FACE_ATTENDANCE][INTRA_BATCH] '
-      's1_s2=${intraBatchSimilarities[0].toStringAsFixed(6)} '
-      's1_s3=${intraBatchSimilarities[1].toStringAsFixed(6)} '
-      's2_s3=${intraBatchSimilarities[2].toStringAsFixed(6)} '
-      'min=${intraBatchSimilarities.reduce((a, b) => a < b ? a : b).toStringAsFixed(6)} '
-      'max=${intraBatchSimilarities.reduce((a, b) => a > b ? a : b).toStringAsFixed(6)} '
-      'mean=${(intraBatchSimilarities.reduce((a, b) => a + b) / intraBatchSimilarities.length).toStringAsFixed(6)}',
-    );
-
-    final centroid = _averageAndNormalize(sampleVectors);
     final latestBytes = samples.isNotEmpty ? samples.last.latestImageBytes : Uint8List(0);
     return _RecognitionBatch(
-      centroid: centroid,
+      frames: samples
+          .map((sample) => 'data:image/jpeg;base64,${base64Encode(sample.latestImageBytes)}')
+          .toList(growable: false),
       latestImageBytes: latestBytes,
       livenessScore: livenessTotal / samples.length,
       challenges: challenges.toList(growable: false),
-      intraBatchSimilarities: intraBatchSimilarities,
+      intraBatchSimilarities: const [],
     );
   }
 
@@ -683,42 +634,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       'score': score.clamp(0.0, 1.0),
       'challenges': challenges,
     };
-  }
-
-  double _embeddingNorm(List<double> values) {
-    var sum = 0.0;
-    for (final value in values) {
-      sum += value * value;
-    }
-    return sum == 0.0 ? 0.0 : math.sqrt(sum);
-  }
-
-  List<double> _averageAndNormalize(List<List<double>> embeddings) {
-    if (embeddings.isEmpty) {
-      return const [];
-    }
-
-    final dimension = embeddings.first.length;
-    final centroid = List<double>.filled(dimension, 0.0);
-    for (final embedding in embeddings) {
-      for (var index = 0; index < dimension; index++) {
-        centroid[index] += embedding[index];
-      }
-    }
-
-    for (var index = 0; index < dimension; index++) {
-      centroid[index] /= embeddings.length;
-    }
-
-    final norm = _embeddingNorm(centroid);
-    if (norm <= 0) {
-      return centroid;
-    }
-
-    for (var index = 0; index < dimension; index++) {
-      centroid[index] /= norm;
-    }
-    return centroid;
   }
 
   void _resetSampleBuffer() {
@@ -763,38 +678,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     _pendingSampleRequest = null;
   }
 
-  void _logAlignedCropDebug({
-    required int frameSeq,
-    required img.Image crop,
-  }) {
-    if (!kDebugMode) {
-      return;
-    }
-
-    try {
-      final debugDir = Directory('${Directory.systemTemp.path}/nuist_face_debug');
-      if (!debugDir.existsSync()) {
-        debugDir.createSync(recursive: true);
-      }
-      final fileName = 'aligned_batch${_verificationAttempts + 1}_frame${frameSeq}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final path = '${debugDir.path}/$fileName';
-      File(path).writeAsBytesSync(Uint8List.fromList(img.encodeJpg(crop, quality: 95)));
-      debugPrint(
-        '[FACE_DEBUG][ALIGNED_CROP] '
-        'frame_seq=$frameSeq '
-        'path=$path '
-        'width=${crop.width} '
-        'height=${crop.height}',
-      );
-    } catch (error) {
-      debugPrint(
-        '[FACE_DEBUG][ALIGNED_CROP_ERROR] '
-        'frame_seq=$frameSeq '
-        'message=$error',
-      );
-    }
-  }
-
   Future<_RecognitionFrameSnapshot?> _waitForNextRecognitionFrame() async {
     if (_completed || _isDisposing || !mounted) {
       return null;
@@ -810,55 +693,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       }
       return null;
     }
-  }
-
-  void _logEmbeddingStats(int sampleIndex, List<double> embedding) {
-    final norm = _embeddingNorm(embedding);
-    final mean = embedding.reduce((a, b) => a + b) / embedding.length;
-    final variance = embedding.fold<double>(0.0, (acc, value) {
-      final diff = value - mean;
-      return acc + diff * diff;
-    }) / embedding.length;
-    final stddev = math.sqrt(variance);
-    final min = embedding.reduce((a, b) => a < b ? a : b);
-    final max = embedding.reduce((a, b) => a > b ? a : b);
-    debugPrint(
-      '[FACE_ATTENDANCE][EMBED_STATS] '
-      'sample=$sampleIndex '
-      'norm=${norm.toStringAsFixed(6)} '
-      'mean=${mean.toStringAsFixed(6)} '
-      'stddev=${stddev.toStringAsFixed(6)} '
-      'min=${min.toStringAsFixed(6)} '
-      'max=${max.toStringAsFixed(6)}',
-    );
-  }
-
-  List<double> _buildIntraBatchSimilarities(List<List<double>> embeddings) {
-    if (embeddings.length < 3) {
-      return <double>[0.0, 0.0, 0.0];
-    }
-    return <double>[
-      _cosineSimilarity(embeddings[0], embeddings[1]),
-      _cosineSimilarity(embeddings[0], embeddings[2]),
-      _cosineSimilarity(embeddings[1], embeddings[2]),
-    ];
-  }
-
-  double _cosineSimilarity(List<double> a, List<double> b) {
-    var dot = 0.0;
-    var normA = 0.0;
-    var normB = 0.0;
-    for (var i = 0; i < a.length; i++) {
-      final va = a[i];
-      final vb = b[i];
-      dot += va * vb;
-      normA += va * va;
-      normB += vb * vb;
-    }
-    if (normA <= 0 || normB <= 0) {
-      return 0.0;
-    }
-    return dot / (math.sqrt(normA) * math.sqrt(normB));
   }
 
   bool _isFaceStable(DateTime now) {
@@ -902,92 +736,77 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-          child: Column(
-            children: [
-              const SizedBox(height: 18),
-              _FaceHeroCard(
-                controller: _controller,
-                loading: _loading && _controller == null,
-                hasFace: _hasFace,
-                readyToCapture: _readyToCapture,
-                stableFrames: _stableFrames,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                widget.description,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: _scanMuted,
-                  fontSize: 13,
-                  height: 1.4,
-                  fontWeight: FontWeight.w600,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              children: [
+                const SizedBox(height: 18),
+                _FaceHeroCard(
+                  controller: _controller,
+                  loading: _loading && _controller == null,
+                  hasFace: _hasFace,
+                  readyToCapture: _readyToCapture,
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _error ?? _status,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: _error != null ? Colors.red : _scanText,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  height: 1.35,
+                const SizedBox(height: 18),
+                Text(
+                  _error ?? _status,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _error != null ? Colors.red : _scanText,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    height: 1.35,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 14),
-              _SimilarityBar(
-                value: _similarityScore,
-                label: _similarityScore == null
-                    ? 'Sedang membaca wajah...'
-                    : '${((_similarityScore!.clamp(0.0, 1.0)) * 100).round()}%',
-              ),
-              if (kDebugMode) ...[
                 const SizedBox(height: 14),
-                _ModelInputDebugPreview(
-                  imageBytes: _debugModelInputPreviewBytes,
-                  label: _debugModelInputLabel,
+                _SimilarityBar(
+                  value: _similarityScore,
+                  label: _similarityScore == null
+                      ? '--'
+                      : '${((_similarityScore!.clamp(0.0, 1.0)) * 100).round()}%',
                 ),
+                const SizedBox(height: 18),
+                if (_error != null)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            _resetAttempt();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text('Coba Lagi'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: FilledButton.styleFrom(
+                            backgroundColor: _scanPrimary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size.fromHeight(52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text('Kembali'),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  const SizedBox.shrink(),
+                const SizedBox(height: 8),
               ],
-              const Spacer(),
-              if (_error != null)
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          _resetAttempt();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(52),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: const Text('Coba Lagi'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: _scanPrimary,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size.fromHeight(52),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: const Text('Kembali'),
-                      ),
-                    ),
-                  ],
-                )
-              else
-                const SizedBox.shrink(),
-            ],
+            ),
           ),
         ),
       ),
@@ -1001,21 +820,19 @@ class _FaceHeroCard extends StatelessWidget {
     required this.loading,
     required this.hasFace,
     required this.readyToCapture,
-    required this.stableFrames,
   });
 
   final CameraController? controller;
   final bool loading;
   final bool hasFace;
   final bool readyToCapture;
-  final int stableFrames;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
         width: 344,
-        height: 426,
+        height: 374,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -1085,10 +902,10 @@ class _FaceHeroCard extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               readyToCapture
-                  ? 'Identity Verified'
+                  ? 'Siap dipindai'
                   : hasFace
-                      ? 'Keep your face centered'
-                      : 'Align your face with the frame',
+                      ? 'Pertahankan posisi'
+                      : 'Arahkan wajah ke bingkai',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: _scanText,
@@ -1097,61 +914,7 @@ class _FaceHeroCard extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              readyToCapture
-                  ? 'Wajah sudah stabil dan siap diproses.'
-                  : 'Pastikan wajah terlihat jelas, tidak miring, dan pencahayaan cukup.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _scanMuted,
-                fontSize: 11,
-                height: 1.3,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _MiniBadge(
-                  label: hasFace ? 'Face detected' : 'Searching',
-                  active: hasFace,
-                ),
-                const SizedBox(width: 8),
-                _MiniBadge(
-                  label: stableFrames >= 6 ? 'Stable' : 'Stabilizing',
-                  active: stableFrames >= 6,
-                ),
-              ],
-            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniBadge extends StatelessWidget {
-  const _MiniBadge({required this.label, required this.active});
-
-  final String label;
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: active ? _scanPrimarySoft : const Color(0xFFF1F4F3),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: active ? _scanPrimary : _scanMuted,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -1160,14 +923,14 @@ class _MiniBadge extends StatelessWidget {
 
 class _RecognitionBatch {
   const _RecognitionBatch({
-    required this.centroid,
+    required this.frames,
     required this.latestImageBytes,
     required this.livenessScore,
     required this.challenges,
     required this.intraBatchSimilarities,
   });
 
-  final List<double> centroid;
+  final List<String> frames;
   final Uint8List latestImageBytes;
   final double livenessScore;
   final List<String> challenges;
@@ -1271,7 +1034,7 @@ class _SimilarityBar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Level kecocokan',
+          'Kecocokan',
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: _scanMuted,
@@ -1282,12 +1045,25 @@ class _SimilarityBar extends StatelessWidget {
         const SizedBox(height: 6),
         ClipRRect(
           borderRadius: BorderRadius.circular(999),
-          child: LinearProgressIndicator(
-            minHeight: 10,
-            value: value == null ? null : normalized,
-            backgroundColor: _scanPrimarySoft,
-            color: _scanPrimary,
-          ),
+          child: value == null
+              ? const LinearProgressIndicator(
+                  minHeight: 8,
+                  backgroundColor: _scanPrimarySoft,
+                  color: _scanPrimary,
+                )
+              : TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0, end: normalized),
+                  duration: const Duration(milliseconds: 650),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, animatedValue, child) {
+                    return LinearProgressIndicator(
+                      minHeight: 8,
+                      value: animatedValue,
+                      backgroundColor: _scanPrimarySoft,
+                      color: _scanPrimary,
+                    );
+                  },
+                ),
         ),
         const SizedBox(height: 6),
         Text(
@@ -1300,92 +1076,6 @@ class _SimilarityBar extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ModelInputDebugPreview extends StatelessWidget {
-  const _ModelInputDebugPreview({
-    required this.imageBytes,
-    required this.label,
-  });
-
-  final Uint8List? imageBytes;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        width: 150,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _scanPrimaryBorder),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x12000000),
-              blurRadius: 12,
-              offset: Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'DEBUG - Model Input',
-              style: TextStyle(
-                color: _scanText,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              width: 112,
-              height: 112,
-              decoration: BoxDecoration(
-                color: _scanPrimarySoft,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: _scanPrimaryBorder),
-              ),
-              child: imageBytes == null
-                  ? const Center(
-                      child: Text(
-                        '112x112\nFACE',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: _scanMuted,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.memory(
-                        imageBytes!,
-                        gaplessPlayback: true,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                color: _scanMuted,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

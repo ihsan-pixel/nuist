@@ -6,7 +6,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'attendance_face_enrollment_page.dart';
 import 'attendance_face_scan_page.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
@@ -52,10 +51,10 @@ bool _isCompatibleBiometricRegistered(Map<String, dynamic> status) {
     return false;
   }
 
-  final engineMatch = engine == 'tflite';
-  final modelMatch = model == 'mobilefacenet';
-  final versionMatch = modelVersion == 'mobilefacenet-be4bc7cf';
-  final dimensionMatch = dimension == 192;
+  final engineMatch = engine == 'opencv';
+  final modelMatch = model == 'sface';
+  final versionMatch = modelVersion == 'v1';
+  final dimensionMatch = dimension == 128;
   final statusMatch = statusValue == 'active';
   final compatible = engineMatch &&
       modelMatch &&
@@ -226,30 +225,59 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       }
 
       final readings = <Map<String, dynamic>>[];
-      Position? latestPosition;
+      final positions = <Position>[];
+      final lastKnownPosition = await Geolocator.getLastKnownPosition();
 
       for (var index = 0; index < 3; index++) {
-        final sampled = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.best,
-          ),
-        );
-        latestPosition = sampled;
-        readings.add({
-          'latitude': sampled.latitude,
-          'longitude': sampled.longitude,
-          'accuracy': sampled.accuracy,
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-        });
+        try {
+          final sampled = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.best,
+              timeLimit: Duration(seconds: 8),
+            ),
+          );
+          positions.add(sampled);
+          readings.add({
+            'latitude': sampled.latitude,
+            'longitude': sampled.longitude,
+            'accuracy': sampled.accuracy,
+            'timestamp': DateTime.now().millisecondsSinceEpoch,
+          });
+        } catch (error) {
+          if (positions.isEmpty && lastKnownPosition != null) {
+            positions.add(lastKnownPosition);
+            readings.add({
+              'latitude': lastKnownPosition.latitude,
+              'longitude': lastKnownPosition.longitude,
+              'accuracy': lastKnownPosition.accuracy,
+              'timestamp': DateTime.now().millisecondsSinceEpoch,
+            });
+          }
+          if (positions.isEmpty) {
+            rethrow;
+          }
+          break;
+        }
 
         if (index < 2) {
-          await Future<void>.delayed(const Duration(milliseconds: 900));
+          await Future<void>.delayed(const Duration(milliseconds: 450));
         }
       }
 
-      if (latestPosition == null) {
+      if (positions.isEmpty) {
         throw Exception('Lokasi tidak berhasil dibaca.');
       }
+
+      // Prefer the most accurate fresh fix instead of blindly using the last.
+      final latestPosition = positions.reduce(
+        (best, candidate) => candidate.accuracy < best.accuracy ? candidate : best,
+      );
+      debugPrint(
+        '[LOCATION][FIX] '
+        'accuracy=${latestPosition.accuracy} '
+        'samples=${positions.length} '
+        'mocked=${latestPosition.isMocked}',
+      );
 
       final address = await _resolveAddress(latestPosition);
 
@@ -344,19 +372,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       return;
     }
 
-    await Navigator.of(context).push<void>(
-      MaterialPageRoute(
-        fullscreenDialog: true,
-      builder: (_) => AttendanceFaceEnrollmentPage(
-          repository: widget.repository,
-          title: 'Daftar Wajah',
-          description: 'Aktifkan data wajah sebelum presensi kehadiran.',
-          currentUserId: widget.currentUserId,
-        ),
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Pendaftaran wajah dilakukan oleh operator melalui Kiosk 2.'),
       ),
     );
-
-    await _refresh();
   }
 
   Future<bool> _submitAttendance(
@@ -417,6 +440,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     });
 
     try {
+      final submitStartedAt = DateTime.now();
       final verification = faceScanResult['verification'];
       final livenessChallenges = _normalizedChallenges(
         faceScanResult['liveness_challenges'],
@@ -442,6 +466,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         'longitude': _position!.longitude,
         'lokasi': _locationAddress ?? _coordinateLabel(_position!),
         'accuracy': _position!.accuracy,
+        'is_mocked': _position!.isMocked,
         'altitude': _position!.altitude,
         'speed': _position!.speed,
         'device_info': 'flutter_mobile_${defaultTargetPlatform.name}',
@@ -459,12 +484,29 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         },
       };
 
+      debugPrint(
+        '[ATTENDANCE_SUBMIT][START] '
+        'mode=$mode '
+        'has_selfie=${payload['selfie_data'] is String} '
+        'embedding_count=${(payload['face_embedding'] as List?)?.length ?? 0} '
+        'liveness_score=${payload['liveness_score']}',
+      );
       final result = await widget.repository.submitAttendance(payload: payload);
       if (!mounted) {
         return false;
       }
 
-      await _refresh();
+      debugPrint(
+        '[ATTENDANCE_SUBMIT][SUCCESS] '
+        'elapsed_ms=${DateTime.now().difference(submitStartedAt).inMilliseconds} '
+        'message=${result['_message'] ?? ''}',
+      );
+
+      try {
+        await _refresh();
+      } catch (refreshError) {
+        debugPrint('[ATTENDANCE_SUBMIT][REFRESH_FAILED] $refreshError');
+      }
 
       if (!mounted) {
         return false;
@@ -498,27 +540,55 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   }
 
   Map<String, dynamic>? _normalizeFaceScanResult(Map<String, dynamic> raw) {
+    final verification = raw['verification'] is Map
+        ? Map<String, dynamic>.from(raw['verification'] as Map)
+        : const <String, dynamic>{};
     final selfieData =
         raw['captured_image'] as String? ?? raw['selfie_data'] as String?;
-    final faceEmbedding = raw['face_embedding'];
-    final livenessScore = raw['liveness_score'];
-    final livenessChallenges = raw['liveness_challenges'];
-    final verification = raw['verification'];
+    final faceEmbedding = raw['face_embedding'] ?? verification['face_embedding'];
+    final livenessScore = raw['liveness_score'] ?? verification['liveness_score'];
+    final livenessChallenges =
+        raw['liveness_challenges'] ?? verification['liveness_challenges'] ?? const <dynamic>[];
 
     if (selfieData == null ||
         selfieData.trim().isEmpty ||
         faceEmbedding is! List ||
         livenessChallenges is! List) {
+      debugPrint(
+        '[ATTENDANCE_V2][SCAN_HANDOFF_INVALID] '
+        'has_selfie=${selfieData != null && selfieData.trim().isNotEmpty} '
+        'embedding_type=${faceEmbedding.runtimeType} '
+        'embedding_count=${faceEmbedding is List ? faceEmbedding.length : 0} '
+        'challenges_type=${livenessChallenges.runtimeType}',
+      );
       return null;
     }
+
+    // The verify response identifies the provider but the attendance API
+    // requires the stable profile metadata explicitly.
+    final normalizedVerification = <String, dynamic>{
+      ...verification,
+      'engine': verification['engine']?.toString().trim().isNotEmpty == true
+          ? verification['engine']
+          : 'opencv',
+      'model': verification['model']?.toString().trim().isNotEmpty == true
+          ? verification['model']
+          : 'sface',
+      'model_version':
+          verification['model_version']?.toString().trim().isNotEmpty == true
+              ? verification['model_version']
+              : 'v1',
+      'dimension': verification['dimension'] is num
+          ? verification['dimension']
+          : faceEmbedding.length,
+    };
 
     return {
       'selfie_data': selfieData,
       'face_embedding': List<dynamic>.from(faceEmbedding),
       'liveness_score': livenessScore,
       'liveness_challenges': _normalizedChallenges(livenessChallenges),
-      if (verification is Map)
-        'verification': Map<String, dynamic>.from(verification),
+      'verification': normalizedVerification,
     };
   }
 
@@ -526,9 +596,11 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final items = <String>[];
     if (raw is Iterable) {
       for (final item in raw) {
-        final value = item?.toString().trim();
+        final value = item is Map
+            ? (item['type'] ?? item['name'])?.toString().trim()
+            : item?.toString().trim();
         if (value != null && value.isNotEmpty) {
-          items.add(value);
+          items.add(value.length > 64 ? value.substring(0, 64) : value);
         }
       }
     }
@@ -603,6 +675,33 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     String? backendMode, {
     required Map<String, dynamic> today,
   }) {
+    // The displayed attendance state is the safest source for preventing a
+    // second INSERT when the cached form state is stale.
+    final checkInRecorded = _hasAttendanceValue(
+      today,
+      const ['check_in', 'waktu_masuk', 'checkIn'],
+    );
+    final checkOutRecorded = _hasAttendanceValue(
+      today,
+      const ['check_out', 'waktu_keluar', 'checkOut'],
+    );
+
+    if (checkInRecorded && checkOutRecorded) {
+      return null;
+    }
+
+    if (checkInRecorded && !checkOutRecorded) {
+      final normalizedBackendMode = backendMode?.trim();
+      if (normalizedBackendMode != null && normalizedBackendMode != 'keluar') {
+        debugPrint(
+          '[ATTENDANCE_MODE][CONFLICT] '
+          'backend_mode=$normalizedBackendMode '
+          'today_check_in=true today_check_out=false forced_mode=keluar',
+        );
+      }
+      return 'keluar';
+    }
+
     if (backendMode != null && backendMode.trim().isNotEmpty) {
       return backendMode.trim();
     }
@@ -623,6 +722,30 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     }
 
     return null;
+  }
+
+  bool _hasAttendanceValue(
+    Map<String, dynamic> today,
+    List<String> keys,
+  ) {
+    bool hasValue(Map<String, dynamic> source) {
+      final value = _findFirstMapValue(source, keys);
+      return value != null && _formatAttendanceTime(value) != '--:--';
+    }
+
+    if (hasValue(today)) {
+      return true;
+    }
+
+    final entries = today['entries'];
+    if (entries is List) {
+      return entries
+          .whereType<Map>()
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .any(hasValue);
+    }
+
+    return false;
   }
 
   DateTime? _parseTodayTime(String? value, DateTime anchor) {
@@ -683,7 +806,28 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   }
 
   Future<void> _openAttendanceFlow(Map<String, dynamic> data) async {
-    final faceScanResult = await _captureVerification(data);
+    // Do not rely on the FutureBuilder snapshot: another successful request
+    // may have changed today's mode since the page was rendered.
+    Map<String, dynamic> attendanceData = Map<String, dynamic>.from(
+      (data['attendance'] as Map?) ?? const <String, dynamic>{},
+    );
+    try {
+      final freshAttendance = await widget.repository.getAttendance();
+      attendanceData = freshAttendance;
+      debugPrint(
+        '[ATTENDANCE_MODE][REFRESHED] '
+        'next_mode=${(freshAttendance['form'] as Map?)?['next_mode'] ?? ''} '
+        'check_in=${(freshAttendance['today_attendance'] as Map?)?['check_in'] ?? ''} '
+        'check_out=${(freshAttendance['today_attendance'] as Map?)?['check_out'] ?? ''}',
+      );
+    } catch (error) {
+      debugPrint('[ATTENDANCE_MODE][REFRESH_FAILED] $error');
+    }
+
+    final faceScanResult = await _captureVerification({
+      ...data,
+      'attendance': attendanceData,
+    });
     if (!mounted || faceScanResult == null) {
       return;
     }
@@ -692,7 +836,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       _faceScanResult = faceScanResult;
     });
 
-    await _submitAttendance(data, faceScanResult);
+    await _submitAttendance(attendanceData, faceScanResult);
   }
 
   @override
@@ -825,6 +969,15 @@ class _AttendanceContent extends StatelessWidget {
         (kDebugMode && now.weekday == DateTime.sunday);
     final nextModeLabel =
         form['next_mode_label'] as String? ?? 'Presensi Masuk';
+    final checkInRecorded = _formatAttendanceTime(
+          _findFirstMapValue(today, const ['check_in', 'waktu_masuk', 'checkIn']),
+        ) !=
+        '--:--';
+    final checkOutRecorded = _formatAttendanceTime(
+          _findFirstMapValue(today, const ['check_out', 'waktu_keluar', 'checkOut']),
+        ) !=
+        '--:--';
+    final attendanceComplete = checkInRecorded && checkOutRecorded;
     final verificationMode = verification['mode'] as String? ?? 'selfie';
     final isFaceScan = verificationMode == 'face_scan';
     final isFaceEnrolled = !isFaceScan || biometricRegistered;
@@ -842,9 +995,17 @@ class _AttendanceContent extends StatelessWidget {
       schoolLatitude: schoolLatitude,
       schoolLongitude: schoolLongitude,
     );
-    final canOpenFlow = canSubmit && isFaceEnrolled && !submitting && position != null;
+    final canOpenFlow = !attendanceComplete &&
+        canSubmit &&
+        isFaceEnrolled &&
+        !submitting &&
+        position != null;
     final requiresFaceEnrollment = isFaceScan && !isFaceEnrolled;
-    final primaryActionLabel = requiresFaceEnrollment ? 'Daftar Wajah' : nextModeLabel;
+    final primaryActionLabel = attendanceComplete
+        ? 'Presensi Lengkap'
+        : requiresFaceEnrollment
+            ? 'Daftar Wajah'
+            : nextModeLabel;
 
     return Stack(
       children: [
@@ -1049,7 +1210,9 @@ class _AttendanceContent extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: requiresFaceEnrollment
+                    onPressed: attendanceComplete
+                        ? null
+                        : requiresFaceEnrollment
                         ? () async {
                             await onOpenFaceEnrollment();
                           }

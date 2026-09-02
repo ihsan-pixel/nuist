@@ -7,6 +7,7 @@
 @endsection
 
 @section('css')
+<link rel="stylesheet" href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}">
 <style>
     body.kiosk-face-enrollment-page {
         margin: 0;
@@ -57,7 +58,7 @@
     }
     .gallery-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 8px;
     }
     .gallery-item {
@@ -103,14 +104,23 @@
         border-color: rgba(248, 113, 113, 0.7);
     }
     .gallery-caption {
-        padding: 6px 8px 7px;
+        padding: 5px 4px 6px;
         font-size: 10px;
         font-weight: 400;
         line-height: 1.35;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         color: rgba(226, 232, 240, 0.88);
         border-top: 1px solid rgba(148, 163, 184, 0.12);
         background: rgba(15, 23, 42, 0.45);
         text-align: center;
+    }
+    @media (max-width: 1199px) {
+        .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 575px) {
+        .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     .gallery-empty {
         grid-column: 1 / -1;
@@ -141,7 +151,7 @@
             <div class="panel p-4 h-100 left-panel">
                 <div class="phase-chip mb-3">Mode Kiosk 2</div>
                 <h2 class="h4 mb-2">Daftar wajah admin-only</h2>
-                <p class="text-secondary mb-4">Fokus ke 5 fase capture wajah. Tidak ada presensi di layar ini.</p>
+        <p class="text-secondary mb-4">Fokus ke 6 template capture wajah. Tidak ada presensi di layar ini.</p>
                 <div class="mb-3">
                     <label class="form-label text-light">Pilih Sekolah</label>
                     <form method="GET" action="{{ route('kiosk.face-enrollment.index') }}">
@@ -179,6 +189,7 @@
                 <div class="d-flex gap-2 flex-wrap">
                     <button class="btn btn-success" id="startBtn">Mulai sesi</button>
                     <button class="btn btn-primary" id="finishBtn" disabled>Simpan final</button>
+                    <button class="btn btn-outline-warning" id="resetBtn" disabled>Mulai dari awal</button>
                 </div>
             </div>
         </div>
@@ -197,17 +208,20 @@ window.__phases = @json($phases);
 @endsection
 
 @section('script')
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
 <script src="{{ asset('models/face-api.js') }}"></script>
 <script src="{{ asset('js/face-recognition.js') }}"></script>
+<script src="{{ asset('js/face-recognition-v2.js') }}"></script>
 <script>
 (function () {
     const teachers = window.__teachers || [];
-    const phases = (window.__phases || []).slice(0, 4);
+    const phases = window.__phases || [];
     const teacherSelect = document.getElementById('teacherSelect');
     const phaseList = document.getElementById('phaseList');
     const video = document.getElementById('video');
     const startBtn = document.getElementById('startBtn');
     const finishBtn = document.getElementById('finishBtn');
+    const resetBtn = document.getElementById('resetBtn');
     const captureGallery = document.getElementById('captureGallery');
     const statusMini = document.getElementById('statusMini');
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -237,9 +251,26 @@ window.__phases = @json($phases);
             return;
         }
 
-        captureGallery.innerHTML = phases.map((phase, index) => {
-            const item = phaseResults.find((result) => result.phase_key === phase.key);
-            const isFourthSlot = index === 3;
+        const phaseByKey = new Map(phases.map((phase) => [phase.key, phase]));
+        const captured = phaseResults
+            .filter(Boolean)
+            .slice()
+            .sort((left, right) => (right.capture_index || 0) - (left.capture_index || 0));
+        const missing = phases.filter((phase) => !phaseResults.some((result) => result?.phase_key === phase.key));
+        const ordered = [
+            ...captured.map((item) => ({ phase: phaseByKey.get(item.phase_key), item })),
+            ...missing.map((phase) => ({ phase, item: null })),
+        ];
+
+        captureGallery.innerHTML = ordered.map(({ phase, item }, index) => {
+            const phaseLabel = {
+                front: 'Depan',
+                front_2: 'Depan 2',
+                left: 'Kiri',
+                right: 'Kanan',
+                up: 'Atas',
+                down: 'Bawah',
+            }[phase.key] || phase.label;
             const stateIcon = item ? 'bx-check' : 'bx-x';
             const stateClass = item ? 'is-ok' : 'is-missing';
 
@@ -248,8 +279,8 @@ window.__phases = @json($phases);
                     <span class="gallery-state ${stateClass}" aria-hidden="true">
                         <i class="bx ${stateIcon}"></i>
                     </span>
-                    ${item ? `<img src="${item.captured_image}" alt="${phase.label}">` : `<div class="gallery-empty" style="grid-column:auto; margin:0; min-height: 96px; display:flex; align-items:center; justify-content:center;">Belum tersimpan</div>`}
-                    <div class="gallery-caption">${index + 1}. ${phase.label}${isFourthSlot ? '' : ''}</div>
+                    ${item ? `<img src="${item.captured_image}" alt="${phaseLabel}">` : `<div class="gallery-empty" style="grid-column:auto; margin:0; min-height: 96px; display:flex; align-items:center; justify-content:center;">Belum</div>`}
+                    <div class="gallery-caption">${item ? `#${item.capture_index} ${phaseLabel}` : `${index + 1}. ${phaseLabel}`}</div>
                 </div>
             `;
         }).join('');
@@ -270,6 +301,19 @@ window.__phases = @json($phases);
     async function startSession() {
         const userId = teacherSelect.value;
         if (!userId) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Pilih guru terlebih dahulu',
+                text: 'Silakan pilih user/guru sebelum memulai pendaftaran wajah.',
+                confirmButtonText: 'Mengerti',
+            });
+            return;
+        }
+
+        // Keep the current server session after a failed phase so completed
+        // captures are not repeated from the beginning.
+        if (session) {
+            await runAutoEnrollment();
             return;
         }
 
@@ -277,6 +321,7 @@ window.__phases = @json($phases);
         startBtn.disabled = true;
         setStatus('Memuat model wajah...');
         await faceRecognition.loadModels();
+        await initCamera();
         const response = await fetch(@json(route('kiosk.face-enrollment.sessions.start')), {
             method: 'POST',
             headers: {
@@ -296,6 +341,7 @@ window.__phases = @json($phases);
         }
 
         session = data.session;
+        teacherSelect.disabled = true;
         currentPhaseIndex = 0;
         phaseResults = [];
         finishBtn.disabled = true;
@@ -314,22 +360,17 @@ window.__phases = @json($phases);
             onDiagnostic: () => {},
         };
 
-        const waitMs = 7000;
+        const waitMs = (phase.key === 'up' || phase.key === 'down') ? 5000 : 7000;
 
-        if (phase.key === 'front') {
+        if (phase.key === 'front' || phase.key === 'front_2') {
             setStatus('Arahkan wajah ke kamera.');
             await faceRecognition.waitForStableSingleFace(video, detectorOptions, waitMs, 2, false);
-            const descriptor = await faceRecognition.captureFaceDescriptor(video, {
-                strict: true,
-                allowFallback: false,
-            });
+            const burst = await faceRecognition.captureBurstFrames(video, { count: 4, intervalMs: 150, warmupMs: 180 });
 
             return {
-                face_descriptor: Array.from(descriptor),
-                captured_image: faceRecognition.captureFrame(video, { mirror: false }),
-                liveness_score: 0.96,
-                quality_score: 1,
-                detail: 'front',
+                frames: burst.frames,
+                captured_image: burst.best_frame || faceRecognition.captureFrame(video, { mirror: false }),
+                detail: phase.key,
             };
         }
 
@@ -342,34 +383,24 @@ window.__phases = @json($phases);
                 detectorOptions,
                 waitMs,
             );
-            const descriptor = await faceRecognition.captureFaceDescriptor(video, {
-                strict: true,
-                allowFallback: false,
-            });
+            const burst = await faceRecognition.captureBurstFrames(video, { count: 4, intervalMs: 150, warmupMs: 180 });
 
             return {
-                face_descriptor: Array.from(descriptor),
-                captured_image: faceRecognition.captureFrame(video, { mirror: false }),
-                liveness_score: result.score ?? 0.96,
-                quality_score: result.score ?? 1,
+                frames: burst.frames,
+                captured_image: burst.best_frame || faceRecognition.captureFrame(video, { mirror: false }),
                 detail: result.detail,
             };
         }
 
-        if (phase.key === 'up') {
-            setStatus(phase.key === 'up' ? 'Tengok ke atas.' : 'Kedip sekali.');
+        if (phase.key === 'up' || phase.key === 'down') {
+            setStatus(phase.key === 'up' ? 'Tengok ke atas.' : 'Tengok ke bawah.');
             await faceRecognition.loadRecognitionModel();
-            const result = await detectVerticalCapture('up', detectorOptions, waitMs);
-            const descriptor = await faceRecognition.captureFaceDescriptor(video, {
-                strict: true,
-                allowFallback: false,
-            });
+            const result = await detectVerticalCapture(phase.key, detectorOptions, waitMs);
+            const burst = await faceRecognition.captureBurstFrames(video, { count: 4, intervalMs: 150, warmupMs: 180 });
 
             return {
-                face_descriptor: Array.from(descriptor),
-                captured_image: faceRecognition.captureFrame(video, { mirror: false }),
-                liveness_score: result.score ?? 0.96,
-                quality_score: result.score ?? 1,
+                frames: burst.frames,
+                captured_image: burst.best_frame || faceRecognition.captureFrame(video, { mirror: false }),
                 detail: result.detail,
             };
         }
@@ -414,14 +445,14 @@ window.__phases = @json($phases);
 
             if (!detection?.landmarks) {
                 stableHits = 0;
-                await new Promise((resolve) => window.setTimeout(resolve, 90));
+                await new Promise((resolve) => window.setTimeout(resolve, 45));
                 continue;
             }
 
             const ratio = verticalLookRatio(detection.landmarks);
             if (ratio === null) {
                 stableHits = 0;
-                await new Promise((resolve) => window.setTimeout(resolve, 90));
+                await new Promise((resolve) => window.setTimeout(resolve, 45));
                 continue;
             }
 
@@ -431,7 +462,7 @@ window.__phases = @json($phases);
 
             const delta = ratio - baseline;
             const directionalDelta = isUp ? -delta : delta;
-            const threshold = isUp ? 0.012 : 0.008;
+            const threshold = isUp ? 0.010 : 0.007;
 
             if (directionalDelta >= threshold) {
                 stableHits += 1;
@@ -444,12 +475,12 @@ window.__phases = @json($phases);
                     };
                 }
 
-                await new Promise((resolve) => window.setTimeout(resolve, 90));
+                await new Promise((resolve) => window.setTimeout(resolve, 45));
                 continue;
             }
 
             stableHits = 0;
-            await new Promise((resolve) => window.setTimeout(resolve, 90));
+            await new Promise((resolve) => window.setTimeout(resolve, 45));
         }
 
         throw new Error(isUp
@@ -465,9 +496,7 @@ window.__phases = @json($phases);
             phase_label: phase.label,
             capture_index: phaseIndex + 1,
             captured_image: scan.captured_image,
-            face_descriptor: scan.face_descriptor,
-            quality_score: 1,
-            liveness_score: scan.liveness_score ?? 0.96,
+            frames: scan.frames,
             metadata: {
                 phase_order: phaseIndex + 1,
                 auto_captured: true,
@@ -487,7 +516,13 @@ window.__phases = @json($phases);
 
         const data = await response.json();
         if (!data.success) {
-            throw new Error(data.message || 'Capture gagal disimpan.');
+            const reason = data.code || data.reason || data.notes;
+            const score = data.liveness_score !== undefined
+                ? ` (liveness ${data.liveness_score})`
+                : data.quality_score !== undefined
+                    ? ` (quality ${data.quality_score})`
+                    : '';
+            throw new Error(`${data.message || 'Capture gagal disimpan.'}${reason ? ` [${reason}]` : ''}${score}`);
         }
 
         phaseResults[phaseIndex] = payload;
@@ -502,19 +537,25 @@ window.__phases = @json($phases);
         busy = true;
         startBtn.disabled = true;
         finishBtn.disabled = true;
+        resetBtn.disabled = true;
 
         try {
-            for (let index = 0; index < phases.length; index += 1) {
+            for (let index = currentPhaseIndex; index < phases.length; index += 1) {
                 const phase = phases[index];
                 await capturePhase(phase, index);
             }
 
             finishBtn.disabled = false;
+            startBtn.textContent = 'Semua fase selesai';
             setStatus('Semua fase selesai. Tekan simpan final.');
         } finally {
             busy = false;
             autoRunning = false;
-            startBtn.disabled = false;
+            startBtn.disabled = currentPhaseIndex >= phases.length;
+            resetBtn.disabled = !session;
+            if (currentPhaseIndex < phases.length) {
+                startBtn.textContent = 'Lanjutkan sesi';
+            }
         }
     }
 
@@ -523,7 +564,6 @@ window.__phases = @json($phases);
         busy = true;
         finishBtn.disabled = true;
 
-        const lastScan = phaseResults[phaseResults.length - 1];
         const response = await fetch(@json(url('/kiosk-face-enrollment/sessions')) + `/${session.id}/complete`, {
             method: 'POST',
             headers: {
@@ -532,10 +572,14 @@ window.__phases = @json($phases);
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                face_descriptor: lastScan?.face_descriptor || [],
-                liveness_score: lastScan?.liveness_score ?? 0.96,
-                quality_score: 1,
-                metadata: { phase_results: phaseResults },
+                metadata: {
+                    phase_results: phaseResults.map((result) => ({
+                        phase_key: result.phase_key,
+                        phase_label: result.phase_label,
+                        capture_index: result.capture_index,
+                        detail: result.metadata?.detail || null,
+                    })),
+                },
             }),
         });
 
@@ -544,26 +588,119 @@ window.__phases = @json($phases);
             throw new Error(data.message || 'Gagal menyimpan data final.');
         }
 
-        void data;
-        setStatus('Data wajah tersimpan.');
+        const teacherName = data.teacher?.name || teacherSelect.options[teacherSelect.selectedIndex]?.textContent?.trim() || 'Guru';
+        await Swal.fire({
+            icon: 'success',
+            title: 'Berhasil disimpan',
+            text: `Data biometrik wajah ${teacherName} berhasil disimpan. Capture terbaru ditampilkan paling atas.`,
+            confirmButtonText: 'Selesai',
+        });
+
+        setStatus(`Data wajah ${teacherName} tersimpan. Capture terbaru berada di urutan paling atas.`);
         session = null;
         currentPhaseIndex = 0;
         renderPhases();
         renderGallery();
+        teacherSelect.disabled = false;
+        startBtn.textContent = 'Mulai sesi';
+        startBtn.disabled = false;
+        resetBtn.disabled = true;
         busy = false;
     }
 
+    async function resetSession() {
+        if (!session || busy) return;
+
+        const confirmation = await Swal.fire({
+            icon: 'warning',
+            title: 'Mulai dari awal?',
+            text: 'Semua capture pada sesi draft ini akan dihapus dan enam fase akan dimulai ulang.',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, mulai ulang',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+        });
+
+        if (!confirmation.isConfirmed) return;
+
+        busy = true;
+        resetBtn.disabled = true;
+        try {
+            const response = await fetch(@json(url('/kiosk-face-enrollment/sessions')) + `/${session.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Sesi gagal direset.');
+            }
+
+            faceRecognition.stopCamera(video);
+            streamReady = false;
+            session = null;
+            currentPhaseIndex = 0;
+            phaseResults = [];
+            teacherSelect.disabled = false;
+            startBtn.textContent = 'Mulai sesi';
+            startBtn.disabled = false;
+            finishBtn.disabled = true;
+            renderPhases();
+            renderGallery();
+            setStatus('Sesi direset. Pilih guru lalu mulai dari fase pertama.');
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Sesi direset',
+                text: 'Pendaftaran siap dimulai dari fase pertama.',
+                timer: 1800,
+                showConfirmButton: false,
+            });
+        } catch (error) {
+            console.error('Reset enrollment gagal:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Reset gagal',
+                text: error.message || 'Sesi belum dapat direset.',
+                confirmButtonText: 'Mengerti',
+            });
+        } finally {
+            busy = false;
+            resetBtn.disabled = !session;
+        }
+    }
+
     startBtn.addEventListener('click', () => startSession().catch((error) => {
-        void error;
+        console.error('Enrollment gagal:', error);
+        setStatus(error.message || 'Enrollment gagal.');
+        void Swal.fire({
+            icon: 'error',
+            title: 'Enrollment gagal',
+            text: error.message || 'Pendaftaran wajah gagal diproses.',
+            confirmButtonText: 'Coba lagi',
+        });
         busy = false;
         startBtn.disabled = false;
+        resetBtn.disabled = !session;
     }));
 
     finishBtn.addEventListener('click', () => finishSession().catch((error) => {
-        void error;
+        console.error('Penyimpanan enrollment gagal:', error);
+        setStatus(error.message || 'Gagal menyimpan data final.');
+        void Swal.fire({
+            icon: 'error',
+            title: 'Gagal menyimpan',
+            text: error.message || 'Data wajah belum berhasil disimpan.',
+            confirmButtonText: 'Coba lagi',
+        });
         busy = false;
         finishBtn.disabled = false;
+        resetBtn.disabled = !session;
     }));
+
+    resetBtn.addEventListener('click', () => resetSession());
 
     teacherSelect.addEventListener('change', () => {
         void teacherSelect.value;
