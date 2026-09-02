@@ -1510,6 +1510,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/kiosk-face-enrollment/sessions', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'startSession'])->name('kiosk.face-enrollment.sessions.start');
     Route::post('/kiosk-face-enrollment/sessions/{session}/captures', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'storeCapture'])->name('kiosk.face-enrollment.captures.store');
     Route::post('/kiosk-face-enrollment/sessions/{session}/complete', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'complete'])->name('kiosk.face-enrollment.complete');
+    Route::delete('/kiosk-face-enrollment/sessions/{session}', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'reset'])->name('kiosk.face-enrollment.sessions.reset');
 
     // Laporan Presensi Mingguan - Super Admin Only
     Route::middleware(['role:super_admin'])->group(function () {
@@ -1947,6 +1948,7 @@ Route::prefix('admin-masterdata')->middleware(['auth', 'role:super_admin,penguru
     Route::get('/tenaga-pendidik', [App\Http\Controllers\TenagaPendidikController::class, 'index'])->name('admin_masterdata.tenaga-pendidik.index');
     Route::get('/tenaga-pendidik/data', [App\Http\Controllers\TenagaPendidikController::class, 'data'])->name('admin_masterdata.tenaga-pendidik.data');
     Route::get('/tenaga-pendidik/export-school-summary', [App\Http\Controllers\TenagaPendidikController::class, 'exportSchoolSummary'])->name('admin_masterdata.tenaga-pendidik.export-school-summary');
+    Route::get('/tenaga-pendidik/export-complete', [App\Http\Controllers\TenagaPendidikController::class, 'exportComplete'])->name('admin_masterdata.tenaga-pendidik.export-complete');
     Route::post('/tenaga-pendidik/store', [App\Http\Controllers\TenagaPendidikController::class, 'store'])->name('admin_masterdata.tenaga-pendidik.store');
     Route::put('/tenaga-pendidik/update/{id}', [App\Http\Controllers\TenagaPendidikController::class, 'update'])->name('admin_masterdata.tenaga-pendidik.update');
     Route::delete('/tenaga-pendidik/destroy/{id}', [App\Http\Controllers\TenagaPendidikController::class, 'destroy'])->name('admin_masterdata.tenaga-pendidik.destroy');
@@ -1990,6 +1992,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::get('/tenaga-pendidik', [TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
     Route::get('/tenaga-pendidik/data', [TenagaPendidikController::class, 'data'])->name('tenaga-pendidik.data');
     Route::get('/tenaga-pendidik/export-school-summary', [TenagaPendidikController::class, 'exportSchoolSummary'])->name('tenaga-pendidik.export-school-summary');
+    Route::get('/tenaga-pendidik/export-complete', [TenagaPendidikController::class, 'exportComplete'])->name('tenaga-pendidik.export-complete');
     Route::post('/tenaga-pendidik/store', [TenagaPendidikController::class, 'store'])->name('tenaga-pendidik.store');
     Route::put('/tenaga-pendidik/update/{id}', [TenagaPendidikController::class, 'update'])->name('tenaga-pendidik.update');
     Route::delete('/tenaga-pendidik/destroy/{id}', [TenagaPendidikController::class, 'destroy'])->name('tenaga-pendidik.destroy');

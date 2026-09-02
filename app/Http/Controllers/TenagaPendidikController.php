@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TenagaPendidikSchoolSummaryExport;
+use App\Exports\TenagaPendidikCompleteExport;
 use App\Imports\TenagaPendidikImport;
 use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
@@ -121,6 +122,25 @@ class TenagaPendidikController extends Controller
         $fileName = 'rekap_tenaga_pendidik_per_sekolah_' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new TenagaPendidikSchoolSummaryExport($rows), $fileName);
+    }
+
+    public function exportComplete()
+    {
+        $user = auth()->user();
+        $this->ensureAuthorizedRole($user);
+
+        $query = $this->tenagaPendidikDataQuery($user)
+            ->with(['madrasah:id,name,scod'])
+            ->orderByRaw("CAST(COALESCE(NULLIF(madrasahs.scod, ''), '0') AS UNSIGNED) ASC")
+            ->orderBy('madrasahs.scod')
+            ->orderBy('users.name');
+
+        $fileName = 'data_tenaga_pendidik_lengkap_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(
+            new TenagaPendidikCompleteExport($query->get()),
+            $fileName
+        );
     }
 
     public function store(Request $request)
