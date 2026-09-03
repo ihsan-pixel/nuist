@@ -338,6 +338,7 @@ class TeachingAttendanceController extends Controller
             'teaching_schedule_id' => 'required|exists:teaching_schedules,id',
         ]);
 
+        $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
         // Get the schedule

@@ -992,8 +992,10 @@ async function parseJsonResponse(response) {
         return response.json();
     }
 
-    const text = await response.text();
-    throw new Error(text || 'Respons server tidak valid.');
+    await response.text();
+    throw new Error(response.ok
+        ? 'Respons server tidak valid.'
+        : 'Server sedang mengalami gangguan. Silakan coba lagi.');
 }
 
 function formatGeolocationError(error, phaseLabel = 'lokasi') {
