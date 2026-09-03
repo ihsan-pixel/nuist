@@ -38,6 +38,16 @@ class TeachingAttendanceController extends Controller
             ? (TeachingSchedulePeriod::activeForSchool($user->madrasah_id, $today)
                 ?? TeachingSchedulePeriod::latestForSchool($user->madrasah_id))
             : null;
+        $scheduleSchoolIds = collect([$user->madrasah_id, $user->madrasah_id_tambahan])
+            ->filter()
+            ->unique()
+            ->values();
+        $activePeriodIds = $scheduleSchoolIds->flatMap(function ($schoolId) use ($today) {
+            $period = TeachingSchedulePeriod::activeForSchool($schoolId, $today)
+                ?? TeachingSchedulePeriod::latestForSchool($schoolId);
+
+            return $period ? [$period->id] : [];
+        })->unique()->values();
 
         $approvedIzinPresensi = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today)
             ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $today);
@@ -53,11 +63,7 @@ class TeachingAttendanceController extends Controller
         $schedules = TeachingSchedule::with(['school', 'teacher'])
             ->where('teacher_id', $user->id)
             ->whereRaw('LOWER(day) = ?', [strtolower($dayOfWeek)])
-            ->when(
-                $activePeriod,
-                fn ($query) => $query->where('teaching_schedule_period_id', $activePeriod->id),
-                fn ($query) => $query->whereRaw('1 = 0')
-            )
+            ->whereIn('teaching_schedule_period_id', $activePeriodIds)
             ->orderBy('start_time')
             ->get();
 
@@ -78,7 +84,12 @@ class TeachingAttendanceController extends Controller
 
         $this->attachClassStudentCounts($schedules);
 
-        return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi', 'approvedIzinNote', 'activePeriod'));
+        $hasBlockingIzin = $schedules->contains(function ($schedule) use ($user, $approvedIzinPresensi) {
+            return $approvedIzinPresensi && !($approvedIzinPresensi->type === ExternalTeachingPermissionService::TYPE
+                && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule));
+        });
+
+        return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi', 'approvedIzinNote', 'activePeriod', 'hasBlockingIzin'));
     }
 
     public function store(Request $request)
@@ -101,18 +112,18 @@ class TeachingAttendanceController extends Controller
         $today = Carbon::now('Asia/Jakarta')->toDateString();
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
-        $hasApprovedIzinToday = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today) !== null
-            || ExternalTeachingPermissionService::approvedRequestForDate($user, $today) !== null;
-
-        if ($hasApprovedIzinToday) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar.'
-            ], 400);
-        }
-
         // Get the schedule
         $schedule = TeachingSchedule::with(['school', 'period'])->findOrFail($request->teaching_schedule_id);
+
+        $approvedIzin = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today)
+            ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $today);
+        if ($approvedIzin && !($approvedIzin->type === ExternalTeachingPermissionService::TYPE
+            && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar pada sekolah ini.'
+            ], 400);
+        }
 
         // Check if the schedule belongs to the user
         if ($schedule->teacher_id !== $user->id) {
@@ -327,23 +338,20 @@ class TeachingAttendanceController extends Controller
             'teaching_schedule_id' => 'required|exists:teaching_schedules,id',
         ]);
 
-        $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
-
-        $hasApprovedIzinToday = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today) !== null
-            || ExternalTeachingPermissionService::approvedRequestForDate($user, $today) !== null;
-
-        if ($hasApprovedIzinToday) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar.'
-            ], 400);
-        }
-
-        $user = Auth::user();
 
         // Get the schedule
         $schedule = TeachingSchedule::with(['school', 'period'])->findOrFail($request->teaching_schedule_id);
+
+        $approvedIzin = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today)
+            ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $today);
+        if ($approvedIzin && !($approvedIzin->type === ExternalTeachingPermissionService::TYPE
+            && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar pada sekolah ini.'
+            ], 400);
+        }
 
         // Check if the schedule belongs to the user
         if ($schedule->teacher_id !== $user->id) {

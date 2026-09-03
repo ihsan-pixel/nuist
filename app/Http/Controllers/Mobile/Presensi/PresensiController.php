@@ -367,6 +367,15 @@ class PresensiController extends \App\Http\Controllers\Controller
                 ->first();
         }
 
+        // The main school's automatic izin record must not block attendance at the
+        // additional school on the same date.
+        if ((int) $determinedMadrasahId === (int) $user->madrasah_id_tambahan) {
+            $existingPresensi = Presensi::where('user_id', $user->id)
+                ->where('madrasah_id', $determinedMadrasahId)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+        }
+
         // Check if user has pending izin terlambat for today - block presensi if pending
         if ($this->attendanceWorkflowService->findPendingLatePermit($user, $tanggal)) {
             return response()->json([

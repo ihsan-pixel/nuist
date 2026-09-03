@@ -149,7 +149,7 @@ class TeacherAppController extends Controller
         $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
         $attendanceStats = $this->calculateDashboardAttendanceStats($user, $presensiThisMonth, $calendarDate, $today);
 
-        $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $todayEventMap, $approvedTeachingJournalIzin, $today) {
+        $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($user, $todayAttendances, $todayEventMap, $approvedTeachingJournalIzin, $today) {
             $attendance = $todayEventMap->has($schedule->id . '|' . $today->toDateString())
                 ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule(
                     $schedule,
@@ -157,9 +157,12 @@ class TeacherAppController extends Controller
                     $todayEventMap->get($schedule->id . '|' . $today->toDateString())
                 )
                 : $todayAttendances->get($schedule->id);
+            $scheduleIzinBlocked = $approvedTeachingJournalIzin
+                && !($approvedTeachingJournalIzin->type === ExternalTeachingPermissionService::TYPE
+                    && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule));
             $status = $attendance
                 ? (($attendance->status ?? 'hadir') === 'izin' ? 'izin' : 'completed')
-                : ($approvedTeachingJournalIzin ? 'izin' : 'pending');
+                : ($scheduleIzinBlocked ? 'izin' : 'pending');
 
             return [
                 'id' => $schedule->id,
@@ -662,6 +665,18 @@ class TeacherAppController extends Controller
             ]);
         }
 
+        $determinedMadrasahId = $this->determineAttendanceMadrasahId(
+            $user,
+            (float) $validated['latitude'],
+            (float) $validated['longitude'],
+        );
+
+        if (!$determinedMadrasahId) {
+            throw ValidationException::withMessages([
+                'location' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan.',
+            ]);
+        }
+
         $existingPresensi = $user->ketugasan === 'penjaga sekolah'
             ? Presensi::query()
                 ->where('user_id', $user->id)
@@ -671,6 +686,7 @@ class TeacherAppController extends Controller
                 ->first()
             : Presensi::query()
                 ->where('user_id', $user->id)
+                ->where('madrasah_id', $determinedMadrasahId)
                 ->whereDate('tanggal', $tanggal->toDateString())
                 ->first();
 
@@ -693,18 +709,6 @@ class TeacherAppController extends Controller
         }
 
         $this->ensureAttendanceTimeAllowed($user, $validated['presensi_mode'], $now, $existingPresensi, $validated);
-
-        $determinedMadrasahId = $this->determineAttendanceMadrasahId(
-            $user,
-            (float) $validated['latitude'],
-            (float) $validated['longitude'],
-        );
-
-        if (!$determinedMadrasahId) {
-            throw ValidationException::withMessages([
-                'location' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan.',
-            ]);
-        }
 
         $locationValidation = $this->validateLocationForFakeGps(
             $validated,
@@ -1093,13 +1097,13 @@ class TeacherAppController extends Controller
                 'today_summary' => [
                     'total_schedules' => $todaySchedules->count(),
                     'completed_schedules' => $todaySchedules
-                        ->filter(fn (TeachingSchedule $schedule) => $todayEventMap->has($schedule->id . '|' . $today->toDateString()) || $todayAttendances->has($schedule->id) || $approvedTeachingJournalIzin !== null)
+                        ->filter(fn (TeachingSchedule $schedule) => $todayEventMap->has($schedule->id . '|' . $today->toDateString()) || $todayAttendances->has($schedule->id) || ($approvedTeachingJournalIzin && !($approvedTeachingJournalIzin->type === ExternalTeachingPermissionService::TYPE && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule))))
                         ->count(),
                     'pending_schedules' => $todaySchedules
-                        ->filter(fn (TeachingSchedule $schedule) => !$todayEventMap->has($schedule->id . '|' . $today->toDateString()) && !$todayAttendances->has($schedule->id) && $approvedTeachingJournalIzin === null)
+                        ->filter(fn (TeachingSchedule $schedule) => !$todayEventMap->has($schedule->id . '|' . $today->toDateString()) && !$todayAttendances->has($schedule->id) && (!$approvedTeachingJournalIzin || ($approvedTeachingJournalIzin->type === ExternalTeachingPermissionService::TYPE && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule))))
                         ->count(),
                 ],
-                'today_schedules' => $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $todayEventMap, $approvedTeachingJournalIzin, $now, $today) {
+                'today_schedules' => $todaySchedules->map(function (TeachingSchedule $schedule) use ($user, $todayAttendances, $todayEventMap, $approvedTeachingJournalIzin, $now, $today) {
                     $attendance = $todayEventMap->has($schedule->id . '|' . $today->toDateString())
                         ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule(
                             $schedule,
@@ -1109,6 +1113,10 @@ class TeacherAppController extends Controller
                         : $todayAttendances->get($schedule->id);
                     $timeState = $this->buildTeachingAttendanceTimeState($schedule, $now);
                     $classTotalStudents = $schedule->class_student_count?->total_students;
+
+                    $scheduleIzinBlocked = $approvedTeachingJournalIzin
+                        && !($approvedTeachingJournalIzin->type === ExternalTeachingPermissionService::TYPE
+                            && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule));
 
                     return [
                         'id' => $schedule->id,
@@ -1123,14 +1131,14 @@ class TeacherAppController extends Controller
                         'time_state' => $timeState['state'],
                         'time_message' => $timeState['message'],
                         'can_submit' => $attendance === null
-                            && $approvedTeachingJournalIzin === null
+                            && !$scheduleIzinBlocked
                             && $timeState['state'] === 'within',
                         'status' => $attendance
                             ? (($attendance->status ?: 'hadir') === 'izin' ? 'izin' : 'hadir')
-                            : ($approvedTeachingJournalIzin ? 'izin' : 'pending'),
+                            : ($scheduleIzinBlocked ? 'izin' : 'pending'),
                         'status_label' => $attendance
                             ? ((($attendance->status ?: 'hadir') === 'izin') ? $attendance->display_status_label : 'Presensi Berhasil')
-                            : ($approvedTeachingJournalIzin ? 'Izin (Disetujui)' : 'Belum Presensi'),
+                            : ($scheduleIzinBlocked ? 'Izin (Disetujui)' : 'Belum Presensi'),
                         'is_auto_generated' => (bool) $attendance?->is_auto_generated,
                         'attendance_source' => $attendance?->attendance_source,
                         'event_name' => $attendance?->academicCalendarEvent?->name,
@@ -1211,15 +1219,17 @@ class TeacherAppController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
 
-        if ($approvedTeachingJournalIzin) {
+        $schedule = TeachingSchedule::query()
+            ->with(['school', 'period'])
+            ->findOrFail($validated['teaching_schedule_id']);
+
+        if ($approvedTeachingJournalIzin
+            && !($approvedTeachingJournalIzin->type === ExternalTeachingPermissionService::TYPE
+                && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule))) {
             throw ValidationException::withMessages([
                 'attendance' => $this->teachingJournalIzinMessage($approvedTeachingJournalIzin),
             ]);
         }
-
-        $schedule = TeachingSchedule::query()
-            ->with(['school', 'period'])
-            ->findOrFail($validated['teaching_schedule_id']);
 
         $this->ensureTeachingJournalScheduleAllowed($user, $schedule, $today);
 
@@ -2234,11 +2244,17 @@ class TeacherAppController extends Controller
 
     private function todaySchedules(User $user, Carbon $today)
     {
-        $activePeriod = $user->madrasah_id
-            ? $this->resolveSchedulePeriod($user->madrasah_id, null, true, $today)
-            : null;
+        $schoolIds = collect([$user->madrasah_id, $user->madrasah_id_tambahan])
+            ->filter()
+            ->unique()
+            ->values();
+        $periodIds = $schoolIds->map(function ($schoolId) use ($today) {
+            $period = $this->resolveSchedulePeriod($schoolId, null, true, $today);
 
-        if (!$activePeriod) {
+            return $period?->id;
+        })->filter()->values();
+
+        if ($periodIds->isEmpty()) {
             return collect();
         }
 
@@ -2247,7 +2263,7 @@ class TeacherAppController extends Controller
         return TeachingSchedule::query()
             ->with(['school', 'period'])
             ->where('teacher_id', $user->id)
-            ->where('teaching_schedule_period_id', $activePeriod->id)
+            ->whereIn('teaching_schedule_period_id', $periodIds)
             ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Izin;
 use App\Models\Presensi;
+use App\Models\TeachingSchedule;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -52,6 +53,17 @@ class ExternalTeachingPermissionService
     public static function hasApprovedNoPresenceDay(User $user, Carbon|string $date): bool
     {
         return self::approvedRequestForDate($user, $date) !== null;
+    }
+
+    /**
+     * External-school permission applies to the additional school's teaching journal,
+     * while the main-school no-presence record remains active for the same date.
+     */
+    public static function allowsTeachingJournalForSchedule(User $user, TeachingSchedule $schedule): bool
+    {
+        return self::isEligibleUser($user)
+            && (int) $user->madrasah_id_tambahan > 0
+            && (int) $schedule->school_id === (int) $user->madrasah_id_tambahan;
     }
 
     public static function syncApprovedNoPresencePresensi(Izin $izin, ?Carbon $until = null): int

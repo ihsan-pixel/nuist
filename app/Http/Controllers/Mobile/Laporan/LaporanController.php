@@ -140,6 +140,16 @@ class LaporanController extends \App\Http\Controllers\Controller
             ? (TeachingSchedulePeriod::activeForSchool($user->madrasah_id, $selectedDate)
                 ?? TeachingSchedulePeriod::latestForSchool($user->madrasah_id))
             : null;
+        $scheduleSchoolIds = collect([$user->madrasah_id, $user->madrasah_id_tambahan])
+            ->filter()
+            ->unique()
+            ->values();
+        $activePeriodIds = $scheduleSchoolIds->flatMap(function ($schoolId) use ($selectedDate) {
+            $period = TeachingSchedulePeriod::activeForSchool($schoolId, $selectedDate)
+                ?? TeachingSchedulePeriod::latestForSchool($schoolId);
+
+            return $period ? [$period->id] : [];
+        })->unique()->values();
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $selectedDate);
 
@@ -164,11 +174,7 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         // Filter by current day's name (case insensitive)
         $query->whereRaw('LOWER(day) = ?', [strtolower($todayName)]);
-        $query->when(
-            $activePeriod,
-            fn ($builder) => $builder->where('teaching_schedule_period_id', $activePeriod->id),
-            fn ($builder) => $builder->whereRaw('1 = 0')
-        );
+        $query->whereIn('teaching_schedule_period_id', $activePeriodIds);
 
         $schedules = $query->orderBy('start_time')->get();
 
@@ -186,9 +192,14 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         $this->attachClassStudentCounts($schedules);
 
+        $hasBlockingIzin = $schedules->contains(function ($schedule) use ($user, $approvedIzinPresensi) {
+            return $approvedIzinPresensi && !($approvedIzinPresensi->type === ExternalTeachingPermissionService::TYPE
+                && ExternalTeachingPermissionService::allowsTeachingJournalForSchedule($user, $schedule));
+        });
+
         $today = $selectedDate->toDateString();
 
-        return view('mobile.teaching-attendances', compact('today', 'schedules', 'approvedIzinPresensi', 'approvedIzinNote', 'activePeriod'));
+        return view('mobile.teaching-attendances', compact('today', 'schedules', 'approvedIzinPresensi', 'approvedIzinNote', 'activePeriod', 'hasBlockingIzin'));
     }
 
     private function attachClassStudentCounts($schedules): void

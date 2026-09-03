@@ -69,7 +69,7 @@
 @endcomponent
 
 @php
-    $isIzinApprovedToday = !empty($approvedIzinPresensi);
+    $isIzinApprovedToday = !empty($hasBlockingIzin);
 @endphp
 
 <!-- Header Section -->
@@ -140,6 +140,11 @@
             <!-- Schedule Cards - Mobile Optimized -->
             <div class="row g-3">
                 @foreach($schedules as $schedule)
+                    @php
+                        $scheduleIzinBlocked = !empty($approvedIzinPresensi)
+                            && !($approvedIzinPresensi->type === \App\Services\ExternalTeachingPermissionService::TYPE
+                                && \App\Services\ExternalTeachingPermissionService::allowsTeachingJournalForSchedule(auth()->user(), $schedule));
+                    @endphp
                 <div class="col-12">
                     @php
                         $scheduleAttendanceStatus = $schedule->attendance->status ?? null;
@@ -247,7 +252,7 @@
                                     </div>
                                 </div>
                             @else
-                                @if($isIzinApprovedToday)
+                                @if($scheduleIzinBlocked)
                                     <div class="alert alert-info border-0 rounded-3 p-3 mb-0">
                                         <div class="d-flex align-items-center">
                                             <i class="bx bx-info-circle fs-4 me-3"></i>

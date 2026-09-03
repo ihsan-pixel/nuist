@@ -368,9 +368,14 @@
                 </div>
             @else
                 @php
-                    $isIzinApprovedToday = !empty($approvedIzinPresensi);
+                    $isIzinApprovedToday = !empty($hasBlockingIzin);
                 @endphp
                 @foreach($schedules as $schedule)
+                    @php
+                        $scheduleIzinBlocked = !empty($approvedIzinPresensi)
+                            && !($approvedIzinPresensi->type === \App\Services\ExternalTeachingPermissionService::TYPE
+                                && \App\Services\ExternalTeachingPermissionService::allowsTeachingJournalForSchedule(auth()->user(), $schedule));
+                    @endphp
                     <div class="schedule-item">
                         <div class="schedule-icon">
                             <i class="bx bx-book"></i>
@@ -397,7 +402,7 @@
                                             <div class="badge bg-success">Hadir</div>
                                         @endif
                                     @else
-                                        @if($isIzinApprovedToday)
+                                        @if($scheduleIzinBlocked)
                                             <div class="badge bg-info text-dark">Izin</div>
                                         @else
                                             <div class="badge bg-warning text-dark">Belum</div>
@@ -445,7 +450,7 @@
                                         </div>
                                     </div>
                                 @else
-                                    @if($isIzinApprovedToday)
+                                    @if($scheduleIzinBlocked)
                                         <div class="alert alert-info mb-0">
                                             <div class="d-flex align-items-center">
                                                 <i class="bx bx-info-circle fs-4 me-2"></i>
