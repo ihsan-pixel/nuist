@@ -205,7 +205,10 @@ class MonitoringController extends \App\Http\Controllers\Controller
                     ->first();
                 $event = $approvedSchoolActivityEvents->get($schedule->id . '|' . $cursor->toDateString());
                 $holiday = $holidayMap->get($cursor->toDateString());
-                $status = $event ? 'izin' : (($holiday && !$attendance) ? 'libur' : ($attendance ? 'hadir' : 'belum'));
+                $activeIzin = $this->activeJournalIzinForSchedule($schedule, $cursor);
+                $status = $attendance
+                    ? 'hadir'
+                    : ($event || $activeIzin ? 'izin' : (($holiday) ? 'libur' : 'belum'));
 
                 $expectedSessions->push([
                     'date' => $cursor->toDateString(),
@@ -217,6 +220,7 @@ class MonitoringController extends \App\Http\Controllers\Controller
                     'schedule' => $schedule,
                     'event' => $event,
                     'holiday' => $holiday,
+                    'izin' => $activeIzin,
                     'status' => $status,
                 ]);
 
@@ -322,6 +326,26 @@ class MonitoringController extends \App\Http\Controllers\Controller
             'dailyRecaps',
             'availableClasses'
         ));
+    }
+
+    private function activeJournalIzinForSchedule(TeachingSchedule $schedule, Carbon $date)
+    {
+        $teacher = $schedule->teacher;
+        if (!$teacher) {
+            return null;
+        }
+
+        $izin = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($teacher, $date);
+        if ($izin) {
+            return $izin;
+        }
+
+        $izin = ExternalTeachingPermissionService::approvedRequestForDate($teacher, $date);
+        if ($izin && (int) $schedule->school_id === (int) $teacher->madrasah_id) {
+            return $izin;
+        }
+
+        return null;
     }
 
     /**
