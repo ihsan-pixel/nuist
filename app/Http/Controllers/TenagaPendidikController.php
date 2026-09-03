@@ -130,7 +130,16 @@ class TenagaPendidikController extends Controller
         $this->ensureAuthorizedRole($user);
 
         $query = $this->tenagaPendidikDataQuery($user)
-            ->with(['madrasah:id,name,scod'])
+            ->with([
+                'madrasah:id,name,scod',
+                'statusKepegawaian:id,name',
+                'skYayasanRequestsAsEmployee' => function ($requestQuery) {
+                    $requestQuery
+                        ->with(['madrasah:id,name,scod', 'template:id,name'])
+                        ->latest('submitted_at')
+                        ->latest('id');
+                },
+            ])
             ->orderByRaw("CAST(COALESCE(NULLIF(madrasahs.scod, ''), '0') AS UNSIGNED) ASC")
             ->orderBy('madrasahs.scod')
             ->orderBy('users.name');
