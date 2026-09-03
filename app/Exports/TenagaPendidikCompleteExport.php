@@ -52,9 +52,12 @@ class TenagaPendidikCompleteExport implements FromCollection, WithHeadings, Shou
     public function collection(): Collection
     {
         return $this->tenagaPendidiks->values()->map(function (User $user, int $index) {
-            $namaDanGelar = $this->formatNamaDanGelar($user->name, $user->gelar);
-
             $latestRequest = $this->latestSkRequest($user);
+            $latestImportRow = $this->latestSkImportRow($latestRequest);
+            $namaDanGelar = $this->formatNamaDanGelar(
+                $latestImportRow?->source_nama ?: $user->name,
+                $latestImportRow?->source_gelar ?: $user->gelar
+            );
 
             return [
                 'no' => $index + 1,
@@ -91,6 +94,12 @@ class TenagaPendidikCompleteExport implements FromCollection, WithHeadings, Shou
         $requests = $user->skYayasanRequestsAsEmployee ?? collect();
 
         return $requests->first();
+    }
+
+    private function latestSkImportRow(?SkYayasanRequest $request): ?object
+    {
+        return $request?->importBatch?->rows
+            ?->first(fn ($row) => (int) $row->matched_user_id === (int) $request->employee_id);
     }
 
     private function formatNamaDanGelar(?string $nama, ?string $gelar): string

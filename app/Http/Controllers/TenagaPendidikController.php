@@ -135,7 +135,11 @@ class TenagaPendidikController extends Controller
                 'statusKepegawaian:id,name',
                 'skYayasanRequestsAsEmployee' => function ($requestQuery) {
                     $requestQuery
-                        ->with(['madrasah:id,name,scod', 'template:id,name'])
+                        ->with([
+                            'madrasah:id,name,scod',
+                            'template:id,name',
+                            'importBatch.rows',
+                        ])
                         ->latest('submitted_at')
                         ->latest('id');
                 },
