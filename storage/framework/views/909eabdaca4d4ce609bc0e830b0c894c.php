@@ -173,7 +173,9 @@
                                                     </div>
                                                     <div class="small text-muted">
                                                         <?php echo e($status === 'izin'
-                                                            ? 'Izin kegiatan terdeteksi'
+                                                            ? ($item['izin']?->type === \App\Services\ExternalTeachingPermissionService::TYPE
+                                                                ? 'Mengajar di sekolah lain'
+                                                                : ($item['izin']?->alasan ?: 'Izin aktif terdeteksi'))
                                                             : ($status === 'libur'
                                                                 ? 'Tanggal merah, tidak perlu jurnal'
                                                                 : ($journalFilled ? 'Jurnal sudah diisi' : 'Belum mengisi jurnal'))); ?>

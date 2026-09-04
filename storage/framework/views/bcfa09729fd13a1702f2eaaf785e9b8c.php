@@ -356,9 +356,14 @@
                 </div>
             <?php else: ?>
                 <?php
-                    $isIzinApprovedToday = !empty($approvedIzinPresensi);
+                    $isIzinApprovedToday = !empty($hasBlockingIzin);
                 ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <?php
+                        $scheduleIzinBlocked = !empty($approvedIzinPresensi)
+                            && !($approvedIzinPresensi->type === \App\Services\ExternalTeachingPermissionService::TYPE
+                                && \App\Services\ExternalTeachingPermissionService::allowsTeachingJournalForSchedule(auth()->user(), $schedule));
+                    ?>
                     <div class="schedule-item">
                         <div class="schedule-icon">
                             <i class="bx bx-book"></i>
@@ -387,7 +392,7 @@
                                             <div class="badge bg-success">Hadir</div>
                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     <?php else: ?>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isIzinApprovedToday): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($scheduleIzinBlocked): ?>
                                             <div class="badge bg-info text-dark">Izin</div>
                                         <?php else: ?>
                                             <div class="badge bg-warning text-dark">Belum</div>
@@ -438,7 +443,7 @@
                                         </div>
                                     </div>
                                 <?php else: ?>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isIzinApprovedToday): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($scheduleIzinBlocked): ?>
                                         <div class="alert alert-info mb-0">
                                             <div class="d-flex align-items-center">
                                                 <i class="bx bx-info-circle fs-4 me-2"></i>
@@ -969,8 +974,10 @@ async function parseJsonResponse(response) {
         return response.json();
     }
 
-    const text = await response.text();
-    throw new Error(text || 'Respons server tidak valid.');
+    await response.text();
+    throw new Error(response.ok
+        ? 'Respons server tidak valid.'
+        : 'Server sedang mengalami gangguan. Silakan coba lagi.');
 }
 
 function formatGeolocationError(error, phaseLabel = 'lokasi') {

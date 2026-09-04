@@ -106,6 +106,9 @@
                         <p class="text-muted mb-0 small">Data dimuat bertahap dari server agar tetap cepat walau jumlah user besar.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
+                        <a href="<?php echo e(route('tenaga-pendidik.export-complete')); ?>" class="btn btn-success">
+                            <i class="bx bx-download"></i> Download Excel Data Lengkap
+                        </a>
                         <a href="<?php echo e(route('tenaga-pendidik.export-school-summary')); ?>" class="btn btn-outline-success">
                             <i class="bx bx-download"></i> Download Rekap Per Sekolah
                         </a>
@@ -122,8 +125,8 @@
                 <div class="alert alert-light border mb-3">
                     <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
                         <div>
-                            <strong>Export rekap sekolah</strong><br>
-                            <span class="text-muted small">File berisi jumlah guru `GTY/GTT`, jumlah karyawan `PTY/PTT`, dan total per sekolah.</span>
+                            <strong>Export data lengkap</strong><br>
+                            <span class="text-muted small">File berisi semua tenaga pendidik yang Anda akses, diurutkan berdasarkan SCOD, dan memakai format tanggal Indonesia.</span>
                         </div>
                         <div class="text-muted small">
                             Pencarian, urut, dan paging diproses di server.

@@ -12,6 +12,7 @@ use App\Services\KioskFaceEngineService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -152,6 +153,20 @@ class FaceEnrollmentKioskController extends Controller
             ], 422);
         }
 
+        $previousCapture = FaceEnrollmentCapture::query()
+            ->where('session_id', $session->id)
+            ->where('phase_key', $validated['phase_key'])
+            ->first();
+        $capturedImage = $this->storeCapturedImage(
+            $session->user,
+            $validated['phase_key'],
+            $engineResult['captured_image'] ?? $validated['captured_image'],
+        );
+
+        if ($previousCapture) {
+            $this->deleteStoredCapture($previousCapture->captured_image);
+        }
+
         $capture = FaceEnrollmentCapture::updateOrCreate(
             [
                 'session_id' => $session->id,
@@ -160,7 +175,7 @@ class FaceEnrollmentKioskController extends Controller
             [
                 'phase_label' => $validated['phase_label'],
                 'capture_index' => $validated['capture_index'],
-                'captured_image' => $engineResult['captured_image'] ?? $validated['captured_image'],
+                'captured_image' => $capturedImage,
                 'face_descriptor' => $embedding,
                 'quality_score' => $engineResult['quality_score'] ?? null,
                 'liveness_score' => $engineResult['liveness_score'] ?? null,
@@ -312,6 +327,9 @@ class FaceEnrollmentKioskController extends Controller
             ], 422);
         }
 
+        $session->captures
+            ->each(fn (FaceEnrollmentCapture $capture) => $this->deleteStoredCapture($capture->captured_image));
+
         // Capture draft ikut terhapus melalui foreign key cascade.
         $session->delete();
 
@@ -325,6 +343,85 @@ class FaceEnrollmentKioskController extends Controller
     {
         if ($session->operator_user_id !== Auth::id() && Auth::user()?->role !== 'super_admin') {
             abort(403, 'Unauthorized');
+        }
+    }
+
+    private function storeCapturedImage(User $teacher, string $phaseKey, string $capturedImage): string
+    {
+        if (!preg_match('#^data:image/(jpeg|jpg|png);base64,(.+)$#is', $capturedImage, $matches)) {
+            throw ValidationException::withMessages([
+                'captured_image' => 'Hasil capture wajah bukan gambar yang valid.',
+            ]);
+        }
+
+        $image = base64_decode($matches[2], true);
+        if ($image === false) {
+            throw ValidationException::withMessages([
+                'captured_image' => 'Hasil capture wajah tidak dapat diproses.',
+            ]);
+        }
+
+        $poseLabels = [
+            'front' => 'Menghadap Depan',
+            'front_2' => 'Menghadap Depan 2',
+            'left' => 'Menghadap Kiri',
+            'right' => 'Menghadap Kanan',
+            'up' => 'Menghadap Atas',
+            'down' => 'Menghadap Bawah',
+        ];
+        $schoolName = $teacher->madrasah?->name ?: 'Tanpa Sekolah';
+        $userName = $this->displayNameWithDegree($teacher);
+        $extension = strtolower($matches[1]) === 'png' ? 'png' : 'jpg';
+        $fileName = implode('-', [
+            Str::slug($userName ?: 'Tanpa Nama'),
+            Str::slug($poseLabels[$phaseKey] ?? $phaseKey),
+            Str::lower((string) Str::uuid()),
+        ]) . '.' . $extension;
+        $relativePath = implode('/', [
+            'face-enrollment-captures',
+            Str::slug($schoolName),
+            Str::slug($userName ?: 'Tanpa Nama'),
+            $fileName,
+        ]);
+
+        if (!Storage::disk('public')->put($relativePath, $image)) {
+            throw new \RuntimeException('Foto hasil capture wajah gagal disimpan.');
+        }
+
+        return Storage::disk('public')->url($relativePath);
+    }
+
+    private function displayNameWithDegree(User $teacher): string
+    {
+        $name = trim((string) $teacher->name);
+        $degree = trim((string) $teacher->gelar);
+
+        if ($name === '' || $degree === '') {
+            return trim($name . ' ' . $degree);
+        }
+
+        $normalizedName = strtolower((string) preg_replace('/[^a-z0-9]/i', '', $name));
+        $normalizedDegree = strtolower((string) preg_replace('/[^a-z0-9]/i', '', $degree));
+
+        return str_ends_with($normalizedName, $normalizedDegree)
+            ? $name
+            : $name . ' ' . $degree;
+    }
+
+    private function deleteStoredCapture(?string $capturedImage): void
+    {
+        if (!is_string($capturedImage) || str_starts_with($capturedImage, 'data:image/')) {
+            return;
+        }
+
+        $path = parse_url($capturedImage, PHP_URL_PATH);
+        if (!is_string($path)) {
+            return;
+        }
+
+        $relativePath = ltrim(Str::after($path, '/storage/'), '/');
+        if (Str::startsWith($relativePath, 'face-enrollment-captures/')) {
+            Storage::disk('public')->delete($relativePath);
         }
     }
 

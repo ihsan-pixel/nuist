@@ -67,7 +67,7 @@
 <?php echo $__env->renderComponent(); ?>
 
 <?php
-    $isIzinApprovedToday = !empty($approvedIzinPresensi);
+    $isIzinApprovedToday = !empty($hasBlockingIzin);
 ?>
 
 <!-- Header Section -->
@@ -139,6 +139,11 @@
             <!-- Schedule Cards - Mobile Optimized -->
             <div class="row g-3">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <?php
+                        $scheduleIzinBlocked = !empty($approvedIzinPresensi)
+                            && !($approvedIzinPresensi->type === \App\Services\ExternalTeachingPermissionService::TYPE
+                                && \App\Services\ExternalTeachingPermissionService::allowsTeachingJournalForSchedule(auth()->user(), $schedule));
+                    ?>
                 <div class="col-12">
                     <?php
                         $scheduleAttendanceStatus = $schedule->attendance->status ?? null;
@@ -251,7 +256,7 @@
                                     </div>
                                 </div>
                             <?php else: ?>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isIzinApprovedToday): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($scheduleIzinBlocked): ?>
                                     <div class="alert alert-info border-0 rounded-3 p-3 mb-0">
                                         <div class="d-flex align-items-center">
                                             <i class="bx bx-info-circle fs-4 me-3"></i>

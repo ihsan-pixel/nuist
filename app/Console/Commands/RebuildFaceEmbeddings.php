@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\BiometricProfileService;
 use App\Services\KioskFaceEngineService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class RebuildFaceEmbeddings extends Command
 {
@@ -28,14 +29,15 @@ class RebuildFaceEmbeddings extends Command
 
         foreach ($captures as $capture) {
             $user = $capture->session?->user;
-            if (!$user instanceof User || !is_string($capture->captured_image)) {
+            $captureImage = $this->resolveCaptureImage($capture->captured_image);
+            if (!$user instanceof User || $captureImage === null) {
                 $this->warn("Capture {$capture->id} dilewati: data tidak lengkap.");
                 continue;
             }
 
             $result = $this->engine->enroll(
                 $user,
-                ['selfie_frames' => [$capture->captured_image]],
+                ['selfie_frames' => [$captureImage]],
                 [
                     'expected_pose' => str_starts_with($capture->phase_key, 'front') ? 'front' : $capture->phase_key,
                     'rebuild' => true,
@@ -72,5 +74,30 @@ class RebuildFaceEmbeddings extends Command
 
         $this->info($dryRun ? 'Dry-run selesai.' : "{$written} embedding SFace berhasil dibuat.");
         return self::SUCCESS;
+    }
+
+    private function resolveCaptureImage(mixed $capturedImage): ?string
+    {
+        if (!is_string($capturedImage) || $capturedImage === '') {
+            return null;
+        }
+
+        if (str_starts_with($capturedImage, 'data:image/')) {
+            return $capturedImage;
+        }
+
+        $urlPath = parse_url($capturedImage, PHP_URL_PATH);
+        $relativePath = is_string($urlPath) && str_contains($urlPath, '/storage/')
+            ? ltrim((string) substr($urlPath, strpos($urlPath, '/storage/') + 9), '/')
+            : ltrim($capturedImage, '/');
+
+        if (!Storage::disk('public')->exists($relativePath)) {
+            return null;
+        }
+
+        $contents = Storage::disk('public')->get($relativePath);
+        $mimeType = Storage::disk('public')->mimeType($relativePath) ?: 'image/jpeg';
+
+        return 'data:' . $mimeType . ';base64,' . base64_encode($contents);
     }
 }
