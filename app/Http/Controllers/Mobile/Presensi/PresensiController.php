@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\Presensi;
 use App\Models\FaceDiagnostic;
+use App\Models\Notification;
 use App\Models\User;
 use App\Models\Holiday;
 use App\Services\ApprovedIzinSyncService;
@@ -729,6 +730,21 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'message' => 'Presensi hari ini sudah lengkap atau dalam keadaan tidak valid.'
             ], 400);
         }
+
+        // Persist the in-app notification first; the model then sends FCM
+        // to the user's registered browser/device tokens when configured.
+        Notification::create([
+            'user_id' => $user->id,
+            'type' => $isPresensiMasuk ? 'presensi_masuk' : 'presensi_keluar',
+            'title' => $isPresensiMasuk ? 'Presensi Masuk Berhasil' : 'Presensi Keluar Berhasil',
+            'message' => $message,
+            'data' => [
+                'presensi_id' => $presensi->id,
+                'presensi_mode' => $isPresensiMasuk ? 'masuk' : 'keluar',
+                'tanggal' => $presensi->tanggal?->toDateString(),
+                'url' => route('mobile.riwayat-presensi'),
+            ],
+        ]);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
