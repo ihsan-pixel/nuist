@@ -4185,9 +4185,10 @@ window.addEventListener('load', function() {
                     placeholder.style.display = 'none';
                 }
 
-                // Model sudah dipanaskan di background; jangan blok kamera pada jalur buka modal.
+                setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
+                await faceScanner.loadModels();
                 setFaceLoadingState(false);
-                facePresensiLog('model', 'Warmup background dipakai untuk jalur face_scan.', facePresensiSnapshot(video), 'info');
+                facePresensiLog('model', 'loadModels() selesai pada jalur face_scan.', facePresensiSnapshot(video), 'info');
                 updateFaceInstruction('Kamera aktif. Scan akan dimulai otomatis.');
             } else {
                 captureBtn.disabled = true;

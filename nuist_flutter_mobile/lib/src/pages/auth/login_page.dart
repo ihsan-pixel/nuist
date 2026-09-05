@@ -6,7 +6,6 @@ import '../../controllers/session_controller.dart';
 import '../../services/auth_repository.dart';
 import '../../widgets/auth/status_banner.dart';
 import 'forgot_password_page.dart';
-import 'student_password_reset_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -90,11 +89,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
       setState(() {
         _rememberMe = remembered['remember'] == true;
-        final rememberedRole = remembered['loginAs'] as String?;
-        _loginAs = const ['siswa', 'tenaga_pendidik', 'pengurus']
-                .contains(rememberedRole)
-            ? rememberedRole!
-            : 'tenaga_pendidik';
+        // This app is currently dedicated to GTK/teaching staff accounts.
+        _loginAs = 'tenaga_pendidik';
         if (_rememberMe) {
           _emailController.text = (remembered['email'] as String?) ?? '';
           _passwordController.text = (remembered['password'] as String?) ?? '';
@@ -161,28 +157,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   String? _validateIdentifier(String? value) {
-    if (_loginAs == 'siswa') {
-      final nisn = value?.trim() ?? '';
-      if (nisn.isEmpty) {
-        return _hasSubmitted ? 'NISN wajib diisi.' : null;
-      }
-      if (!RegExp(r'^\d{6,50}$').hasMatch(nisn)) {
-        return 'NISN harus berupa angka.';
-      }
-      return null;
-    }
-
     return _validateEmail(value);
-  }
-
-  void _setLoginAs(String value) {
-    if (_loginAs == value) return;
-    setState(() {
-      _loginAs = value;
-      _emailController.clear();
-      _hasSubmitted = false;
-    });
-    _requestEmailFocus();
   }
 
   String? _validatePassword(String? value) {
@@ -224,9 +199,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   Future<void> _openForgotPasswordPage() async {
     final message = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (_) => _loginAs == 'siswa'
-            ? StudentPasswordResetPage(authRepository: widget.authRepository)
-            : ForgotPasswordPage(authRepository: widget.authRepository),
+        builder: (_) =>
+            ForgotPasswordPage(authRepository: widget.authRepository),
       ),
     );
 
@@ -391,7 +365,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           child: _LoginFormCard(
             formKey: _formKey,
             emailController: _emailController,
-            loginAs: _loginAs,
             passwordController: _passwordController,
             emailFocusNode: _emailFocusNode,
             passwordFocusNode: _passwordFocusNode,
@@ -412,7 +385,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 controller.isLoggingIn ? null : _openForgotPasswordPage,
             onSubmit: _submit,
             emailValidator: _validateIdentifier,
-            onLoginAsChanged: controller.isLoggingIn ? null : _setLoginAs,
             passwordValidator: _validatePassword,
             shouldAutovalidate:
                 _hasSubmitted || _emailController.text.isNotEmpty,
@@ -447,7 +419,6 @@ class _LoginFormCard extends StatelessWidget {
   const _LoginFormCard({
     required this.formKey,
     required this.emailController,
-    required this.loginAs,
     required this.passwordController,
     required this.emailFocusNode,
     required this.passwordFocusNode,
@@ -463,12 +434,10 @@ class _LoginFormCard extends StatelessWidget {
     required this.emailValidator,
     required this.passwordValidator,
     required this.shouldAutovalidate,
-    required this.onLoginAsChanged,
   });
 
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
-  final String loginAs;
   final TextEditingController passwordController;
   final FocusNode emailFocusNode;
   final FocusNode passwordFocusNode;
@@ -484,7 +453,6 @@ class _LoginFormCard extends StatelessWidget {
   final FormFieldValidator<String> emailValidator;
   final FormFieldValidator<String> passwordValidator;
   final bool shouldAutovalidate;
-  final ValueChanged<String>? onLoginAsChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -519,21 +487,13 @@ class _LoginFormCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
             ],
-            _LoginRoleToggle(
-              selectedRole: loginAs,
-              enabled: onLoginAsChanged != null,
-              onChanged: onLoginAsChanged,
-            ),
-            const SizedBox(height: 12),
-            _InputLabel(loginAs == 'siswa' ? 'NISN' : 'Email'),
+            const _InputLabel('Email GTK'),
             const SizedBox(height: 5),
             TextFormField(
               controller: emailController,
               focusNode: emailFocusNode,
               autofocus: true,
-              keyboardType: loginAs == 'siswa'
-                  ? TextInputType.number
-                  : TextInputType.emailAddress,
+              keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
               style: const TextStyle(
@@ -542,8 +502,8 @@ class _LoginFormCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
               decoration: _buildInputDecoration(
-                hintText: loginAs == 'siswa' ? 'Masukkan NISN Anda' : 'Masukkan email Anda',
-                icon: loginAs == 'siswa' ? Icons.numbers_rounded : Icons.mail_outline_rounded,
+                hintText: 'Masukkan email GTK Anda',
+                icon: Icons.mail_outline_rounded,
               ),
               validator: emailValidator,
               onFieldSubmitted: (_) => passwordFocusNode.requestFocus(),
@@ -739,137 +699,6 @@ class _LoginFormCard extends StatelessWidget {
         borderSide: const BorderSide(
           color: _LoginPalette.error,
           width: 1.3,
-        ),
-      ),
-    );
-  }
-}
-
-class _LoginRoleToggle extends StatelessWidget {
-  const _LoginRoleToggle({
-    required this.selectedRole,
-    required this.enabled,
-    required this.onChanged,
-  });
-
-  final String selectedRole;
-  final bool enabled;
-  final ValueChanged<String>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 58,
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F4F6),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeInOutCubicEmphasized,
-            alignment: selectedRole == 'siswa'
-                ? Alignment.centerLeft
-                : selectedRole == 'tenaga_pendidik'
-                    ? Alignment.center
-                    : Alignment.centerRight,
-            child: FractionallySizedBox(
-              widthFactor: 1 / 3,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.10),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: _LoginRoleToggleOption(
-                  value: 'siswa',
-                  label: 'Siswa',
-                  selected: selectedRole == 'siswa',
-                  enabled: enabled,
-                  onChanged: onChanged,
-                ),
-              ),
-              Expanded(
-                child: _LoginRoleToggleOption(
-                  value: 'tenaga_pendidik',
-                  label: 'Pendidik',
-                  selected: selectedRole == 'tenaga_pendidik',
-                  enabled: enabled,
-                  onChanged: onChanged,
-                ),
-              ),
-              Expanded(
-                child: _LoginRoleToggleOption(
-                  value: 'pengurus',
-                  label: 'Pengurus',
-                  selected: selectedRole == 'pengurus',
-                  enabled: enabled,
-                  onChanged: onChanged,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LoginRoleToggleOption extends StatelessWidget {
-  const _LoginRoleToggleOption({
-    required this.value,
-    required this.label,
-    required this.selected,
-    required this.enabled,
-    required this.onChanged,
-  });
-
-  final String value;
-  final String label;
-  final bool selected;
-  final bool enabled;
-  final ValueChanged<String>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: enabled ? () => onChanged?.call(value) : null,
-        borderRadius: BorderRadius.circular(25),
-        child: AnimatedDefaultTextStyle(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          style: TextStyle(
-            color: selected
-                ? _LoginPalette.textPrimary
-                : _LoginPalette.textSecondary.withValues(alpha: 0.48),
-            fontSize: 12.5,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-          ),
-          child: Center(
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
         ),
       ),
     );

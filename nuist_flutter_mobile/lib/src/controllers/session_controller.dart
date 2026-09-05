@@ -27,7 +27,15 @@ class SessionController extends ChangeNotifier {
 
   Future<void> bootstrap() async {
     try {
-      _session = await _authRepository.restoreSession();
+      final restoredSession = await _authRepository.restoreSession();
+      final role = restoredSession?.user.role?.trim().toLowerCase();
+      if (restoredSession != null && role != 'tenaga_pendidik') {
+        // This app is currently limited to GTK/teaching staff accounts.
+        await _authRepository.logout();
+        _session = null;
+      } else {
+        _session = restoredSession;
+      }
     } catch (_) {
       _errorMessage = 'Silakan login ulang.';
     } finally {
