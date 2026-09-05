@@ -1692,11 +1692,32 @@ Route::get('/index', function () {
     return redirect()->route('login');
 })->name('index-redirect');
 
+// Firebase Web Messaging worker. Only public Firebase app settings are exposed.
+Route::get('/firebase-messaging-sw.js', function () {
+    return response()
+        ->view('firebase-messaging-sw', [
+            'firebaseConfig' => [
+                'apiKey' => config('services.firebase.web_api_key'),
+                'authDomain' => config('services.firebase.web_auth_domain'),
+                'projectId' => config('services.firebase.web_project_id'),
+                'storageBucket' => config('services.firebase.web_storage_bucket'),
+                'messagingSenderId' => config('services.firebase.web_messaging_sender_id'),
+                'appId' => config('services.firebase.web_app_id'),
+            ],
+        ])
+        ->header('Content-Type', 'application/javascript; charset=UTF-8')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+})->name('firebase.messaging.worker');
+
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
 // Mobile routes for all authenticated users
 Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function () {
+    Route::post('/push-token', [App\Http\Controllers\Mobile\PushTokenController::class, 'store'])
+        ->name('push-token.store')->middleware('throttle:20,1');
+    Route::delete('/push-token', [App\Http\Controllers\Mobile\PushTokenController::class, 'destroy'])
+        ->name('push-token.destroy')->middleware('throttle:20,1');
     // Dashboard
     Route::middleware(['role:tenaga_pendidik'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
@@ -1739,6 +1760,9 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     // Backwards-compatible route names used by some mobile views
     Route::get('/data-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('data-presensi');
     Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi'])->name('presensi.store');
+    Route::get('/presensi/verifikasi-wajah/{mode}', [App\Http\Controllers\Mobile\Presensi\PythonFaceAttendanceController::class, 'show'])
+        ->whereIn('mode', ['masuk', 'keluar'])
+        ->name('presensi.python');
 
     Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/riwayat-presensi/download', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'downloadRekapPresensi'])->name('riwayat-presensi.download');

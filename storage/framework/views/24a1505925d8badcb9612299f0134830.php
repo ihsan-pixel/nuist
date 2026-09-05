@@ -721,7 +721,7 @@
 
         //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw-v2.js?v=5', {
+            navigator.serviceWorker.register('/sw-v2.js?v=6', {
                 updateViaCache: 'none'
             }).then(reg => {
                 reg.update();
@@ -961,6 +961,9 @@
         // Tambahkan efek shadow saat user scroll
         document.addEventListener('scroll', () => {
             const header = document.querySelector('.mobile-header');
+            if (!header) {
+                return;
+            }
             if (window.scrollY > 10) {
                 header.classList.add('scrolled');
             } else {
@@ -969,7 +972,9 @@
         });
     </script>
 
-    <?php echo $__env->yieldContent('script'); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
+        <?php echo $__env->make('mobile.partials.firebase-push', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </body>
 
 </html>

@@ -2010,8 +2010,11 @@
             $verificationLabel = $faceVerificationState['label'] ?? 'Selfie';
             $faceEnrollmentRequired = $faceVerificationState['requires_face_scan'] ?? false;
             $faceEnrollmentReady = $faceVerificationState['enrolled'] ?? false;
+            $pythonVerificationUrl = route('mobile.presensi.python', [
+                'mode' => $showKeluar ? 'keluar' : 'masuk',
+            ]);
 
-            if ($faceEnrollmentRequired && !$faceEnrollmentReady) {
+            if ($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment) {
                 $isDisabled = true;
                 $buttonText = 'Daftarkan Wajah Terlebih Dahulu';
                 $buttonIcon = 'scan';
@@ -2034,7 +2037,7 @@
             }
         @endphp
 
-        @if($faceEnrollmentRequired && !$faceEnrollmentReady)
+        @if($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment)
         <div class="alert-custom warning">
             <div class="d-flex">
                 {{-- <i class="bx bx-scan text-warning me-2"></i> --}}
@@ -2060,6 +2063,7 @@
         <div class="form-section">
             <button type="button" id="btn-presensi"
                     class="presensi-btn"
+                    data-python-url="{{ $hasKiosk2Enrollment ? $pythonVerificationUrl : '' }}"
                     disabled
                     {{ $isDisabled ? 'disabled' : '' }}>
                 <i class="bx bx-{{ $buttonIcon }} me-1"></i>
@@ -2977,7 +2981,8 @@ window.addEventListener('load', function() {
     const faceVerifyUrl = @json(route('mobile.face.verify'));
     const faceDiagnosticStoreUrl = @json(route('presensi_admin.face_diagnostics.store'));
     const faceScanRequired = verificationMode === 'face_scan';
-    const faceEnrollmentReady = @json($faceVerificationState['enrolled'] ?? false);
+    const faceEnrollmentReady = @json(($faceVerificationState['enrolled'] ?? false) || $hasKiosk2Enrollment);
+    const hasKiosk2Enrollment = @json($hasKiosk2Enrollment);
     const selfieContainer = document.getElementById('selfie-container');
     const selfieGuideText = document.getElementById('selfie-guide-text');
     const selfieGuideInstruction = document.getElementById('selfie-guide-instruction');
@@ -4580,7 +4585,7 @@ window.addEventListener('load', function() {
     }
 
     $('#btn-presensi').click(async function() {
-        if (faceScanRequired && !faceEnrollmentReady) {
+        if (faceScanRequired && !faceEnrollmentReady && !hasKiosk2Enrollment) {
             showFormalErrorAlert(
                 'Wajah Belum Terdaftar',
                 'Wajah Anda belum terdaftar. Tekan tombol "Daftar Wajah" pada peringatan presensi terlebih dahulu.'
@@ -4591,6 +4596,12 @@ window.addEventListener('load', function() {
         try {
             const earlyCheckoutAllowed = await confirmEarlyCheckoutIfNeeded();
             if (!earlyCheckoutAllowed) {
+                return;
+            }
+
+            const pythonUrl = this.dataset.pythonUrl;
+            if (pythonUrl) {
+                window.location.assign(pythonUrl);
                 return;
             }
 

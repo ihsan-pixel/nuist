@@ -17,6 +17,7 @@ use App\Services\AttendanceObligationService;
 use App\Services\AttendanceValidationService;
 use App\Services\AttendanceWorkflowService;
 use App\Services\FaceVerificationService;
+use App\Services\KioskFaceEngineService;
 use App\Services\ExternalTeachingPermissionService;
 use App\Services\MobileAttendanceSettingsService;
 use App\Services\PicketScheduleApprovalService;
@@ -31,6 +32,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         private MobileAttendanceSettingsService $mobileAttendanceSettingsService,
         private AttendanceValidationService $attendanceValidationService,
         private AttendanceWorkflowService $attendanceWorkflowService,
+        private KioskFaceEngineService $kioskFaceEngineService,
     )
     {
         $this->middleware(['web', 'auth']);
@@ -152,6 +154,13 @@ class PresensiController extends \App\Http\Controllers\Controller
             $faceVerificationState,
             $this->faceVerificationService->requirementState($user)
         );
+        $hasKiosk2Enrollment = $user->biometricProfiles()
+            ->where('status', 'active')
+            ->where('engine', 'onnxruntime')
+            ->where('model', config('kiosk_face_v2.model', 'arcface'))
+            ->where('model_version', config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50'))
+            ->where('dimension', 512)
+            ->exists();
 
 
         $timeRanges = null;
@@ -164,7 +173,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             ];
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'approvedPicketSubmission', 'presensiHariIni', 'approvedBlockingIzin', 'timeRanges', 'mapData', 'user', 'faceVerificationState'));
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'approvedPicketSubmission', 'presensiHariIni', 'approvedBlockingIzin', 'timeRanges', 'mapData', 'user', 'faceVerificationState', 'hasKiosk2Enrollment'));
     }
 
     // Store presensi (mobile)
@@ -186,9 +195,12 @@ class PresensiController extends \App\Http\Controllers\Controller
             'speed' => 'nullable|numeric',
             'device_info' => 'nullable|string',
             'location_readings' => 'nullable|string',
-            'face_descriptor' => 'required|array|min:32',
+            'face_engine' => 'nullable|in:python',
+            'face_frames' => 'required_if:face_engine,python|array|min:1|max:8',
+            'face_frames.*' => 'required_with:face_frames|string|starts_with:data:image/',
+            'face_descriptor' => 'required_unless:face_engine,python|array|min:32',
             'face_descriptor.*' => 'numeric',
-            'liveness_score' => 'required|numeric|min:0|max:1',
+            'liveness_score' => 'required_unless:face_engine,python|numeric|min:0|max:1',
             'liveness_challenges' => 'nullable|array',
             'verification_nonce' => 'nullable|string|min:8',
             'verification_timestamp' => 'nullable|integer',
@@ -488,13 +500,66 @@ class PresensiController extends \App\Http\Controllers\Controller
             ], 400);
         }
 
-        $faceVerification = $this->faceVerificationService->verifyForAttendance(
-            $user,
-            $request->input('face_descriptor'),
-            $request->input('liveness_score'),
-            $request->input('liveness_challenges', []),
-            true,
-        );
+        if ($request->input('face_engine') === 'python') {
+            $pythonVerification = $this->kioskFaceEngineService->verify(
+                $user,
+                [
+                    'selfie_frames' => $request->input('face_frames', []),
+                    'device_info' => $request->input('device_info'),
+                ],
+                ['verification_mode' => '1:1', 'presensi_mode' => $requestedMode]
+            );
+
+            $expectedProvider = config('kiosk_face_v2.provider', 'insightface_arcface');
+            $expectedModel = config('kiosk_face_v2.model', 'arcface');
+            $expectedModelVersion = config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50');
+            $livenessDisabled = (bool) config('kiosk_face_v2.disable_liveness', false);
+            $livenessScore = $pythonVerification['liveness_score'] ?? null;
+            $pythonIsValid = ($pythonVerification['success'] ?? false)
+                && (int) ($pythonVerification['user_id'] ?? 0) === (int) $user->id
+                && ($pythonVerification['provider'] ?? null) === $expectedProvider
+                && ($pythonVerification['model'] ?? null) === $expectedModel
+                && ($pythonVerification['model_version'] ?? null) === $expectedModelVersion
+                && ($livenessDisabled || (is_numeric($livenessScore)
+                    && (float) $livenessScore >= (float) config('kiosk_face_v2.thresholds.min_liveness', 0.68)));
+
+            if (!$pythonIsValid) {
+                return response()->json([
+                    'success' => false,
+                    'message' => ($pythonVerification['notes'] ?? '') === 'engine_unreachable'
+                        ? 'Layanan verifikasi wajah sedang tidak tersedia. Silakan mencoba kembali beberapa saat lagi.'
+                        : (!$livenessDisabled && (!is_numeric($livenessScore) || (float) $livenessScore < (float) config('kiosk_face_v2.thresholds.min_liveness', 0.68))
+                            ? 'Verifikasi liveness belum memenuhi syarat. Silakan ulangi dengan wajah terlihat jelas.'
+                            : ($pythonVerification['message'] ?? 'Wajah tidak cocok dengan akun aktif.')),
+                    'notes' => $pythonVerification['notes'] ?? 'face_not_verified',
+                    'similarity' => $pythonVerification['similarity'] ?? null,
+                    'liveness_score' => $livenessScore,
+                ], (int) ($pythonVerification['status'] ?? 422));
+            }
+
+            $request->merge([
+                'liveness_score' => $pythonVerification['liveness_score'] ?? 0,
+                'liveness_challenges' => $pythonVerification['liveness_challenges'] ?? [],
+            ]);
+            $faceVerification = [
+                'success' => true,
+                'verified' => true,
+                'matched' => true,
+                'face_id_used' => $pythonVerification['face_id_used'] ?? $user->face_id,
+                'similarity' => $pythonVerification['similarity'] ?? null,
+                'liveness_score' => $pythonVerification['liveness_score'] ?? null,
+                'challenges' => $pythonVerification['liveness_challenges'] ?? [],
+                'notes' => $pythonVerification['notes'] ?? 'face_verified_python_1to1',
+            ];
+        } else {
+            $faceVerification = $this->faceVerificationService->verifyForAttendance(
+                $user,
+                $request->input('face_descriptor'),
+                $request->input('liveness_score'),
+                $request->input('liveness_challenges', []),
+                true,
+            );
+        }
 
         if (!$faceVerification['success']) {
             FaceDiagnostic::create([

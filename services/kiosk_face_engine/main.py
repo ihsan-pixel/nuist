@@ -195,6 +195,7 @@ class Settings:
     det_top_k = int(os.getenv("KIOSK_FACE_DET_TOP_K", "500"))
     min_similarity = float(os.getenv("KIOSK_FACE_MIN_SIMILARITY", "0.55"))
     min_liveness = float(os.getenv("KIOSK_FACE_MIN_LIVENESS", "0.68"))
+    disable_liveness = env_bool("KIOSK_FACE_DISABLE_LIVENESS", False)
     min_face_size = int(os.getenv("KIOSK_FACE_MIN_FACE_SIZE", "96"))
     min_quality = float(os.getenv("FACE_MIN_QUALITY", "0.45"))
     model = os.getenv("FACE_MODEL", "arcface")
@@ -543,21 +544,47 @@ def compute_liveness(analyses: list[FaceFrameAnalysis]) -> tuple[float, list[dic
 
     movement = float(np.std(centers_x) + np.std(centers_y))
     area_shift = float(np.std(areas) / max(np.mean(areas), 1.0))
-    blur_quality = clamp(float(np.mean(blurs)) / 220.0)
-    contrast_quality = clamp(float(np.mean(contrasts)) / 40.0)
-    lighting_quality = clamp((float(np.mean(brightnesses)) / 165.0) * 0.8 + contrast_quality * 0.2)
+    # Camera auto-exposure or one blurred frame must not drag down an
+    # otherwise usable burst. Median aggregation keeps the liveness decision
+    # representative of the captured face instead of its worst outlier.
+    typical_blur = float(np.median(blurs))
+    typical_brightness = float(np.median(brightnesses))
+    typical_contrast = float(np.median(contrasts))
+    typical_detection = float(np.median(det_scores))
+    # Use the same practical scale as the enrollment quality check. Browser
+    # camera frames commonly have a lower Laplacian variance than kiosk frames
+    # even when the face is visibly sharp.
+    blur_quality = clamp(typical_blur / 140.0)
+    contrast_quality = clamp(typical_contrast / 35.0)
+    lighting_quality = clamp((typical_brightness / 165.0) * 0.8 + contrast_quality * 0.2)
     natural_motion = clamp((movement / 18.0) * 0.7 + area_shift * 3.2)
+    # A stable face should not fail liveness merely because the user holds still.
+    # Conversely, large bounding-box jumps are more likely to be capture noise
+    # than a useful live-motion signal, so they are explicitly penalized.
+    # Camera/device movement can change the detected box even when the face is
+    # held still. Treat a low-motion burst as valid and reserve rejection for
+    # genuinely excessive frame-to-frame jumps.
+    expected_motion = 0.05
+    motion_tolerance = 0.55
+    motion_quality = clamp(1.0 - abs(natural_motion - expected_motion) / motion_tolerance)
+    excessive_motion = natural_motion > (expected_motion + motion_tolerance)
     replay_risk = clamp(1.0 - ((natural_motion * 0.55) + (blur_quality * 0.3) + (contrast_quality * 0.15)))
-    detection_quality = clamp(float(np.mean(det_scores)))
+    detection_quality = clamp(typical_detection)
 
-    liveness_score = clamp(
-        (blur_quality * 0.28)
-        + (contrast_quality * 0.16)
-        + (lighting_quality * 0.14)
-        + (natural_motion * 0.24)
-        + (detection_quality * 0.18)
-        - (replay_risk * 0.15)
+    capture_quality = clamp(
+        (blur_quality * 0.55)
+        + (contrast_quality * 0.25)
+        + (clamp(typical_brightness / 160.0) * 0.20)
     )
+    liveness_score = clamp(
+        (capture_quality * 0.55)
+        + (motion_quality * 0.20)
+        + (detection_quality * 0.25)
+        - (replay_risk * 0.03)
+    )
+    if excessive_motion:
+        # Never let a large frame jump pass the configured liveness threshold.
+        liveness_score = min(liveness_score, 0.60)
 
     now_ts = int(time.time())
     challenges = [
@@ -570,9 +597,9 @@ def compute_liveness(analyses: list[FaceFrameAnalysis]) -> tuple[float, list[dic
         },
         {
             "type": "motion_consistency",
-            "passed": natural_motion >= 0.12,
-            "score": round(natural_motion, 4),
-            "detail": "burst_motion_signal",
+            "passed": not excessive_motion,
+            "score": round(motion_quality, 4),
+            "detail": "bounded_burst_motion",
             "timestamp": now_ts + 1,
         },
         {
@@ -597,11 +624,46 @@ def compute_liveness(analyses: list[FaceFrameAnalysis]) -> tuple[float, list[dic
         "average_blur": round(float(np.mean(blurs)), 4),
         "average_brightness": round(float(np.mean(brightnesses)), 4),
         "average_contrast": round(float(np.mean(contrasts)), 4),
+        "typical_blur": round(typical_blur, 4),
+        "typical_brightness": round(typical_brightness, 4),
+        "typical_contrast": round(typical_contrast, 4),
+        "typical_detection": round(typical_detection, 4),
+        "capture_quality": round(capture_quality, 4),
         "natural_motion": round(natural_motion, 4),
+        "motion_quality": round(motion_quality, 4),
+        "excessive_motion": excessive_motion,
         "replay_risk": round(replay_risk, 4),
     }
 
     return round(liveness_score, 4), challenges, metadata
+
+
+def liveness_feedback(analyses: list[FaceFrameAnalysis], metadata: dict[str, Any]) -> str:
+    """Return an actionable retry message based on the failed capture signal."""
+    if len(analyses) < settings.min_frames:
+        return "Wajah belum terbaca stabil. Dekatkan wajah dan pastikan seluruh wajah terlihat."
+
+    best = choose_best_analysis(analyses)
+    face_size = min(best.bbox[2] - best.bbox[0], best.bbox[3] - best.bbox[1])
+    if face_size < settings.min_face_size * 1.25:
+        return "Wajah terlalu jauh. Dekatkan wajah ke kamera dan posisikan di tengah bingkai."
+
+    if float(metadata.get("typical_detection", best.det_score)) < settings.det_score_threshold:
+        return "Wajah belum terlihat jelas. Hadapkan wajah ke kamera dan pastikan tidak terpotong."
+
+    if float(metadata.get("typical_brightness", 0.0)) < 55.0:
+        return "Pencahayaan kurang. Pindah ke tempat yang lebih terang dan hindari cahaya dari belakang."
+
+    if float(metadata.get("typical_brightness", 0.0)) > 225.0:
+        return "Wajah terlalu terang. Hindari cahaya langsung ke kamera dan pindah ke pencahayaan yang merata."
+
+    if float(metadata.get("typical_blur", 0.0)) < 45.0:
+        return "Wajah atau kamera kurang fokus. Pegang perangkat lebih stabil dan bersihkan lensa kamera."
+
+    if metadata.get("excessive_motion"):
+        return "Gerakan terlalu banyak. Pegang perangkat stabil dan tetap diam saat pemindaian."
+
+    return "Wajah belum terbaca dengan baik. Pastikan wajah terlihat penuh, cukup terang, dan tetap diam."
 
 
 def candidate_similarity(query_embedding: np.ndarray, candidate_vector: list[float]) -> float:
@@ -700,11 +762,12 @@ def enroll(request: EnrollRequest, _: None = Depends(require_api_key)) -> dict[s
     # Since the burst is captured after the movement, its server-side motion
     # heuristic is diagnostic only during enrollment. Attendance verification
     # still enforces the configured liveness threshold.
-    if liveness_score < settings.min_liveness and not enrollment_phase and not request.context.get("rebuild", False):
+    if (liveness_score < settings.min_liveness and not settings.disable_liveness
+            and not enrollment_phase and not request.context.get("rebuild", False)):
         raise HTTPException(
             status_code=422,
             detail={
-                "message": "Registrasi wajah ditolak karena liveness belum meyakinkan.",
+                "message": liveness_feedback(analyses, metadata),
                 "reason": "LOW_LIVENESS",
                 "notes": "liveness_below_threshold",
                 "provider": settings.provider,
@@ -766,7 +829,7 @@ def analyze(request: AnalyzeRequest, _: None = Depends(require_api_key)) -> dict
         reason = "LOW_QUALITY"
     elif expected_pose and best.pose and expected_pose != best.pose:
         reason = "INVALID_POSE"
-    elif liveness_score < settings.min_liveness:
+    elif liveness_score < settings.min_liveness and not settings.disable_liveness:
         reason = "LOW_LIVENESS"
     else:
         reason = None
@@ -818,11 +881,11 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
     best = choose_best_analysis(analyses)
     liveness_score, challenges, metadata = compute_liveness(analyses)
 
-    if liveness_score < settings.min_liveness:
+    if liveness_score < settings.min_liveness and not settings.disable_liveness:
         raise HTTPException(
             status_code=422,
             detail={
-                "message": "Presensi ditolak karena liveness belum meyakinkan.",
+                "message": liveness_feedback(analyses, metadata),
                 "notes": "liveness_below_threshold",
                 "provider": settings.provider,
                 "liveness_score": liveness_score,

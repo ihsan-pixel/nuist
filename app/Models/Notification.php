@@ -23,6 +23,27 @@ class Notification extends Model
         'read_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::created(function (self $notification): void {
+            $user = $notification->user;
+            if (!$user) {
+                return;
+            }
+
+            $data = is_array($notification->data) ? $notification->data : [];
+            $data['notification_id'] = $notification->id;
+            $data['type'] = $notification->type;
+
+            app(\App\Services\FcmPushService::class)->sendToUser(
+                $user,
+                (string) $notification->title,
+                (string) $notification->message,
+                $data
+            );
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

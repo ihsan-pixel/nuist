@@ -17,7 +17,6 @@ use App\Models\User;
 use App\Services\AcademicCalendarEventService;
 use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
-use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
 use App\Services\FaceVerificationService;
 use App\Services\BiometricVerificationService;
@@ -4491,12 +4490,6 @@ class TeacherAppController extends Controller
             'data' => $data,
         ]);
 
-        $pushData = array_merge($data, [
-            'notification_id' => $notification->id,
-            'type' => $type,
-        ]);
-
-        app(FcmPushService::class)->sendToUser($user, $title, $message, $pushData);
     }
 
     private function notifyUserIdWithPush(

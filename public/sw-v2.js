@@ -1,7 +1,7 @@
 // NUIST Mobile PWA Service Worker
 // Production-safe version.
 
-const APP_VERSION = 'v2.3.3';
+const APP_VERSION = 'v2.3.4';
 const CACHE_PREFIX = 'presensi-static-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const OFFLINE_URL = null;
@@ -41,7 +41,12 @@ async function saveToCache(request, response) {
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(PRECACHE_ASSETS))
+            .then(cache => Promise.all(
+                PRECACHE_ASSETS.map(asset => cache.add(asset).catch(error => {
+                    // One unavailable optional asset must not block the worker.
+                    console.warn('[SW] Precache skipped:', asset, error);
+                }))
+            ))
             .then(() => self.skipWaiting())
     );
 });

@@ -458,7 +458,7 @@
 
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw-v2.js?v=5', {
+            navigator.serviceWorker.register('/sw-v2.js?v=6', {
                 updateViaCache: 'none'
             }).then(reg => {
                 reg.update();
@@ -535,6 +535,9 @@
         // Add shadow effect on scroll
         document.addEventListener('scroll', () => {
             const header = document.querySelector('.mobile-header');
+            if (!header) {
+                return;
+            }
             if (window.scrollY > 10) {
                 header.classList.add('scrolled');
             } else {
@@ -564,7 +567,9 @@
         }
     </script>
 
-    @yield('script')
+    @auth
+        @include('mobile.partials.firebase-push')
+    @endauth
 </body>
 
 </html>

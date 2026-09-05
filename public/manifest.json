@@ -1,0 +1,17 @@
+{
+    "name": "NUIST Mobile",
+    "short_name": "NUIST",
+    "description": "Sistem presensi NUIST Mobile",
+    "start_url": "/mobile/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "icons": [
+        {
+            "src": "/build/images/logo-light.png",
+            "sizes": "1370x300",
+            "type": "image/png"
+        }
+    ]
+}

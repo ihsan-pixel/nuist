@@ -143,6 +143,49 @@ class KioskFaceEngineService
         ];
     }
 
+    /**
+     * Verify a logged-in user against only that user's active ArcFace profile.
+     * This deliberately does not include legacy face_data or other candidates.
+     */
+    public function verify(User $user, array $payload, array $context = []): array
+    {
+        $profile = $user->biometricProfiles()
+            ->where('status', 'active')
+            ->where('engine', 'onnxruntime')
+            ->where('model', config('kiosk_face_v2.model', 'arcface'))
+            ->where('model_version', config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50'))
+            ->where('dimension', 512)
+            ->orderByDesc('enrolled_at')
+            ->orderByDesc('id')
+            ->first();
+
+        $embedding = $profile ? $this->normalizeVector($profile->embedding) : [];
+        if (!$profile || count($embedding) !== 512) {
+            return $this->failure(
+                'Profil wajah ArcFace aktif belum tersedia untuk akun ini.',
+                'arcface_profile_not_found'
+            );
+        }
+
+        $response = $this->identifyWithCandidates(
+            [[
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'face_id' => $user->face_id,
+                'vectors' => [[
+                    'type' => 'face_embedding:'.config('kiosk_face_v2.provider', 'insightface_arcface'),
+                    'dimension' => 512,
+                    'values' => $embedding,
+                    'pose' => $profile->pose,
+                ]],
+            ]],
+            $payload,
+            $context + ['verification_mode' => '1:1']
+        );
+
+        return $response;
+    }
+
     public function invalidateCache(array $userIds = []): array
     {
         return $this->postJson('/api/v1/cache/invalidate', ['user_ids' => array_values(array_map('intval', $userIds))]);
@@ -229,6 +272,56 @@ class KioskFaceEngineService
         }
 
         return $candidates;
+    }
+
+    private function identifyWithCandidates(array $candidates, array $payload, array $context = []): array
+    {
+        $frames = $this->normalizeFrames($payload);
+        if ($frames === []) {
+            return $this->failure(
+                'Frame scan wajah belum tersedia. Pastikan kamera aktif lalu ulangi presensi.',
+                'frame_payload_missing'
+            );
+        }
+
+        $response = $this->postJson('/api/v1/identify', [
+            'frames' => $frames,
+            'device_info' => $payload['device_info'] ?? null,
+            'candidates' => $candidates,
+            'context' => $this->normalizeContext($context),
+        ]);
+
+        if (!($response['success'] ?? false)) {
+            return $response;
+        }
+
+        $userId = isset($response['user_id']) && is_numeric($response['user_id'])
+            ? (int) $response['user_id']
+            : null;
+        if (!$userId) {
+            return $this->failure(
+                'Engine wajah Python tidak mengembalikan identitas yang valid.',
+                'engine_user_missing'
+            );
+        }
+
+        return [
+            'success' => true,
+            'matched' => true,
+            'message' => (string) ($response['message'] ?? 'Wajah berhasil diverifikasi.'),
+            'user_id' => $userId,
+            'face_id_used' => isset($response['face_id_used']) ? (string) $response['face_id_used'] : null,
+            'provider' => $this->normalizeProvider($response['provider'] ?? data_get($response, 'metadata.provider')),
+            'model' => (string) ($response['model'] ?? config('kiosk_face_v2.model', 'arcface')),
+            'model_version' => (string) ($response['model_version'] ?? config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50')),
+            'dimension' => 512,
+            'similarity' => $this->normalizeFloat($response['similarity'] ?? null),
+            'face_distance' => $this->normalizeFloat($response['face_distance'] ?? null),
+            'liveness_score' => $this->normalizeFloat($response['liveness_score'] ?? null),
+            'liveness_challenges' => $this->normalizeChallenges($response['liveness_challenges'] ?? $response['challenges'] ?? []),
+            'notes' => (string) ($response['notes'] ?? 'face_verified_python_1to1'),
+            'metadata' => is_array($response['metadata'] ?? null) ? $response['metadata'] : [],
+        ];
     }
 
     private function buildCandidate(User $user): ?array

@@ -458,7 +458,7 @@
 
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw-v2.js?v=5', {
+            navigator.serviceWorker.register('/sw-v2.js?v=6', {
                 updateViaCache: 'none'
             }).then(reg => {
                 reg.update();
@@ -564,6 +564,9 @@
         }
     </script>
 
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
+        <?php echo $__env->make('mobile.partials.firebase-push', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php echo $__env->yieldContent('script'); ?>
 </body>
 

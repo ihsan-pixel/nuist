@@ -15,6 +15,7 @@ return [
     'provider' => env('FACE_PROVIDER', 'insightface_arcface'),
     'model' => env('FACE_MODEL', 'arcface'),
     'model_version' => env('FACE_MODEL_VERSION', 'buffalo_l_w600k_r50'),
+    'disable_liveness' => env('KIOSK_FACE_DISABLE_LIVENESS', false),
     'thresholds' => [
         'min_detection_score' => (float) env('FACE_MIN_DETECTION_SCORE', 0.88),
         'min_quality' => (float) env('FACE_MIN_QUALITY', 0.45),
