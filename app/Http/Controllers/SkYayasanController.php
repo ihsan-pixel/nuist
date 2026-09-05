@@ -4751,9 +4751,18 @@ class SkYayasanController extends Controller
     private function ensureSuperAdmin(): User
     {
         $user = auth()->user();
-        abort_unless($user && $user->role === 'super_admin', 403, 'Unauthorized access');
+        abort_unless($user && $this->isSuperAdminRole((string) $user->role), 403, 'Unauthorized access');
 
         return $user;
+    }
+
+    private function isSuperAdminRole(string $role): bool
+    {
+        $normalized = strtolower(trim($role));
+        $normalized = preg_replace('/[\s\-]+/', '_', $normalized) ?? $normalized;
+        $normalized = preg_replace('/[^a-z0-9_]/', '', $normalized) ?? '';
+
+        return in_array($normalized, ['super_admin', 'superadmin'], true);
     }
 
     private function ensureSchoolAdmin(): User

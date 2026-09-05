@@ -11,7 +11,10 @@ class RoleMiddleware
 {
     private function normalizeRole(string $role): string
     {
-        return preg_replace('/\s+/', '_', trim(strtolower($role))) ?? '';
+        $normalized = strtolower(trim($role));
+        $normalized = preg_replace('/[\s\-]+/', '_', $normalized) ?? $normalized;
+
+        return preg_replace('/[^a-z0-9_]/', '', $normalized) ?? '';
     }
 
     /**
