@@ -145,11 +145,11 @@ class FaceEnrollmentKioskController extends Controller
         }
 
         $embedding = $engineResult['face_embedding'] ?? [];
-        if (!is_array($embedding) || count($embedding) !== (int) config('biometric_v2.dimension', 128)) {
+        if (!is_array($embedding) || count($embedding) !== (int) config('biometric_v2.dimension', 512)) {
             return response()->json([
                 'success' => false,
                 'code' => 'INVALID_EMBEDDING',
-                'message' => 'Embedding SFace dari engine tidak valid.',
+                'message' => 'Embedding ArcFace dari engine tidak valid.',
             ], 422);
         }
 
@@ -231,21 +231,21 @@ class FaceEnrollmentKioskController extends Controller
         }
 
         $embeddings = $captures->map(fn (FaceEnrollmentCapture $capture) => $capture->face_descriptor)
-            ->filter(fn ($embedding) => is_array($embedding) && count($embedding) === (int) config('biometric_v2.dimension', 128))
+            ->filter(fn ($embedding) => is_array($embedding) && count($embedding) === (int) config('biometric_v2.dimension', 512))
             ->values();
         if ($embeddings->count() !== $requiredPhaseCount) {
             throw ValidationException::withMessages([
-                'captures' => 'Tidak semua fase memiliki embedding SFace yang valid.',
+                'captures' => 'Tidak semua fase memiliki embedding ArcFace yang valid.',
             ]);
         }
 
         $teacher = $session->user;
         $faceData = [
             'face_embedding' => $embeddings->first(),
-            'face_embedding_dimension' => (int) config('biometric_v2.dimension', 128),
-            'face_provider' => config('kiosk_face_v2.provider', 'opencv_sface'),
-            'face_model' => config('kiosk_face_v2.model', 'sface'),
-            'face_model_version' => config('kiosk_face_v2.model_version', 'v1'),
+            'face_embedding_dimension' => (int) config('biometric_v2.dimension', 512),
+            'face_provider' => config('kiosk_face_v2.provider', 'insightface_arcface'),
+            'face_model' => config('kiosk_face_v2.model', 'arcface'),
+            'face_model_version' => config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50'),
             'descriptors' => $embeddings->all(),
             'face_descriptor' => null,
             'captured_faces' => $captures->map(fn (FaceEnrollmentCapture $capture) => [
@@ -271,19 +271,19 @@ class FaceEnrollmentKioskController extends Controller
 
         $this->profileService->deactivateCompatibleProfiles(
             $teacher,
-            'opencv',
-            config('kiosk_face_v2.model', 'sface'),
-            (int) config('biometric_v2.dimension', 128),
-            config('kiosk_face_v2.model_version', 'v1'),
+            'onnxruntime',
+            config('kiosk_face_v2.model', 'arcface'),
+            (int) config('biometric_v2.dimension', 512),
+            config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50'),
         );
         foreach ($captures as $capture) {
             $this->profileService->createProfile([
                 'user_id' => $teacher->id,
-                'engine' => 'opencv',
-                'model' => config('kiosk_face_v2.model', 'sface'),
-                'model_version' => config('kiosk_face_v2.model_version', 'v1'),
+                'engine' => 'onnxruntime',
+                'model' => config('kiosk_face_v2.model', 'arcface'),
+                'model_version' => config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50'),
                 'pose' => $capture->phase_key,
-                'dimension' => (int) config('biometric_v2.dimension', 128),
+                'dimension' => (int) config('biometric_v2.dimension', 512),
                 'embedding' => $capture->face_descriptor,
                 'quality_score' => $capture->quality_score,
                 'liveness_score' => $capture->liveness_score,
@@ -293,6 +293,10 @@ class FaceEnrollmentKioskController extends Controller
                 'enrolled_at' => now(),
             ]);
         }
+
+        // Force the Python matrix cache to drop the previous enrollment. The
+        // next identify request repopulates it from the committed profiles.
+        $this->faceEngine->invalidateCache([$teacher->id]);
 
         $session->update([
             'status' => 'completed',

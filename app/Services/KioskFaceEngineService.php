@@ -20,7 +20,7 @@ class KioskFaceEngineService
 
     public function displayLabel(): string
     {
-        return $this->usesPython() ? 'Python YuNet + SFace' : 'Browser Face API';
+        return $this->usesPython() ? 'Python YuNet + ArcFace' : 'Browser Face API';
     }
 
     public function analyzeFrame(string $frame, ?string $expectedPose = null): array
@@ -68,8 +68,8 @@ class KioskFaceEngineService
             'success' => true,
             'message' => (string) ($response['message'] ?? 'Data wajah berhasil diproses oleh engine Python.'),
             'provider' => $this->normalizeProvider($response['provider'] ?? data_get($response, 'metadata.provider')),
-            'model' => (string) ($response['model'] ?? config('kiosk_face_v2.model', 'sface')),
-            'model_version' => (string) ($response['model_version'] ?? config('kiosk_face_v2.model_version', 'v1')),
+            'model' => (string) ($response['model'] ?? config('kiosk_face_v2.model', 'arcface')),
+            'model_version' => (string) ($response['model_version'] ?? config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50')),
             'detection_score' => $this->normalizeFloat($response['detection_score'] ?? null),
             'face_embedding' => $embedding,
             'face_embedding_dimension' => count($embedding),
@@ -123,10 +123,11 @@ class KioskFaceEngineService
             );
         }
 
-        $embedding = $this->normalizeVector($response['face_embedding'] ?? $response['embedding'] ?? null);
-
         return [
             'success' => true,
+            // The Python identify response is already a positive match. Keep
+            // this explicit for callers that distinguish success from match.
+            'matched' => true,
             'message' => (string) ($response['message'] ?? 'Identitas guru berhasil dikenali oleh engine Python.'),
             'user_id' => $userId,
             'face_id_used' => isset($response['face_id_used']) ? (string) $response['face_id_used'] : null,
@@ -137,10 +138,19 @@ class KioskFaceEngineService
             'liveness_challenges' => $this->normalizeChallenges($response['liveness_challenges'] ?? $response['challenges'] ?? []),
             'captured_image' => $this->normalizeDataUrl($response['captured_image'] ?? $response['best_frame'] ?? null)
                 ?? $frames[0],
-            'face_embedding' => $embedding,
             'notes' => (string) ($response['notes'] ?? 'face_identified_python'),
             'metadata' => is_array($response['metadata'] ?? null) ? $response['metadata'] : [],
         ];
+    }
+
+    public function invalidateCache(array $userIds = []): array
+    {
+        return $this->postJson('/api/v1/cache/invalidate', ['user_ids' => array_values(array_map('intval', $userIds))]);
+    }
+
+    public function refreshCache(iterable $users): array
+    {
+        return $this->postJson('/api/v1/cache/refresh', ['candidates' => $this->buildCandidates($users)]);
     }
 
     private function postJson(string $path, array $payload): array
@@ -228,14 +238,14 @@ class KioskFaceEngineService
 
         foreach ($user->biometricProfiles()
             ->where('status', 'active')
-            ->where('engine', 'opencv')
-            ->where('model', config('kiosk_face_v2.model', 'sface'))
-            ->where('model_version', config('kiosk_face_v2.model_version', 'v1'))
+            ->where('engine', 'onnxruntime')
+            ->where('model', config('kiosk_face_v2.model', 'arcface'))
+            ->where('model_version', config('kiosk_face_v2.model_version', 'buffalo_l_w600k_r50'))
             ->get() as $profile) {
             $profileEmbedding = $this->normalizeVector($profile->embedding);
             if ($profileEmbedding !== []) {
                 $vectors[] = [
-                    'type' => 'face_embedding:'.config('kiosk_face_v2.provider', 'opencv_sface'),
+                    'type' => 'face_embedding:'.config('kiosk_face_v2.provider', 'insightface_arcface'),
                     'dimension' => count($profileEmbedding),
                     'values' => $profileEmbedding,
                     'pose' => $profile->pose,

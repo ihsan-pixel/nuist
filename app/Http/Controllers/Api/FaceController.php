@@ -396,10 +396,10 @@ class FaceController extends Controller
 
         $profile = $auth->biometricProfiles()
             ->select(['id', 'enrollment_uuid', 'engine', 'model', 'model_version', 'dimension', 'status', 'enrolled_at'])
-            ->where('engine', config('biometric_v2.engine', 'opencv'))
-            ->where('model', config('biometric_v2.model', 'sface'))
-            ->where('model_version', config('biometric_v2.model_version', 'v1'))
-            ->where('dimension', config('biometric_v2.dimension', 128))
+            ->where('engine', config('biometric_v2.engine', 'onnxruntime'))
+            ->where('model', config('biometric_v2.model', 'arcface'))
+            ->where('model_version', config('biometric_v2.model_version', 'buffalo_l_w600k_r50'))
+            ->where('dimension', config('biometric_v2.dimension', 512))
             ->where('status', 'active')
             ->orderByDesc('enrolled_at')
             ->orderByDesc('id')
@@ -452,14 +452,14 @@ class FaceController extends Controller
             $validated['model_version'] ?? null
         );
 
-        if ($validated['engine'] !== config('biometric_v2.engine', 'opencv')
-            || $validated['model'] !== config('biometric_v2.model', 'sface')
-            || ($validated['model_version'] ?? null) !== config('biometric_v2.model_version', 'v1')
-            || (int) $validated['dimension'] !== (int) config('biometric_v2.dimension', 128)) {
+        if ($validated['engine'] !== config('biometric_v2.engine', 'onnxruntime')
+            || $validated['model'] !== config('biometric_v2.model', 'arcface')
+            || ($validated['model_version'] ?? null) !== config('biometric_v2.model_version', 'buffalo_l_w600k_r50')
+            || (int) $validated['dimension'] !== (int) config('biometric_v2.dimension', 512)) {
             return response()->json([
                 'success' => false,
                 'code' => 'LEGACY_FACE_ENGINE_DISABLED',
-                'message' => 'MobileFaceNet tidak lagi menjadi sumber embedding final. Gunakan enrollment Python SFace.',
+                'message' => 'Embedding v2 hanya menerima ArcFace 512D dari jalur Kiosk 2 atau Flutter.',
             ], 422);
         }
 
@@ -491,6 +491,7 @@ class FaceController extends Controller
                 'enrolled_at' => now(),
             ]
         );
+        $this->faceEngine->invalidateCache([$auth->id]);
 
         Log::info('biometric_v2_enroll', [
             'user_id' => $auth->id,
@@ -565,7 +566,6 @@ class FaceController extends Controller
                 'model_version' => $result['model_version'] ?? config('kiosk_face_v2.model_version'),
                 'liveness_score' => $result['liveness_score'] ?? null,
                 'liveness_challenges' => $result['liveness_challenges'] ?? [],
-                'face_embedding' => $result['face_embedding'] ?? null,
             ], $verified ? 200 : 422);
         }
 
@@ -652,14 +652,15 @@ class FaceController extends Controller
 
     private function cosineSimilarity(array $a, array $b): float
     {
-        if (count($a) !== 128 || count($b) !== 128) {
+        $dimension = count($a);
+        if ($dimension !== count($b) || !in_array($dimension, [128, 512], true)) {
             return -1.0;
         }
 
         $dot = 0.0;
         $normA = 0.0;
         $normB = 0.0;
-        for ($i = 0; $i < 128; $i++) {
+        for ($i = 0; $i < $dimension; $i++) {
             $va = (float) $a[$i];
             $vb = (float) $b[$i];
             $dot += $va * $vb;
@@ -695,7 +696,9 @@ class FaceController extends Controller
             $normalized[] = $floatValue;
         }
 
-        if (count($normalized) !== 128) {
+        // Keep legacy SFace 128D valid while accepting ArcFace 512D for v2;
+        // cosineSimilarity rejects comparisons across dimensions.
+        if (!in_array(count($normalized), [128, 512], true)) {
             return [];
         }
 

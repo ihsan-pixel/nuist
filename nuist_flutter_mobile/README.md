@@ -4,11 +4,21 @@ Flutter client for the Laravel mobile API protected by Sanctum.
 
 ## Run
 
-Default production API:
+Release builds default to the production API:
 
 ```text
 https://nuist.id/api
 ```
+
+Run the debug app against the local Laravel API (Android physical device):
+
+```bash
+/Users/lpmnudiymacpro/Documents/flutter/bin/flutter run \
+  --dart-define=APP_ENV=local \
+  --dart-define=API_BASE_URL=http://<MAC_LAN_IP>:8000/api
+```
+
+For an Android emulator, use `http://10.0.2.2:8000/api`.
 
 Run directly against production:
 

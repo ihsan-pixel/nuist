@@ -392,8 +392,8 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
       debugPrint(
         '[FACE_ATTENDANCE][VERIFY_START] '
         'engine=python '
-        'model=sface '
-        'model_version=v1',
+        'model=arcface '
+        'model_version=buffalo_l_w600k_r50',
       );
       final verification = await widget.repository.verifyFace(
         payload: {
@@ -450,7 +450,6 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
         Navigator.of(context).pop({
           'selfie_data': 'data:image/jpeg;base64,${base64Encode(batch.latestImageBytes)}',
           'selfie_frames': batch.frames,
-          'face_embedding': verification['face_embedding'],
           'liveness_score': verification['liveness_score'],
           'liveness_challenges': verification['liveness_challenges'] ?? const <dynamic>[],
           'verification': verification,

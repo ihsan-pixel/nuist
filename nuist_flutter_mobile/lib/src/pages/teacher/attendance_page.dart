@@ -51,10 +51,10 @@ bool _isCompatibleBiometricRegistered(Map<String, dynamic> status) {
     return false;
   }
 
-  final engineMatch = engine == 'opencv';
-  final modelMatch = model == 'sface';
-  final versionMatch = modelVersion == 'v1';
-  final dimensionMatch = dimension == 128;
+  final engineMatch = engine == 'onnxruntime';
+  final modelMatch = model == 'arcface';
+  final versionMatch = modelVersion == 'buffalo_l_w600k_r50';
+  final dimensionMatch = dimension == 512;
   final statusMatch = statusValue == 'active';
   final compatible = engineMatch &&
       modelMatch &&
@@ -445,16 +445,12 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       final livenessChallenges = _normalizedChallenges(
         faceScanResult['liveness_challenges'],
       );
-      final embeddingCount = faceScanResult['face_embedding'] is List
-          ? (faceScanResult['face_embedding'] as List).length
-          : 0;
       final challengeNames = livenessChallenges.join(',');
       debugPrint(
         '[ATTENDANCE_V2][HANDOFF] '
         'liveness_score=${faceScanResult['liveness_score']} '
         'challenge_count=${livenessChallenges.length} '
         'challenge_names=$challengeNames '
-        'embedding_count=$embeddingCount '
         'engine=${verification is Map ? verification['engine'] ?? "" : ""} '
         'model=${verification is Map ? verification['model'] ?? "" : ""} '
         'model_version=${verification is Map ? verification['model_version'] ?? "" : ""} '
@@ -472,9 +468,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         'device_info': 'flutter_mobile_${defaultTargetPlatform.name}',
         'location_readings': _locationReadings,
         'selfie_data': faceScanResult['selfie_data'],
+        'frames': faceScanResult['selfie_frames'],
         'liveness_challenges': livenessChallenges,
-        if (faceScanResult['face_embedding'] != null)
-          'face_embedding': faceScanResult['face_embedding'],
         'liveness_score': faceScanResult['liveness_score'],
         if (faceScanResult['verification'] is Map) ...{
           'engine': (faceScanResult['verification'] as Map)['engine'],
@@ -488,7 +483,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         '[ATTENDANCE_SUBMIT][START] '
         'mode=$mode '
         'has_selfie=${payload['selfie_data'] is String} '
-        'embedding_count=${(payload['face_embedding'] as List?)?.length ?? 0} '
+        'frame_count=${(payload['frames'] as List?)?.length ?? 0} '
         'liveness_score=${payload['liveness_score']}',
       );
       final result = await widget.repository.submitAttendance(payload: payload);
@@ -545,20 +540,19 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         : const <String, dynamic>{};
     final selfieData =
         raw['captured_image'] as String? ?? raw['selfie_data'] as String?;
-    final faceEmbedding = raw['face_embedding'] ?? verification['face_embedding'];
+    final selfieFrames = raw['selfie_frames'];
     final livenessScore = raw['liveness_score'] ?? verification['liveness_score'];
     final livenessChallenges =
         raw['liveness_challenges'] ?? verification['liveness_challenges'] ?? const <dynamic>[];
 
     if (selfieData == null ||
         selfieData.trim().isEmpty ||
-        faceEmbedding is! List ||
+        selfieFrames is! List ||
         livenessChallenges is! List) {
       debugPrint(
         '[ATTENDANCE_V2][SCAN_HANDOFF_INVALID] '
         'has_selfie=${selfieData != null && selfieData.trim().isNotEmpty} '
-        'embedding_type=${faceEmbedding.runtimeType} '
-        'embedding_count=${faceEmbedding is List ? faceEmbedding.length : 0} '
+        'frame_count=${selfieFrames is List ? selfieFrames.length : 0} '
         'challenges_type=${livenessChallenges.runtimeType}',
       );
       return null;
@@ -570,22 +564,20 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       ...verification,
       'engine': verification['engine']?.toString().trim().isNotEmpty == true
           ? verification['engine']
-          : 'opencv',
+          : 'onnxruntime',
       'model': verification['model']?.toString().trim().isNotEmpty == true
           ? verification['model']
-          : 'sface',
+          : 'arcface',
       'model_version':
           verification['model_version']?.toString().trim().isNotEmpty == true
               ? verification['model_version']
-              : 'v1',
-      'dimension': verification['dimension'] is num
-          ? verification['dimension']
-          : faceEmbedding.length,
+              : 'buffalo_l_w600k_r50',
+      'dimension': 512,
     };
 
     return {
       'selfie_data': selfieData,
-      'face_embedding': List<dynamic>.from(faceEmbedding),
+      'selfie_frames': List<dynamic>.from(selfieFrames),
       'liveness_score': livenessScore,
       'liveness_challenges': _normalizedChallenges(livenessChallenges),
       'verification': normalizedVerification,

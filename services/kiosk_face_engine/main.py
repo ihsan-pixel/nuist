@@ -13,6 +13,7 @@ from typing import Any
 
 import cv2
 import numpy as np
+import onnxruntime as ort
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
@@ -79,12 +80,24 @@ class IdentifyRequest(ScanRequest):
     candidates: list[CandidatePayload] = Field(default_factory=list)
 
 
+class CacheRefreshRequest(BaseModel):
+    candidates: list[CandidatePayload] = Field(default_factory=list)
+
+
+class CacheInvalidateRequest(BaseModel):
+    user_ids: list[int] = Field(default_factory=list)
+
+
 class HealthResponse(BaseModel):
     success: bool
     message: str
     version: str
     model_ready: bool
     provider: str
+    model: str
+    model_version: str
+    embedding_dimension: int
+    recognizer_model: str
 
 
 @dataclass
@@ -93,6 +106,56 @@ class ModelBundle:
     recognizer: Any
     detector_model_path: str
     recognizer_model_path: str
+
+
+class EmbeddingCache:
+    """Process-local matrix cache for active ArcFace profiles."""
+
+    def __init__(self) -> None:
+        self.user_ids = np.empty((0,), dtype=np.int64)
+        self.face_ids: list[str | None] = []
+        self.matrix = np.empty((0, 512), dtype=np.float32)
+        self.updated_at = 0.0
+
+    def refresh(self, candidates: list[CandidatePayload]) -> int:
+        rows: list[np.ndarray] = []
+        user_ids: list[int] = []
+        face_ids: list[str | None] = []
+        for candidate in candidates:
+            for vector in candidate.vectors:
+                if vector.dimension != 512 or not is_vector_compatible(vector.type):
+                    continue
+                values = validate_embedding(np.asarray(vector.values, dtype=np.float32))
+                rows.append(values)
+                user_ids.append(candidate.user_id)
+                face_ids.append(candidate.face_id)
+        self.matrix = np.vstack(rows).astype(np.float32) if rows else np.empty((0, 512), dtype=np.float32)
+        self.user_ids = np.asarray(user_ids, dtype=np.int64)
+        self.face_ids = face_ids
+        self.updated_at = time.time()
+        return len(rows)
+
+    def invalidate(self, user_ids: list[int]) -> int:
+        if not user_ids:
+            removed = len(self.user_ids)
+            self.user_ids = np.empty((0,), dtype=np.int64)
+            self.face_ids = []
+            self.matrix = np.empty((0, 512), dtype=np.float32)
+            self.updated_at = time.time()
+            return removed
+        mask = ~np.isin(self.user_ids, np.asarray(user_ids, dtype=np.int64))
+        removed = int((~mask).sum())
+        self.user_ids = self.user_ids[mask]
+        self.matrix = self.matrix[mask]
+        self.face_ids = [face_id for face_id, keep in zip(self.face_ids, mask) if keep]
+        self.updated_at = time.time()
+        return removed
+
+    def has_users(self, user_ids: set[int]) -> bool:
+        return set(self.user_ids.tolist()) == user_ids
+
+
+embedding_cache = EmbeddingCache()
 
 
 @dataclass
@@ -115,13 +178,13 @@ class Settings:
     )
     api_key = os.getenv("KIOSK_FACE_SERVICE_KEY", "").strip()
     require_api_key = env_bool("KIOSK_FACE_REQUIRE_KEY", False)
-    provider = normalize_provider_name(os.getenv("KIOSK_FACE_PROVIDER", "opencv_sface"))
+    provider = normalize_provider_name(os.getenv("KIOSK_FACE_PROVIDER", "insightface_arcface"))
     detector_model = resolve_path(
         os.getenv("KIOSK_FACE_DETECTOR_MODEL", str(model_dir / "face_detection_yunet_2023mar.onnx")),
         base_dir=base_dir,
     )
     recognizer_model = resolve_path(
-        os.getenv("KIOSK_FACE_RECOGNIZER_MODEL", str(model_dir / "face_recognition_sface_2021dec.onnx")),
+        os.getenv("KIOSK_FACE_RECOGNIZER_MODEL", str(model_dir / "w600k_r50.onnx")),
         base_dir=base_dir,
     )
     allow_legacy_embeddings = env_bool("KIOSK_FACE_ALLOW_LEGACY_EMBEDDINGS", False)
@@ -134,8 +197,8 @@ class Settings:
     min_liveness = float(os.getenv("KIOSK_FACE_MIN_LIVENESS", "0.68"))
     min_face_size = int(os.getenv("KIOSK_FACE_MIN_FACE_SIZE", "96"))
     min_quality = float(os.getenv("FACE_MIN_QUALITY", "0.45"))
-    model = os.getenv("FACE_MODEL", "sface")
-    model_version = os.getenv("FACE_MODEL_VERSION", "v1")
+    model = os.getenv("FACE_MODEL", "arcface")
+    model_version = os.getenv("FACE_MODEL_VERSION", "buffalo_l_w600k_r50")
     min_frames = int(os.getenv("FACE_MIN_STABLE_FRAMES", "3"))
 
 
@@ -179,8 +242,8 @@ def face_engine() -> ModelBundle:
     if not hasattr(cv2, "FaceDetectorYN_create"):
         raise EngineUnavailable("OpenCV build ini tidak mendukung FaceDetectorYN_create.")
 
-    if not hasattr(cv2, "FaceRecognizerSF_create"):
-        raise EngineUnavailable("OpenCV build ini tidak mendukung FaceRecognizerSF_create.")
+    if settings.provider != "insightface_arcface" or settings.model != "arcface":
+        raise EngineUnavailable("Engine v2 hanya menerima provider insightface_arcface dan model arcface.")
 
     if not settings.detector_model.is_file():
         raise EngineUnavailable(
@@ -189,7 +252,7 @@ def face_engine() -> ModelBundle:
 
     if not settings.recognizer_model.is_file():
         raise EngineUnavailable(
-            f"Model recognizer tidak ditemukan: {settings.recognizer_model}. Unggah file ONNX SFace terlebih dahulu."
+            f"Model ArcFace ONNX tidak ditemukan: {settings.recognizer_model}."
         )
 
     detector = cv2.FaceDetectorYN_create(
@@ -200,7 +263,28 @@ def face_engine() -> ModelBundle:
         settings.det_nms_threshold,
         settings.det_top_k,
     )
-    recognizer = cv2.FaceRecognizerSF_create(str(settings.recognizer_model), "")
+    try:
+        recognizer = ort.InferenceSession(
+            str(settings.recognizer_model),
+            providers=["CPUExecutionProvider"],
+        )
+    except Exception as exc:
+        raise EngineUnavailable(f"Model ArcFace ONNX gagal dimuat: {exc}") from exc
+
+    outputs = recognizer.get_outputs()
+    if len(outputs) != 1 or not outputs[0].shape or outputs[0].shape[-1] != 512:
+        raise EngineUnavailable(
+            f"Model ArcFace ONNX harus menghasilkan tepat 512 dimensi; output={[(o.name, o.shape) for o in outputs]}"
+        )
+    inputs = recognizer.get_inputs()
+    if len(inputs) != 1 or inputs[0].shape[-2:] != [112, 112]:
+        raise EngineUnavailable(f"Input model ArcFace harus berukuran 112x112; input={[(i.name, i.shape) for i in inputs]}")
+    try:
+        probe = np.zeros((1, 3, 112, 112), dtype=np.float32)
+        probe_output = recognizer.run(None, {inputs[0].name: probe})[0]
+        validate_embedding(probe_output)
+    except Exception as exc:
+        raise EngineUnavailable(f"Output model ArcFace gagal divalidasi sebagai embedding L2 512D: {exc}") from exc
 
     return ModelBundle(
         detector=detector,
@@ -250,6 +334,35 @@ def normalize_embedding(vector: np.ndarray) -> np.ndarray:
         return vector
 
     return vector / norm
+
+
+def validate_embedding(vector: np.ndarray) -> np.ndarray:
+    vector = np.asarray(vector, dtype=np.float32).flatten()
+    if vector.shape != (512,) or not np.all(np.isfinite(vector)):
+        raise ValueError("Embedding ArcFace harus berupa vector finite 512D.")
+    normalized = normalize_embedding(vector)
+    norm = float(np.linalg.norm(normalized))
+    if not np.isclose(norm, 1.0, atol=1e-4):
+        raise ValueError("Embedding ArcFace tidak L2-normalized.")
+    return normalized
+
+
+def arcface_embedding(image: np.ndarray, face: np.ndarray, engine: ModelBundle) -> np.ndarray:
+    # YuNet landmarks are ordered left eye, right eye, nose, mouth corners.
+    source = np.asarray([face[4:6], face[6:8], face[8:10], face[10:12], face[12:14]], dtype=np.float32)
+    target = np.asarray([
+        [38.2946, 51.6963], [73.5318, 51.5014], [56.0252, 71.7366],
+        [41.5493, 92.3655], [70.7299, 92.2041],
+    ], dtype=np.float32)
+    transform, _ = cv2.estimateAffinePartial2D(source, target, method=cv2.LMEDS)
+    if transform is None:
+        raise ValueError("Face alignment ArcFace gagal.")
+    aligned = cv2.warpAffine(image, transform, (112, 112), borderValue=0)
+    tensor = cv2.cvtColor(aligned, cv2.COLOR_BGR2RGB).astype(np.float32)
+    tensor = (tensor - 127.5) / 127.5
+    tensor = np.transpose(tensor, (2, 0, 1))[None, ...]
+    output = engine.recognizer.run(None, {engine.recognizer.get_inputs()[0].name: tensor})[0]
+    return validate_embedding(output)
 
 
 def sample_crop_metrics(crop: np.ndarray) -> tuple[float, float, float]:
@@ -333,9 +446,8 @@ def detect_face(image: np.ndarray, engine: ModelBundle) -> tuple[np.ndarray, tup
     bbox = (x, y, x + width, y + height)
 
     try:
-        aligned_face = engine.recognizer.alignCrop(image, face)
-        embedding = normalize_embedding(engine.recognizer.feature(aligned_face))
-    except cv2.error:
+        embedding = arcface_embedding(image, face, engine)
+    except (cv2.error, ValueError, RuntimeError):
         return None
 
     det_score = float(face[14]) if face.shape[0] > 14 else 0.0
@@ -539,7 +651,30 @@ def health(_: None = Depends(require_api_key)) -> HealthResponse:
         version=APP_VERSION,
         model_ready=model_ready,
         provider=settings.provider,
+        model=settings.model,
+        model_version=settings.model_version,
+        embedding_dimension=512,
+        recognizer_model=str(settings.recognizer_model),
     )
+
+
+@app.post("/api/v1/cache/refresh")
+def refresh_cache(request: CacheRefreshRequest, _: None = Depends(require_api_key)) -> dict[str, Any]:
+    try:
+        face_engine()
+        count = embedding_cache.refresh(request.candidates)
+    except (EngineUnavailable, ValueError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    logger.info("CACHE refresh vectors=%s users=%s", count, len(set(embedding_cache.user_ids.tolist())))
+    return {"success": True, "cached_vectors": count, "cached_users": len(set(embedding_cache.user_ids.tolist()))}
+
+
+@app.post("/api/v1/cache/invalidate")
+def invalidate_cache(request: CacheInvalidateRequest, _: None = Depends(require_api_key)) -> dict[str, Any]:
+    removed = embedding_cache.invalidate(request.user_ids)
+    logger.info("CACHE invalidate requested_users=%s removed_vectors=%s", len(request.user_ids), removed)
+    return {"success": True, "removed_vectors": removed}
 
 
 @app.post("/api/v1/enroll")
@@ -696,22 +831,30 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
             },
         )
 
+    compatible_candidates = {
+        candidate.user_id: candidate
+        for candidate in request.candidates
+        if any(vector.dimension == 512 and is_vector_compatible(vector.type) for vector in candidate.vectors)
+    }
+    if not embedding_cache.has_users(set(compatible_candidates)):
+        try:
+            embedding_cache.refresh(request.candidates)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     best_candidate: CandidatePayload | None = None
     best_face_id: str | None = None
     best_similarity = -1.0
-    compatible_vector_count = 0
 
-    for candidate in request.candidates:
-        for vector in candidate.vectors:
-            if not is_vector_compatible(vector.type):
-                continue
+    if embedding_cache.matrix.shape[0]:
+        similarities = embedding_cache.matrix @ best.embedding
+        best_index = int(np.argmax(similarities))
+        best_similarity = float(similarities[best_index])
+        best_user_id = int(embedding_cache.user_ids[best_index])
+        best_candidate = compatible_candidates.get(best_user_id)
+        best_face_id = embedding_cache.face_ids[best_index]
 
-            compatible_vector_count += 1
-            similarity = candidate_similarity(best.embedding, vector.values)
-            if similarity > best_similarity:
-                best_similarity = similarity
-                best_candidate = candidate
-                best_face_id = candidate.face_id
+    compatible_vector_count = int(embedding_cache.matrix.shape[0])
 
     if compatible_vector_count == 0:
         raise HTTPException(
@@ -747,14 +890,11 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         for analysis in analyses:
             winner_id = None
             winner_similarity = -1.0
-            for candidate in request.candidates:
-                for vector in candidate.vectors:
-                    if not is_vector_compatible(vector.type):
-                        continue
-                    similarity = candidate_similarity(analysis.embedding, vector.values)
-                    if similarity > winner_similarity:
-                        winner_similarity = similarity
-                        winner_id = candidate.user_id
+            if embedding_cache.matrix.shape[0]:
+                similarities = embedding_cache.matrix @ analysis.embedding
+                winner_index = int(np.argmax(similarities))
+                winner_similarity = float(similarities[winner_index])
+                winner_id = int(embedding_cache.user_ids[winner_index])
             if winner_id is not None:
                 frame_winners.append(winner_id)
 
@@ -808,7 +948,6 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         "liveness_score": liveness_score,
         "liveness_challenges": challenges,
         "captured_image": best.frame_data,
-        "face_embedding": best.embedding.astype(float).tolist(),
         "metadata": metadata,
     }
     logger.info(

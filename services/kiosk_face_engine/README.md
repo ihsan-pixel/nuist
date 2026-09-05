@@ -12,11 +12,11 @@ Tujuan:
 - FastAPI
 - OpenCV headless
 - ONNX Runtime
-- Model ONNX YuNet + SFace
+- Model ONNX YuNet + InsightFace ArcFace (`buffalo_l/w600k_r50.onnx`)
 
 ## Kenapa versi ini dipakai
 
-Versi ini sengaja tidak lagi memakai `insightface`, karena shared hosting umumnya tidak menyediakan `gcc/g++` dan header build yang dibutuhkan saat install dependency berat. Dengan OpenCV headless + model ONNX, peluang jalan di hosting produksi jauh lebih baik.
+Recognizer memakai ONNX Runtime langsung. Service tidak memiliki fallback ke SFace: jika recognizer ArcFace tidak tersedia, gagal dimuat, atau outputnya bukan 512D, endpoint readiness dan operasi wajah gagal.
 
 ## Endpoint
 
@@ -24,6 +24,8 @@ Versi ini sengaja tidak lagi memakai `insightface`, karena shared hosting umumny
 - `POST /api/v1/enroll`
 - `POST /api/v1/analyze`
 - `POST /api/v1/identify`
+- `POST /api/v1/cache/refresh`
+- `POST /api/v1/cache/invalidate`
 
 ## Request ringkas
 
@@ -51,8 +53,8 @@ Versi ini sengaja tidak lagi memakai `insightface`, karena shared hosting umumny
       "face_id": "uuid",
       "vectors": [
         {
-          "type": "face_embedding:opencv_sface",
-          "dimension": 128,
+          "type": "face_embedding:insightface_arcface",
+          "dimension": 512,
           "values": [0.1, 0.2]
         }
       ]
@@ -66,7 +68,7 @@ Versi ini sengaja tidak lagi memakai `insightface`, karena shared hosting umumny
 Letakkan file berikut di folder `services/kiosk_face_engine/models/`:
 
 - `face_detection_yunet_2023mar.onnx`
-- `face_recognition_sface_2021dec.onnx`
+- `w600k_r50.onnx` dari paket resmi InsightFace `buffalo_l`
 
 Jika Anda menaruh model di lokasi lain, atur path lewat environment variable.
 
@@ -87,10 +89,10 @@ uvicorn main:app --host 0.0.0.0 --port 8800
 ```bash
 KIOSK_FACE_SERVICE_KEY=
 KIOSK_FACE_REQUIRE_KEY=false
-KIOSK_FACE_PROVIDER=opencv_sface
+KIOSK_FACE_PROVIDER=insightface_arcface
 KIOSK_FACE_MODEL_DIR=models
 KIOSK_FACE_DETECTOR_MODEL=models/face_detection_yunet_2023mar.onnx
-KIOSK_FACE_RECOGNIZER_MODEL=models/face_recognition_sface_2021dec.onnx
+KIOSK_FACE_RECOGNIZER_MODEL=models/w600k_r50.onnx
 KIOSK_FACE_ALLOW_LEGACY_EMBEDDINGS=false
 KIOSK_FACE_DET_WIDTH=640
 KIOSK_FACE_DET_HEIGHT=640
@@ -106,7 +108,7 @@ KIOSK_FACE_MIN_LIVENESS=0.68
 
 - Registrasi wajah Python baru sekarang diberi `face_provider`.
 - Engine aktif hanya akan membandingkan embedding dari provider yang sama.
-- Artinya, setelah pindah dari engine lama atau dari `browser` ke `opencv_sface`, guru perlu registrasi ulang wajah agar pencocokan tetap akurat.
+- Artinya, setelah pindah dari engine lama atau dari `browser` ke `insightface_arcface`, guru perlu registrasi ulang wajah agar pencocokan tetap akurat.
 - Jika memang ingin mengizinkan embedding lama yang tidak memiliki provider, set `KIOSK_FACE_ALLOW_LEGACY_EMBEDDINGS=true`, tetapi ini tidak saya sarankan untuk produksi.
 
 ## Catatan penting
@@ -114,5 +116,6 @@ KIOSK_FACE_MIN_LIVENESS=0.68
 - Liveness saat ini masih berbasis heuristic burst-frame, blur, texture, contrast, motion, dan replay-risk score.
 - Untuk anti-spoof yang lebih kuat, langkah berikutnya sebaiknya menambah model dedicated anti-spoof/liveness.
 - Laravel menggunakan driver `python` sebagai default melalui `config/kiosk_face.php`.
-- Metadata embedding produksi adalah `provider=opencv_sface`, `model=sface`, `model_version=v1`, `dimension=128`.
-- Flutter hanya mengirim 3-5 frame ke Laravel untuk verifikasi 1:1; Flutter tidak menghasilkan embedding final.
+- Metadata embedding v2 adalah `provider=insightface_arcface`, `model=arcface`, `model_version=buffalo_l_w600k_r50`, `dimension=512`.
+- Flutter hanya mengirim frame ke Laravel; embedding tidak dikembalikan ke Flutter.
+- Cache aktif berada di Python sebagai matrix `N x 512`; similarity dihitung dengan operasi NumPy vectorized.

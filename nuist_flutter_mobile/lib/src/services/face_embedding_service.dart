@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -45,39 +42,12 @@ class FaceEmbeddingService {
     }
   }
 
-  Future<List<double>?> extractEmbedding(File imageFile) async {
-    if (!await imageFile.exists()) {
-      return null;
-    }
-
-    final frame = 'data:image/jpeg;base64,${base64Encode(await imageFile.readAsBytes())}';
-
+  Future<bool> isEngineReady() async {
     try {
-      final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/enroll',
-        data: {
-          'teacher_id': 0,
-          'teacher_name': 'flutter-face-client',
-          'frames': [frame],
-          'device_info': 'flutter_face_embedding_client',
-        },
-      );
-
-      final body = response.data;
-      final embedding = body == null ? null : body['face_embedding'];
-      if (embedding is List) {
-        final values = embedding
-            .whereType<num>()
-            .map((value) => value.toDouble())
-            .toList(growable: false);
-        if (values.length == 128) {
-          return values;
-        }
-      }
+      final response = await _client.get<Map<String, dynamic>>('/health');
+      return response.data?['success'] == true && response.data?['model_ready'] == true;
     } catch (_) {
-      return null;
+      return false;
     }
-
-    return null;
   }
 }

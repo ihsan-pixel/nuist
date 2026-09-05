@@ -21,6 +21,7 @@ use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
 use App\Services\FaceVerificationService;
 use App\Services\BiometricVerificationService;
+use App\Services\KioskFaceEngineService;
 use App\Services\MobileAttendanceSettingsService;
 use App\Services\PicketScheduleApprovalService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -50,6 +51,7 @@ class TeacherAppController extends Controller
         private MobileAttendanceSettingsService $mobileAttendanceSettingsService,
         private FaceVerificationService $faceVerificationService,
         private BiometricVerificationService $biometricVerificationService,
+        private KioskFaceEngineService $kioskFaceEngineService,
     )
     {
     }
@@ -603,8 +605,8 @@ class TeacherAppController extends Controller
                 'model' => ['required', 'string', 'max:64'],
                 'model_version' => ['nullable', 'string', 'max:32'],
                 'dimension' => ['required', 'integer', 'min:1'],
-                'face_embedding' => ['required', 'array'],
-                'face_embedding.*' => ['numeric'],
+                'frames' => ['required', 'array', 'min:1', 'max:8'],
+                'frames.*' => ['required', 'string', 'starts_with:data:image/'],
                 'liveness_score' => ['required', 'numeric', 'min:0', 'max:1'],
                 'liveness_challenges' => ['nullable', 'array'],
                 'liveness_challenges.*' => ['string', 'max:64'],
@@ -737,12 +739,13 @@ class TeacherAppController extends Controller
         $biometricModelVersion = $request->input('model_version');
         $biometricDimension = $request->filled('dimension') ? (int) $request->input('dimension') : null;
         $biometricEmbedding = $request->input('face_embedding');
+        $biometricFrames = $request->input('frames');
         $hasEngine = is_string($biometricEngine) && $biometricEngine !== '';
         $hasModel = is_string($biometricModel) && $biometricModel !== '';
         $hasModelVersion = is_string($biometricModelVersion) && $biometricModelVersion !== '';
         $hasDimension = $biometricDimension !== null;
         $hasFaceEmbedding = is_array($biometricEmbedding);
-        $hasBiometricV2Payload = $hasEngine && $hasModel && $hasModelVersion && $hasDimension && $hasFaceEmbedding;
+        $hasBiometricV2Payload = $hasEngine && $hasModel && $hasModelVersion && $hasDimension && is_array($biometricFrames);
 
         Log::info('[ATTENDANCE_V2][BRANCH]', [
             'mode' => $hasBiometricV2Payload ? 'biometric_v2' : 'legacy',
@@ -751,34 +754,26 @@ class TeacherAppController extends Controller
             'has_model_version' => $hasModelVersion,
             'has_dimension' => $hasDimension,
             'has_face_embedding' => $hasFaceEmbedding,
+            'has_frames' => is_array($biometricFrames),
         ]);
 
         if ($hasBiometricV2Payload) {
-            $embeddingCount = count($biometricEmbedding);
             Log::info('[ATTENDANCE_V2][VERIFY_INPUT]', [
                 'declared_dimension' => $biometricDimension,
-                'embedding_count' => $embeddingCount,
+                'frame_count' => count($biometricFrames),
             ]);
 
-            $faceVerification = $this->biometricVerificationService->verify(
-                $user,
-                $biometricEmbedding,
-                (string) $biometricEngine,
-                (string) $biometricModel,
-                $biometricDimension,
-                $hasModelVersion ? (string) $biometricModelVersion : null,
-                (float) config('biometric_v2.default_threshold', 0.55),
+            $faceVerification = $this->kioskFaceEngineService->identify(
+                [$user],
+                ['selfie_frames' => $biometricFrames, 'device_info' => $request->userAgent()],
+                ['verification_mode' => 'attendance_submit'],
             );
 
-            if (!($faceVerification['ok'] ?? false)) {
+            if (!($faceVerification['success'] ?? false)) {
                 Log::warning('[ATTENDANCE_V2][VERIFY_FAIL]', [
                     'code' => $faceVerification['code'] ?? 'UNKNOWN',
                     'request_dimension' => $biometricDimension,
-                    'request_embedding_count' => $embeddingCount,
-                    'profile_dimension' => $faceVerification['dimension'] ?? null,
-                    'profile_embedding_count' => isset($faceVerification['profile']) && is_object($faceVerification['profile']) && isset($faceVerification['profile']->embedding) && is_array($faceVerification['profile']->embedding)
-                        ? count($faceVerification['profile']->embedding)
-                        : null,
+                    'frame_count' => count($biometricFrames),
                 ]);
 
                 throw ValidationException::withMessages([
@@ -797,14 +792,15 @@ class TeacherAppController extends Controller
             $livenessThreshold = (float) config('biometric.liveness_threshold', 0.55);
             $livenessVerified = $livenessScore >= $livenessThreshold;
             $challengeVerified = $this->verifyBiometricV2ChallengeNames($normalizedChallenges);
-            $faceMatched = ($faceVerification['matched'] ?? false) === true;
+            $faceMatched = ($faceVerification['success'] ?? false)
+                && (int) ($faceVerification['user_id'] ?? 0) === (int) $user->id;
             $finalVerified = $faceMatched;
             $failureReason = $faceMatched ? null : ($faceVerification['code'] ?? 'SIMILARITY_BELOW_THRESHOLD');
 
             Log::info('[ATTENDANCE_V2][FINAL_VERIFY]', [
                 'user_id' => $user->id,
-                'profile_id' => $faceVerification['profile']->id ?? null,
-                'profile_user_id' => $faceVerification['profile']->user_id ?? null,
+                'profile_id' => $faceVerification['face_id_used'] ?? null,
+                'profile_user_id' => $faceVerification['user_id'] ?? null,
                 'similarity' => $faceVerification['similarity'] ?? null,
                 'similarity_threshold' => config('biometric_v2.default_threshold', 0.55),
                 'face_matched' => $faceMatched,
@@ -823,14 +819,19 @@ class TeacherAppController extends Controller
             ]);
 
             if (!$finalVerified) {
+                $identifiedUserId = (int) ($faceVerification['user_id'] ?? 0);
+                $message = $identifiedUserId > 0 && $identifiedUserId !== (int) $user->id
+                    ? 'Wajah dikenali sebagai pengguna lain. Gunakan wajah yang terdaftar pada akun ini.'
+                    : 'Wajah tidak cocok dengan profil wajah akun ini. Silakan ulangi scan.';
+
                 throw ValidationException::withMessages([
-                    'face_verification' => $faceVerification['message'] ?? 'Wajah tidak cocok dengan profil biometrik aktif.',
+                    'face_verification' => $message,
                 ]);
             }
 
             $faceVerification = [
                 'success' => true,
-                'face_id_used' => $faceVerification['profile']->id ?? null,
+                'face_id_used' => $faceVerification['face_id_used'] ?? null,
                 'similarity' => $faceVerification['similarity'] ?? null,
                 'liveness_score' => $livenessScore,
                 'challenges' => $normalizedChallenges,

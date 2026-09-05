@@ -12,9 +12,9 @@ return [
         'frame_count' => (int) env('KIOSK_FACE_CAPTURE_FRAME_COUNT', 6),
         'max_frames' => (int) env('KIOSK_FACE_CAPTURE_MAX_FRAMES', 8),
     ],
-    'provider' => env('FACE_PROVIDER', 'opencv_sface'),
-    'model' => env('FACE_MODEL', 'sface'),
-    'model_version' => env('FACE_MODEL_VERSION', 'v1'),
+    'provider' => env('FACE_PROVIDER', 'insightface_arcface'),
+    'model' => env('FACE_MODEL', 'arcface'),
+    'model_version' => env('FACE_MODEL_VERSION', 'buffalo_l_w600k_r50'),
     'thresholds' => [
         'min_detection_score' => (float) env('FACE_MIN_DETECTION_SCORE', 0.88),
         'min_quality' => (float) env('FACE_MIN_QUALITY', 0.45),
