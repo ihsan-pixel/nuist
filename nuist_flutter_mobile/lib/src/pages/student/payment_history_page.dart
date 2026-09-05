@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_theme.dart';
 import '../../services/student_mobile_repository.dart';
-import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 import 'student_ui.dart';
 

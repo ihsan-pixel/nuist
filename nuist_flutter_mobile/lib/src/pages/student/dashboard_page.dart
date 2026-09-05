@@ -643,7 +643,7 @@ class _BackdropStrokeBlob extends StatelessWidget {
         border: Border.all(color: color, width: 1.2),
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.22),
+            color.withValues(alpha: 0.22),
             Colors.transparent,
           ],
           begin: Alignment.topLeft,

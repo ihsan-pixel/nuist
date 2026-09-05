@@ -38,7 +38,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyApu75m8BaJBOxFZ8jrfkIsSwy5fDo3c68',
-    appId: '1:442645883080:android:ee92e97594562dc3e21dfd',
+    appId: '1:442645883080:android:f7344b2e3a67cc96e21dfd',
     messagingSenderId: '442645883080',
     projectId: 'nuist-mobile',
     storageBucket: 'nuist-mobile.firebasestorage.app',

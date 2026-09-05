@@ -62,6 +62,7 @@ Then build the signed Android App Bundle:
 
 ## Notes
 
-- Token Sanctum is stored with `flutter_secure_storage`.
+- Sanctum and Firebase device tokens are stored with `flutter_secure_storage`.
+- Remember Me stores only the email and login role; passwords are never stored locally.
 - Android internet permission is enabled.
 - If your production URL is HTTPS, no extra iOS transport exception is needed.

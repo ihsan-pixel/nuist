@@ -25,6 +25,12 @@ class FaceEmbeddingService {
       return fromDefine.replaceAll(RegExp(r'/$'), '');
     }
 
+    if (kReleaseMode) {
+      throw StateError(
+        'FACE_ENGINE_BASE_URL wajib dikonfigurasi untuk build release.',
+      );
+    }
+
     if (kIsWeb) {
       return 'http://127.0.0.1:8800';
     }

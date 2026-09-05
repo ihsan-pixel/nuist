@@ -169,7 +169,6 @@ class AuthRepository {
       if (rememberSession) {
         await _tokenStorage.saveRememberedLogin(
           email: identifier,
-          password: password,
           loginAs: loginAs,
           remember: true,
         );

@@ -32,7 +32,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "id.nuist.mobile"
-    compileSdkVersion 36
+    compileSdkVersion 37
     ndkVersion flutter.ndkVersion
 
     compileOptions {
