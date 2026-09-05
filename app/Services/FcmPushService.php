@@ -106,6 +106,13 @@ class FcmPushService
                     );
 
                 if ($response->successful()) {
+                    Log::info('FCM send succeeded.', [
+                        'status' => $response->status(),
+                        'message_name' => data_get($response->json(), 'name'),
+                        'platform' => PushDeviceToken::query()
+                            ->where('token', $deviceToken)
+                            ->value('platform'),
+                    ]);
                     continue;
                 }
 
