@@ -1,5 +1,8 @@
 # Cache control for dynamic pages to prevent caching issues
 <IfModule mod_headers.c>
+    # Prevent browsers from reusing a broken HTTP/3 connection for dynamic pages.
+    Header always set Alt-Svc "clear"
+
     # Prevent caching of authentication-related pages
     <FilesMatch "\.(php)$">
         Header set Cache-Control "no-cache, no-store, must-revalidate"
