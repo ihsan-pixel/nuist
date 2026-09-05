@@ -33,6 +33,26 @@ Override when needed for staging or local API:
   --dart-define=API_BASE_URL=https://nuist.id/api
 ```
 
+## Play Store release
+
+Create an upload keystore and add the following to `android/key.properties`
+(this file is ignored by git):
+
+```properties
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=/absolute/path/to/upload-keystore.jks
+```
+
+Then build the signed Android App Bundle:
+
+```bash
+/Users/lpmnudiymacpro/Documents/flutter/bin/flutter build appbundle --release \
+  --dart-define=APP_ENV=production \
+  --dart-define=API_BASE_URL=https://nuist.id/api
+```
+
 ## Integrated endpoints
 
 - `POST /api/mobile/login`

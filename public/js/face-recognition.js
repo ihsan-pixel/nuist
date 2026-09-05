@@ -272,7 +272,9 @@ class FaceRecognition {
             message: 'Menunggu wajah masuk ke dalam oval.',
         });
 
-        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 600, 1, false);
+        // Attendance only needs a quick "face in frame" signal here; the
+        // heavier recognition step follows immediately after.
+        const alignedFace = await this.waitForStableSingleFace(videoElement, callbacks, 320, 1, false);
         if (!alignedFace) {
             throw new Error('Wajah belum masuk frame. Posisikan wajah di dalam oval lalu coba lagi.');
         }
