@@ -4647,7 +4647,7 @@ window.addEventListener('load', function() {
         // The automatic scan submits as soon as verification finishes. Ignore
         // manual clicks during that async window instead of showing a false
         // rejection alert while the scan is still running.
-        if (faceScanRequired && faceScanInProgress) {
+        if (faceScanRequired && faceScanInProgress && !faceScanReadyToSubmit) {
             return;
         }
 
