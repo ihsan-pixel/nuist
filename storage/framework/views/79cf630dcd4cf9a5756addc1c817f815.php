@@ -10,7 +10,7 @@
 
                 <?php
                     $userRole = auth()->user()
-                        ? preg_replace('/\s+/', '_', trim(strtolower((string) auth()->user()->role)))
+                        ? preg_replace('/[^a-z0-9_]/', '', preg_replace('/[\s\-]+/', '_', trim(strtolower((string) auth()->user()->role))) ?? '')
                         : '';
                     $isSpmbAdminHost = request()->getHost() === 'spmb.nuist.id' && $userRole === 'admin';
                     $dashboardRoles = ['super_admin', 'admin'];

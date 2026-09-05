@@ -46,7 +46,7 @@
             <div class="label">Izin Cuti</div>
         </a>
 
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->pemenuhan_beban_kerja_lain): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()?->pemenuhan_beban_kerja_lain): ?>
         <a href="<?php echo e(route('mobile.izin', ['type' => 'mengajar_sekolah_lain'])); ?>" class="izin-action">
             <i class="bx bx-buildings"></i>
             <div class="label">Mengajar Sekolah Lain</div>

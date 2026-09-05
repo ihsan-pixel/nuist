@@ -214,7 +214,7 @@
                 <div class="service-icon"><i class="bx bx-briefcase"></i></div>
                 <div class="service-label">Dinas Luar</div>
             </a>
-            @if(Auth::user()->pemenuhan_beban_kerja_lain)
+            @if(auth()->user()?->pemenuhan_beban_kerja_lain)
             <a href="{{ route('mobile.izin', ['type' => 'mengajar_sekolah_lain']) }}" class="service-card">
                 <div class="service-icon"><i class="bx bx-buildings"></i></div>
                 <div class="service-label">Sekolah Lain</div>

@@ -212,7 +212,7 @@
                 <div class="service-icon"><i class="bx bx-briefcase"></i></div>
                 <div class="service-label">Dinas Luar</div>
             </a>
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->pemenuhan_beban_kerja_lain): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()?->pemenuhan_beban_kerja_lain): ?>
             <a href="<?php echo e(route('mobile.izin', ['type' => 'mengajar_sekolah_lain'])); ?>" class="service-card">
                 <div class="service-icon"><i class="bx bx-buildings"></i></div>
                 <div class="service-label">Sekolah Lain</div>
@@ -242,7 +242,7 @@
         </div>
     </div>
 
-    <?php if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
     <div class="service-group">
         <div class="service-group-title">
             <h6>Pengelolaan</h6>
