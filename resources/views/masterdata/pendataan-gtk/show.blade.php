@@ -42,6 +42,25 @@
     .wizard-section-title span { color:#64748b; font-size:.78rem; font-weight:400; }
     .form-label { font-size:.82rem; font-weight:600; color:#334155; }
     .required-mark { color:#dc3545; }
+    .gtk-wizard-modal .modal-dialog {
+        max-width: min(1140px, calc(100vw - 1rem));
+        margin: .5rem auto;
+    }
+    .gtk-wizard-modal .modal-content {
+        max-height: calc(100vh - 1rem);
+    }
+    .gtk-wizard-modal .modal-body {
+        overflow-y: auto;
+    }
+    @media (max-width: 576px) {
+        .gtk-wizard-modal .modal-dialog {
+            max-width: calc(100vw - .5rem);
+            margin: .25rem auto;
+        }
+        .gtk-wizard-modal .modal-content {
+            max-height: calc(100vh - .5rem);
+        }
+    }
 </style>
 @endsection
 
@@ -174,7 +193,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="gtkWizardModal" tabindex="-1">
+<div class="modal fade gtk-wizard-modal" id="gtkWizardModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <form id="gtkWizardForm" method="POST">
