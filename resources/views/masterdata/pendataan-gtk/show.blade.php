@@ -290,7 +290,7 @@
                         <div class="row g-3">
                             <div class="col-md-4"><label class="form-label">No. Sertifikasi Pendidik</label><input class="form-control" name="nomor_sertifikasi_pendidik" id="input_nomor_sertifikasi_pendidik"></div>
                             <div class="col-md-4"><label class="form-label">Sertifikasi (Rp)</label><input type="number" class="form-control" name="gaji_sertifikasi" id="input_gaji_sertifikasi" min="0"></div>
-                            <div class="col-md-4"><label class="form-label">Tunjangan Rerata / Bulan (Rp)</label><input type="number" class="form-control" name="tunjangan_rerata_bulanan" id="input_tunjangan_rerata_bulanan" min="0"></div>
+                            <div class="col-md-4"><label class="form-label">Tambahan Penghasilan / Bulan (Rp)</label><input type="number" class="form-control" name="tunjangan_rerata_bulanan" id="input_tunjangan_rerata_bulanan" min="0"></div>
                             <div class="col-md-6"><label class="form-label">Nama MGMP</label><input class="form-control" name="nama_mgmp" id="input_nama_mgmp"></div>
                             <div class="col-12"><label class="form-label">Produk Kerja Kolaboratif</label><textarea class="form-control" rows="3" name="produk_kerja_kolaboratif" id="input_produk_kerja_kolaboratif" placeholder="Contoh: modul ajar, perangkat pembelajaran, penelitian, atau karya bersama"></textarea></div>
                             <div class="col-12"><div class="form-text">Nama MGMP yang sudah terhubung melalui relasi aplikasi akan ditampilkan sebagai nilai awal dan masih dapat dilengkapi.</div></div>
