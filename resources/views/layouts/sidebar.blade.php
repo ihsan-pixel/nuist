@@ -192,6 +192,15 @@
                 </li>
                 @endif
 
+                @if($userRole === 'admin_yayasan')
+                <li>
+                    <a href="{{ route('pendataan-gtk.index') }}" class="waves-effect">
+                        <i class="bx bx-id-card"></i>
+                        <span>Pendataan GTK</span>
+                    </a>
+                </li>
+                @endif
+
                 @php
                     $isAdminOnly = $userRole === 'admin';
                 @endphp

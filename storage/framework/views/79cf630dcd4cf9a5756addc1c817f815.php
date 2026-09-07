@@ -192,6 +192,15 @@
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
+                <li>
+                    <a href="<?php echo e(route('pendataan-gtk.index')); ?>" class="waves-effect">
+                        <i class="bx bx-id-card"></i>
+                        <span>Pendataan GTK</span>
+                    </a>
+                </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                 <?php
                     $isAdminOnly = $userRole === 'admin';
                 ?>

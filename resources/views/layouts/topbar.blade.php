@@ -171,7 +171,7 @@
 <div class="dropdown d-inline-block">
             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                @if(Auth::user()->avatar)
+                @if(Auth::user()->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists(Auth::user()->avatar))
                     <img class="rounded-circle header-profile-user" src="{{ asset('storage/' . Auth::user()->avatar) }}"
                         alt="Header Avatar">
                 @else

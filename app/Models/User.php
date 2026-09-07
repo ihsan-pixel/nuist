@@ -102,6 +102,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Madrasah::class, 'madrasah_id_tambahan');
     }
 
+    public function gtkPendataan()
+    {
+        return $this->hasOne(GtkPendataan::class, 'user_id');
+    }
+
+    public function mgmpMemberships()
+    {
+        return $this->hasMany(MgmpMember::class, 'user_id');
+    }
+
+    public function simfoni()
+    {
+        return $this->hasOne(Simfoni::class, 'user_id');
+    }
+
     public function presensis()
     {
         return $this->hasMany(\App\Models\Presensi::class, 'user_id');

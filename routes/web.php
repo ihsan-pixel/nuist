@@ -21,6 +21,7 @@ use App\Http\Controllers\DpsController;
 use App\Http\Controllers\AcademicCalendarEventController;
 use App\Http\Controllers\PicketScheduleController;
 use App\Http\Controllers\SkYayasanController;
+use App\Http\Controllers\AdminYayasan\PendataanGtkController;
 
 use App\Http\Controllers\PPDB\{
     PPDBController,
@@ -227,6 +228,17 @@ Route::domain('sekolah.nuist.id')->group(function () {
         abort(404);
     });
 });
+
+// Keep this feature host-agnostic so it works with both local APP_URL and the
+// sekolah.nuist.id deployment, while the role middleware remains restrictive.
+Route::middleware(['auth', 'role:admin_yayasan'])
+    ->prefix('pendataan-gtk')
+    ->name('pendataan-gtk.')
+    ->group(function () {
+        Route::get('/', [PendataanGtkController::class, 'index'])->name('index');
+        Route::get('/{madrasah}', [PendataanGtkController::class, 'show'])->name('show');
+        Route::put('/users/{user}', [PendataanGtkController::class, 'update'])->name('update');
+    });
 
 /*
 |--------------------------------------------------------------------------
