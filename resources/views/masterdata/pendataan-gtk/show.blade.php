@@ -44,17 +44,21 @@
     .required-mark { color:#dc3545; }
     .gtk-wizard-modal .modal-dialog {
         max-width: min(1140px, calc(100vw - 1rem));
+        height: calc(100vh - 1rem);
         margin: .5rem auto;
     }
     .gtk-wizard-modal .modal-content {
+        height: 100%;
         max-height: calc(100vh - 1rem);
     }
     .gtk-wizard-modal .modal-body {
-        overflow-y: auto;
+        min-height: 0;
+        overflow-y: auto !important;
     }
     @media (max-width: 576px) {
         .gtk-wizard-modal .modal-dialog {
             max-width: calc(100vw - .5rem);
+            height: calc(100vh - .5rem);
             margin: .25rem auto;
         }
         .gtk-wizard-modal .modal-content {
@@ -199,8 +203,7 @@
 
 <div class="modal fade gtk-wizard-modal" id="gtkWizardModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <form id="gtkWizardForm" method="POST">
+            <form id="gtkWizardForm" class="modal-content" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-header">
@@ -327,7 +330,6 @@
                     </div>
                 </div>
             </form>
-        </div>
     </div>
 </div>
 
