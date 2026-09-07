@@ -126,6 +126,7 @@
                                     'madrasah_id' => $user->madrasah_id,
                                     'nik' => $gtkPendataan?->nik,
                                     'gol_darah' => $gtkPendataan?->gol_darah,
+                                    'status_pernikahan' => $user->simfoni?->status_pernikahan,
                                     'email_aktif' => $gtkPendataan?->email_aktif ?: $user->email,
                                     'status_kepegawaian_id' => $user->status_kepegawaian_id,
                                     'tempat_lahir' => $user->tempat_lahir,
@@ -260,6 +261,7 @@
                         <div class="row g-3">
                             <div class="col-md-4"><label class="form-label">NIK</label><input class="form-control" name="nik" id="input_nik" inputmode="numeric"></div>
                             <div class="col-md-4"><label class="form-label">Golongan Darah</label><select class="form-select" name="gol_darah" id="input_gol_darah"><option value="">- pilih -</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div>
+                            <div class="col-md-4"><label class="form-label">Status Perkawinan</label><select class="form-select" name="status_pernikahan" id="input_status_pernikahan"><option value="">- pilih -</option><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div>
                             <div class="col-md-4"><label class="form-label">No HP</label><input class="form-control" name="no_hp" id="input_no_hp"></div>
                             <div class="col-md-6"><label class="form-label">Email Aktif</label><input type="email" class="form-control" name="email_aktif" id="input_email_aktif"></div>
                             <div class="col-12"><label class="form-label">Alamat</label><textarea class="form-control" rows="3" name="alamat" id="input_alamat"></textarea></div>
@@ -274,6 +276,7 @@
                             <div class="col-md-4"><label class="form-label">TMT SK Terakhir</label><input type="date" class="form-control" name="tmt_sk_terakhir" id="input_tmt_sk_terakhir"></div>
                             <div class="col-md-4"><label class="form-label">Nomor SK Pertama</label><input class="form-control" name="nomor_sk_pertama" id="input_nomor_sk_pertama"></div>
                             <div class="col-md-4"><label class="form-label">Tahun SK Pertama</label><input type="number" class="form-control" name="tahun_sk_pertama" id="input_tahun_sk_pertama" min="1900" max="2100"></div>
+                            <div class="col-md-4"><label class="form-label">No. Sertifikasi Pendidik</label><input class="form-control" name="nomor_sertifikasi_pendidik" id="input_nomor_sertifikasi_pendidik"></div>
                             <div class="col-12"><label class="form-label">Keterangan SK</label><textarea class="form-control" rows="3" name="keterangan_sk" id="input_keterangan_sk" placeholder="Tuliskan keterangan atau catatan terkait SK"></textarea></div>
                             <div class="col-md-4"><label class="form-label">Masa Kerja</label><input class="form-control" name="masa_kerja" id="input_masa_kerja"></div>
                             <div class="col-md-4"><label class="form-label">Jabatan</label><input class="form-control" name="jabatan" id="input_jabatan"></div>
@@ -375,7 +378,7 @@
     const progress = document.getElementById('wizardProgressBar');
     let step = 1;
 
-    const fields = ['name','gelar','nuist_id','nik','gol_darah','email_aktif','tempat_lahir','tanggal_lahir','status_kepegawaian_id','ketugasan','jabatan','tmt','tmt_sk_pertama','tmt_sk_terakhir','nomor_sk_pertama','tahun_sk_pertama','keterangan_sk','masa_kerja','nuptk','nip','kartanu','is_active','gaji_satpen','nomor_sertifikasi_pendidik','gaji_sertifikasi','tunjangan_rerata_bulanan','pendidikan_terakhir','tahun_lulus','program_studi','alamat','no_hp','nama_mgmp','produk_kerja_kolaboratif','catatan_step_1','catatan_step_2','catatan_step_3','catatan_step_4','catatan_step_5','mengajar'];
+    const fields = ['name','gelar','nuist_id','nik','gol_darah','status_pernikahan','email_aktif','tempat_lahir','tanggal_lahir','status_kepegawaian_id','ketugasan','jabatan','tmt','tmt_sk_pertama','tmt_sk_terakhir','nomor_sk_pertama','tahun_sk_pertama','keterangan_sk','masa_kerja','nuptk','nip','kartanu','is_active','gaji_satpen','nomor_sertifikasi_pendidik','gaji_sertifikasi','tunjangan_rerata_bulanan','pendidikan_terakhir','tahun_lulus','program_studi','alamat','no_hp','nama_mgmp','produk_kerja_kolaboratif','catatan_step_1','catatan_step_2','catatan_step_3','catatan_step_4','catatan_step_5','mengajar'];
 
     function sync(stepValue) {
         step = stepValue;

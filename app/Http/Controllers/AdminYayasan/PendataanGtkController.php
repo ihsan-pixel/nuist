@@ -63,6 +63,7 @@ class PendataanGtkController extends Controller
             'tanggal_lahir' => 'nullable|date',
             'nik' => 'nullable|string|max:32',
             'gol_darah' => 'nullable|string|in:A,B,AB,O',
+            'status_pernikahan' => 'nullable|string|in:Belum Kawin,Kawin,Cerai Hidup,Cerai Mati',
             'nuptk' => 'nullable|string|max:50',
             'nip' => 'nullable|string|max:50',
             'kartanu' => 'nullable|string|max:100',
@@ -126,6 +127,11 @@ class PendataanGtkController extends Controller
             ]);
 
             $user->save();
+
+            $user->simfoni()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['status_pernikahan' => $validated['status_pernikahan'] ?? null]
+            );
 
             $user->gtkPendataan()->updateOrCreate(
                 ['user_id' => $user->id],
