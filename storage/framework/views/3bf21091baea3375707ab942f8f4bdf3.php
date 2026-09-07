@@ -3506,7 +3506,7 @@ window.addEventListener('load', function() {
             return;
         }
 
-        currentSelfieProgress += delta * 0.18;
+        currentSelfieProgress += delta * 0.35;
         renderSelfieProgress(currentSelfieProgress);
         selfieProgressAnimationFrame = window.requestAnimationFrame(animateSelfieProgress);
     }
@@ -4693,7 +4693,7 @@ window.addEventListener('load', function() {
                     );
                 }
                 $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
-            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 120000 });
     });
 
     document.addEventListener('keydown', function(event) {
