@@ -9,7 +9,7 @@
 
             // Mobile presensi gets its own tuning so kiosk/enrollment keep the shared defaults.
             this.detectorOptions = {
-                inputSize: 192,
+                inputSize: 160,
                 scoreThreshold: 0.18,
             };
             this.minimumFaceWidthRatio = 0.075;

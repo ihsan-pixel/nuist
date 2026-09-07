@@ -1364,7 +1364,12 @@
             box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.4), 0 0 34px rgba(248, 113, 113, 0.24);
         }
 
-        .selfie-stage[data-guide-state="steady"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="aligned"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="steady"] .selfie-guide-oval {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.34), 0 0 34px rgba(255, 255, 255, 0.34);
+        }
+
         .selfie-stage[data-guide-state="success"] .selfie-guide-oval {
             border-color: #4ade80;
             box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.34), 0 0 34px rgba(74, 222, 128, 0.26);
@@ -1379,7 +1384,11 @@
             color: rgba(254, 202, 202, 0.98);
         }
 
-        .selfie-stage[data-guide-state="steady"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="aligned"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="steady"] .selfie-guide-pill {
+            color: rgba(255, 255, 255, 0.98);
+        }
+
         .selfie-stage[data-guide-state="success"] .selfie-guide-pill {
             color: rgba(220, 252, 231, 0.98);
         }
@@ -3780,8 +3789,8 @@ window.addEventListener('load', function() {
 
         const palette = {
             success: '#86efac',
-            aligned: '#86efac',
-            steady: '#86efac',
+            aligned: '#ffffff',
+            steady: '#ffffff',
             processing: '#fef08a',
             warning: '#fca5a5',
             'too-far': '#fca5a5',
