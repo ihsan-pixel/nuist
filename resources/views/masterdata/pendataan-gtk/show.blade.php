@@ -176,6 +176,7 @@
                                 <td><div>{{ $user->no_hp ?: '-' }}</div><div class="gtk-meta text-truncate" style="max-width:180px">{{ $user->email ?: 'Email belum diisi' }}</div></td>
                                 <td class="gtk-completion">
                                     @php
+                                        // Catatan hanya sebagai informasi dan tidak dihitung sebagai kelengkapan.
                                         $completionFields = [$user->nuist_id, $user->name, $user->status_kepegawaian_id, $user->no_hp, $user->email, $user->pendidikan_terakhir, $gtkPendataan?->nik, $gtkPendataan?->tmt_sk_pertama];
                                         $completion = (int) round(collect($completionFields)->filter(fn ($value) => filled($value))->count() / count($completionFields) * 100);
                                     @endphp
