@@ -17,12 +17,18 @@ class GtkPendataan extends Model
         'tmt_sk_terakhir',
         'nomor_sk_pertama',
         'tahun_sk_pertama',
+        'keterangan_sk',
         'gaji_satpen',
         'nomor_sertifikasi_pendidik',
         'gaji_sertifikasi',
         'tunjangan_rerata_bulanan',
         'nama_mgmp',
         'produk_kerja_kolaboratif',
+        'catatan_step_1',
+        'catatan_step_2',
+        'catatan_step_3',
+        'catatan_step_4',
+        'catatan_step_5',
     ];
 
     protected $casts = [

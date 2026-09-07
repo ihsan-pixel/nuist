@@ -71,6 +71,7 @@ class PendataanGtkController extends Controller
             'tmt_sk_terakhir' => 'nullable|date',
             'nomor_sk_pertama' => 'nullable|string|max:100',
             'tahun_sk_pertama' => 'nullable|integer|min:1900|max:2100',
+            'keterangan_sk' => 'nullable|string|max:5000',
             'gaji_satpen' => 'nullable|numeric|min:0',
             'nomor_sertifikasi_pendidik' => 'nullable|string|max:100',
             'gaji_sertifikasi' => 'nullable|numeric|min:0',
@@ -86,9 +87,13 @@ class PendataanGtkController extends Controller
             'produk_kerja_kolaboratif' => 'nullable|string|max:5000',
             'masa_kerja' => 'nullable|string|max:100',
             'jabatan' => 'nullable|string|max:255',
-            'npk' => 'nullable|string|max:50',
             'mengajar' => 'nullable|string|max:255',
             'madrasah_id_tambahan' => 'nullable|exists:madrasahs,id',
+            'catatan_step_1' => 'nullable|string|max:5000',
+            'catatan_step_2' => 'nullable|string|max:5000',
+            'catatan_step_3' => 'nullable|string|max:5000',
+            'catatan_step_4' => 'nullable|string|max:5000',
+            'catatan_step_5' => 'nullable|string|max:5000',
         ]);
 
         if ($validated['madrasah_id'] != $user->madrasah_id) {
@@ -118,7 +123,6 @@ class PendataanGtkController extends Controller
                 'is_active' => $validated['is_active'],
                 'masa_kerja' => $validated['masa_kerja'] ?? null,
                 'jabatan' => $validated['jabatan'] ?? null,
-                'npk' => $validated['npk'] ?? null,
                 'mengajar' => $validated['mengajar'] ?? null,
                 'madrasah_id_tambahan' => $validated['madrasah_id_tambahan'] ?? null,
             ]);
@@ -135,12 +139,18 @@ class PendataanGtkController extends Controller
                     'tmt_sk_terakhir' => $validated['tmt_sk_terakhir'] ?? null,
                     'nomor_sk_pertama' => $validated['nomor_sk_pertama'] ?? null,
                     'tahun_sk_pertama' => $validated['tahun_sk_pertama'] ?? null,
+                    'keterangan_sk' => $validated['keterangan_sk'] ?? null,
                     'gaji_satpen' => $validated['gaji_satpen'] ?? null,
                     'nomor_sertifikasi_pendidik' => $validated['nomor_sertifikasi_pendidik'] ?? null,
                     'gaji_sertifikasi' => $validated['gaji_sertifikasi'] ?? null,
                     'tunjangan_rerata_bulanan' => $validated['tunjangan_rerata_bulanan'] ?? null,
                     'nama_mgmp' => $validated['nama_mgmp'] ?? null,
                     'produk_kerja_kolaboratif' => $validated['produk_kerja_kolaboratif'] ?? null,
+                    'catatan_step_1' => $validated['catatan_step_1'] ?? null,
+                    'catatan_step_2' => $validated['catatan_step_2'] ?? null,
+                    'catatan_step_3' => $validated['catatan_step_3'] ?? null,
+                    'catatan_step_4' => $validated['catatan_step_4'] ?? null,
+                    'catatan_step_5' => $validated['catatan_step_5'] ?? null,
                 ]
             );
         });

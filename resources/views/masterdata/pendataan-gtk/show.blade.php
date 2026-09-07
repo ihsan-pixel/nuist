@@ -149,7 +149,11 @@
                                     'jabatan' => $user->jabatan,
                                     'nama_mgmp' => $gtkPendataan?->nama_mgmp ?: $mgmpNames,
                                     'produk_kerja_kolaboratif' => $gtkPendataan?->produk_kerja_kolaboratif,
-                                    'npk' => $user->npk,
+                                    'catatan_step_1' => $gtkPendataan?->catatan_step_1,
+                                    'catatan_step_2' => $gtkPendataan?->catatan_step_2,
+                                    'catatan_step_3' => $gtkPendataan?->catatan_step_3,
+                                    'catatan_step_4' => $gtkPendataan?->catatan_step_4,
+                                    'catatan_step_5' => $gtkPendataan?->catatan_step_5,
                                     'mengajar' => $user->mengajar,
                                     'madrasah_id_tambahan' => $user->madrasah_id_tambahan,
                                 ];
@@ -244,6 +248,7 @@
                             <div class="col-md-4"><label class="form-label">Pendidikan Terakhir</label><input class="form-control" name="pendidikan_terakhir" id="input_pendidikan_terakhir"></div>
                             <div class="col-md-4"><label class="form-label">Tahun Lulus</label><input class="form-control" name="tahun_lulus" id="input_tahun_lulus" maxlength="4"></div>
                             <div class="col-md-6"><label class="form-label">Program Studi</label><input class="form-control" name="program_studi" id="input_program_studi"></div>
+                            <div class="col-12"><label class="form-label">Catatan Step 1</label><textarea class="form-control" rows="3" name="catatan_step_1" id="input_catatan_step_1" placeholder="Tambahkan catatan untuk data GTK utama"></textarea></div>
                         </div>
                     </div>
 
@@ -255,6 +260,7 @@
                             <div class="col-md-4"><label class="form-label">No HP</label><input class="form-control" name="no_hp" id="input_no_hp"></div>
                             <div class="col-md-6"><label class="form-label">Email Aktif</label><input type="email" class="form-control" name="email_aktif" id="input_email_aktif"></div>
                             <div class="col-12"><label class="form-label">Alamat</label><textarea class="form-control" rows="3" name="alamat" id="input_alamat"></textarea></div>
+                            <div class="col-12"><label class="form-label">Catatan Step 2</label><textarea class="form-control" rows="3" name="catatan_step_2" id="input_catatan_step_2" placeholder="Tambahkan catatan untuk data identitas"></textarea></div>
                         </div>
                     </div>
 
@@ -265,11 +271,13 @@
                             <div class="col-md-4"><label class="form-label">TMT SK Terakhir</label><input type="date" class="form-control" name="tmt_sk_terakhir" id="input_tmt_sk_terakhir"></div>
                             <div class="col-md-4"><label class="form-label">Nomor SK Pertama</label><input class="form-control" name="nomor_sk_pertama" id="input_nomor_sk_pertama"></div>
                             <div class="col-md-4"><label class="form-label">Tahun SK Pertama</label><input type="number" class="form-control" name="tahun_sk_pertama" id="input_tahun_sk_pertama" min="1900" max="2100"></div>
+                            <div class="col-12"><label class="form-label">Keterangan SK</label><textarea class="form-control" rows="3" name="keterangan_sk" id="input_keterangan_sk" placeholder="Tuliskan keterangan atau catatan terkait SK"></textarea></div>
                             <div class="col-md-4"><label class="form-label">Masa Kerja</label><input class="form-control" name="masa_kerja" id="input_masa_kerja"></div>
                             <div class="col-md-4"><label class="form-label">Jabatan</label><input class="form-control" name="jabatan" id="input_jabatan"></div>
                             <div class="col-md-4"><label class="form-label">Gaji dari Satpen (Rp)</label><input type="number" class="form-control" name="gaji_satpen" id="input_gaji_satpen" min="0"></div>
                             <div class="col-md-4"><label class="form-label">Status Keaktifan</label><select class="form-select" name="is_active" id="input_is_active"><option value="1">Aktif</option><option value="0">Tidak aktif</option></select></div>
                             <div class="col-md-4"><label class="form-label">Ketugasan</label><input class="form-control" name="ketugasan" id="input_ketugasan"></div>
+                            <div class="col-12"><label class="form-label">Catatan Step 3</label><textarea class="form-control" rows="3" name="catatan_step_3" id="input_catatan_step_3" placeholder="Tambahkan catatan untuk data kepegawaian"></textarea></div>
                         </div>
                     </div>
 
@@ -284,12 +292,12 @@
                             <div class="col-12"><div class="form-text">Nama MGMP yang sudah terhubung melalui relasi aplikasi akan ditampilkan sebagai nilai awal dan masih dapat dilengkapi.</div></div>
                             <div class="col-md-6">
                                 <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">NPK</label><input class="form-control" name="npk" id="input_npk"></div>
                                     <div class="col-12"><label class="form-label">Mengajar</label><input class="form-control" name="mengajar" id="input_mengajar"></div>
                                     <div class="col-12"><label class="form-label">Madrasah Tambahan</label><input class="form-control" name="madrasah_id_tambahan" id="input_madrasah_id_tambahan" inputmode="numeric"></div>
                                 </div>
                             </div>
                             <div class="col-md-6"><div class="alert alert-light border h-100 mb-0"><div class="fw-semibold mb-2">Catatan pencocokan</div><div class="small text-muted">Gunakan NUIST ID, NIK, NUPTK, NIPM/NIP, dan email aktif untuk mencocokkan data GTK dengan data yang sudah ada di aplikasi.</div></div></div>
+                            <div class="col-12"><label class="form-label">Catatan Step 4</label><textarea class="form-control" rows="3" name="catatan_step_4" id="input_catatan_step_4" placeholder="Tambahkan catatan untuk MGMP"></textarea></div>
                         </div>
                     </div>
 
@@ -306,6 +314,8 @@
                             <div class="col-md-6"><strong>Program Studi:</strong> <span id="review_program_studi"></span></div>
                             <div class="col-md-6"><strong>Nama MGMP:</strong> <span id="review_mgmp"></span></div>
                             <div class="col-12"><strong>Produk Kerja Kolaboratif:</strong><div id="review_produk" class="text-muted mt-1"></div></div>
+                            <div class="col-12"><hr class="my-1"><label class="form-label">Catatan Step 5</label><textarea class="form-control" rows="3" name="catatan_step_5" id="input_catatan_step_5" placeholder="Tambahkan catatan akhir sebelum menyimpan"></textarea></div>
+                            <div class="col-12"><strong>Catatan per Step:</strong><div id="review_catatan" class="text-muted mt-1"></div></div>
                         </div>
                     </div>
                 </div>
@@ -365,7 +375,7 @@
     const progress = document.getElementById('wizardProgressBar');
     let step = 1;
 
-    const fields = ['name','gelar','nuist_id','nik','gol_darah','email_aktif','tempat_lahir','tanggal_lahir','status_kepegawaian_id','ketugasan','jabatan','tmt','tmt_sk_pertama','tmt_sk_terakhir','nomor_sk_pertama','tahun_sk_pertama','masa_kerja','nuptk','nip','kartanu','is_active','gaji_satpen','nomor_sertifikasi_pendidik','gaji_sertifikasi','tunjangan_rerata_bulanan','pendidikan_terakhir','tahun_lulus','program_studi','alamat','no_hp','nama_mgmp','produk_kerja_kolaboratif','npk','mengajar','madrasah_id_tambahan'];
+    const fields = ['name','gelar','nuist_id','nik','gol_darah','email_aktif','tempat_lahir','tanggal_lahir','status_kepegawaian_id','ketugasan','jabatan','tmt','tmt_sk_pertama','tmt_sk_terakhir','nomor_sk_pertama','tahun_sk_pertama','keterangan_sk','masa_kerja','nuptk','nip','kartanu','is_active','gaji_satpen','nomor_sertifikasi_pendidik','gaji_sertifikasi','tunjangan_rerata_bulanan','pendidikan_terakhir','tahun_lulus','program_studi','alamat','no_hp','nama_mgmp','produk_kerja_kolaboratif','catatan_step_1','catatan_step_2','catatan_step_3','catatan_step_4','catatan_step_5','mengajar','madrasah_id_tambahan'];
 
     function sync(stepValue) {
         step = stepValue;
@@ -392,6 +402,15 @@
         document.getElementById('review_email').textContent = document.getElementById('input_email_aktif').value || '-';
         document.getElementById('review_mgmp').textContent = document.getElementById('input_nama_mgmp').value || '-';
         document.getElementById('review_produk').textContent = document.getElementById('input_produk_kerja_kolaboratif').value || '-';
+        document.getElementById('review_catatan').innerHTML = [1, 2, 3, 4, 5]
+            .map(index => `<div><strong>Step ${index}:</strong> ${escapeHtml(document.getElementById('input_catatan_step_' + index).value || '-')}</div>`)
+            .join('');
+    }
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value;
+        return div.innerHTML;
     }
 
     document.querySelectorAll('.open-gtk-wizard').forEach(btn => {
