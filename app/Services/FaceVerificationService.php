@@ -6,8 +6,9 @@ use App\Models\User;
 
 class FaceVerificationService
 {
-    private const LIVENESS_THRESHOLD = 0.55;
-    private const DEFAULT_FACE_SIMILARITY_THRESHOLD = 0.90;
+    // Legacy browser recognition remains isolated from Biometric v2/Python.
+    private const LIVENESS_THRESHOLD = 0.45;
+    private const DEFAULT_FACE_SIMILARITY_THRESHOLD = 0.80;
 
     public function requirementState(User $user): array
     {
@@ -153,7 +154,7 @@ class FaceVerificationService
         $threshold = $this->faceSimilarityThreshold();
         if ($secondBestSimilarity !== null) {
             $similarityGap = $bestSimilarity - $secondBestSimilarity;
-            if ($similarityGap < 0.05) {
+            if ($similarityGap < 0.02) {
                 return [
                     'success' => false,
                     'message' => 'Wajah belum cukup yakin untuk dipastikan. Silakan ulangi scan dengan posisi lebih tegak dan pencahayaan lebih stabil.',
@@ -161,7 +162,7 @@ class FaceVerificationService
                     'matched' => false,
                     'threshold' => $threshold,
                     'similarity_gap' => round($similarityGap, 4),
-                    'similarity_gap_threshold' => 0.05,
+                    'similarity_gap_threshold' => 0.02,
                     'liveness_score' => round($normalizedLivenessScore, 4),
                     'notes' => 'face_ambiguous_match',
                 ];
@@ -245,7 +246,7 @@ class FaceVerificationService
         $threshold = $this->faceSimilarityThreshold();
         if ($secondBestSimilarity !== null) {
             $similarityGap = $bestSimilarity - $secondBestSimilarity;
-            if ($similarityGap < 0.05) {
+            if ($similarityGap < 0.02) {
                 return [
                     'success' => false,
                     'face_verified' => false,
@@ -254,7 +255,7 @@ class FaceVerificationService
                     'matched' => false,
                     'threshold' => $threshold,
                     'similarity_gap' => round($similarityGap, 4),
-                    'similarity_gap_threshold' => 0.05,
+                    'similarity_gap_threshold' => 0.02,
                     'notes' => 'face_ambiguous_match',
                 ];
             }

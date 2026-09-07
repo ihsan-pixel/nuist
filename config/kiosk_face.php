@@ -13,4 +13,6 @@ return [
         'frame_count' => (int) env('KIOSK_FACE_CAPTURE_FRAME_COUNT', 6),
         'max_frames' => (int) env('KIOSK_FACE_CAPTURE_MAX_FRAMES', 8),
     ],
+    // Legacy JS/face_data threshold. Do not use the Python v2 threshold here.
+    'similarity_threshold' => (float) env('KIOSK_FACE_LEGACY_SIMILARITY_THRESHOLD', 0.80),
 ];
