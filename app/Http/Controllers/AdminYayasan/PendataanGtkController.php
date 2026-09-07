@@ -88,7 +88,6 @@ class PendataanGtkController extends Controller
             'masa_kerja' => 'nullable|string|max:100',
             'jabatan' => 'nullable|string|max:255',
             'mengajar' => 'nullable|string|max:255',
-            'madrasah_id_tambahan' => 'nullable|exists:madrasahs,id',
             'catatan_step_1' => 'nullable|string|max:5000',
             'catatan_step_2' => 'nullable|string|max:5000',
             'catatan_step_3' => 'nullable|string|max:5000',
@@ -124,7 +123,6 @@ class PendataanGtkController extends Controller
                 'masa_kerja' => $validated['masa_kerja'] ?? null,
                 'jabatan' => $validated['jabatan'] ?? null,
                 'mengajar' => $validated['mengajar'] ?? null,
-                'madrasah_id_tambahan' => $validated['madrasah_id_tambahan'] ?? null,
             ]);
 
             $user->save();

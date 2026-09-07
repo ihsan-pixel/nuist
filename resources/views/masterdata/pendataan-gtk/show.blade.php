@@ -159,7 +159,6 @@
                                     'catatan_step_4' => $gtkPendataan?->catatan_step_4,
                                     'catatan_step_5' => $gtkPendataan?->catatan_step_5,
                                     'mengajar' => $user->mengajar,
-                                    'madrasah_id_tambahan' => $user->madrasah_id_tambahan,
                                 ];
                             @endphp
                             <tr>
@@ -279,7 +278,6 @@
                             <div class="col-md-4"><label class="form-label">Masa Kerja</label><input class="form-control" name="masa_kerja" id="input_masa_kerja"></div>
                             <div class="col-md-4"><label class="form-label">Jabatan</label><input class="form-control" name="jabatan" id="input_jabatan"></div>
                             <div class="col-md-4"><label class="form-label">Gaji dari Satpen (Rp)</label><input type="number" class="form-control" name="gaji_satpen" id="input_gaji_satpen" min="0"></div>
-                            <div class="col-md-4"><label class="form-label">Status Keaktifan</label><select class="form-select" name="is_active" id="input_is_active"><option value="1">Aktif</option><option value="0">Tidak aktif</option></select></div>
                             <div class="col-md-4"><label class="form-label">Ketugasan</label><input class="form-control" name="ketugasan" id="input_ketugasan"></div>
                             <div class="col-12"><label class="form-label">Catatan Step 3</label><textarea class="form-control" rows="3" name="catatan_step_3" id="input_catatan_step_3" placeholder="Tambahkan catatan untuk data kepegawaian"></textarea></div>
                         </div>
@@ -288,7 +286,6 @@
                     <div class="wizard-step" data-step="4">
                         <div class="wizard-section-title">MGMP <span>Sertifikasi, MGMP, dan produk kerja kolaboratif</span></div>
                         <div class="row g-3">
-                            <div class="col-md-4"><label class="form-label">No. Sertifikasi Pendidik</label><input class="form-control" name="nomor_sertifikasi_pendidik" id="input_nomor_sertifikasi_pendidik"></div>
                             <div class="col-md-4"><label class="form-label">Sertifikasi (Rp)</label><input type="number" class="form-control" name="gaji_sertifikasi" id="input_gaji_sertifikasi" min="0"></div>
                             <div class="col-md-4"><label class="form-label">Tambahan Penghasilan / Bulan (Rp)</label><input type="number" class="form-control" name="tunjangan_rerata_bulanan" id="input_tunjangan_rerata_bulanan" min="0"></div>
                             <div class="col-md-6"><label class="form-label">Nama MGMP</label><input class="form-control" name="nama_mgmp" id="input_nama_mgmp"></div>
@@ -296,8 +293,8 @@
                             <div class="col-12"><div class="form-text">Nama MGMP yang sudah terhubung melalui relasi aplikasi akan ditampilkan sebagai nilai awal dan masih dapat dilengkapi.</div></div>
                             <div class="col-md-6">
                                 <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Status Keaktifan</label><select class="form-select" name="is_active" id="input_is_active"><option value="1">Aktif</option><option value="0">Tidak aktif</option></select></div>
                                     <div class="col-12"><label class="form-label">Mengajar</label><input class="form-control" name="mengajar" id="input_mengajar"></div>
-                                    <div class="col-12"><label class="form-label">Madrasah Tambahan</label><input class="form-control" name="madrasah_id_tambahan" id="input_madrasah_id_tambahan" inputmode="numeric"></div>
                                 </div>
                             </div>
                             <div class="col-md-6"><div class="alert alert-light border h-100 mb-0"><div class="fw-semibold mb-2">Catatan pencocokan</div><div class="small text-muted">Gunakan NUIST ID, NIK, NUPTK, NIPM/NIP, dan email aktif untuk mencocokkan data GTK dengan data yang sudah ada di aplikasi.</div></div></div>
@@ -378,7 +375,7 @@
     const progress = document.getElementById('wizardProgressBar');
     let step = 1;
 
-    const fields = ['name','gelar','nuist_id','nik','gol_darah','email_aktif','tempat_lahir','tanggal_lahir','status_kepegawaian_id','ketugasan','jabatan','tmt','tmt_sk_pertama','tmt_sk_terakhir','nomor_sk_pertama','tahun_sk_pertama','keterangan_sk','masa_kerja','nuptk','nip','kartanu','is_active','gaji_satpen','nomor_sertifikasi_pendidik','gaji_sertifikasi','tunjangan_rerata_bulanan','pendidikan_terakhir','tahun_lulus','program_studi','alamat','no_hp','nama_mgmp','produk_kerja_kolaboratif','catatan_step_1','catatan_step_2','catatan_step_3','catatan_step_4','catatan_step_5','mengajar','madrasah_id_tambahan'];
+    const fields = ['name','gelar','nuist_id','nik','gol_darah','email_aktif','tempat_lahir','tanggal_lahir','status_kepegawaian_id','ketugasan','jabatan','tmt','tmt_sk_pertama','tmt_sk_terakhir','nomor_sk_pertama','tahun_sk_pertama','keterangan_sk','masa_kerja','nuptk','nip','kartanu','is_active','gaji_satpen','nomor_sertifikasi_pendidik','gaji_sertifikasi','tunjangan_rerata_bulanan','pendidikan_terakhir','tahun_lulus','program_studi','alamat','no_hp','nama_mgmp','produk_kerja_kolaboratif','catatan_step_1','catatan_step_2','catatan_step_3','catatan_step_4','catatan_step_5','mengajar'];
 
     function sync(stepValue) {
         step = stepValue;
