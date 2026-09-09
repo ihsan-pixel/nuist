@@ -20,6 +20,7 @@ class PendataanGtkController extends Controller
 
         $gtk = User::query()
             ->where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id')
             ->when($madrasah, fn ($query) => $query->where('madrasah_id', $madrasah->id))
             ->with(['madrasah', 'gtkPendataan', 'mgmpMemberships.mgmpGroup'])
             ->orderBy('madrasah_id')
@@ -40,7 +41,9 @@ class PendataanGtkController extends Controller
         $madrasahs = Madrasah::query()
             ->orderByRaw("CAST(COALESCE(NULLIF(scod, ''), '0') AS UNSIGNED) ASC")
             ->orderBy('name')
-            ->get(['id', 'name', 'scod', 'kabupaten', 'alamat', 'logo']);
+            ->select(['id', 'name', 'scod', 'kabupaten', 'alamat', 'logo'])
+            ->withCount('tenagaPendidikUsers')
+            ->get();
 
         return view('masterdata.pendataan-gtk.index', compact('madrasahs'));
     }
