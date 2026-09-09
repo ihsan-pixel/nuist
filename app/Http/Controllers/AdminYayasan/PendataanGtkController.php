@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AdminYayasan;
 
+use App\Exports\PendataanGtkExport;
 use App\Http\Controllers\Controller;
 use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
@@ -9,9 +10,29 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PendataanGtkController extends Controller
 {
+    public function export(?Madrasah $madrasah = null)
+    {
+        $this->authorizeAccess();
+
+        $gtk = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->when($madrasah, fn ($query) => $query->where('madrasah_id', $madrasah->id))
+            ->with(['madrasah', 'gtkPendataan', 'mgmpMemberships.mgmpGroup'])
+            ->orderBy('madrasah_id')
+            ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
+            ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) = 'kepala madrasah/sekolah' THEN 0 ELSE 1 END")
+            ->orderBy('name')
+            ->get();
+
+        $scope = $madrasah ? 'sekolah-' . $madrasah->id : 'semua-sekolah';
+
+        return Excel::download(new PendataanGtkExport($gtk), 'pendataan-gtk-' . $scope . '-' . now()->format('Ymd-His') . '.xlsx');
+    }
+
     public function index()
     {
         $this->authorizeAccess();

@@ -236,6 +236,8 @@ Route::middleware(['auth', 'role:admin_yayasan'])
     ->name('pendataan-gtk.')
     ->group(function () {
         Route::get('/', [PendataanGtkController::class, 'index'])->name('index');
+        Route::get('/export', [PendataanGtkController::class, 'export'])->name('export');
+        Route::get('/{madrasah}/export', [PendataanGtkController::class, 'export'])->name('export-school');
         Route::get('/{madrasah}', [PendataanGtkController::class, 'show'])->name('show');
         Route::put('/users/{user}', [PendataanGtkController::class, 'update'])->name('update');
     });

@@ -33,7 +33,12 @@
                         <h4 class="card-title mb-1">Pendataan GTK</h4>
                         <p class="text-muted mb-0">Pilih sekolah untuk melihat seluruh tenaga pendidik dan melengkapi data GTK.</p>
                     </div>
-                    <span class="badge bg-primary fs-6">{{ $madrasahs->count() }} sekolah</span>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="badge bg-primary fs-6">{{ $madrasahs->count() }} sekolah</span>
+                        <a href="{{ route('pendataan-gtk.export') }}" class="btn btn-success">
+                            <i class="bx bx-download me-1"></i> Export Excel Semua GTK
+                        </a>
+                    </div>
                 </div>
 
                 <div class="row g-3">
