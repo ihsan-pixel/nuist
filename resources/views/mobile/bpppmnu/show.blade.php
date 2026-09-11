@@ -20,7 +20,7 @@
 <div class="alert alert-success">✓ Sudah hadir · {{ $attendance->attended_at->format('d-m-Y H:i:s') }} WIB</div>
 @elseif($event->isOpen())
 <section id="scanner" class="bpp-detail-card bpp-detail-scanner" data-event-id="{{ $event->id }}" data-scan-url="{{ route('mobile.bpppmnu.events.scan', $event) }}"><div>
-<div class="bpp-scanner-heading"><i class="bx bx-qr-scan" aria-hidden="true"></i><h2>Catat Kehadiran</h2></div>
+<div class="bpp-scanner-heading"><i class="bx bx-qr-scan" aria-hidden="true"></i><h2>Scan Barcode Kehadiran</h2></div>
 <video id="qr-video" muted playsinline hidden></video>
 <div id="qr-status" class="my-3" role="status" aria-live="polite"></div>
 <button id="qr-start" type="button" class="btn btn-primary">Buka Kamera</button>
