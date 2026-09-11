@@ -323,7 +323,7 @@ class BpppmnuAttendanceTest extends TestCase
 
     private function agendaData(): array
     {
-        return ['name' => 'Agenda Baru', 'type' => 'Rapat', 'description' => 'Deskripsi lengkap', 'organizer' => 'Yayasan', 'person_in_charge' => 'Ketua', 'location_name' => 'Aula',
+        return ['name' => 'Agenda Baru', 'type' => 'Rapat', 'description' => 'Deskripsi lengkap', 'organizer' => 'Yayasan', 'location_name' => 'Aula',
             'start_at' => now()->addDay()->format('Y-m-d H:i:s'), 'end_at' => now()->addDay()->addHours(2)->format('Y-m-d H:i:s'),
             'attendance_open_at' => now()->addDay()->subHour()->format('Y-m-d H:i:s'), 'attendance_close_at' => now()->addDay()->addHours(2)->format('Y-m-d H:i:s'),
             'invitees' => [$this->member->id]];

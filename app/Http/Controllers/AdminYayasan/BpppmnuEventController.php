@@ -61,7 +61,7 @@ class BpppmnuEventController extends Controller
     private function save(Request $request, BpppmnuEvent $event)
     {
         $rules = [];
-        foreach (['name', 'type', 'organizer', 'person_in_charge', 'location_name'] as $field) {
+        foreach (['name', 'type', 'organizer', 'location_name'] as $field) {
             $rules[$field] = 'required|string|max:255';
         }
         $rules += [
@@ -91,6 +91,8 @@ class BpppmnuEventController extends Controller
                 }
                 $event->fill($data);
                 if (! $event->exists) {
+                    // Retain compatibility with the existing non-null database column.
+                    $event->person_in_charge = '';
                     $event->fill(['created_by' => $request->user()->id, 'status' => 'draft']);
                 }
                 if ($uploaded) {

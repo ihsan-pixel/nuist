@@ -4,7 +4,7 @@
 <p class="text-muted">Seluruh waktu menggunakan WIB. Agenda dan undangan dikunci setelah periode presensi dibuka.</p>
 <form method="post" enctype="multipart/form-data" action="{{ $event->exists ? route('admin.bpppmnu.events.update', $event) : route('admin.bpppmnu.events.store') }}">@csrf @if($event->exists) @method('PUT') @endif
 <div class="row g-3">
-@foreach(['name'=>'Nama kegiatan','type'=>'Jenis kegiatan','organizer'=>'Penyelenggara','person_in_charge'=>'Penanggung jawab','location_name'=>'Nama lokasi'] as $field=>$label)
+@foreach(['name'=>'Nama kegiatan','type'=>'Jenis kegiatan','organizer'=>'Penyelenggara','location_name'=>'Nama lokasi'] as $field=>$label)
 <div class="col-md-6"><label class="form-label" for="{{ $field }}">{{ $label }}</label><input class="form-control" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $event->$field) }}" maxlength="255" required></div>
 @endforeach
 @foreach(['start_at'=>'Tanggal & waktu mulai','end_at'=>'Tanggal & waktu selesai','attendance_open_at'=>'Presensi dibuka','attendance_close_at'=>'Presensi ditutup'] as $field=>$label)
