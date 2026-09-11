@@ -44,6 +44,6 @@
     </div>
 @endforelse
 <div class="bpp-history-pagination">
-    {{ $history->links() }}
+    {{ $history->links('pagination::bootstrap-5') }}
 </div>
 @endsection

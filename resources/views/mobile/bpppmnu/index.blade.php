@@ -161,6 +161,6 @@
     </div>
 @endforelse
 <div class="bpp-home-pagination">
-    {{ $events->links() }}
+    {{ $events->links('pagination::bootstrap-5') }}
 </div>
 @endsection

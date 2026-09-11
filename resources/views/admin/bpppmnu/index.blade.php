@@ -21,7 +21,7 @@
                 </tbody>
             </table>
         </div>
-        {{ $events->links() }}
+        {{ $events->links('pagination::bootstrap-5') }}
     </div>
 </div>
 @endsection
