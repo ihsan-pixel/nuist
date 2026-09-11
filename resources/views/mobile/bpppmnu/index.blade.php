@@ -81,6 +81,9 @@
 .bpp-sheet-scan:hover { background:#004331; color:#fff; }
 .bpp-sheet-scan:focus-visible { outline:2px solid #00866a; outline-offset:3px; }
 .bpp-sheet-link { display:flex; align-items:center; justify-content:center; min-height:44px; color:#00553f; font-size:11px; text-decoration:none; }
+.bpp-sheet-barcode-button { width:100%; min-height:40px; margin-top:8px; padding:8px 12px; border:1px solid #cbded4; border-radius:9px; background:#f7faf8; color:#00553f; font:inherit; font-size:11px; font-weight:600; }
+.bpp-sheet-barcode-button:hover,.bpp-sheet-barcode-button[aria-expanded="true"] { background:#edf5f0; border-color:#9fc5b2; }
+.bpp-sheet-barcode-button:focus-visible { outline:2px solid #00866a; outline-offset:2px; }
 .bpp-sheet-confirmation { color:#286248; font-size:11px; text-align:center; margin:0 0 6px; }
 .bpp-sheet-barcode { display:block; width:170px; height:170px; margin:4px auto 14px; padding:8px; border:1px solid #e6eae8; border-radius:10px; background:#fff; }
 .bpp-sheet-barcode-title { margin:0 0 10px; text-align:center; font-size:11px; color:#68736e; }
@@ -142,7 +145,7 @@
                 <div class="bpp-sheet-footer">
                     @if($open && !$present)
                         <a class="bpp-sheet-scan" href="{{ route('mobile.bpppmnu.events.show', $event) }}#scanner">Scan QR Presensi</a>
-                        <button type="button" class="bpp-sheet-link bpp-sheet-barcode-toggle" data-bs-toggle="collapse" data-bs-target="#bpp-barcode-{{ $event->id }}" aria-expanded="false" aria-controls="bpp-barcode-{{ $event->id }}">Tampilkan Barcode Saya</button>
+                        <button type="button" class="bpp-sheet-barcode-button" data-bs-toggle="collapse" data-bs-target="#bpp-barcode-{{ $event->id }}" aria-expanded="false" aria-controls="bpp-barcode-{{ $event->id }}"><i class="bx bx-barcode me-1" aria-hidden="true"></i>Tampilkan Barcode Saya</button>
                         <div class="collapse" id="bpp-barcode-{{ $event->id }}">
                             <p class="bpp-sheet-barcode-title">Tunjukkan barcode ini kepada admin untuk presensi.</p>
                             <img class="bpp-sheet-barcode" src="{{ route('mobile.bpppmnu.barcode') }}" alt="Barcode identitas {{ auth()->user()->name }}" loading="lazy">
