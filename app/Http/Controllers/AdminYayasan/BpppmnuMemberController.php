@@ -49,7 +49,11 @@ class BpppmnuMemberController extends Controller
 
     public function update(Request $request, User $member)
     {
-        abort_unless($member->role === 'pengurus_bpppmnu', 404);
+        abort_unless(
+            in_array($member->role, ['pengurus_bpppmnu', 'tenaga_pendidik'], true)
+            && ($member->role === 'pengurus_bpppmnu' || $member->is_bpppmnu_member),
+            404
+        );
 
         return $this->save($request, $member);
     }
