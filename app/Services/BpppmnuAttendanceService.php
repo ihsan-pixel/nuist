@@ -49,6 +49,23 @@ class BpppmnuAttendanceService
         }, 3);
     }
 
+    public function recordMember(User $member, BpppmnuEvent $event): array
+    {
+        abort_unless($member->role === 'pengurus_bpppmnu' && $member->is_active !== false, 403);
+
+        return DB::transaction(function () use ($member, $event) {
+            $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
+            $this->check($event->invitations()->where('user_id', $member->id)->exists(), 'Pengurus tidak terdaftar sebagai peserta kegiatan ini.');
+            $this->check($event->status === 'published', 'Kegiatan belum diterbitkan.');
+            $this->check(now()->gte($event->attendance_open_at), 'Presensi kegiatan belum dibuka.');
+            $this->check(now()->lte($event->attendance_close_at), 'Waktu presensi kegiatan telah berakhir.');
+            $existing = $event->attendances()->where('user_id', $member->id)->first();
+            if ($existing) return ['attendance' => $existing, 'duplicate' => true];
+            $attendance = $event->attendances()->create(['user_id' => $member->id, 'attended_at' => now(), 'method' => 'barcode']);
+            return ['attendance' => $attendance, 'duplicate' => false];
+        }, 3);
+    }
+
     private function check(bool $condition, string $message): void
     {
         if (! $condition) {

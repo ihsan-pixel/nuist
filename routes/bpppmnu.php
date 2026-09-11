@@ -26,6 +26,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan'])->prefix('admin-
 
 Route::middleware(['auth', BpppmnuRole::class.':pengurus_bpppmnu'])->prefix('mobile/bpppmnu')->name('mobile.bpppmnu.')->group(function () {
     Route::get('presensi', [BpppmnuController::class, 'index'])->name('presensi');
+    Route::get('barcode', [BpppmnuController::class, 'barcode'])->name('barcode');
     Route::get('riwayat-presensi', [BpppmnuController::class, 'history'])->name('history');
     Route::get('profil', [BpppmnuController::class, 'profile'])->name('profile');
     Route::post('profil/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:5,1')->name('password');

@@ -9,6 +9,10 @@ use App\Services\BpppmnuReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 
 class BpppmnuController extends Controller
 {
@@ -22,6 +26,18 @@ class BpppmnuController extends Controller
             ->orderBy('start_at')->paginate(15);
 
         return $request->expectsJson() ? response()->json($events) : view('mobile.bpppmnu.index', compact('events'));
+    }
+
+    public function barcode(Request $request)
+    {
+        abort_unless($request->user()->nuist_id, 422, 'ID NUIST belum tersedia.');
+        $renderer = new ImageRenderer(new RendererStyle(320), new SvgImageBackEnd());
+        $svg = (new Writer($renderer))->writeString((string) $request->user()->nuist_id);
+
+        return response($svg, 200, [
+            'Content-Type' => 'image/svg+xml',
+            'Cache-Control' => 'private, no-store',
+        ]);
     }
 
     public function show(Request $request, BpppmnuEvent $event)
