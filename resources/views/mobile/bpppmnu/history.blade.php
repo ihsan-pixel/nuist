@@ -18,9 +18,6 @@
 .bpp-history-status-present { background:#e8f3eb; color:#235a3e; }
 .bpp-history-shell .bpp-history-name { font-size:12px; font-weight:600; line-height:1.5; margin:0 0 5px; overflow-wrap:anywhere; }
 .bpp-history-date { font-size:11px; color:#627269; margin:0; }
-.bpp-history-checkin { border-top:1px solid #edf0ed; margin-top:14px; padding-top:12px; }
-.bpp-history-checkin-label { font-size:10px; color:#6a7870; margin:0 0 4px; }
-.bpp-history-checkin-time { font-size:11px; color:#344e40; margin:0; }
 .bpp-history-detail { display:inline-flex; align-items:center; gap:8px; min-height:44px; margin-top:6px; font-size:11px; font-weight:600; color:#205c43; text-decoration:none; }
 .bpp-history-detail:hover { color:#123d2c; text-decoration:underline; }
 .bpp-history-detail:focus-visible { outline:2px solid #38775e; outline-offset:3px; border-radius:4px; }
@@ -38,16 +35,6 @@
         <span class="bpp-history-status {{ $row->attended_at ? 'bpp-history-status-present' : '' }}">{{ $row->attended_at ? 'Hadir' : 'Tidak Hadir' }}</span>
         <h2 class="bpp-history-name">{{ $row->name }}</h2>
         <p class="bpp-history-date">{{ \Carbon\Carbon::parse($row->start_at)->locale('id')->translatedFormat('d F Y') }} &bull; {{ \Carbon\Carbon::parse($row->start_at)->format('H:i') }} WIB</p>
-        <div class="bpp-history-checkin">
-            <p class="bpp-history-checkin-label">Waktu presensi</p>
-            <p class="bpp-history-checkin-time">
-                @if($row->attended_at)
-                    {{ \Carbon\Carbon::parse($row->attended_at)->locale('id')->translatedFormat('d F Y') }} &bull; {{ \Carbon\Carbon::parse($row->attended_at)->format('H:i:s') }} WIB
-                @else
-                    <span aria-label="Tidak ada waktu presensi">—</span>
-                @endif
-            </p>
-        </div>
         <a class="bpp-history-detail" href="{{ route('mobile.bpppmnu.events.show', $row->id) }}">Lihat Detail <span aria-hidden="true">&rarr;</span></a>
     </article>
 @empty
