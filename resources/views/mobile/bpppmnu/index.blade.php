@@ -43,7 +43,7 @@
 .bpp-agenda-card:hover { border-color:#b7cec4; }
 .bpp-agenda-card:active { background:#f0f5f2; }
 .bpp-agenda-card:focus-visible,.bpp-home-menu:focus-visible,.bpp-sheet-close:focus-visible,.bpp-sheet-link:focus-visible { outline:2px solid #00866a; outline-offset:3px; }
-.bpp-agenda-date { text-align:center; border-right:1px solid #e6eae8; padding-right:10px; color:#00553f; }
+.bpp-agenda-date { display:flex; flex-direction:column; justify-content:center; text-align:center; border-right:1px solid #e6eae8; padding-right:10px; color:#00553f; }
 .bpp-agenda-date strong { display:block; font-size:16px; font-weight:600; line-height:1.3; }
 .bpp-agenda-date small { display:block; font-size:10px; margin-top:3px; text-transform:uppercase; }
 .bpp-agenda-info { min-width:0; }
