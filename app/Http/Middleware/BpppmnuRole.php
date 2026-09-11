@@ -12,7 +12,7 @@ class BpppmnuRole
         $user = $request->user();
         $allowed = $user && $user->is_active !== false && $user->role === $role;
         if ($role === 'pengurus_bpppmnu' && $user && $user->role === 'tenaga_pendidik') {
-            $allowed = $user->bpppmnuInvitations()->exists();
+            $allowed = $user->bpppmnuMember?->is_active === true;
         }
         abort_unless($allowed, 403);
         $response = $next($request);

@@ -254,7 +254,7 @@
 
                 @php
                     $bpppmnuAllowed = $userRole === 'pengurus_bpppmnu'
-                        || ($userRole === 'tenaga_pendidik' && auth()->user()->bpppmnuInvitations()->exists());
+                        || ($userRole === 'tenaga_pendidik' && auth()->user()->bpppmnuMember?->is_active);
                 @endphp
                 @if($bpppmnuAllowed)
                 <li>

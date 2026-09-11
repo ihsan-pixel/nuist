@@ -181,7 +181,7 @@
                 <div class="service-icon"><i class="bx bx-calendar"></i></div>
                 <div class="service-label">Jadwal Mengajar</div>
             </a>
-            @if(auth()->user()?->bpppmnuInvitations()->exists())
+            @if(auth()->user()?->bpppmnuMember?->is_active)
             <a href="{{ route('mobile.bpppmnu.presensi') }}" class="service-card">
                 <div class="service-icon"><i class="bx bx-calendar-event"></i></div>
                 <div class="service-label">Agenda BPPPMNU</div>
