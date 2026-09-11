@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\User;
+use App\Models\BpppmnuMember;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -44,6 +45,10 @@ class BpppmnuMembersImport implements ToCollection, WithHeadingRow, SkipsEmptyRo
             if (! $member->exists) $member->fill(['jabatan' => $jabatan, 'ketugasan' => $jabatan, 'instansi_asal' => $instansi]);
             if (! $member->exists || ! in_array($member->role, ['tenaga_pendidik', 'pengurus_bpppmnu'], true)) $member->role = 'pengurus_bpppmnu';
             $member->save();
+            BpppmnuMember::updateOrCreate(
+                ['user_id' => $member->id],
+                ['jabatan' => $jabatan, 'instansi_asal' => $instansi, 'is_active' => true]
+            );
         }
     }
 }
