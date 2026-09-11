@@ -1,5 +1,13 @@
 @extends('mobile.bpppmnu.layout')
 @section('title', 'Presensi')
+@section('bpp-header')
+<header class="bpp-header">
+    <div class="bpp-banner">
+        <small>NUIST · Pengurus BPPPMNU</small>
+        <h1 style="font-weight:600;overflow-wrap:anywhere">{{ auth()->user()->name }}</h1>
+    </div>
+</header>
+@endsection
 @section('bpp-content')
 <div class="bpp-intro"><div><h2>Agenda Anda</h2><p class="bpp-meta mb-0">Pilih kegiatan dan scan QR untuk mencatat kehadiran.</p></div><span class="bpp-timezone">WIB</span></div>
 @forelse($events->groupBy(fn($event) => $event->isOpen() ? 'Presensi sedang dibuka' : 'Agenda mendatang / berlangsung') as $heading => $group)
