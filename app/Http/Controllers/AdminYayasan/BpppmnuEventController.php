@@ -119,7 +119,12 @@ class BpppmnuEventController extends Controller
                 // menjadi parent foreign key untuk riwayat kehadiran.
                 $event->invitations()
                     ->whereNotIn('user_id', $invitees)
-                    ->whereDoesntHave('attendance')
+                    ->whereNotExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('bpppmnu_event_attendances as a')
+                            ->whereColumn('a.event_id', 'bpppmnu_event_invitations.event_id')
+                            ->whereColumn('a.user_id', 'bpppmnu_event_invitations.user_id');
+                    })
                     ->delete();
                 foreach ($invitees as $id) {
                     $event->invitations()->firstOrCreate(['user_id' => $id]);
