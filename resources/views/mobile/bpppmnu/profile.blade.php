@@ -1,17 +1,15 @@
 @extends('mobile.bpppmnu.layout')
 @section('title', 'Profil')
+@section('bpp-shell-class', 'bpp-profile-shell')
+@section('bpp-header')
+<header class="bpp-profile-header"><small>NUIST · BPPPMNU</small><h1>{{ $user->name }}</h1><p>{{ $user->jabatan ?: ($user->ketugasan ?: 'Pengurus BPPPMNU') }}</p></header>
+@endsection
 @section('bpp-content')
-<div class="card"><div class="card-body">
-@if($user->avatar)<img class="rounded-circle mb-3" src="{{ asset('storage/'.ltrim($user->avatar, '/')) }}" width="72" height="72" alt="Foto profil" style="object-fit:cover">@else<i class="bx bxs-user-circle fs-1"></i>@endif
-<h2>{{ $user->name }}</h2><dl>
-@foreach(['nuist_id'=>'ID NUIST','email'=>'Email','no_hp'=>'Nomor HP','alamat'=>'Alamat'] as $field=>$label)
-<dt>{{ $label }}</dt><dd>{{ $user->$field ?: '—' }}</dd>
-@endforeach
-<dt>Jabatan</dt><dd>{{ $user->jabatan ?: ($user->ketugasan ?: '—') }}</dd>
-</dl></div></div>
-<div class="card"><div class="card-body"><details @if($errors->any()) open @endif><summary class="fw-semibold">Ganti Password</summary>
-<form action="{{ route('mobile.bpppmnu.password') }}" method="post" class="mt-3">@csrf
-@include('mobile.partials.password-fields')
-<button class="btn btn-primary w-100">Simpan Password</button></form></details></div></div>
-<form method="post" action="{{ route('mobile.bpppmnu.logout') }}">@csrf<button class="btn btn-outline-danger w-100">Keluar Akun</button></form>
+<style>
+.bpp-profile-shell{background:#f6f7f6}.bpp-profile-header{padding:0 0 18px;border-bottom:1px solid #e6eae8;margin-bottom:16px}.bpp-profile-header small{font-size:10px;color:#00553f;font-weight:600;letter-spacing:.5px}.bpp-profile-header h1{font-size:16px;font-weight:600;margin:8px 0 2px;overflow-wrap:anywhere}.bpp-profile-header p{font-size:11px;color:#68736e;margin:0}.bpp-profile-card{background:#fff;border:1px solid #e6eae8;border-radius:13px;padding:18px;margin-bottom:12px}.bpp-profile-avatar{width:58px;height:58px;object-fit:cover;border-radius:50%;border:2px solid #e1eee7}.bpp-profile-card h2{font-size:13px;font-weight:600;margin:14px 0}.bpp-profile-shell dl{margin:0}.bpp-profile-shell dt{font-size:10px;color:#68736e;margin-top:12px;border-top:1px solid #edf0ed;padding-top:9px}.bpp-profile-shell dd{font-size:11px;color:#344e40;margin:3px 0 0;overflow-wrap:anywhere}.bpp-profile-actions{display:flex;gap:8px}.bpp-profile-actions .btn{flex:1;min-height:42px;font-size:11px}.bpp-profile-modal .modal-content{border:0;border-radius:16px 16px 0 0}.bpp-profile-modal .modal-dialog{display:flex;align-items:flex-end;min-height:100%;margin:0 auto;max-width:560px}.bpp-profile-modal .modal-body{padding:18px}.bpp-profile-modal h2{font-size:14px;font-weight:600;margin:0 0 14px}.bpp-profile-modal .form-label{font-size:10px}.bpp-profile-modal .form-control{font-size:11px;min-height:42px}.bpp-profile-modal .btn{font-size:11px;min-height:42px}.bpp-profile-modal .modal-header{border:0;padding:14px 18px 0}.bpp-profile-modal .modal-footer{border:0;padding:0 18px 18px}
+</style>
+<div class="bpp-profile-card">@if($user->avatar)<img class="bpp-profile-avatar" src="{{ asset('storage/'.ltrim($user->avatar, '/')) }}" alt="Foto profil">@else<i class="bx bxs-user-circle" style="font-size:58px;color:#38775e" aria-hidden="true"></i>@endif<h2>Informasi akun</h2><dl>@foreach(['nuist_id'=>'ID NUIST','email'=>'Email','no_hp'=>'Nomor HP','alamat'=>'Alamat'] as $field=>$label)<dt>{{ $label }}</dt><dd>{{ $user->$field ?: '—' }}</dd>@endforeach<dt>Jabatan</dt><dd>{{ $user->jabatan ?: ($user->ketugasan ?: '—') }}</dd></dl></div>
+<div class="bpp-profile-card bpp-profile-actions"><button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#password-modal"><i class="bx bx-lock-alt" aria-hidden="true"></i> Ganti Password</button><form method="post" action="{{ route('mobile.bpppmnu.logout') }}" class="flex-fill">@csrf<button class="btn btn-outline-danger w-100"><i class="bx bx-log-out" aria-hidden="true"></i> Keluar</button></form></div>
+<div class="modal fade bpp-profile-modal" id="password-modal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h2>Ganti Password</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div><div class="modal-body"><form action="{{ route('mobile.bpppmnu.password') }}" method="post">@csrf @include('mobile.partials.password-fields')<button class="btn btn-primary w-100">Simpan Password</button></form></div></div></div></div>
+@if($errors->any())<script>document.addEventListener('DOMContentLoaded',()=>new bootstrap.Modal(document.getElementById('password-modal')).show());</script>@endif
 @endsection
