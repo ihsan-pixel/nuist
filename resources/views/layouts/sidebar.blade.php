@@ -252,6 +252,19 @@
                 </li>
                 @endif
 
+                @php
+                    $bpppmnuAllowed = $userRole === 'pengurus_bpppmnu'
+                        || ($userRole === 'tenaga_pendidik' && auth()->user()->bpppmnuInvitations()->exists());
+                @endphp
+                @if($bpppmnuAllowed)
+                <li>
+                    <a href="{{ route('mobile.bpppmnu.presensi') }}" class="waves-effect">
+                        <i class="bx bx-calendar-event"></i>
+                        <span>Agenda BPPPMNU</span>
+                    </a>
+                </li>
+                @endif
+
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
                     <a href="#presensiAdminSubmenu" data-bs-toggle="collapse" class="has-arrow">

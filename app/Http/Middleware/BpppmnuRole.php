@@ -9,7 +9,12 @@ class BpppmnuRole
 {
     public function handle(Request $request, Closure $next, string $role)
     {
-        abort_unless($request->user() && $request->user()->role === $role && $request->user()->is_active !== false, 403);
+        $user = $request->user();
+        $allowed = $user && $user->is_active !== false && $user->role === $role;
+        if ($role === 'pengurus_bpppmnu' && $user && $user->role === 'tenaga_pendidik') {
+            $allowed = $user->bpppmnuInvitations()->exists();
+        }
+        abort_unless($allowed, 403);
         $response = $next($request);
         $response->headers->set('Cache-Control', 'private, no-store');
 

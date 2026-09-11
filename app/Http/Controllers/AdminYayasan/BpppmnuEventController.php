@@ -42,7 +42,7 @@ class BpppmnuEventController extends Controller
 
     private function form(BpppmnuEvent $event)
     {
-        $members = User::where('role', 'pengurus_bpppmnu')->where('is_active', true)->orderBy('name')->get();
+        $members = User::whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])->where('is_active', true)->orderBy('name')->get();
         $selected = $event->exists ? $event->invitations()->pluck('user_id')->all() : [];
 
         return view('admin.bpppmnu.form', compact('event', 'members', 'selected'));
@@ -84,7 +84,7 @@ class BpppmnuEventController extends Controller
             'attendance_close_at' => 'required|date|after:attendance_open_at|after_or_equal:start_at',
             'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'invitees' => 'required|array|min:1|max:5000',
-            'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->where('role', 'pengurus_bpppmnu')->where('is_active', true)],
+            'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])->where('is_active', true)],
         ];
         $data = $request->validate($rules);
         $invitees = $data['invitees'];

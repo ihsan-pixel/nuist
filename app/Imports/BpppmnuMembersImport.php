@@ -28,7 +28,8 @@ class BpppmnuMembersImport implements ToCollection, WithHeadingRow, SkipsEmptyRo
                 continue;
             }
             $email = trim((string) ($row['email'] ?? ''));
-            $member = $email !== '' ? User::where('email', $email)->first() : null;
+            $member = $email !== '' ? User::where('email', $email)->where('is_active', true)->first() : null;
+            if (! $member) $member = User::where('name', $name)->where('is_active', true)->first();
             if (! $member) {
                 $base = 'bpppmnu.'.Str::slug($name, '.');
                 $email = $email ?: $base.'@nuist.id';
@@ -39,7 +40,8 @@ class BpppmnuMembersImport implements ToCollection, WithHeadingRow, SkipsEmptyRo
             } else {
                 $this->updated++;
             }
-            $member->fill(['name' => $name, 'jabatan' => $jabatan, 'ketugasan' => $jabatan, 'instansi_asal' => $instansi, 'role' => 'pengurus_bpppmnu', 'is_active' => true]);
+            $member->fill(['name' => $name, 'jabatan' => $jabatan, 'ketugasan' => $jabatan, 'instansi_asal' => $instansi, 'is_active' => true]);
+            if (! $member->exists || ! in_array($member->role, ['tenaga_pendidik', 'pengurus_bpppmnu'], true)) $member->role = 'pengurus_bpppmnu';
             $member->save();
         }
     }
