@@ -6,8 +6,8 @@ use App\Exports\BpppmnuAttendanceExport;
 use App\Http\Controllers\Controller;
 use App\Models\BpppmnuEvent;
 use App\Models\User;
-use App\Services\BpppmnuAttendanceService;
 use App\Services\BpppmnuReportService;
+use App\Services\BpppmnuAttendanceService;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -121,6 +121,15 @@ class BpppmnuEventController extends Controller
     public function show(BpppmnuEvent $event, BpppmnuReportService $reports)
     {
         return view('admin.bpppmnu.show', ['event' => $event, 'recap' => $reports->recap($event)]);
+    }
+
+    public function scanMember(Request $request, BpppmnuEvent $event, BpppmnuAttendanceService $service)
+    {
+        $data = $request->validate(['nuist_id' => 'required|string|max:100']);
+        $member = User::where('nuist_id', $data['nuist_id'])->where('role', 'pengurus_bpppmnu')->first();
+        abort_unless($member, 404, 'Barcode peserta tidak dikenali.');
+        $result = $service->recordMember($member, $event);
+        return response()->json(['message' => $result['duplicate'] ? 'Peserta sudah tercatat hadir.' : 'Presensi peserta berhasil dicatat.', 'name' => $member->name, 'attended_at' => $result['attendance']->attended_at->format('d-m-Y H:i:s').' WIB', 'duplicate' => $result['duplicate']]);
     }
 
     public function publish(BpppmnuEvent $event)

@@ -14,6 +14,19 @@
 <form method="post" action="{{ route('admin.bpppmnu.events.cancel', $event) }}" onsubmit="return confirm('Batalkan kegiatan ini?')">@csrf<button class="btn btn-outline-danger">Batalkan Kegiatan</button></form>
 @endif
 </div></div></div>
+@if($event->status === 'published' && now()->betweenIncluded($event->attendance_open_at, $event->attendance_close_at))
+<div class="card"><div class="card-body">
+<h3 class="h5">Scan Barcode Peserta</h3><p class="text-muted small">Arahkan kamera ke barcode identitas pengurus yang terdaftar dalam agenda ini.</p>
+<video id="bpp-member-video" class="w-100 rounded bg-dark" style="max-height:320px" muted playsinline hidden></video>
+<div id="bpp-member-status" class="alert alert-secondary py-2" role="status">Kamera belum dibuka.</div>
+<button type="button" id="bpp-member-start" class="btn btn-primary">Buka Kamera</button>
+<button type="button" id="bpp-member-stop" class="btn btn-outline-secondary" hidden>Tutup Kamera</button>
+</div></div>
+<script src="{{ asset('vendor/jsqr/jsQR.js') }}"></script>
+<script>
+(()=>{const v=document.getElementById('bpp-member-video'),s=document.getElementById('bpp-member-status'),b=document.getElementById('bpp-member-start'),x=document.getElementById('bpp-member-stop');let stream,timer,busy=false;const c=document.createElement('canvas'),g=c.getContext('2d',{willReadFrequently:true});const msg=(t,ok=false)=>{s.textContent=t;s.className='alert py-2 '+(ok?'alert-success':'alert-secondary')};const stop=()=>{clearTimeout(timer);stream?.getTracks().forEach(t=>t.stop());stream=null;v.srcObject=null;v.hidden=true;x.hidden=true;b.disabled=false};const tick=async()=>{if(!stream||busy)return;if(v.readyState>=2){c.width=Math.min(v.videoWidth,800);c.height=Math.round(v.videoHeight*c.width/v.videoWidth);g.drawImage(v,0,0,c.width,c.height);const q=window.jsQR(g.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:'dontInvert'});if(q){busy=true;stop();msg('Mencatat presensi…');try{const r=await fetch('{{ route('admin.bpppmnu.events.scan-member',$event) }}',{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({nuist_id:q.data.trim()})});const d=await r.json();if(!r.ok)throw new Error(d.message||'Barcode tidak dapat diproses.');msg(d.message+' '+d.name+' · '+d.attended_at,true);setTimeout(()=>location.reload(),1200)}catch(e){busy=false;msg(e.message)}}}timer=setTimeout(tick,180)};b.addEventListener('click',async()=>{try{busy=false;stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});v.srcObject=stream;v.hidden=false;x.hidden=false;b.disabled=true;msg('Arahkan kamera ke barcode peserta.');await v.play();tick()}catch(e){msg('Kamera tidak dapat dibuka. Pastikan izin kamera diberikan.')}});x.addEventListener('click',stop)})();
+</script>
+@endif
 <div class="row g-3 mb-3">
 @foreach(['Undangan'=>$recap['total'], 'Hadir'=>$recap['present'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran'=>$recap['percentage'].'%'] as $label=>$value)
 <div class="col-6 col-lg-3"><div class="card h-100 mb-0"><div class="card-body"><div class="text-muted">{{ $label }}</div><strong class="fs-3">{{ $value }}</strong></div></div></div>
