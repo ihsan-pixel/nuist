@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AdminYayasan;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\BpppmnuMember;
 use App\Imports\BpppmnuMembersImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +17,7 @@ class BpppmnuMemberController extends Controller
 {
     public function index()
     {
-        $members = User::with('madrasah:id,name')->where(function ($query) {
-            $query->where('role', 'pengurus_bpppmnu')->orWhere('is_bpppmnu_member', true);
-        })->orderBy('name')->paginate(30);
+        $members = User::with(['madrasah:id,name', 'bpppmnuMember'])->whereHas('bpppmnuMember', fn ($q) => $q->where('is_active', true))->orderBy('name')->paginate(30);
         $teachers = User::with(['madrasah:id,name', 'madrasahTambahan:id,name'])->where('role', 'tenaga_pendidik')->where('is_active', true)->orderBy('name')->get(['id', 'name', 'email', 'jabatan', 'ketugasan', 'instansi_asal', 'madrasah_id', 'madrasah_id_tambahan']);
 
         return view('admin.bpppmnu.members', compact('members', 'teachers'));
@@ -40,8 +39,7 @@ class BpppmnuMemberController extends Controller
                 'bpppmnu_instansi_asal' => $teacher->madrasah?->name ?: $teacher->instansi_asal,
                 'is_active' => '1',
             ]);
-            $teacher->is_bpppmnu_member = true;
-            $teacher->save();
+            BpppmnuMember::updateOrCreate(['user_id' => $teacher->id], ['jabatan' => $request->input('jabatan'), 'instansi_asal' => $teacher->madrasah?->name ?: $teacher->instansi_asal, 'is_active' => true]);
             return $this->save($request, $teacher);
         }
         return $this->save($request, new User);
@@ -115,6 +113,7 @@ class BpppmnuMemberController extends Controller
             }
             $member->is_bpppmnu_member = true;
             $member->save();
+            BpppmnuMember::updateOrCreate(['user_id' => $member->id], ['jabatan' => $data['bpppmnu_jabatan'] ?? $data['jabatan'] ?? null, 'instansi_asal' => $data['bpppmnu_instansi_asal'] ?? $data['instansi_asal'] ?? null, 'is_active' => true]);
             if ($reset || ! $member->is_active) {
                 $member->tokens()->delete();
             }

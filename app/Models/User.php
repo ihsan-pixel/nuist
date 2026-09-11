@@ -127,6 +127,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(BpppmnuEventInvitation::class);
     }
 
+    public function bpppmnuMember()
+    {
+        return $this->hasOne(BpppmnuMember::class);
+    }
+
     public function bpppmnuAttendances()
     {
         return $this->hasMany(BpppmnuEventAttendance::class);
