@@ -1,10 +1,14 @@
 @extends('admin.bpppmnu.layout')
 @section('bpp-content')
+<style>
+.bpp-admin-detail .card{border:0;border-radius:14px;box-shadow:0 3px 14px rgba(31,55,45,.08);margin-bottom:18px}.bpp-admin-detail .card-body{padding:22px}.bpp-admin-detail .page-title{font-size:20px;font-weight:600;color:#183d32;margin:0}.bpp-admin-detail .summary-card{border:1px solid #e5ece8;box-shadow:none}.bpp-admin-detail .summary-card .text-muted{font-size:12px}.bpp-admin-detail .summary-card strong{font-size:24px;color:#14513d}.bpp-admin-detail .table{margin-bottom:0}.bpp-admin-detail .table thead th{font-size:12px;text-transform:uppercase;letter-spacing:.3px;color:#5b6d64;background:#f5f8f6}.bpp-admin-detail .table td{font-size:13px;vertical-align:middle}.bpp-admin-detail .action-bar{display:flex;flex-wrap:wrap;gap:8px}.bpp-admin-detail .action-bar .btn{border-radius:8px}
+</style>
+<div class="bpp-admin-detail">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<div class="card"><div class="card-body"><h2>{{ $event->name }}</h2><span class="badge bg-secondary">{{ $event->status }}</span>
+<div class="card"><div class="card-body"><div class="d-flex justify-content-between align-items-start gap-3 flex-wrap"><div><h1 class="page-title">{{ $event->name }}</h1><div class="text-muted small mt-1">Detail agenda dan rekap presensi</div></div><span class="badge bg-secondary">{{ $event->status }}</span></div>
 @include('bpppmnu.event-details')
 @if($event->attachment)<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.bpppmnu.events.attachment', $event) }}">Unduh lampiran</a>@endif
-<div class="d-flex gap-2 flex-wrap">
+<div class="action-bar">
 @if(!$event->isLocked() && $event->status !== 'cancelled')<a class="btn btn-outline-primary" href="{{ route('admin.bpppmnu.events.edit', $event) }}">Edit Agenda & Undangan</a>@endif
 @if($event->status === 'draft')<form method="post" action="{{ route('admin.bpppmnu.events.publish', $event) }}">@csrf<button class="btn btn-success">Terbitkan</button></form>@endif
 @if($event->status === 'published' && now()->lte($event->attendance_close_at))
@@ -30,11 +34,12 @@
 @endif
 <div class="row g-3 mb-3">
 @foreach(['Undangan'=>$recap['total'], 'Hadir'=>$recap['present'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran'=>$recap['percentage'].'%'] as $label=>$value)
-<div class="col-6 col-lg-3"><div class="card h-100 mb-0"><div class="card-body"><div class="text-muted">{{ $label }}</div><strong class="fs-3">{{ $value }}</strong></div></div></div>
+<div class="col-6 col-lg-3"><div class="card summary-card h-100 mb-0"><div class="card-body"><div class="text-muted">{{ $label }}</div><strong>{{ $value }}</strong></div></div></div>
 @endforeach
 </div>
 <div class="card"><div class="card-body"><div class="d-flex justify-content-between mb-3"><h3 class="h5">Rekap Kehadiran</h3><a href="{{ route('admin.bpppmnu.events.export', $event) }}" class="btn btn-success btn-sm">Export Excel</a></div>
-<div class="table-responsive"><table class="table"><thead><tr><th>Nama</th><th>ID NUIST</th><th>Jabatan</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody>
+<div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>ID NUIST</th><th>Jabatan</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody>
 @forelse($recap['rows'] as $row)<tr><td>{{ $row->name }}</td><td>{{ $row->nuist_id }}</td><td>{{ $row->jabatan ?: '—' }}</td><td>{{ $row->status }}</td><td>{{ $row->attended_at ?: '—' }}</td></tr>@empty<tr><td colspan="5">Belum ada undangan.</td></tr>@endforelse
-</tbody></table></div><small class="text-muted">Muat ulang halaman untuk memperbarui rekap.</small></div></div>
+</tbody></table></div><small class="text-muted">Rekap diperbarui setelah presensi berhasil dicatat.</small></div></div>
+</div>
 @endsection
