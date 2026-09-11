@@ -73,7 +73,7 @@ class BpppmnuController extends Controller
     {
         $data = $request->validate(['month' => 'nullable|integer|between:1,12', 'year' => 'nullable|integer|between:2000,2200', 'status' => 'nullable|in:hadir,tidak_hadir']);
         $query = $reports->invitations()->where('i.user_id', $request->user()->id)
-            ->where('e.status', 'published')->where('e.end_at', '<', now())->where('e.attendance_close_at', '<', now());
+            ->where('e.status', 'published');
         if (! empty($data['month'])) {
             $query->whereMonth('e.start_at', $data['month']);
         }
