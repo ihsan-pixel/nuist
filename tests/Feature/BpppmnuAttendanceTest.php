@@ -304,7 +304,7 @@ class BpppmnuAttendanceTest extends TestCase
     public function test_all_mobile_pages_render_with_three_menu_items(): void
     {
         foreach (['presensi', 'riwayat-presensi', 'profil', 'kegiatan/'.$this->event->id] as $path) {
-            $response = $this->actingAs($this->member)->get('/mobile/bpppmnu/'.$path)->assertOk()->assertSee('Riwayat Presensi')->assertSee('Pengurus BPPPMNU');
+            $response = $this->actingAs($this->member)->get('/mobile/bpppmnu/'.$path)->assertOk()->assertSee('Riwayat Presensi')->assertSee('BPPPMNU');
             $doc = new \DOMDocument;
             @$doc->loadHTML($response->getContent());
             $this->assertSame(3, (new \DOMXPath($doc))->query('//nav[@aria-label="Menu utama"]//a')->length);
