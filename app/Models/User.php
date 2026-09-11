@@ -57,6 +57,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_active',
         'last_seen',
         'jabatan',
+        'instansi_asal',
     ];
 
     /**

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan'])->prefix('admin-yayasan/bpppmnu')->name('admin.bpppmnu.')->group(function () {
     Route::get('pengurus', [BpppmnuMemberController::class, 'index'])->name('members.index');
     Route::post('pengurus', [BpppmnuMemberController::class, 'store'])->name('members.store');
+    Route::post('pengurus/import', [BpppmnuMemberController::class, 'import'])->name('members.import');
     Route::put('pengurus/{member}', [BpppmnuMemberController::class, 'update'])->name('members.update');
     Route::get('kegiatan', [BpppmnuEventController::class, 'index'])->name('events.index');
     Route::get('kegiatan/create', [BpppmnuEventController::class, 'create'])->name('events.create');

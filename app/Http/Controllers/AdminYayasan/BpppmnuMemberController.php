@@ -4,11 +4,13 @@ namespace App\Http\Controllers\AdminYayasan;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Imports\BpppmnuMembersImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BpppmnuMemberController extends Controller
 {
@@ -31,14 +33,28 @@ class BpppmnuMemberController extends Controller
         return $this->save($request, $member);
     }
 
+    public function import(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv,txt|max:5120']);
+        $import = new BpppmnuMembersImport;
+        Excel::import($import, $request->file('file'));
+        $message = "Import selesai. Ditambahkan: {$import->created}, diperbarui: {$import->updated}.";
+        if ($import->skipped) $message .= ' Dilewati: '.implode(', ', $import->skipped).'.';
+        return back()->with('success', $message);
+    }
+
     private function save(Request $request, User $member)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($member->id)],
-            'ketugasan' => 'nullable|string|max:255', 'is_active' => 'required|boolean',
+            'ketugasan' => 'nullable|string|max:255',
+            'jabatan' => 'nullable|string|max:255',
+            'instansi_asal' => 'nullable|string|max:255',
+            'is_active' => 'required|boolean',
             'password' => [$member->exists ? 'nullable' : 'required', 'string', 'min:8', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[@$!%*?&]/', 'confirmed'],
         ]);
+        $data['ketugasan'] = $data['jabatan'] ?? $data['ketugasan'] ?? null;
         $action = $member->exists ? 'updated' : 'created';
         $reset = ! empty($data['password']);
         if ($reset) {

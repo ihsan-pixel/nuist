@@ -1,5 +1,5 @@
 <div class="row g-2">
-@foreach(['name'=>'Nama','email'=>'Email','ketugasan'=>'Jabatan'] as $field=>$label)
+@foreach(['name'=>'Nama','email'=>'Email','jabatan'=>'Jabatan','instansi_asal'=>'Instansi Asal'] as $field=>$label)
 <div class="col-md-6"><label class="form-label" for="member-{{ $member?->id ?? 'new' }}-{{ $field }}">{{ $label }}</label><input id="member-{{ $member?->id ?? 'new' }}-{{ $field }}" name="{{ $field }}" type="{{ $field === 'email' ? 'email' : 'text' }}" class="form-control" value="{{ $member?->$field }}" @required(in_array($field,['name','email']))></div>
 @endforeach
 <div class="col-md-6"><label class="form-label">Status akun<select name="is_active" class="form-select"><option value="1" @selected(!$member || $member->is_active)>Aktif</option><option value="0" @selected($member && !$member->is_active)>Nonaktif</option></select></label></div>
