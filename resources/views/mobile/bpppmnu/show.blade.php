@@ -1,16 +1,20 @@
 @extends('mobile.bpppmnu.layout')
 @section('title', 'Detail Kegiatan')
+@section('bpp-shell-class', 'bpp-detail-shell')
 @section('bpp-content')
-<a class="btn btn-sm btn-outline-secondary mb-3" href="{{ route('mobile.bpppmnu.presensi') }}">Kembali ke Presensi</a>
-<div class="card"><div class="card-body"><h2>{{ $event->name }}</h2>
+<style>
+.bpp-detail-shell{background:#f6f7f6}.bpp-detail-back{display:inline-flex;align-items:center;gap:6px;min-height:40px;color:#00553f;text-decoration:none;font-size:11px;margin-bottom:14px}.bpp-detail-card{background:#fff;border:1px solid #e6eae8;border-radius:13px;padding:18px;margin-bottom:12px}.bpp-detail-title{font-size:16px;font-weight:600;line-height:1.5;margin:10px 0 16px;overflow-wrap:anywhere}.bpp-detail-status{display:inline-block;padding:4px 8px;border-radius:5px;font-size:10px;background:#eef3ef;color:#286248}.bpp-detail-shell dl{margin:0}.bpp-detail-shell dt{font-size:10px;color:#68736e;margin-top:14px;border-top:1px solid #edf0ed;padding-top:10px}.bpp-detail-shell dd{font-size:11px;color:#344e40;margin:3px 0 0;line-height:1.7}.bpp-detail-shell .bpp-detail{white-space:pre-wrap}.bpp-detail-attachment{display:inline-flex;min-height:40px;align-items:center;color:#00553f;font-size:11px;text-decoration:none;font-weight:600}.bpp-detail-scanner{border-color:#bdd8c7}.bpp-detail-scanner h2{font-size:13px;font-weight:600;margin:0}.bpp-detail-scanner .bpp-scanner-heading{margin-bottom:10px}.bpp-detail-scanner p{font-size:11px}.bpp-detail-scanner video{margin-top:10px}.bpp-detail-shell .alert{font-size:11px;border-radius:9px}
+</style>
+<a class="bpp-detail-back" href="{{ route('mobile.bpppmnu.presensi') }}"><i class="bx bx-arrow-back" aria-hidden="true"></i>Kembali ke Agenda</a>
+<div class="bpp-detail-card"><span class="bpp-detail-status">{{ $event->status === 'cancelled' ? 'Dibatalkan' : ($event->isOpen() ? 'Presensi Dibuka' : (now()->lt($event->attendance_open_at) ? 'Akan Datang' : 'Presensi Ditutup')) }}</span><h1 class="bpp-detail-title">{{ $event->name }}</h1>
 @if($event->status === 'cancelled')<div class="alert alert-warning">Kegiatan telah dibatalkan.</div>@endif
 @include('bpppmnu.event-details')
-@if($event->attachment)<a href="{{ route('mobile.bpppmnu.events.attachment', $event) }}" class="btn btn-outline-secondary btn-sm">Unduh lampiran undangan</a>@endif
-</div></div>
+@if($event->attachment)<a href="{{ route('mobile.bpppmnu.events.attachment', $event) }}" class="bpp-detail-attachment"><i class="bx bx-download" aria-hidden="true"></i>&nbsp;Unduh lampiran undangan</a>@endif
+</div>
 @if($attendance)
-<div class="alert alert-success">Sudah Hadir · {{ $attendance->attended_at->format('d-m-Y H:i:s') }} WIB</div>
+<div class="alert alert-success">✓ Sudah hadir · {{ $attendance->attended_at->format('d-m-Y H:i:s') }} WIB</div>
 @elseif($event->isOpen())
-<section id="scanner" class="card" data-event-id="{{ $event->id }}" data-scan-url="{{ route('mobile.bpppmnu.events.scan', $event) }}"><div class="card-body">
+<section id="scanner" class="bpp-detail-card bpp-detail-scanner" data-event-id="{{ $event->id }}" data-scan-url="{{ route('mobile.bpppmnu.events.scan', $event) }}"><div>
 <div class="bpp-scanner-heading"><i class="bx bx-qr-scan" aria-hidden="true"></i><h2>Catat Kehadiran</h2></div><p class="bpp-meta">Buka kamera, lalu arahkan ke QR kegiatan yang ditampilkan oleh admin. Izinkan akses kamera saat diminta.</p>
 <video id="qr-video" muted playsinline hidden></video>
 <div id="qr-status" class="my-3" role="status" aria-live="polite"></div>
