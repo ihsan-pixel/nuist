@@ -4,7 +4,10 @@
 @section('bpp-header')
 <header class="bpp-home-header">
     <div class="bpp-home-top">
-        <small>NUIST · BPPPMNU</small>
+        <div>
+            <p>Selamat datang,</p>
+            <h1>{{ auth()->user()->name }}</h1>
+        </div>
         <div class="dropdown">
             <button type="button" class="bpp-home-menu" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu akun">
                 <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
@@ -19,8 +22,6 @@
             </ul>
         </div>
     </div>
-    <p>Selamat datang,</p>
-    <h1>{{ auth()->user()->name }}</h1>
 </header>
 @endsection
 @section('bpp-content')
