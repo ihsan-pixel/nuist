@@ -26,13 +26,13 @@
     <div class="mgmp-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-                <div class="mgmp-kicker mb-2">Super Admin</div>
+                <div class="mgmp-kicker mb-2">{{ auth()->user()->role === 'admin_yayasan' ? 'Admin Yayasan' : 'Super Admin' }}</div>
                 <h4 class="mb-1">Monitoring Upload Reset MGMP</h4>
                 <p class="mb-0 text-white-50">Pantau progres reset yang sudah diunggah MGMP, lengkap dengan proposal utama dan lampiran pendukung.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('admin.mgmp_dashboard') }}" class="btn btn-light">
-                    <i class="mdi mdi-arrow-left me-1"></i> Dashboard MGMP
+                <a href="{{ route(auth()->user()->role === 'admin_yayasan' ? 'dashboard' : 'admin.mgmp_dashboard') }}" class="btn btn-light">
+                    <i class="mdi mdi-arrow-left me-1"></i> Dashboard
                 </a>
                 <span class="mgmp-chip bg-white text-success">
                     {{ $monitorSummary['total_updates'] ?? 0 }} update

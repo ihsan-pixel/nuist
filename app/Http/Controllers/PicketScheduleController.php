@@ -19,7 +19,7 @@ class PicketScheduleController extends Controller
     {
         $user = Auth::user();
         $selectedSchoolId = $this->resolveSelectedSchoolId($user, request(), false);
-        $schools = $user->role === 'super_admin'
+        $schools = in_array($user->role, ['super_admin', 'admin_yayasan'], true)
             ? Madrasah::orderBy('name')->get(['id', 'name'])
             : collect();
         $school = $selectedSchoolId ? Madrasah::findOrFail($selectedSchoolId) : null;
@@ -50,7 +50,7 @@ class PicketScheduleController extends Controller
         $startDate = old('start_date', now('Asia/Jakarta')->toDateString());
         $endDate = old('end_date', now('Asia/Jakarta')->addWeek()->toDateString());
         $school = $selectedSchoolId ? Madrasah::findOrFail($selectedSchoolId) : null;
-        $schools = $user->role === 'super_admin'
+        $schools = in_array($user->role, ['super_admin', 'admin_yayasan'], true)
             ? Madrasah::orderBy('name')->get(['id', 'name'])
             : collect();
 
@@ -99,7 +99,7 @@ class PicketScheduleController extends Controller
     public function edit(PicketSchedulePeriod $picketSchedulePeriod)
     {
         $this->authorizePeriod($picketSchedulePeriod);
-        $selectedSchoolId = Auth::user()->role === 'super_admin'
+        $selectedSchoolId = in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true)
             ? (int) old('school_id', $picketSchedulePeriod->school_id)
             : (int) $picketSchedulePeriod->school_id;
         $startDate = old('start_date', optional($picketSchedulePeriod->start_date)->format('Y-m-d') ?: $picketSchedulePeriod->getRawOriginal('start_date'));
@@ -108,7 +108,7 @@ class PicketScheduleController extends Controller
         return view('picket-schedules.form', [
             'period' => $picketSchedulePeriod,
             'school' => Madrasah::find($selectedSchoolId) ?: $picketSchedulePeriod->school,
-            'schools' => Auth::user()->role === 'super_admin'
+            'schools' => in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true)
                 ? Madrasah::orderBy('name')->get(['id', 'name'])
                 : collect(),
             'teachers' => $this->getTeachersForSchool($selectedSchoolId),
@@ -128,7 +128,7 @@ class PicketScheduleController extends Controller
         $this->authorizePeriod($picketSchedulePeriod);
 
         $validated = $this->validateAdminPayload($request);
-        $validated['school_id'] = Auth::user()->role === 'super_admin'
+        $validated['school_id'] = in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true)
             ? $this->resolveSelectedSchoolId(Auth::user(), $request)
             : (int) $picketSchedulePeriod->school_id;
 
@@ -274,7 +274,7 @@ class PicketScheduleController extends Controller
     private function authorizePeriod(PicketSchedulePeriod $picketSchedulePeriod): void
     {
         $user = Auth::user();
-        if ($user?->role === 'super_admin') {
+        if (in_array($user?->role, ['super_admin', 'admin_yayasan'], true)) {
             return;
         }
 
@@ -286,7 +286,7 @@ class PicketScheduleController extends Controller
 
     private function resolveSelectedSchoolId($user, ?Request $request = null, bool $requiredForSuperAdmin = true): ?int
     {
-        if (!$user || !in_array($user->role, ['admin', 'super_admin'], true)) {
+        if (!$user || !in_array($user->role, ['admin', 'super_admin', 'admin_yayasan'], true)) {
             abort(403);
         }
 

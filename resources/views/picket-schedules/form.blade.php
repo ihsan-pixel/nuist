@@ -111,7 +111,7 @@
                     @endif
 
                     <div class="row g-3">
-                        @if(Auth::user()->role === 'super_admin')
+                        @if(in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true))
                             <div class="col-12">
                                 <label class="form-label">Sekolah</label>
                                 <select name="school_id" class="form-select @error('school_id') is-invalid @enderror">

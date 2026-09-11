@@ -4762,7 +4762,7 @@ class SkYayasanController extends Controller
         $normalized = preg_replace('/[\s\-]+/', '_', $normalized) ?? $normalized;
         $normalized = preg_replace('/[^a-z0-9_]/', '', $normalized) ?? '';
 
-        return in_array($normalized, ['super_admin', 'superadmin'], true);
+        return in_array($normalized, ['super_admin', 'superadmin', 'admin_yayasan'], true);
     }
 
     private function ensureSchoolAdmin(): User
@@ -5049,7 +5049,7 @@ class SkYayasanController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role === 'super_admin') {
+        if (in_array($user->role, ['super_admin', 'admin_yayasan'], true)) {
             return;
         }
 
@@ -5064,7 +5064,7 @@ class SkYayasanController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role === 'super_admin') {
+        if (in_array($user->role, ['super_admin', 'admin_yayasan'], true)) {
             return;
         }
 

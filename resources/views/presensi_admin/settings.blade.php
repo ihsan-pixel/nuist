@@ -181,11 +181,14 @@
                     </div>
                 </div>
 
+                @if(in_array(auth()->user()->role, ['super_admin', 'admin'], true))
                 <div class="d-flex justify-content-end mb-3">
                     <a href="{{ route('presensi_admin.kiosk_devices') }}" class="btn btn-outline-primary btn-sm">
                         <i class="bx bx-desktop me-1"></i>Kelola Komputer Presensi Sekolah
                     </a>
                 </div>
+
+                @endif
 
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">

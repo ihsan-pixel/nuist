@@ -32,7 +32,7 @@ class PresensiAdminController extends Controller
         // Middleware to restrict access to super_admin, admin, pengurus, and tenaga_pendidik with ketugasan kepala
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
-            $allowed = in_array($user->role, ['super_admin', 'admin', 'pengurus']);
+            $allowed = in_array($user->role, ['super_admin', 'admin', 'pengurus', 'admin_yayasan']);
 
             // Allow tenaga_pendidik with ketugasan kepala madrasah/sekolah
             if (!$allowed && $user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah') {
@@ -374,7 +374,7 @@ class PresensiAdminController extends Controller
         $teacherAbsenceRecapData = $cachedPayload['teacherAbsenceRecapData'];
         $summary = $cachedPayload['summary'];
 
-        if (in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan'])) {
             // For super_admin and pengurus, show all madrasah tables (5 per row)
             $kabupatenOrder = [
                 'Kabupaten Gunungkidul',
@@ -504,7 +504,7 @@ class PresensiAdminController extends Controller
         $user = Auth::user();
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        if (in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan'])) {
             $kabupatenOrder = [
                 'Kabupaten Gunungkidul',
                 'Kabupaten Bantul',
@@ -622,7 +622,7 @@ class PresensiAdminController extends Controller
     public function getDetail($userId)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -660,7 +660,7 @@ class PresensiAdminController extends Controller
     public function getMadrasahDetail($madrasahId, Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin', 'admin_yayasan'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -731,7 +731,7 @@ class PresensiAdminController extends Controller
     public function showMadrasahDetail($madrasahId, Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin', 'admin_yayasan'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -892,7 +892,7 @@ class PresensiAdminController extends Controller
     public function resetMadrasahUserFace($madrasahId, $userId)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin', 'admin_yayasan'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -924,7 +924,7 @@ class PresensiAdminController extends Controller
     public function export(Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -1016,7 +1016,7 @@ class PresensiAdminController extends Controller
     public function exportMadrasah(Request $request, $madrasahId)
     {
         $user = Auth::user();
-        if ($user->role !== 'super_admin') {
+        if (!in_array($user->role, ['super_admin', 'admin_yayasan'], true)) {
             abort(403, 'Unauthorized');
         }
 
@@ -1192,7 +1192,7 @@ class PresensiAdminController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'super_admin') {
+        if (!in_array($user->role, ['super_admin', 'admin_yayasan'], true)) {
             abort(403, 'Unauthorized');
         }
 
@@ -1763,7 +1763,7 @@ class PresensiAdminController extends Controller
             ->where('role', 'tenaga_pendidik')
             ->with('madrasah');
 
-        if (!in_array($user->role, ['super_admin', 'pengurus']) && $user->madrasah_id) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan']) && $user->madrasah_id) {
             $teachersQuery->where('madrasah_id', $user->madrasah_id);
         }
 
@@ -1843,7 +1843,7 @@ class PresensiAdminController extends Controller
             ->whereNotNull('madrasah_id')
             ->with(['madrasah.yayasan']);
 
-        if (!in_array($user->role, ['super_admin', 'pengurus']) && $user->madrasah_id) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan']) && $user->madrasah_id) {
             $usersQuery->where('madrasah_id', $user->madrasah_id);
         }
 
@@ -1943,7 +1943,7 @@ class PresensiAdminController extends Controller
             ? $startOfMonth->copy()->endOfMonth()
             : $startOfWeek->copy()->endOfWeek(Carbon::SATURDAY);
 
-        if ($user->role !== 'super_admin') {
+        if (!in_array($user->role, ['super_admin', 'admin_yayasan'], true)) {
             return [
                 'rows' => collect(),
                 'period' => $period,

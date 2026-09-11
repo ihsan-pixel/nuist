@@ -19,7 +19,9 @@
                     $showMasterDataMenu = in_array($userRole, $masterDataRoles);
                     \Log::info('Sidebar MasterData userRole: [' . $userRole . '], showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false') . ', showMasterDataMenu: ' . ($showMasterDataMenu ? 'true' : 'false'));
                 @endphp
-                @if($isSpmbAdminHost)
+                @if($userRole === 'admin_yayasan')
+                    @include('layouts.partials.admin-yayasan-menu')
+                @elseif($isSpmbAdminHost)
                 <li class="menu-title">PPDB</li>
 
                 @php

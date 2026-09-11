@@ -277,7 +277,7 @@ class MadrasahController extends Controller
     public function detail($id)
     {
         $user = auth()->user();
-        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan'])) {
             abort(403, 'Unauthorized access');
         }
 
@@ -302,7 +302,7 @@ class MadrasahController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan'])) {
             abort(403, 'Unauthorized access');
         }
     }

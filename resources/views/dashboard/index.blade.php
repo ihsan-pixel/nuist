@@ -148,7 +148,7 @@
         @endif
 
         {{-- Foundation Location and Map for Super Admin and Pengurus --}}
-        @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($foundationData))
+        @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($foundationData))
         <div class="row">
             {{-- Address Information --}}
             <div class="col-12">
@@ -574,7 +574,7 @@
     @endif
 
     {{-- Super Admin Statistics Section --}}
-    @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($superAdminStats))
+    @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
     <div class="col-xl-8 col-12">
         <!-- Statistics Overview Header -->
         <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
@@ -585,6 +585,8 @@
                             <h4 class="text-white mb-1">Dashboard Super Admin</h4>
                         @elseif(Auth::user()->role === 'pengurus')
                             <h4 class="text-white mb-1">Dashboard Pengurus</h4>
+                        @elseif(Auth::user()->role === 'admin_yayasan')
+                            <h4 class="text-white mb-1">Dashboard Admin Yayasan</h4>
                         @elseif(Auth::user()->role === 'admin')
                             <h4 class="text-white mb-1">Dashboard Admin</h4>
                         @endif
@@ -889,7 +891,7 @@
     </div>
     @endif
 
-    @if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus']))
+    @if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus', 'admin_yayasan']))
     <div class="col-12">
         <!-- User Information Card - Mobile Optimized -->
         <div class="card mb-3">

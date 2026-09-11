@@ -39,7 +39,7 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-                @if(Auth::user()->role === 'super_admin')
+                @if(in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true))
                     <form method="GET" action="{{ route('picket-schedule-periods.index') }}" class="row g-2 align-items-end mb-3">
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label">Filter Sekolah</label>
@@ -70,7 +70,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
-                                    @if(Auth::user()->role === 'super_admin')
+                                    @if(in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true))
                                         <th>Sekolah</th>
                                     @endif
                                     <th>Periode</th>
@@ -84,7 +84,7 @@
                                 @foreach($periods as $index => $period)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        @if(Auth::user()->role === 'super_admin')
+                                        @if(in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true))
                                             <td>{{ $period->school->name ?? '-' }}</td>
                                         @endif
                                         <td>

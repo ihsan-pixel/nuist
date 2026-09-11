@@ -42,7 +42,7 @@
                     <div class="alert alert-danger">{{ $errors->first('conflict') }}</div>
                 @endif
 
-                @if(Auth::user()->role === 'super_admin')
+                @if(in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true))
                     <form method="GET" action="{{ route('academic-calendar-events.index') }}" class="row g-2 align-items-end mb-3">
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label">Filter Sekolah</label>
@@ -73,7 +73,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
-                                    @if(Auth::user()->role === 'super_admin')
+                                    @if(in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true))
                                         <th>Sekolah</th>
                                     @endif
                                     <th>Nama Kegiatan</th>
@@ -89,7 +89,7 @@
                                 @foreach($events as $index => $event)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        @if(Auth::user()->role === 'super_admin')
+                                        @if(in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true))
                                             <td>{{ $event->school->name ?? '-' }}</td>
                                         @endif
                                         <td>

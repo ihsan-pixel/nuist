@@ -1461,8 +1461,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/presensi/rekap/pdf/{madrasahId}/{bulan}', [PresensiController::class, 'pdfRekap'])->name('presensi.pdf_rekap');
     Route::post('/presensi-admin/face-diagnostics', [App\Http\Controllers\Admin\FaceDiagnosticController::class, 'store'])->name('presensi_admin.face_diagnostics.store');
 
-    // Teaching Progress Routes - Super Admin Only
-    Route::middleware(['role:super_admin'])->group(function () {
+    // Teaching progress for foundation administrators
+    Route::middleware(['role:super_admin,admin_yayasan'])->group(function () {
         Route::get('/teaching-progress', [App\Http\Controllers\TeachingProgressController::class, 'index'])->name('admin.teaching_progress');
         Route::get('/teaching-progress/madrasah/{madrasahId}/teachers', [App\Http\Controllers\TeachingProgressController::class, 'getMadrasahTeachers'])->name('admin.teaching_progress.teachers');
     });
@@ -1491,9 +1491,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter'])->name('teaching-schedules.filter');
     });
 
-    Route::middleware(['role:super_admin,admin'])->group(function () {
+    Route::middleware(['role:super_admin,admin,admin_yayasan'])->group(function () {
         Route::resource('academic-calendar-events', AcademicCalendarEventController::class)->except(['show']);
         Route::resource('picket-schedule-periods', PicketScheduleController::class)->except(['show']);
+    });
+
+    Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::post('teaching-schedule-periods', [App\Http\Controllers\TeachingSchedulePeriodController::class, 'store'])->name('teaching-schedule-periods.store');
         Route::put('teaching-schedule-periods/{teachingSchedulePeriod}', [App\Http\Controllers\TeachingSchedulePeriodController::class, 'update'])->name('teaching-schedule-periods.update');
     });
@@ -1510,8 +1513,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/fake-location', [App\Http\Controllers\FakeLocationController::class, 'index'])->name('fake-location.index');
         Route::get('/admin/simfoni', [App\Http\Controllers\Admin\SimfoniAdminController::class, 'index'])->name('admin.simfoni.index');
         Route::get('/admin/simfoni/pdf/{id}', [App\Http\Controllers\Admin\SimfoniAdminController::class, 'pdfSimfoni'])->name('admin.simfoni.pdf');
-        Route::get('/admin/mgmp-reset-uploads', [App\Http\Controllers\MGMPController::class, 'superAdminResetUploads'])->name('admin.mgmp_reset_uploads');
+
     });
+
+    Route::get('/admin/mgmp-reset-uploads', [App\Http\Controllers\MGMPController::class, 'superAdminResetUploads'])
+        ->middleware('role:super_admin,admin_yayasan')->name('admin.mgmp_reset_uploads');
 
     // Chat Routes - Super Admin and Admin
     Route::middleware(['role:super_admin,admin'])->group(function () {
@@ -1530,8 +1536,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/kiosk-face-enrollment/sessions/{session}/complete', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'complete'])->name('kiosk.face-enrollment.complete');
     Route::delete('/kiosk-face-enrollment/sessions/{session}', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'reset'])->name('kiosk.face-enrollment.sessions.reset');
 
-    // Laporan Presensi Mingguan - Super Admin Only
-    Route::middleware(['role:super_admin'])->group(function () {
+    // Laporan Presensi Mingguan
+    Route::middleware(['role:super_admin,admin_yayasan'])->group(function () {
         Route::get('/admin/presensi_admin/laporan-mingguan', [PresensiAdminController::class, 'laporanMingguan'])->name('presensi_admin.laporan_mingguan');
     });
 
@@ -2024,7 +2030,10 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::delete('/madrasah/destroy/{id}', [MadrasahController::class, 'destroy'])->name('madrasah.destroy');
     Route::post('/madrasah/import', [MadrasahController::class, 'import'])->name('madrasah.import');
 
-    // Profile Madrasah routes - restricted to super_admin and pengurus (controller handles authorization)
+});
+
+Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,pengurus,admin_yayasan'])->group(function () {
+    // Foundation school profiles
     Route::get('/madrasah/profile', [MadrasahController::class, 'profile'])->name('madrasah.profile');
     Route::get('/madrasah/profile/export', [MadrasahController::class, 'exportProfileSummary'])->name('madrasah.profile.export');
     Route::get('/madrasah/{id}/detail', [MadrasahController::class, 'detail'])->name('madrasah.detail');
@@ -2059,7 +2068,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
     Route::get('/dokumen/{document}/download', [SkYayasanController::class, 'downloadDocument'])->name('documents.download');
     Route::get('/import-batches/{batch}/attachments/{type}', [SkYayasanController::class, 'downloadImportBatchAttachment'])->name('import-batches.attachments.download');
 
-    Route::middleware(['role:super_admin'])->group(function () {
+    Route::middleware(['role:super_admin,admin_yayasan'])->group(function () {
         Route::get('/dashboard', [SkYayasanController::class, 'dashboard'])->name('dashboard');
         Route::get('/nomor-sk', [SkYayasanController::class, 'numberIndex'])->name('numbers.index');
         Route::post('/nomor-sk/hapus', [SkYayasanController::class, 'clearSelectedSchoolDocumentNumbers'])->name('numbers.bulk-clear');

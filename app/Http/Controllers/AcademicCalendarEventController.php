@@ -23,7 +23,7 @@ class AcademicCalendarEventController extends Controller
     {
         $user = Auth::user();
         $selectedSchoolId = $this->resolveSelectedSchoolId($user, request(), false);
-        $schools = $user->role === 'super_admin'
+        $schools = in_array($user->role, ['super_admin', 'admin_yayasan'], true)
             ? Madrasah::orderBy('name')->get(['id', 'name'])
             : collect();
         $school = $selectedSchoolId ? Madrasah::findOrFail($selectedSchoolId) : null;
@@ -43,7 +43,7 @@ class AcademicCalendarEventController extends Controller
         $user = Auth::user();
         $selectedSchoolId = $this->resolveSelectedSchoolId($user, request(), false);
         $school = $selectedSchoolId ? Madrasah::findOrFail($selectedSchoolId) : null;
-        $schools = $user->role === 'super_admin'
+        $schools = in_array($user->role, ['super_admin', 'admin_yayasan'], true)
             ? Madrasah::orderBy('name')->get(['id', 'name'])
             : collect();
 
@@ -92,7 +92,7 @@ class AcademicCalendarEventController extends Controller
         return view('academic-calendar-events.form', [
             'event' => $academicCalendarEvent,
             'school' => $academicCalendarEvent->school,
-            'schools' => Auth::user()->role === 'super_admin'
+            'schools' => in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true)
                 ? Madrasah::orderBy('name')->get(['id', 'name'])
                 : collect(),
             'isEdit' => true,
@@ -104,7 +104,7 @@ class AcademicCalendarEventController extends Controller
     {
         $this->authorizeEvent($academicCalendarEvent);
         $validated = $this->validatePayload($request);
-        $schoolId = Auth::user()->role === 'super_admin'
+        $schoolId = in_array(Auth::user()->role, ['super_admin', 'admin_yayasan'], true)
             ? $this->resolveSelectedSchoolId(Auth::user(), $request)
             : $academicCalendarEvent->school_id;
         $validated['school_id'] = $schoolId;
@@ -401,7 +401,7 @@ class AcademicCalendarEventController extends Controller
     private function authorizeEvent(AcademicCalendarEvent $academicCalendarEvent): void
     {
         $user = Auth::user();
-        if ($user?->role === 'super_admin') {
+        if (in_array($user?->role, ['super_admin', 'admin_yayasan'], true)) {
             return;
         }
 
@@ -414,7 +414,7 @@ class AcademicCalendarEventController extends Controller
 
     private function resolveSelectedSchoolId($user, ?Request $request = null, bool $requiredForSuperAdmin = true): ?int
     {
-        if (!$user || !in_array($user->role, ['admin', 'super_admin'], true)) {
+        if (!$user || !in_array($user->role, ['admin', 'super_admin', 'admin_yayasan'], true)) {
             abort(403);
         }
 
