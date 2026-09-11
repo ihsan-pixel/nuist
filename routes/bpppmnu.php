@@ -18,6 +18,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan'])->prefix('admin-
     Route::post('kegiatan/{event}/scan-member', [BpppmnuEventController::class, 'scanMember'])->middleware('throttle:30,1')->name('events.scan-member');
     Route::get('kegiatan/{event}/edit', [BpppmnuEventController::class, 'edit'])->name('events.edit');
     Route::put('kegiatan/{event}', [BpppmnuEventController::class, 'update'])->name('events.update');
+    Route::delete('kegiatan/{event}', [BpppmnuEventController::class, 'destroy'])->name('events.destroy');
     foreach (['publish', 'cancel', 'qr', 'revoke'] as $action) {
         Route::post('kegiatan/{event}/'.$action, [BpppmnuEventController::class, $action])->name('events.'.$action);
     }

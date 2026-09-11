@@ -58,6 +58,19 @@ class BpppmnuEventController extends Controller
         return $this->save($request, $event);
     }
 
+    public function destroy(BpppmnuEvent $event)
+    {
+        abort_if($event->attendances()->exists(), 403, 'Agenda yang sudah memiliki presensi tidak dapat dihapus.');
+        $attachment = $event->attachment;
+        DB::transaction(function () use ($event) {
+            $event->qrTokens()->delete();
+            $event->invitations()->delete();
+            $event->delete();
+        });
+        if ($attachment) Storage::disk('local')->delete($attachment);
+        return redirect()->route('admin.bpppmnu.events.index')->with('success', 'Agenda berhasil dihapus.');
+    }
+
     private function save(Request $request, BpppmnuEvent $event)
     {
         $rules = [];
