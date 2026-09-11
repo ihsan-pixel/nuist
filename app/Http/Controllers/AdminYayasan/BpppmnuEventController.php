@@ -148,6 +148,12 @@ class BpppmnuEventController extends Controller
         return response()->json(['message' => $result['duplicate'] ? 'Peserta sudah tercatat hadir.' : 'Presensi peserta berhasil dicatat.', 'name' => $member->name, 'attended_at' => $result['attendance']->attended_at->format('d-m-Y H:i:s').' WIB', 'duplicate' => $result['duplicate']]);
     }
 
+    public function scanner(BpppmnuEvent $event)
+    {
+        abort_unless($event->status === 'published' && now()->betweenIncluded($event->attendance_open_at, $event->attendance_close_at), 403);
+        return view('admin.bpppmnu.scanner', compact('event'));
+    }
+
     public function publish(BpppmnuEvent $event)
     {
         DB::transaction(function () use ($event) {

@@ -20,7 +20,7 @@
 <h3 class="h5">Scan Barcode Peserta</h3><p class="text-muted small">Arahkan kamera ke barcode identitas pengurus yang terdaftar dalam agenda ini.</p>
 <video id="bpp-member-video" class="w-100 rounded bg-dark" style="max-height:320px" muted playsinline hidden></video>
 <div id="bpp-member-status" class="alert alert-secondary py-2" role="status">Kamera belum dibuka.</div>
-<button type="button" id="bpp-member-start" class="btn btn-primary">Buka Kamera</button>
+<a href="{{ route('admin.bpppmnu.events.scanner', $event) }}" id="bpp-member-start" class="btn btn-primary">Buka Kamera</a>
 <button type="button" id="bpp-member-stop" class="btn btn-outline-secondary" hidden>Tutup Kamera</button>
 </div></div>
 <script src="{{ asset('vendor/jsqr/jsQR.js') }}"></script>
