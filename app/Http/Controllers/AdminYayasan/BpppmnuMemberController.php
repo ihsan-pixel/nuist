@@ -45,6 +45,21 @@ class BpppmnuMemberController extends Controller
         return $this->save($request, $member);
     }
 
+    public function destroy(User $member)
+    {
+        abort_unless(in_array($member->role, ['pengurus_bpppmnu', 'tenaga_pendidik'], true), 404);
+        abort_if($member->bpppmnuAttendances()->exists(), 403, 'Akun tidak dapat dihapus karena sudah memiliki riwayat presensi.');
+        DB::transaction(function () use ($member) {
+            $member->bpppmnuInvitations()->delete();
+            if ($member->role === 'pengurus_bpppmnu') {
+                $member->delete();
+            } else {
+                $member->update(['is_active' => false]);
+            }
+        });
+        return back()->with('success', $member->role === 'pengurus_bpppmnu' ? 'Data pengurus berhasil dihapus.' : 'Akun tenaga pendidik dinonaktifkan dari agenda BPPPMNU.');
+    }
+
     public function import(Request $request)
     {
         $request->validate(['file' => 'required|file|mimes:xlsx,xls,csv,txt|max:5120']);

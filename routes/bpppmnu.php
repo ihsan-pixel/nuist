@@ -12,6 +12,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan'])->prefix('admin-
     Route::post('pengurus', [BpppmnuMemberController::class, 'store'])->name('members.store');
     Route::post('pengurus/import', [BpppmnuMemberController::class, 'import'])->name('members.import');
     Route::put('pengurus/{member}', [BpppmnuMemberController::class, 'update'])->name('members.update');
+    Route::delete('pengurus/{member}', [BpppmnuMemberController::class, 'destroy'])->name('members.destroy');
     Route::get('kegiatan', [BpppmnuEventController::class, 'index'])->name('events.index');
     Route::get('kegiatan/create', [BpppmnuEventController::class, 'create'])->name('events.create');
     Route::post('kegiatan', [BpppmnuEventController::class, 'store'])->name('events.store');
