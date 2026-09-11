@@ -59,6 +59,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'jabatan',
         'instansi_asal',
         'is_bpppmnu_member',
+        'bpppmnu_jabatan',
+        'bpppmnu_instansi_asal',
     ];
 
     /**

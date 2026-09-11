@@ -36,6 +36,8 @@ class BpppmnuMemberController extends Controller
                 'jabatan' => $teacher->jabatan,
                 'ketugasan' => $teacher->ketugasan,
                 'instansi_asal' => $teacher->instansi_asal,
+                'bpppmnu_jabatan' => $request->input('jabatan'),
+                'bpppmnu_instansi_asal' => $teacher->madrasah?->name ?: $teacher->instansi_asal,
                 'is_active' => '1',
             ]);
             $teacher->is_bpppmnu_member = true;
@@ -85,12 +87,16 @@ class BpppmnuMemberController extends Controller
             'ketugasan' => 'nullable|string|max:255',
             'jabatan' => 'nullable|string|max:255',
             'instansi_asal' => 'nullable|string|max:255',
+            'bpppmnu_jabatan' => 'nullable|string|max:255',
+            'bpppmnu_instansi_asal' => 'nullable|string|max:255',
             'is_active' => 'required|boolean',
             'password' => [$member->exists ? 'nullable' : 'required', 'string', 'min:8', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[@$!%*?&]/', 'confirmed'],
         ]);
         if (empty($data['ketugasan']) && ! empty($data['jabatan'])) {
             $data['ketugasan'] = $data['jabatan'];
         }
+        if (! array_key_exists('bpppmnu_jabatan', $data)) $data['bpppmnu_jabatan'] = $data['jabatan'] ?? null;
+        if (! array_key_exists('bpppmnu_instansi_asal', $data)) $data['bpppmnu_instansi_asal'] = $data['instansi_asal'] ?? null;
         $action = $member->exists ? 'updated' : 'created';
         $reset = ! empty($data['password']);
         if ($reset) {
