@@ -40,12 +40,20 @@ class BpppmnuController extends Controller
         ]);
     }
 
-    public function show(Request $request, BpppmnuEvent $event)
+    public function show(Request $request, BpppmnuEvent $event, BpppmnuReportService $reports)
     {
         $this->authorizeEvent($request, $event);
         $attendance = $event->attendances()->where('user_id', $request->user()->id)->first();
 
-        return $request->expectsJson() ? response()->json(compact('event', 'attendance')) : view('mobile.bpppmnu.show', compact('event', 'attendance'));
+        $recap = $reports->recap($event);
+        return $request->expectsJson() ? response()->json(compact('event', 'attendance', 'recap')) : view('mobile.bpppmnu.show', compact('event', 'attendance', 'recap'));
+    }
+
+    public function recap(Request $request, BpppmnuEvent $event, BpppmnuReportService $reports)
+    {
+        $this->authorizeEvent($request, $event);
+        $recap = $reports->recap($event);
+        return response()->json(['present' => $recap['present'], 'remaining' => $recap['remaining'], 'percentage' => $recap['percentage']]);
     }
 
     public function scan(Request $request, BpppmnuEvent $event, BpppmnuAttendanceService $service)

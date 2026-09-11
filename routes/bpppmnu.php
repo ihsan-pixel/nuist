@@ -33,6 +33,7 @@ Route::middleware(['auth', BpppmnuRole::class.':pengurus_bpppmnu'])->prefix('mob
     Route::post('profil/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:5,1')->name('password');
     Route::post('logout', [BpppmnuController::class, 'logout'])->name('logout');
     Route::get('kegiatan/{event}', [BpppmnuController::class, 'show'])->name('events.show');
+    Route::get('kegiatan/{event}/recap', [BpppmnuController::class, 'recap'])->name('events.recap');
     Route::get('kegiatan/{event}/attachment', [BpppmnuController::class, 'attachment'])->name('events.attachment');
     Route::post('kegiatan/{event}/scan', [BpppmnuController::class, 'scan'])->middleware('throttle:15,1')->name('events.scan');
 });
