@@ -17,12 +17,24 @@ class BpppmnuMemberController extends Controller
     public function index()
     {
         $members = User::where('role', 'pengurus_bpppmnu')->orderBy('name')->paginate(30);
+        $teachers = User::where('role', 'tenaga_pendidik')->where('is_active', true)->orderBy('name')->get(['id', 'name', 'email', 'jabatan', 'ketugasan', 'instansi_asal']);
 
-        return view('admin.bpppmnu.members', compact('members'));
+        return view('admin.bpppmnu.members', compact('members', 'teachers'));
     }
 
     public function store(Request $request)
     {
+        if ($request->filled('existing_user_id')) {
+            $teacher = User::where('role', 'tenaga_pendidik')->where('is_active', true)->findOrFail($request->integer('existing_user_id'));
+            $request->merge([
+                'name' => $teacher->name,
+                'email' => $teacher->email,
+                'jabatan' => $request->input('jabatan') ?: ($teacher->jabatan ?: $teacher->ketugasan),
+                'instansi_asal' => $request->input('instansi_asal') ?: $teacher->instansi_asal,
+                'is_active' => '1',
+            ]);
+            return $this->save($request, $teacher);
+        }
         return $this->save($request, new User);
     }
 
@@ -64,7 +76,9 @@ class BpppmnuMemberController extends Controller
         }
         DB::transaction(function () use ($member, $data, $reset) {
             $member->fill($data);
-            $member->role = 'pengurus_bpppmnu';
+            if (! $member->exists) {
+                $member->role = 'pengurus_bpppmnu';
+            }
             $member->save();
             if ($reset || ! $member->is_active) {
                 $member->tokens()->delete();
