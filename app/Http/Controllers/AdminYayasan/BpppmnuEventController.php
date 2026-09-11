@@ -117,15 +117,9 @@ class BpppmnuEventController extends Controller
                 $event->save();
                 // Undangan yang sudah memiliki presensi tidak boleh dihapus karena
                 // menjadi parent foreign key untuk riwayat kehadiran.
-                $event->invitations()
-                    ->whereNotIn('user_id', $invitees)
-                    ->whereNotExists(function ($query) {
-                        $query->select(DB::raw(1))
-                            ->from('bpppmnu_event_attendances as a')
-                            ->whereColumn('a.event_id', 'bpppmnu_event_invitations.event_id')
-                            ->whereColumn('a.user_id', 'bpppmnu_event_invitations.user_id');
-                    })
-                    ->delete();
+                if (! $event->attendances()->exists()) {
+                    $event->invitations()->whereNotIn('user_id', $invitees)->delete();
+                }
                 foreach ($invitees as $id) {
                     $event->invitations()->firstOrCreate(['user_id' => $id]);
                 }
