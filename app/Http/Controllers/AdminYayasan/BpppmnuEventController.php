@@ -115,7 +115,12 @@ class BpppmnuEventController extends Controller
                     $event->attachment = $uploaded;
                 }
                 $event->save();
-                $event->invitations()->whereNotIn('user_id', $invitees)->delete();
+                // Undangan yang sudah memiliki presensi tidak boleh dihapus karena
+                // menjadi parent foreign key untuk riwayat kehadiran.
+                $event->invitations()
+                    ->whereNotIn('user_id', $invitees)
+                    ->whereDoesntHave('attendance')
+                    ->delete();
                 foreach ($invitees as $id) {
                     $event->invitations()->firstOrCreate(['user_id' => $id]);
                 }

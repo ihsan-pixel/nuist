@@ -17,4 +17,10 @@ class BpppmnuEventInvitation extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function attendance()
+    {
+        return $this->hasOne(BpppmnuEventAttendance::class, 'event_id', 'event_id')
+            ->whereColumn('user_id', 'bpppmnu_event_invitations.user_id');
+    }
 }
