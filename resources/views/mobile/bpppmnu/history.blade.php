@@ -14,13 +14,6 @@
 .bpp-history-header h1 { font-size:15px; font-weight:600; line-height:1.4; margin:0 0 6px; color:#183d32; }
 .bpp-history-header p { font-size:11px; color:#64756d; margin:0; }
 .bpp-history-card { background:#fff; border:1px solid #e1e8e3; border-radius:12px; margin-bottom:12px; padding:18px; }
-.bpp-history-filter { margin-bottom:24px; }
-.bpp-history-filter .form-label { font-size:10px; font-weight:500; margin-bottom:6px; }
-.bpp-history-filter .form-control,.bpp-history-filter .form-select { min-height:44px; border-color:#d7e0da; border-radius:8px; font-size:11px; min-width:0; }
-.bpp-history-filter .form-control:focus,.bpp-history-filter .form-select:focus { border-color:#38775e; box-shadow:0 0 0 3px #38775e18; }
-.bpp-history-actions { display:flex; gap:10px; margin-top:16px; }
-.bpp-history-actions .btn-primary { flex:1; }
-.bpp-history-actions .btn-outline-secondary { background:#fff; }
 .bpp-history-status { display:inline-block; font-size:10px; font-weight:600; line-height:1.5; padding:4px 9px; border-radius:6px; margin-bottom:10px; background:#eef1ef; color:#59665f; }
 .bpp-history-status-present { background:#e8f3eb; color:#235a3e; }
 .bpp-history-shell .bpp-history-name { font-size:12px; font-weight:600; line-height:1.5; margin:0 0 5px; overflow-wrap:anywhere; }
@@ -39,36 +32,6 @@
 .bpp-history-pagination .page-link { min-width:40px; min-height:44px; display:inline-flex; justify-content:center; align-items:center; font-size:11px; }
 @media(min-width:768px) { .bpp-shell.bpp-history-shell { padding:24px 24px 40px; } }
 </style>
-
-<form method="get" class="bpp-history-card bpp-history-filter" aria-label="Filter riwayat presensi">
-    <div class="row g-3">
-        <div class="col-6">
-            <label class="form-label" for="month">Bulan</label>
-            <select class="form-select" id="month" name="month">
-                <option value="">Semua bulan</option>
-                @foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $index => $monthName)
-                    <option value="{{ $index + 1 }}" @selected(request('month') == ($index + 1))>{{ $monthName }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-6">
-            <label class="form-label" for="year">Tahun</label>
-            <input class="form-control" type="number" inputmode="numeric" id="year" name="year" min="2000" max="2200" placeholder="Semua tahun" value="{{ request('year') }}">
-        </div>
-        <div class="col-12">
-            <label class="form-label" for="status">Status kehadiran</label>
-            <select class="form-select" id="status" name="status">
-                <option value="">Semua status</option>
-                <option value="hadir" @selected(request('status') === 'hadir')>Hadir</option>
-                <option value="tidak_hadir" @selected(request('status') === 'tidak_hadir')>Tidak Hadir</option>
-            </select>
-        </div>
-    </div>
-    <div class="bpp-history-actions">
-        <button type="submit" class="btn btn-primary">Terapkan Filter</button>
-        <a class="btn btn-outline-secondary" href="{{ route('mobile.bpppmnu.history') }}">Reset</a>
-    </div>
-</form>
 
 @forelse($history as $row)
     <article class="bpp-history-card">
@@ -90,11 +53,7 @@
 @empty
     <div class="bpp-history-card bpp-history-empty">
         <h2>Belum ada riwayat</h2>
-        @if(request()->filled('month') || request()->filled('year') || request()->filled('status'))
-            <p>Tidak ditemukan riwayat yang sesuai dengan filter.</p>
-        @else
-            <p>Riwayat presensi akan muncul setelah kegiatan selesai dan presensi ditutup.</p>
-        @endif
+        <p>Riwayat presensi akan muncul setelah kegiatan selesai dan presensi ditutup.</p>
     </div>
 @endforelse
 <div class="bpp-history-pagination">
