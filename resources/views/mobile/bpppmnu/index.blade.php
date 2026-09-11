@@ -63,6 +63,9 @@
 .bpp-home-pagination { margin-top:20px; }
 .bpp-sheet { color:#18201d; font-family:Poppins,sans-serif; }
 .bpp-sheet .modal-dialog { display:flex; align-items:flex-end; min-height:100%; margin:0 auto; max-width:560px; padding-top:24px; }
+.bpp-sheet.modal.fade .modal-dialog { transform:translateY(100%); transition:transform .3s cubic-bezier(.22,.61,.36,1); }
+.bpp-sheet.modal.show .modal-dialog { transform:translateY(0); }
+@media(prefers-reduced-motion:reduce) { .bpp-sheet.modal.fade .modal-dialog { transition:none; transform:none; } }
 .bpp-sheet .modal-content { border:0; border-radius:16px 16px 0 0; background:#fff; max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px); overflow:hidden; }
 .bpp-sheet-bar { width:32px; height:4px; border-radius:4px; background:#d9dfdb; margin:10px auto 0; flex-shrink:0; }
 .bpp-sheet-top { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:2px 18px 0; flex-shrink:0; }
@@ -84,7 +87,6 @@
 
 <div class="bpp-home-heading">
     <h2>Agenda Anda</h2>
-    <p>Kegiatan yang perlu Anda hadiri</p>
 </div>
 @forelse($events as $event)
     @php
@@ -110,7 +112,7 @@
         <i class="bx bx-chevron-right bpp-agenda-chevron" aria-hidden="true"></i>
     </button>
 
-    <div class="modal bpp-sheet" id="bpp-sheet-{{ $event->id }}" tabindex="-1" aria-labelledby="bpp-sheet-title-{{ $event->id }}" aria-hidden="true">
+    <div class="modal fade bpp-sheet" id="bpp-sheet-{{ $event->id }}" tabindex="-1" aria-labelledby="bpp-sheet-title-{{ $event->id }}" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="bpp-sheet-bar" aria-hidden="true"></div>
