@@ -35,7 +35,7 @@ class BpppmnuEventController extends Controller
 
     public function edit(BpppmnuEvent $event)
     {
-        abort_if($event->isLocked() || $event->status === 'cancelled', 403, 'Agenda sudah dikunci.');
+        abort_if($event->status === 'cancelled', 403, 'Agenda yang dibatalkan tidak dapat diedit.');
 
         return $this->form($event);
     }
@@ -101,8 +101,8 @@ class BpppmnuEventController extends Controller
             $event = DB::transaction(function () use ($event, $data, $invitees, $uploaded, $request) {
                 if ($event->exists) {
                     $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
-                    if ($event->isLocked() || $event->status === 'cancelled') {
-                        throw ValidationException::withMessages(['event' => 'Agenda dan undangan sudah dikunci karena presensi telah dibuka atau kegiatan dibatalkan.']);
+                    if ($event->status === 'cancelled') {
+                        throw ValidationException::withMessages(['event' => 'Agenda yang dibatalkan tidak dapat diedit.']);
                     }
                 }
                 $event->fill($data);

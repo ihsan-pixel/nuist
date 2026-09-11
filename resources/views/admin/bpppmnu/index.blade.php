@@ -16,7 +16,7 @@
                     <tr><th>No</th><th>Kegiatan</th><th>Waktu (WIB)</th><th>Status</th><th>Undangan</th><th>Hadir</th><th>Action</th></tr>
                 </thead>
                 <tbody>
-@forelse($events as $index => $event)<tr><td>{{ $events->firstItem() + $index }}</td><td>{{ $event->name }}</td><td>{{ $event->start_at->format('d-m-Y H:i') }}</td><td>{{ $event->status }}</td><td>{{ $event->invitations_count }}</td><td>{{ $event->attendances_count }}</td><td><div class="d-flex gap-1 flex-wrap"><a class="btn btn-sm btn-outline-primary" href="{{ route('admin.bpppmnu.events.show', $event) }}">Detail & Rekap</a>@if(!$event->isLocked() && $event->status !== 'cancelled')<a class="btn btn-sm btn-warning" href="{{ route('admin.bpppmnu.events.edit', $event) }}">Edit</a>@endif
+@forelse($events as $index => $event)<tr><td>{{ $events->firstItem() + $index }}</td><td>{{ $event->name }}</td><td>{{ $event->start_at->format('d-m-Y H:i') }}</td><td>{{ $event->status }}</td><td>{{ $event->invitations_count }}</td><td>{{ $event->attendances_count }}</td><td><div class="d-flex gap-1 flex-wrap"><a class="btn btn-sm btn-outline-primary" href="{{ route('admin.bpppmnu.events.show', $event) }}">Detail & Rekap</a>@if($event->status !== 'cancelled')<a class="btn btn-sm btn-warning" href="{{ route('admin.bpppmnu.events.edit', $event) }}">Edit</a>@endif
 @if(!$event->attendances_count)<form method="post" action="{{ route('admin.bpppmnu.events.destroy', $event) }}" onsubmit="return confirm('Hapus agenda ini beserta undangannya?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Hapus</button></form>@endif</div></td></tr>@empty<tr><td colspan="6">Belum ada kegiatan.</td></tr>@endforelse
                 </tbody>
             </table>
