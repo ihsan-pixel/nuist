@@ -271,17 +271,28 @@ window.addEventListener('focus', () => {
         })
     }
 
+    // Keep the asset origin, deployment path and cache query when switching direction.
+    function setThemeStylesheet(id, filename) {
+        var link = document.getElementById(id);
+        if (!link || !link.getAttribute('href')) return;
+
+        var current = new URL(link.getAttribute('href'), document.baseURI);
+        var target = new URL(current.href);
+        target.pathname = target.pathname.replace(/[^/]+$/, filename);
+        if (current.href !== target.href) {
+            link.setAttribute('href', target.href);
+        }
+    }
+
     function updateThemeSetting(id) {
         if ($("#light-mode-switch").prop("checked") == true && id === "light-mode-switch") {
             $("html").removeAttr("dir");
             $("#dark-mode-switch").prop("checked", false);
             $("#rtl-mode-switch").prop("checked", false);
             $("#dark-rtl-mode-switch").prop("checked", false);
-            if($("#bootstrap-style").attr('href') != 'build/css/bootstrap.min.css')
-                $("#bootstrap-style").attr('href', 'build/css/bootstrap.min.css');
+            setThemeStylesheet('bootstrap-style', 'bootstrap.min.css');
             $('html').attr('data-bs-theme', 'light');
-            if($("#app-style").attr('href') != 'build/css/app.min.css')
-            $("#app-style").attr('href', 'build/css/app.min.css');
+            setThemeStylesheet('app-style', 'app.min.css');
             sessionStorage.setItem("is_visited", "light-mode-switch");
         } else if ($("#dark-mode-switch").prop("checked") == true && id === "dark-mode-switch") {
             $("html").removeAttr("dir");
@@ -289,19 +300,15 @@ window.addEventListener('focus', () => {
             $("#rtl-mode-switch").prop("checked", false);
             $("#dark-rtl-mode-switch").prop("checked", false);
             $('html').attr('data-bs-theme', 'dark');
-            if($("#bootstrap-style").attr('href') != 'build/css/bootstrap.min.css')
-                $("#bootstrap-style").attr('href', 'build/css/bootstrap.min.css');
-            if($("#app-style").attr('href') != 'build/css/app.min.css')
-                $("#app-style").attr('href', 'build/css/app.min.css');
+            setThemeStylesheet('bootstrap-style', 'bootstrap.min.css');
+            setThemeStylesheet('app-style', 'app.min.css');
             sessionStorage.setItem("is_visited", "dark-mode-switch");
         } else if ($("#rtl-mode-switch").prop("checked") == true && id === "rtl-mode-switch") {
             $("#light-mode-switch").prop("checked", false);
             $("#dark-mode-switch").prop("checked", false);
             $("#dark-rtl-mode-switch").prop("checked", false);
-            if($("#bootstrap-style").attr('href') != 'build/css/bootstrap-rtl.min.css')
-                $("#bootstrap-style").attr('href', 'build/css/bootstrap-rtl.min.css');
-            if($("#app-style").attr('href') != 'build/css/app-rtl.min.css')
-                $("#app-style").attr('href', 'build/css/app-rtl.min.css');
+            setThemeStylesheet('bootstrap-style', 'bootstrap-rtl.min.css');
+            setThemeStylesheet('app-style', 'app-rtl.min.css');
             $("html").attr("dir", 'rtl');
             $('html').attr('data-bs-theme', 'light');
             sessionStorage.setItem("is_visited", "rtl-mode-switch");
@@ -310,10 +317,8 @@ window.addEventListener('focus', () => {
             $("#light-mode-switch").prop("checked", false);
             $("#rtl-mode-switch").prop("checked", false);
             $("#dark-mode-switch").prop("checked", false);
-            if($("#bootstrap-style").attr('href') != 'build/css/bootstrap-rtl.min.css')
-                $("#bootstrap-style").attr('href', 'build/css/bootstrap-rtl.min.css');
-            if($("#app-style").attr('href') != 'build/css/app-rtl.min.css')
-                $("#app-style").attr('href', 'build/css/app-rtl.min.css');
+            setThemeStylesheet('bootstrap-style', 'bootstrap-rtl.min.css');
+            setThemeStylesheet('app-style', 'app-rtl.min.css');
             $("html").attr("dir", 'rtl');
             $('html').attr('data-bs-theme', 'dark');
             sessionStorage.setItem("is_visited", "dark-rtl-mode-switch");
