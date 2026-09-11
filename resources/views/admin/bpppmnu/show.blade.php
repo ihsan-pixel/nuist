@@ -25,6 +25,7 @@
 <video id="bpp-member-video" class="w-100 rounded bg-dark" style="max-height:320px" muted playsinline hidden></video>
 <div id="bpp-member-status" class="alert alert-secondary py-2" role="status">Kamera belum dibuka.</div>
 <a href="{{ route('admin.bpppmnu.events.scanner', $event) }}" id="bpp-member-open" class="btn btn-primary" data-no-loader="true">Buka Kamera</a>
+<button type="button" id="bpp-member-start" hidden aria-hidden="true"></button>
 <button type="button" id="bpp-member-stop" class="btn btn-outline-secondary" hidden>Tutup Kamera</button>
 </div></div>
 <script src="{{ asset('vendor/jsqr/jsQR.js') }}"></script>
