@@ -94,6 +94,7 @@ class BpppmnuController extends Controller
     public function profile(Request $request)
     {
         $user = $request->user();
+        $user->load('bpppmnuMember');
 
         return $request->expectsJson()
             ? response()->json($user->only(['name', 'nuist_id', 'email', 'no_hp', 'ketugasan', 'jabatan', 'alamat', 'avatar']))
