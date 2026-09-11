@@ -24,7 +24,7 @@ class BpppmnuAttendanceService
         });
     }
 
-    public function record(User $user, BpppmnuEvent $event, string $token): array
+    public function record(User $user, BpppmnuEvent $event, string $token, ?float $latitude = null, ?float $longitude = null): array
     {
         abort_unless(
             $user->is_active !== false
@@ -44,6 +44,11 @@ class BpppmnuAttendanceService
             $this->check(now()->gte($event->attendance_open_at), 'Presensi kegiatan belum dibuka.');
             $this->check(now()->lte($event->attendance_close_at), 'Waktu presensi kegiatan telah berakhir.');
             $this->check(now()->lte($qr->expires_at), self::INVALID_QR);
+            if ($event->location_validation_enabled) {
+                $this->check($event->latitude !== null && $event->longitude !== null && $latitude !== null && $longitude !== null, 'Lokasi kegiatan atau GPS perangkat belum tersedia. Aktifkan GPS lalu coba lagi.');
+                $distance = 6371000 * 2 * asin(sqrt(pow(sin(deg2rad($latitude - $event->latitude) / 2), 2) + cos(deg2rad($event->latitude)) * cos(deg2rad($latitude)) * pow(sin(deg2rad($longitude - $event->longitude) / 2), 2)));
+                $this->check($distance <= $event->location_radius_meters, 'Presensi ditolak. Anda berada '.round($distance).' meter dari lokasi kegiatan (batas '.$event->location_radius_meters.' meter).');
+            }
             $existing = $event->attendances()->where('user_id', $user->id)->first();
             if ($existing) {
                 return ['attendance' => $existing, 'duplicate' => true];

@@ -59,7 +59,8 @@ class BpppmnuController extends Controller
     public function scan(Request $request, BpppmnuEvent $event, BpppmnuAttendanceService $service)
     {
         $data = $request->validate(['qr_token' => 'required|string|size:64|regex:/^[a-f0-9]+$/'], ['qr_token.*' => BpppmnuAttendanceService::INVALID_QR]);
-        $result = $service->record($request->user(), $event, $data['qr_token']);
+        $request->validate(['latitude' => 'nullable|numeric|between:-90,90', 'longitude' => 'nullable|numeric|between:-180,180']);
+        $result = $service->record($request->user(), $event, $data['qr_token'], $request->input('latitude'), $request->input('longitude'));
 
         return response()->json([
             'message' => $result['duplicate'] ? 'Anda sudah melakukan presensi pada kegiatan ini.' : 'Presensi berhasil dicatat.',

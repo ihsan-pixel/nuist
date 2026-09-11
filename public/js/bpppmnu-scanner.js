@@ -33,10 +33,14 @@
         stop();
         message('Memvalidasi presensi…');
         try {
+            let position = null;
+            if (navigator.geolocation) {
+                try { position = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, {enableHighAccuracy:true, timeout:8000, maximumAge:0})); } catch (_) {}
+            }
             const response = await fetch(root.dataset.scanUrl, {
                 method: 'POST', credentials: 'same-origin',
                 headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content},
-                body: JSON.stringify({qr_token: data.token})
+                body: JSON.stringify({qr_token: data.token, latitude: position?.coords?.latitude, longitude: position?.coords?.longitude})
             });
             const body = await response.json();
             if (!response.ok) throw new Error(body.message || 'Presensi belum berhasil. Silakan coba lagi.');
