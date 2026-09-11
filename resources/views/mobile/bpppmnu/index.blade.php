@@ -9,7 +9,7 @@
 </header>
 @endsection
 @section('bpp-content')
-<div class="bpp-intro"><div><h2>Agenda Anda</h2><p class="bpp-meta mb-0">Pilih kegiatan dan scan QR untuk mencatat kehadiran.</p></div><span class="bpp-timezone">WIB</span></div>
+<div class="bpp-intro"><div><h2>Agenda Anda</h2></div><span class="bpp-timezone">WIB</span></div>
 @forelse($events->groupBy(fn($event) => $event->isOpen() ? 'Presensi sedang dibuka' : 'Agenda mendatang / berlangsung') as $heading => $group)
 <div class="bpp-section-heading"><h2>{{ $heading }}</h2><span>{{ $group->count() }}</span></div>
 @foreach($group as $event)
