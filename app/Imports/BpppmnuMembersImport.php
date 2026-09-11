@@ -40,7 +40,7 @@ class BpppmnuMembersImport implements ToCollection, WithHeadingRow, SkipsEmptyRo
             } else {
                 $this->updated++;
             }
-            $member->fill(['name' => $name, 'jabatan' => $jabatan, 'ketugasan' => $jabatan, 'instansi_asal' => $instansi, 'is_active' => true]);
+            $member->fill(['name' => $name, 'jabatan' => $jabatan, 'ketugasan' => $jabatan, 'instansi_asal' => $instansi, 'is_active' => true, 'is_bpppmnu_member' => true]);
             if (! $member->exists || ! in_array($member->role, ['tenaga_pendidik', 'pengurus_bpppmnu'], true)) $member->role = 'pengurus_bpppmnu';
             $member->save();
         }

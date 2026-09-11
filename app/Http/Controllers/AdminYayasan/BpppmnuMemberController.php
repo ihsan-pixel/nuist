@@ -16,7 +16,9 @@ class BpppmnuMemberController extends Controller
 {
     public function index()
     {
-        $members = User::with('madrasah:id,name')->where('role', 'pengurus_bpppmnu')->orderBy('name')->paginate(30);
+        $members = User::with('madrasah:id,name')->where(function ($query) {
+            $query->where('role', 'pengurus_bpppmnu')->orWhere('is_bpppmnu_member', true);
+        })->orderBy('name')->paginate(30);
         $teachers = User::with(['madrasah:id,name', 'madrasahTambahan:id,name'])->where('role', 'tenaga_pendidik')->where('is_active', true)->orderBy('name')->get(['id', 'name', 'email', 'jabatan', 'ketugasan', 'instansi_asal', 'madrasah_id', 'madrasah_id_tambahan']);
 
         return view('admin.bpppmnu.members', compact('members', 'teachers'));
@@ -36,6 +38,8 @@ class BpppmnuMemberController extends Controller
                 'instansi_asal' => $teacher->instansi_asal,
                 'is_active' => '1',
             ]);
+            $teacher->is_bpppmnu_member = true;
+            $teacher->save();
             return $this->save($request, $teacher);
         }
         return $this->save($request, new User);
@@ -57,7 +61,7 @@ class BpppmnuMemberController extends Controller
             if ($member->role === 'pengurus_bpppmnu') {
                 $member->delete();
             } else {
-                $member->update(['is_active' => false]);
+                $member->update(['is_active' => false, 'is_bpppmnu_member' => false]);
             }
         });
         return back()->with('success', $member->role === 'pengurus_bpppmnu' ? 'Data pengurus berhasil dihapus.' : 'Akun tenaga pendidik dinonaktifkan dari agenda BPPPMNU.');
@@ -99,6 +103,7 @@ class BpppmnuMemberController extends Controller
             if (! $member->exists) {
                 $member->role = 'pengurus_bpppmnu';
             }
+            $member->is_bpppmnu_member = true;
             $member->save();
             if ($reset || ! $member->is_active) {
                 $member->tokens()->delete();

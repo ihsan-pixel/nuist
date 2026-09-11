@@ -58,6 +58,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_seen',
         'jabatan',
         'instansi_asal',
+        'is_bpppmnu_member',
     ];
 
     /**
@@ -73,6 +74,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'face_registered_at' => 'datetime',
         'face_verification_required' => 'boolean',
         'is_active' => 'boolean',
+        'is_bpppmnu_member' => 'boolean',
     ];
 
     protected static function boot()
