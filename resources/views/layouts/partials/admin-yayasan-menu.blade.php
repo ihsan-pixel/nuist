@@ -28,3 +28,5 @@
     </ul>
 </li>
 <li><a href="{{ route('admin.mgmp_reset_uploads') }}" class="waves-effect"><i class="bx bx-search-alt"></i><span>Monitoring Riset MGMP</span></a></li>
+<li><a href="{{ route('pendataan-gtk.index') }}" class="waves-effect"><i class="bx bx-id-card"></i><span>Pendataan GTK</span></a></li>
+<li><a href="{{ route('admin.bpppmnu.events.index') }}" class="waves-effect"><i class="bx bx-calendar-event"></i><span>Agenda Kegiatan BPPPMNU</span></a></li>

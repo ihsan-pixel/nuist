@@ -14,15 +14,20 @@ class AdminYayasanNavigationTest extends TestCase
         $this->actingAs(new User(['role' => 'admin_yayasan']));
         // Isolate navigation rendering from the application settings database composer.
         $this->app['events']->forget('composing: *');
+        config(['view.compiled' => sys_get_temp_dir()]);
+        foreach (['layouts.sidebar', 'layouts.partials.admin-yayasan-menu'] as $view) {
+            $this->app['blade.compiler']->compile($this->app['view']->getFinder()->find($view));
+        }
         $html = view('layouts.sidebar')->render();
         preg_match_all('/<span[^>]*>(.*?)<\/span>/s', $html, $matches);
 
         $this->assertSame([
             'Dashboard', 'Profile Madrasah/Sekolah', 'Kalender Akademik',
             'SK Yayasan', 'Progress Mengajar', 'Presensi Admin', 'Monitoring Riset MGMP',
+            'Pendataan GTK', 'Agenda Kegiatan BPPPMNU',
         ], $matches[1]);
-        $this->assertStringNotContainsString('Pendataan GTK', $html);
-        $this->assertStringNotContainsString('Kegiatan BPPPMNU', $html);
+        $this->assertStringContainsString(route('pendataan-gtk.index'), $html);
+        $this->assertStringContainsString(route('admin.bpppmnu.events.index'), $html);
     }
 
     public function test_requested_module_routes_accept_foundation_admin(): void
@@ -37,6 +42,7 @@ class AdminYayasanNavigationTest extends TestCase
             'admin.teaching_progress', 'admin.teaching_progress.teachers',
             'presensi_admin.index', 'presensi_admin.settings', 'presensi_admin.laporan_mingguan',
             'admin.mgmp_reset_uploads',
+            'pendataan-gtk.index', 'admin.bpppmnu.events.index',
         ];
 
         foreach ($names as $name) {

@@ -19,7 +19,9 @@
                     $showMasterDataMenu = in_array($userRole, $masterDataRoles);
                     \Log::info('Sidebar MasterData userRole: [' . $userRole . '], showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false') . ', showMasterDataMenu: ' . ($showMasterDataMenu ? 'true' : 'false'));
                 ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isSpmbAdminHost): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
+                    <?php echo $__env->make('layouts.partials.admin-yayasan-menu', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php elseif($isSpmbAdminHost): ?>
                 <li class="menu-title">PPDB</li>
 
                 <?php
@@ -192,6 +194,9 @@
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
+                    <li><a href="<?php echo e(route('admin.bpppmnu.events.index')); ?>"><i class="bx bx-calendar-check"></i><span>Kegiatan BPPPMNU</span></a></li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
                 <li>
                     <a href="<?php echo e(route('pendataan-gtk.index')); ?>" class="waves-effect">
