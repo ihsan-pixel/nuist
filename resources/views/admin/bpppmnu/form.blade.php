@@ -10,9 +10,6 @@
 @foreach(['start_at'=>'Tanggal & waktu mulai','end_at'=>'Tanggal & waktu selesai','attendance_open_at'=>'Presensi dibuka','attendance_close_at'=>'Presensi ditutup'] as $field=>$label)
 <div class="col-md-6"><label class="form-label" for="{{ $field }}">{{ $label }} (WIB)</label><input type="datetime-local" class="form-control" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $event->$field?->format('Y-m-d\TH:i')) }}" required></div>
 @endforeach
-@foreach(['description'=>'Deskripsi lengkap','address'=>'Alamat','rundown'=>'Susunan acara'] as $field=>$label)
-<div class="col-12"><label class="form-label" for="{{ $field }}">{{ $label }}</label><textarea class="form-control" id="{{ $field }}" name="{{ $field }}" rows="3" @required($field === 'description')>{{ old($field, $event->$field) }}</textarea></div>
-@endforeach
 <div class="col-md-6"><label class="form-label" for="meeting_url">Tautan pertemuan (opsional)</label><input type="url" class="form-control" id="meeting_url" name="meeting_url" value="{{ old('meeting_url', $event->meeting_url) }}"></div>
 <div class="col-md-6"><label class="form-label" for="attachment">Lampiran undangan (PDF/JPG/PNG, maks. 5 MB)</label><input type="file" accept=".pdf,.jpg,.jpeg,.png" class="form-control" id="attachment" name="attachment">@if($event->attachment)<small>Lampiran saat ini tersimpan. Unggah untuk mengganti.</small>@endif</div>
 <div class="col-12"><fieldset><legend class="h5">Pilih pengurus yang diundang</legend><div style="max-height:320px;overflow:auto" class="border rounded p-3">

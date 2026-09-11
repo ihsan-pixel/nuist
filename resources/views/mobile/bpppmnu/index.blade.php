@@ -75,7 +75,6 @@
 .bpp-sheet .bpp-sheet-details { margin:0; }
 .bpp-sheet .bpp-sheet-details dt { margin:12px 0 3px; padding:0; border:0; font-size:10px; font-weight:400; color:#68736e; }
 .bpp-sheet .bpp-sheet-details dd { margin:0; font-size:11px; line-height:1.7; overflow-wrap:anywhere; }
-.bpp-sheet-description { white-space:pre-wrap; }
 .bpp-sheet-footer { padding:12px 18px calc(12px + env(safe-area-inset-bottom, 0px)); border-top:1px solid #e6eae8; flex-shrink:0; }
 .bpp-sheet-scan { display:flex; justify-content:center; align-items:center; min-height:44px; padding:10px; border-radius:9px; background:#00553f; color:#fff; font-size:11px; font-weight:600; text-decoration:none; }
 .bpp-sheet-scan:hover { background:#004331; color:#fff; }
@@ -136,10 +135,6 @@
                         <dd>{{ $event->location_name }}</dd>
                         <dt>Penyelenggara</dt>
                         <dd>{{ $event->organizer }}</dd>
-                        @if($event->description)
-                            <dt>Tentang kegiatan</dt>
-                            <dd class="bpp-sheet-description">{{ $event->description }}</dd>
-                        @endif
                     </dl>
                 </div>
                 <div class="bpp-sheet-footer">

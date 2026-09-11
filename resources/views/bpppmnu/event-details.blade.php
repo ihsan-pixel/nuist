@@ -1,5 +1,5 @@
 <dl>
-@foreach(['type'=>'Jenis kegiatan','description'=>'Deskripsi','organizer'=>'Penyelenggara','location_name'=>'Lokasi','address'=>'Alamat'] as $field => $label)
+@foreach(['type'=>'Jenis kegiatan','organizer'=>'Penyelenggara','location_name'=>'Lokasi'] as $field => $label)
 @if($event->$field)<dt>{{ $label }}</dt><dd class="bpp-detail">{{ $event->$field }}</dd>@endif
 @endforeach
 <dt>Waktu kegiatan (WIB)</dt><dd>{{ $event->start_at->format('d-m-Y H:i') }} – {{ $event->end_at->format('d-m-Y H:i') }}</dd>

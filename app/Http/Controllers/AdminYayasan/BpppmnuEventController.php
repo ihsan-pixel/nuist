@@ -65,8 +65,7 @@ class BpppmnuEventController extends Controller
             $rules[$field] = 'required|string|max:255';
         }
         $rules += [
-            'description' => 'required|string|max:20000', 'address' => 'nullable|string|max:2000',
-            'meeting_url' => 'nullable|url:http,https|max:2000', 'rundown' => 'nullable|string|max:20000',
+            'meeting_url' => 'nullable|url:http,https|max:2000',
             'start_at' => 'required|date', 'end_at' => 'required|date|after:start_at',
             'attendance_open_at' => 'required|date|before:end_at',
             'attendance_close_at' => 'required|date|after:attendance_open_at|after_or_equal:start_at',
