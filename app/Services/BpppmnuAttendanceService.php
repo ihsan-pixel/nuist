@@ -26,7 +26,12 @@ class BpppmnuAttendanceService
 
     public function record(User $user, BpppmnuEvent $event, string $token): array
     {
-        abort_unless($user->role === 'pengurus_bpppmnu' && $user->is_active !== false, 403);
+        abort_unless(
+            $user->is_active !== false
+            && in_array($user->role, ['pengurus_bpppmnu', 'tenaga_pendidik'], true)
+            && ($user->role === 'pengurus_bpppmnu' || $user->bpppmnuMember?->is_active === true),
+            403
+        );
 
         return DB::transaction(function () use ($user, $event, $token) {
             // Every mutation locks the event first, serializing scan, revoke, and admin changes.
@@ -51,7 +56,7 @@ class BpppmnuAttendanceService
 
     public function recordMember(User $member, BpppmnuEvent $event): array
     {
-        abort_unless($member->role === 'pengurus_bpppmnu' && $member->is_active !== false, 403);
+        abort_unless($member->is_active !== false && in_array($member->role, ['pengurus_bpppmnu', 'tenaga_pendidik'], true), 403);
 
         return DB::transaction(function () use ($member, $event) {
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
