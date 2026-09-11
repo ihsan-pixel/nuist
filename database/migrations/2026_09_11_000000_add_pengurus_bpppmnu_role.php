@@ -20,8 +20,16 @@ return new class extends Migration
         // Preserve the installed enum list, nullability, default, and collation.
         $type = substr($role['type'], 0, -1).",'pengurus_bpppmnu')";
         $nullable = $role['nullable'] ? ' NULL' : ' NOT NULL';
-        $default = $role['default'] !== null
-            ? " DEFAULT '".str_replace("'", "''", $role['default'])."'"
+        // MySQL schema metadata can return enum defaults either as `user` or
+        // as the already-quoted string `'user'`. Normalize before quoting it
+        // for the ALTER statement, otherwise the latter becomes `'''user'''`.
+        $defaultValue = $role['default'];
+        if (is_string($defaultValue) && preg_match("/^'(.*)'$/s", $defaultValue, $matches)) {
+            $defaultValue = str_replace("''", "'", $matches[1]);
+        }
+
+        $default = $defaultValue !== null
+            ? " DEFAULT '".str_replace("'", "''", $defaultValue)."'"
             : ($role['nullable'] ? ' DEFAULT NULL' : '');
         $collation = ! empty($role['collation']) && preg_match('/^[a-zA-Z0-9_]+$/', $role['collation'])
             ? ' COLLATE '.$role['collation'] : '';
