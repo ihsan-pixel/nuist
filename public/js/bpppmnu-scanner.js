@@ -42,6 +42,9 @@
             if (!response.ok) throw new Error(body.message || 'Presensi belum berhasil. Silakan coba lagi.');
             completed = true;
             message(body.message + ' ' + body.event_name + ' · ' + body.attended_at, true);
+            if (window.Swal) {
+                Swal.fire({icon: 'success', title: 'Presensi berhasil', text: body.message, confirmButtonText: 'OK', confirmButtonColor: '#00553f'});
+            }
             start.textContent = 'Sudah Hadir';
         } catch (error) {
             message(error instanceof TypeError ? 'Koneksi gagal. Presensi belum terkonfirmasi. Periksa koneksi lalu coba lagi.' : error.message);
