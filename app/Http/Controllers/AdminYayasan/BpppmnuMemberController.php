@@ -29,8 +29,11 @@ class BpppmnuMemberController extends Controller
             $request->merge([
                 'name' => $teacher->name,
                 'email' => $teacher->email,
-                'jabatan' => $request->input('jabatan') ?: ($teacher->jabatan ?: $teacher->ketugasan),
-                'instansi_asal' => $request->input('instansi_asal') ?: $teacher->instansi_asal,
+                // Jabatan/instansi tenaga pendidik adalah data master users.
+                // Jangan menimpa nilainya dengan data khusus kepengurusan BPPPMNU.
+                'jabatan' => $teacher->jabatan,
+                'ketugasan' => $teacher->ketugasan,
+                'instansi_asal' => $teacher->instansi_asal,
                 'is_active' => '1',
             ]);
             return $this->save($request, $teacher);
@@ -81,7 +84,9 @@ class BpppmnuMemberController extends Controller
             'is_active' => 'required|boolean',
             'password' => [$member->exists ? 'nullable' : 'required', 'string', 'min:8', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[@$!%*?&]/', 'confirmed'],
         ]);
-        $data['ketugasan'] = $data['jabatan'] ?? $data['ketugasan'] ?? null;
+        if (empty($data['ketugasan']) && ! empty($data['jabatan'])) {
+            $data['ketugasan'] = $data['jabatan'];
+        }
         $action = $member->exists ? 'updated' : 'created';
         $reset = ! empty($data['password']);
         if ($reset) {
