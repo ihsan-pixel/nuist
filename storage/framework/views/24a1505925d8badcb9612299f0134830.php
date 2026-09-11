@@ -809,8 +809,8 @@
                         return;
                     }
 
-                    form.addEventListener('submit', function() {
-                        if (!form.checkValidity()) {
+                    form.addEventListener('submit', function(event) {
+                        if (event.defaultPrevented || form.dataset.noLoader === 'true' || !form.checkValidity()) {
                             return;
                         }
 
@@ -902,8 +902,12 @@
 
                 // FORM SUBMIT
                 document.querySelectorAll('form').forEach(function(form){
-                    form.addEventListener('submit', function(){
-                        showLoader();
+                    form.addEventListener('submit', function(event){
+                        // AJAX forms manage their own loading state and do not navigate.
+                        if (form.dataset.noLoader === 'true') return;
+                        queueMicrotask(function () {
+                            if (!event.defaultPrevented && form.checkValidity()) showLoader();
+                        });
                     });
                 });
 

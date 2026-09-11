@@ -110,3 +110,14 @@ Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/v2/face/verify', [F
 Route::middleware(['auth:sanctum', 'throttle:30,1'])->get('/v2/face/biometric/status', [FaceV2Controller::class, 'biometricStatus']);
 Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/v2/biometric/enroll', [FaceV2Controller::class, 'biometricEnroll']);
 Route::middleware(['auth:sanctum', 'throttle:20,1'])->post('/v2/biometric/verify', [FaceV2Controller::class, 'biometricVerify']);
+
+Route::middleware(['auth:sanctum', \App\Http\Middleware\BpppmnuRole::class.':pengurus_bpppmnu'])
+    ->prefix('mobile/app/bpppmnu')->name('api.bpppmnu.')->group(function () {
+        Route::get('presensi', [\App\Http\Controllers\Mobile\BpppmnuController::class, 'index'])->name('presensi');
+        Route::get('history', [\App\Http\Controllers\Mobile\BpppmnuController::class, 'history'])->name('history');
+        Route::get('profile', [\App\Http\Controllers\Mobile\BpppmnuController::class, 'profile'])->name('profile');
+        Route::post('profile/password', [\App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updatePassword'])->middleware('throttle:5,1')->name('password');
+        Route::get('events/{event}', [\App\Http\Controllers\Mobile\BpppmnuController::class, 'show'])->name('events.show');
+        Route::get('events/{event}/attachment', [\App\Http\Controllers\Mobile\BpppmnuController::class, 'attachment'])->name('events.attachment');
+        Route::post('events/{event}/scan', [\App\Http\Controllers\Mobile\BpppmnuController::class, 'scan'])->middleware('throttle:15,1')->name('events.scan');
+    });

@@ -117,6 +117,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Simfoni::class, 'user_id');
     }
 
+    public function bpppmnuInvitations()
+    {
+        return $this->hasMany(BpppmnuEventInvitation::class);
+    }
+
+    public function bpppmnuAttendances()
+    {
+        return $this->hasMany(BpppmnuEventAttendance::class);
+    }
+
     public function presensis()
     {
         return $this->hasMany(\App\Models\Presensi::class, 'user_id');

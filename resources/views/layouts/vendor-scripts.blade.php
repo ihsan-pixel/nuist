@@ -50,7 +50,7 @@
 
 </script>
 
-<!-- Script tambahan yang didorong oleh @push('scripts') -->
+{{-- Script tambahan yang didorong ke stack scripts --}}
 @stack('scripts')
 
 <!-- Leaflet Core -->
@@ -61,7 +61,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
-<!-- Script halaman yang menggunakan @section('script') -->
+{{-- Script halaman yang menggunakan section script --}}
 @yield('script')   {{-- ← FIX WAJIB AGAR DATATABLES JALAN --}}
 
 <!-- App JS utama -->

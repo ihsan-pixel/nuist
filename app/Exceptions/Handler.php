@@ -23,6 +23,7 @@ class Handler extends ExceptionHandler
      * @var string[]
      */
     protected $dontFlash = [
+        'qr_token',
         'current_password',
         'password',
         'password_confirmation',

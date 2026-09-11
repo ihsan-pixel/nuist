@@ -193,6 +193,9 @@
                 @endif
 
                 @if($userRole === 'admin_yayasan')
+                    <li><a href="{{ route('admin.bpppmnu.events.index') }}"><i class="bx bx-calendar-check"></i><span>Kegiatan BPPPMNU</span></a></li>
+                @endif
+                @if($userRole === 'admin_yayasan')
                 <li>
                     <a href="{{ route('pendataan-gtk.index') }}" class="waves-effect">
                         <i class="bx bx-id-card"></i>

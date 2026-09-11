@@ -186,7 +186,7 @@ class AuthController extends Controller
             // Temporary fallback keeps released versions of the app working.
             'email' => 'required_without:identifier|string',
             'password' => 'required|string',
-            'login_as' => 'nullable|in:siswa,tenaga_pendidik,pengurus',
+            'login_as' => 'nullable|in:siswa,tenaga_pendidik,pengurus,pengurus_bpppmnu',
         ]);
 
         $identifier = trim((string) ($data['identifier'] ?? $data['email']));
@@ -241,7 +241,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!in_array($user->role, ['tenaga_pendidik', 'siswa', 'pengurus'])) {
+        if (!in_array($user->role, ['tenaga_pendidik', 'siswa', 'pengurus', 'pengurus_bpppmnu'])) {
             Auth::logout();
 
             return response()->json([
@@ -263,12 +263,13 @@ class AuthController extends Controller
         $mobileRoute = match ($user->role) {
             'siswa' => '/mobile/siswa/dashboard',
             'pengurus' => '/mobile/pengurus/dashboard',
+            'pengurus_bpppmnu' => '/mobile/bpppmnu/presensi',
             default => '/mobile/dashboard',
         };
 
         return response()->json([
             'token' => $token,
-            'user' => $user,
+            'user' => $user->role === 'pengurus_bpppmnu' ? $user->only(['id', 'name', 'email', 'role', 'nuist_id', 'avatar']) : $user,
             'mobile_route' => $mobileRoute,
         ]);
     }

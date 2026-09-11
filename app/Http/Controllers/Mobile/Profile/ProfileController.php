@@ -158,7 +158,7 @@ class ProfileController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'tenaga_pendidik') {
+        if (!in_array($user->role, ['tenaga_pendidik', 'pengurus_bpppmnu'], true)) {
             abort(403, 'Unauthorized.');
         }
 

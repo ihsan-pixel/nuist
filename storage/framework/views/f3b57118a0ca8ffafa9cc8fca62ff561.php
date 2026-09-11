@@ -90,11 +90,14 @@
 <div class="row">
     <div class="col-12">
         <div class="gtk-table-card p-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <div>
                     <h5 class="mb-1">Daftar GTK</h5>
                     <div class="text-muted small">Kepala sekolah ditampilkan paling atas. Kolom action membuka modal pendataan.</div>
                 </div>
+                <a href="<?php echo e(route('pendataan-gtk.export-school', $madrasah->id)); ?>" class="btn btn-success">
+                    <i class="bx bx-download me-1"></i> Export Excel
+                </a>
             </div>
 
             <div class="table-responsive">

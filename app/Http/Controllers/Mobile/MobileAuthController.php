@@ -64,7 +64,7 @@ class MobileAuthController extends Controller
                 ->withCookies($queuedCookies);
         }
 
-        if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa', 'dps'])) {
+        if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa', 'dps', 'pengurus_bpppmnu'])) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -73,6 +73,10 @@ class MobileAuthController extends Controller
                 ->withErrors(['email' => 'Akun tidak memiliki akses mobile.'])
                 ->withInput($request->only('email'))
                 ->withCookies($queuedCookies);
+        }
+
+        if ($user->role === 'pengurus_bpppmnu') {
+            return redirect()->route('mobile.bpppmnu.presensi')->withCookies($queuedCookies);
         }
 
         if ($user->role === 'siswa') {

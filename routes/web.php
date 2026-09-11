@@ -1152,6 +1152,10 @@ Route::domain('presensi.nuist.id')->group(function () {
         $user = Auth::user();
         $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
 
+        if ($normalizedRole === 'pengurus_bpppmnu' && $user->is_active !== false) {
+            return redirect('/mobile/bpppmnu/presensi');
+        }
+
         if ($normalizedRole === 'tenaga_pendidik') {
             return redirect('/mobile/dashboard');
         }
@@ -1193,7 +1197,7 @@ Route::domain('presensi.nuist.id')->group(function () {
         $user = Auth::user();
         $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
 
-        if ($normalizedRole !== 'tenaga_pendidik' || (isset($user->is_active) && !$user->is_active)) {
+        if (!in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && !$user->is_active)) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -1203,7 +1207,7 @@ Route::domain('presensi.nuist.id')->group(function () {
                 ->withInput($request->only('email'));
         }
 
-        return redirect('/mobile/dashboard');
+        return redirect($normalizedRole === 'pengurus_bpppmnu' ? '/mobile/bpppmnu/presensi' : '/mobile/dashboard');
     })->middleware(['guest', 'throttle:6,1']);
 
     Route::post('/mobile/login', function (\Illuminate\Http\Request $request) {
@@ -1223,7 +1227,7 @@ Route::domain('presensi.nuist.id')->group(function () {
         $user = Auth::user();
         $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
 
-        if ($normalizedRole !== 'tenaga_pendidik' || (isset($user->is_active) && !$user->is_active)) {
+        if (!in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && !$user->is_active)) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -1233,7 +1237,7 @@ Route::domain('presensi.nuist.id')->group(function () {
                 ->withInput($request->only('email'));
         }
 
-        return redirect('/mobile/dashboard');
+        return redirect($normalizedRole === 'pengurus_bpppmnu' ? '/mobile/bpppmnu/presensi' : '/mobile/dashboard');
     })->middleware(['guest', 'throttle:6,1']);
 
     Route::get('/mobile/forgot-password', function () {
@@ -2526,3 +2530,5 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/laporan-akhir-tahun', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'index'])->name('laporan-akhir-tahun.index');
     Route::get('/laporan-akhir-tahun/pdf/{id}', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'pdf'])->name('laporan-akhir-tahun.pdf');
 });
+
+require __DIR__.'/bpppmnu.php';

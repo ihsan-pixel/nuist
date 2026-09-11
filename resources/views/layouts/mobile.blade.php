@@ -510,7 +510,9 @@
         $currentHost = request()->getHost();
         $isTeacherMobileAliasHost = $currentHost === 'presensi.nuist.id';
 
-        if ($userRole === 'pengurus') {
+        if ($userRole === 'pengurus_bpppmnu') {
+            $showNav = request()->routeIs('mobile.bpppmnu.*');
+        } elseif ($userRole === 'pengurus') {
             // Routes for pengurus mobile navigation
             $menuRoutes = [
                 'mobile.pengurus.dashboard',
@@ -578,7 +580,15 @@
         $isTeacherProfileActive = request()->routeIs('mobile.profile') || ($isTeacherMobileAliasHost && (request()->is('mobile/profile') || request()->is('mobile/ubah-akun')));
     @endphp
     @if($showNav)
-    @if($userRole === 'pengurus')
+    @if($userRole === 'pengurus_bpppmnu')
+    <nav class="mobile-nav custom-bottom-nav" aria-label="Menu utama">
+        <div class="nav-container">
+            <a href="{{ route('mobile.bpppmnu.presensi') }}" class="nav-link {{ request()->routeIs('mobile.bpppmnu.presensi', 'mobile.bpppmnu.events.*') ? 'active' : '' }}"><i class="bx bx-qr-scan"></i><span>Presensi</span></a>
+            <a href="{{ route('mobile.bpppmnu.history') }}" class="nav-link {{ request()->routeIs('mobile.bpppmnu.history') ? 'active' : '' }}"><i class="bx bx-history"></i><span>Riwayat Presensi</span></a>
+            <a href="{{ route('mobile.bpppmnu.profile') }}" class="nav-link {{ request()->routeIs('mobile.bpppmnu.profile') ? 'active' : '' }}"><i class="bx bx-user"></i><span>Profil</span></a>
+        </div>
+    </nav>
+    @elseif($userRole === 'pengurus')
     <!-- Navigation for Pengurus -->
     <nav class="mobile-nav d-md-none custom-bottom-nav">
         <div class="nav-container">

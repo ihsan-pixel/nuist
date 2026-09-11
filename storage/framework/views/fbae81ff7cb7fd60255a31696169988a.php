@@ -60,7 +60,7 @@
         }
     </style>
 
-    <form id="form-izin-tugas-luar" action="<?php echo e(route('mobile.izin.store')); ?>" method="POST" enctype="multipart/form-data" class="izin-form">
+    <form id="form-izin-tugas-luar" action="<?php echo e(route('mobile.izin.store')); ?>" method="POST" enctype="multipart/form-data" class="izin-form" data-no-loader="true">
         <?php echo csrf_field(); ?>
         <input type="hidden" name="type" value="tugas_luar">
 
@@ -101,6 +101,7 @@
         </div>
 
         <button type="submit" class="btn-submit">Kirim Izin Tugas Luar</button>
+        <p id="izin-submit-status" class="mt-3 mb-0" role="status" aria-live="polite" hidden></p>
     </form>
 </div>
 <?php $__env->stopSection(); ?>
@@ -109,6 +110,22 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     var isSubmitting = false;
+
+    function showIzinResult(icon, message, onConfirm) {
+        $('#izin-submit-status').prop('hidden', false).text(message);
+        if (window.Swal && typeof window.Swal.fire === 'function') {
+            return window.Swal.fire({
+                icon: icon,
+                title: icon === 'success' ? 'Berhasil' : 'Pengajuan belum berhasil',
+                text: message,
+                confirmButtonText: 'OK'
+            }).then(function () {
+                if (onConfirm) onConfirm();
+            });
+        }
+        window.alert(message);
+        if (onConfirm) onConfirm();
+    }
 
     $('#tanggal_mulai').on('change', function () {
         var startDate = $(this).val();
@@ -129,7 +146,11 @@
         isSubmitting = true;
         var fd = new FormData(this);
         var submitBtn = $(this).find('button[type="submit"]');
-        submitBtn.prop('disabled', true);
+        var originalLabel = submitBtn.text();
+        var submitted = false;
+        submitBtn.prop('disabled', true).text('Mengirim izin...');
+        $(this).attr('aria-busy', 'true');
+        $('#izin-submit-status').prop('hidden', false).text('Mengunggah surat dan mengirim pengajuan, mohon tunggu.');
 
         $.ajax({
             url: '<?php echo e(route("mobile.izin.store")); ?>',
@@ -137,18 +158,20 @@
             data: fd,
             processData: false,
             contentType: false,
+            dataType: 'json',
+            headers: { Accept: 'application/json' },
+            timeout: 60000,
             success: function(res){
-                if(res.success){
-                    Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message || 'Izin tugas luar berhasil diajukan.' }).then(function(){
+                if(res && res.success){
+                    submitted = true;
+                    showIzinResult('success', res.message || 'Izin tugas luar berhasil diajukan.', function(){
                         window.location.href = '<?php echo e(route("mobile.riwayat-presensi")); ?>';
                     });
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: res.message || 'Surat gagal terkirim.' });
-                    submitBtn.prop('disabled', false);
-                    isSubmitting = false;
+                    showIzinResult('error', (res && res.message) || 'Surat gagal terkirim.');
                 }
             },
-            error: function(xhr){
+            error: function(xhr, textStatus){
                 var msg = 'Surat gagal terkirim.';
                 if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
@@ -157,9 +180,25 @@
                         msg = firstError[0];
                     }
                 }
-                Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
-                submitBtn.prop('disabled', false);
-                isSubmitting = false;
+                if (textStatus === 'timeout' || xhr.status === 0) {
+                    msg = 'Koneksi terputus atau waktu tunggu habis. Status pengajuan belum dapat dipastikan. Periksa riwayat presensi sebelum mengirim ulang.';
+                } else if (xhr.status === 419 || xhr.status === 401) {
+                    msg = 'Sesi Anda telah berakhir. Muat ulang halaman atau login kembali sebelum mengajukan izin.';
+                } else if (xhr.status === 413) {
+                    msg = 'Ukuran surat tugas terlalu besar. Gunakan file maksimal 5 MB.';
+                } else if (textStatus === 'parsererror') {
+                    msg = 'Respons server tidak dapat dibaca. Periksa riwayat presensi dan pastikan Anda masih login sebelum mengirim ulang.';
+                }
+                showIzinResult('error', msg);
+            },
+            complete: function(){
+                $('#form-izin-tugas-luar').removeAttr('aria-busy');
+                if (submitted) {
+                    submitBtn.text('Izin berhasil diajukan');
+                } else {
+                    submitBtn.prop('disabled', false).text(originalLabel);
+                    isSubmitting = false;
+                }
             }
         });
     });
