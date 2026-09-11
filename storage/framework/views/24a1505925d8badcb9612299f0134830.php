@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
+
+<head>
+    <meta charset="utf-8" />
+    <title><?php echo $__env->yieldContent('title'); ?> | NUIST Mobile</title>
+    <base href="<?php echo e(url('/')); ?>/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
+    <meta name="keywords" content="nuist, ma'arif, nu, pwnu diy, sistem informasi, mobile, pwa" />
+    <meta name="author" content="LP. Ma'arif NU PWNU DIY" />
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="NUIST Mobile">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="<?php echo e(asset('manifest.json')); ?>">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="152x152" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="144x144" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="120x120" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="76x76" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="60x60" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="57x57" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+
+    <!-- Open Graph for better social sharing -->
+    <meta property="og:title" content="<?php echo $__env->yieldContent('title'); ?> | NUIST Mobile" />
+    <meta property="og:description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
+    <meta property="og:url" content="<?php echo e(url()->current()); ?>" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="<?php echo e(asset('build/images/logo-light.png')); ?>" />
+
+    <?php echo $__env->make('layouts.head-css', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Mobile-specific CSS -->
+    <style>
+        /* Mobile-first responsive design */
+        body {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Bottom navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(4, 63, 49, 0.10);
+            padding: 10px 10px 8px;
+            z-index: 1030;
+            box-shadow: 0 10px 26px rgba(4, 63, 49, 0.14);
+            border-radius: 24px;
+            width: min(100%, 520px);
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .mobile-nav .nav-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .mobile-nav .nav-link {
+            padding: 7px 6px 6px;
+            color: #6b7b84;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            background: transparent;
+            border-radius: 18px;
+            margin: 0 1px;
+            transition: all 0.2s ease;
+            min-height: 48px;
+            justify-content: center;
+        }
+
+        .mobile-nav .nav-link.active {
+            background: linear-gradient(135deg, #043F31 0%, #095341 100%);
+            color: white;
+            box-shadow: 0 6px 14px rgba(4, 63, 49, 0.18);
+        }
+
+        .mobile-nav .nav-link i {
+            font-size: 20px;
+            margin-bottom: 3px;
+            width: 1em;
+            min-width: 1em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-nav .nav-link.active {
+            flex-direction: column;
+        }
+
+        .mobile-nav .nav-link.active i {
+            margin-bottom: 2px;
+            margin-right: 0;
+        }
+
+        .mobile-nav .nav-link:not(.active) span {
+            opacity: 0.96;
+        }
+
+        /* Content padding for bottom nav */
+        .mobile-content {
+            padding-bottom: 104px;
+        }
+
+        /* Card optimizations for mobile */
+        .card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            padding: 16px;
+        }
+
+        /* Button optimizations */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 12px 16px;
+        }
+
+        .btn-lg {
+            padding: 14px 20px;
+            font-size: 16px;
+        }
+
+        /* Form controls */
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 12px 16px;
+        }
+
+        .form-control:focus {
+            border-color: #556ee6;
+            box-shadow: 0 0 0 0.2rem rgba(85, 110, 230, 0.25);
+        }
+
+        /* Alert optimizations */
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        /* Avatar optimizations */
+        .avatar-lg {
+            width: 48px !important;
+            height: 48px !important;
+        }
+
+        /* Hide desktop elements on mobile */
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+
+            .sidebar {
+                display: none !important;
+            }
+
+            .topbar {
+                display: none !important;
+            }
+        }
+
+        /* Loading states */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Swipe gestures */
+        .swipe-container {
+            touch-action: pan-y;
+        }
+
+        /* Pull to refresh */
+        .pull-refresh {
+            transform: translateY(-60px);
+            transition: transform 0.3s ease;
+        }
+
+        .pull-refresh.pulling {
+            transform: translateY(0);
+        }
+
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #dc3545;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+            z-index: 1040;
+            display: none;
+        }
+
+        /* PWA install prompt */
+        .pwa-install-prompt {
+            position: fixed;
+            bottom: 80px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1035;
+            display: none;
+        }
+
+        /* Sticky header untuk mobile */
+        .mobile-header {
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        /* Efek saat scroll */
+        .mobile-header.scrolled {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Custom Bottom Navigation (Floating Center Button) */
+        .custom-bottom-nav {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            width: min(100%, 520px);
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(4, 63, 49, 0.10);
+            box-shadow: 0 10px 26px rgba(4, 63, 49, 0.14);
+            border-radius: 24px;
+            height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .custom-bottom-nav .nav-container {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+        }
+
+        .custom-bottom-nav .nav-link {
+            color: #6b7b84;
+            text-align: center;
+            flex: 1;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 4px 4px;
+        }
+
+        .custom-bottom-nav .nav-link i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .custom-bottom-nav .nav-link.active {
+            color: #043F31;
+            background: rgba(4, 63, 49, 0.08);
+            border-radius: 18px;
+        }
+
+        /* Tombol tengah melingkar */
+        .nav-center-btn {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+        }
+
+        .center-action {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #043F31, #095341);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 22px rgba(4, 63, 49, 0.22);
+            color: #fff;
+            font-size: 26px;
+            transition: all 0.3s ease;
+            border: 4px solid #fff;
+        }
+
+        .center-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+        }
+
+        .avatar-fallback {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #095341;
+            color: #ffffff;
+            flex: 0 0 40px;
+        }
+    </style>
+</head>
+
+<body data-layout-mode="light" class="mobile-layout">
+    <script>
+        // Disable the global page loader only for the mobile "kelola izin" route
+        // This sets a global flag read by the loader binding code below.
+        window.DISABLE_PAGE_LOADER = <?php echo json_encode(request()->routeIs('mobile.kelola-izin') || request()->routeIs('mobile.siswa.*'), 15, 512) ?>;
+    </script>
+    <!-- Global page loader (used for navigation & form submits) -->
+    <div id="pageLoader" aria-hidden="true" class="hidden page-loader-overlay">
+        <div class="page-loader-card" role="status" aria-live="polite">
+            <div class="page-loader-mark" aria-hidden="true">
+                <div class="page-loader-ring"></div>
+            </div>
+            <div class="page-loader-title">Memuat</div>
+            <div class="page-loader-text">Menyiapkan dashboard, mohon tunggu sebentar.</div>
+        </div>
+    </div>
+
+    <style>
+        .page-loader-overlay{
+            position:fixed;
+            inset:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+            background:rgba(8,16,24,0.28);
+            backdrop-filter:blur(12px);
+            -webkit-backdrop-filter:blur(12px);
+            opacity:1;
+            visibility:visible;
+            pointer-events:auto;
+            z-index:2200;
+            transition:opacity .22s ease, visibility .22s ease;
+        }
+
+        .page-loader-overlay.hidden{
+            opacity:0;
+            visibility:hidden;
+            pointer-events:none;
+        }
+
+        .page-loader-card{
+            min-width:220px;
+            max-width:300px;
+            border-radius:26px;
+            background:rgba(255,255,255,0.97);
+            box-shadow:0 22px 60px rgba(0,58,48,0.18);
+            padding:22px 20px 18px;
+            text-align:center;
+            transform:translateY(0);
+            animation:page-loader-pop .28s ease-out;
+        }
+
+        .page-loader-mark{
+            width:68px;
+            height:68px;
+            margin:0 auto 14px;
+            position:relative;
+            display:grid;
+            place-items:center;
+        }
+
+        .page-loader-ring,
+        .page-loader-ring::before,
+        .page-loader-ring::after{
+            content:"";
+            position:absolute;
+            inset:0;
+            border-radius:50%;
+        }
+
+        .page-loader-ring{
+            border:3px solid rgba(4,63,49,0.14);
+            border-top-color:#043F31;
+            animation:page-loader-spin .9s linear infinite;
+        }
+
+        .page-loader-ring::before{
+            inset:8px;
+            border:3px solid rgba(4,63,49,0.10);
+            border-bottom-color:#095341;
+            animation:page-loader-spin-reverse 1.3s linear infinite;
+        }
+
+        .page-loader-ring::after{
+            inset:18px;
+            background:radial-gradient(circle at 30% 30%, #0b5b47, #043F31);
+            box-shadow:0 8px 16px rgba(4,63,49,0.22);
+        }
+
+        .page-loader-title{
+            margin:0;
+            font-size:.9rem;
+            font-weight:700;
+            color:#17312c;
+        }
+
+        .page-loader-text{
+            margin:6px 0 0;
+            font-size:.74rem;
+            line-height:1.45;
+            color:#6b7b84;
+        }
+
+        @keyframes page-loader-spin{ to { transform:rotate(360deg) } }
+        @keyframes page-loader-spin-reverse{ to { transform:rotate(-360deg) } }
+        @keyframes page-loader-pop{
+            from{ transform:translateY(10px) scale(.98); opacity:.2; }
+            to{ transform:translateY(0) scale(1); opacity:1; }
+        }
+    </style>
+    <!-- Offline indicator -->
+    <div id="offline-indicator" class="offline-indicator">
+        <i class="bx bx-wifi-off me-1"></i>
+        Anda sedang offline. Beberapa fitur mungkin tidak tersedia.
+    </div>
+
+    <!-- PWA Install Prompt -->
+    
+
+
+
+    <!-- Main Content -->
+    <main class="mobile-content">
+        <div class="container-fluid px-1 py-3">
+            <?php echo $__env->yieldContent('content'); ?>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <?php
+        $user = auth()->user();
+        $userRole = $user ? $user->role : '';
+        $currentHost = request()->getHost();
+        $isTeacherMobileAliasHost = $currentHost === 'presensi.nuist.id';
+
+        if ($userRole === 'pengurus_bpppmnu') {
+            $showNav = request()->routeIs('mobile.bpppmnu.*');
+        } elseif ($userRole === 'pengurus') {
+            // Routes for pengurus mobile navigation
+            $menuRoutes = [
+                'mobile.pengurus.dashboard',
+                'mobile.pengurus.data-sekolah',
+                'mobile.pengurus.pengguna-aktif',
+                'mobile.pengurus.uppm',
+                'mobile.pengurus.data-presensi-mengajar',
+                'yayasan.index',
+                'madrasah.index',
+                'tenaga-pendidik.index',
+                'active-users.index',
+            ];
+            $showNav = false;
+            foreach ($menuRoutes as $route) {
+                if (request()->routeIs($route)) {
+                    $showNav = true;
+                    break;
+                }
+            }
+        } elseif ($userRole === 'dps') {
+            $menuRoutes = ['mobile.dps.*'];
+            $showNav = request()->routeIs('mobile.dps.*');
+        } else {
+            $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
+            $teacherMobilePathPatterns = [
+                'mobile/dashboard',
+                'mobile/presensi',
+                'mobile/data-presensi',
+                'mobile/selfie-presensi',
+                'mobile/riwayat-presensi',
+                'mobile/riwayat-presensi/*',
+                'mobile/jadwal',
+                'mobile/jadwal/*',
+                'mobile/teaching-attendances',
+                'mobile/profile',
+                'mobile/ubah-akun',
+            ];
+            $showNav = false;
+            foreach ($menuRoutes as $route) {
+                if (request()->routeIs($route)) {
+                    $showNav = true;
+                    break;
+                }
+            }
+            if (! $showNav && $isTeacherMobileAliasHost) {
+                foreach ($teacherMobilePathPatterns as $pattern) {
+                    if (request()->is($pattern)) {
+                        $showNav = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $teacherDashboardUrl = $isTeacherMobileAliasHost ? '/mobile/dashboard' : route('mobile.dashboard');
+        $teacherJadwalUrl = $isTeacherMobileAliasHost ? '/mobile/jadwal' : route('mobile.jadwal');
+        $teacherPresensiUrl = $isTeacherMobileAliasHost ? '/mobile/presensi' : route('mobile.presensi');
+        $teacherTeachingAttendanceUrl = $isTeacherMobileAliasHost ? '/mobile/teaching-attendances' : route('mobile.teaching-attendances');
+        $teacherProfileUrl = $isTeacherMobileAliasHost ? '/mobile/profile' : route('mobile.profile');
+
+        $isTeacherDashboardActive = request()->routeIs('mobile.dashboard') || ($isTeacherMobileAliasHost && request()->is('mobile/dashboard'));
+        $isTeacherJadwalActive = request()->routeIs('mobile.jadwal*') || ($isTeacherMobileAliasHost && request()->is('mobile/jadwal*'));
+        $isTeacherPresensiActive = request()->routeIs('mobile.presensi*') || ($isTeacherMobileAliasHost && (request()->is('mobile/presensi') || request()->is('mobile/data-presensi') || request()->is('mobile/selfie-presensi')));
+        $isTeacherTeachingAttendanceActive = request()->routeIs('mobile.teaching-attendances*') || ($isTeacherMobileAliasHost && request()->is('mobile/teaching-attendances'));
+        $isTeacherProfileActive = request()->routeIs('mobile.profile') || ($isTeacherMobileAliasHost && (request()->is('mobile/profile') || request()->is('mobile/ubah-akun')));
+    ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showNav): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'pengurus_bpppmnu'): ?>
+    <nav class="mobile-nav custom-bottom-nav" aria-label="Menu utama">
+        <div class="nav-container">
+            <a href="<?php echo e(route('mobile.bpppmnu.presensi')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.bpppmnu.presensi', 'mobile.bpppmnu.events.*') ? 'active' : ''); ?>"><i class="bx bx-qr-scan"></i><span>Presensi</span></a>
+            <a href="<?php echo e(route('mobile.bpppmnu.history')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.bpppmnu.history') ? 'active' : ''); ?>"><i class="bx bx-history"></i><span>Riwayat Presensi</span></a>
+            <a href="<?php echo e(route('mobile.bpppmnu.profile')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.bpppmnu.profile') ? 'active' : ''); ?>"><i class="bx bx-user"></i><span>Profil</span></a>
+        </div>
+    </nav>
+    <?php elseif($userRole === 'pengurus'): ?>
+    <!-- Navigation for Pengurus -->
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
+                <i class="bx bx-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="<?php echo e(route('yayasan.index')); ?>" class="nav-link">
+                <i class="bx bx-building"></i>
+                <span>Yayasan</span>
+            </a>
+            <a href="">
+                <i></i>
+                <span style="color: #ffffff !important;">|---------|</span>
+            </a>
+            <!-- Tombol Tengah -->
+            <div class="nav-center-btn">
+                <a href="<?php echo e(route('madrasah.index')); ?>" class="center-action">
+                    <i class="bx bx-school"></i>
+                </a>
+            </div>
+
+            <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="nav-link">
+                <i class="bx bx-user-check"></i>
+                <span>Tenaga Pendidik</span>
+            </a>
+            <a href="<?php echo e(route('dashboard')); ?>" class="nav-link">
+                <i class="bx bx-desktop"></i>
+                <span>Desktop</span>
+            </a>
+        </div>
+    </nav>
+    <?php elseif($userRole === 'dps'): ?>
+    <!-- Navigation for DPS -->
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="<?php echo e(route('mobile.dps.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dps.dashboard') ? 'active' : ''); ?>">
+                <i class="bx bx-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="<?php echo e(route('mobile.dps.presensi-kehadiran')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dps.presensi-kehadiran') ? 'active' : ''); ?>">
+                <i class="bx bx-check-square"></i>
+                <span>Hadir</span>
+            </a>
+            <a href="<?php echo e(route('mobile.dps.presensi-mengajar')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dps.presensi-mengajar') ? 'active' : ''); ?>">
+                <i class="bx bx-calendar-check"></i>
+                <span>Mengajar</span>
+            </a>
+            <a href="<?php echo e(route('mobile.dps.profile')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dps.profile') ? 'active' : ''); ?>">
+                <i class="bx bx-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+    <?php else: ?>
+    <!-- Navigation for Tenaga Pendidik -->
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="<?php echo e($teacherDashboardUrl); ?>" class="nav-link <?php echo e($isTeacherDashboardActive ? 'active' : ''); ?>">
+                <i class="bx bx-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="<?php echo e($teacherJadwalUrl); ?>" class="nav-link <?php echo e($isTeacherJadwalActive ? 'active' : ''); ?>">
+                <i class="bx bx-history"></i>
+                <span>Jadwal</span>
+            </a>
+            <a href="">
+                <i></i>
+                <span style="color: #ffffff !important;">|---------|</span>
+            </a>
+            <!-- Tombol Tengah -->
+            <div class="nav-center-btn">
+                <a href="<?php echo e($teacherPresensiUrl); ?>" class="center-action <?php echo e($isTeacherPresensiActive ? 'active' : ''); ?>">
+                    <i class="bx bx-scan"></i>
+                </a>
+            </div>
+
+            <a href="<?php echo e($teacherTeachingAttendanceUrl); ?>" class="nav-link <?php echo e($isTeacherTeachingAttendanceActive ? 'active' : ''); ?>">
+                <i class="bx bx-bar-chart"></i>
+                <span>Mengajar</span>
+            </a>
+            <a href="<?php echo e($teacherProfileUrl); ?>" class="nav-link <?php echo e($isTeacherProfileActive ? 'active' : ''); ?>">
+                <i class="bx bx-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </nav>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- JAVASCRIPT -->
+    <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+    <!-- ApexCharts -->
+    <script src="<?php echo e(asset('build/libs/apexcharts/apexcharts.min.js')); ?>"></script>
+
+    <!-- Face Recognition Scripts -->
+    <script>
+        window.MODEL_PATH = "<?php echo e(asset('models')); ?>";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="<?php echo e(asset('js/face-recognition.js')); ?>"></script>
+
+    <!-- Mobile-specific scripts -->
+    <script>
+        // PWA Install Prompt
+        // let deferredPrompt;
+        // const installPrompt = document.getElementById('pwa-install-prompt');
+
+        // window.addEventListener('beforeinstallprompt', (e) => {
+        //     e.preventDefault();
+        //     deferredPrompt = e;
+        // });
+
+        // document.getElementById('install-pwa').addEventListener('click', () => {
+        //     installPrompt.style.display = 'none';
+        //     if (deferredPrompt) {
+        //         deferredPrompt.prompt();
+        //         deferredPrompt.userChoice.then((choiceResult) => {
+        //             if (choiceResult.outcome === 'accepted') {
+        //                 console.log('User accepted the install prompt');
+        //                 localStorage.setItem('pwa-install-dismissed', 'true');
+        //             }
+        //             deferredPrompt = null;
+        //         });
+        //     }
+        // });
+
+        // document.getElementById('dismiss-pwa').addEventListener('click', () => {
+        //     installPrompt.style.display = 'none';
+        //     localStorage.setItem('pwa-install-dismissed', 'true');
+        // });
+
+        // Show install prompt if not dismissed before
+        const installPrompt = document.getElementById('pwa-install-prompt');
+        if (installPrompt && !localStorage.getItem('pwa-install-dismissed')) {
+            setTimeout(() => {
+                installPrompt.style.display = 'block';
+            }, 3000);
+        }
+
+        // Offline detection
+        const offlineIndicator = document.getElementById('offline-indicator');
+
+        window.addEventListener('online', () => {
+            offlineIndicator.style.display = 'none';
+        });
+
+        window.addEventListener('offline', () => {
+            offlineIndicator.style.display = 'block';
+        });
+
+        //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw-v2.js?v=6', {
+                updateViaCache: 'none'
+            }).then(reg => {
+                reg.update();
+                console.log("SW loaded:", reg.scope);
+            }).catch(err => console.error("SW failed:", err));
+        }
+
+        // Pull to refresh functionality
+        let startY = 0;
+        let currentY = 0;
+        let isPulling = false;
+
+        document.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+
+            if (diff > 50 && window.scrollY === 0) {
+                isPulling = true;
+                // Add visual feedback for pull to refresh
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (isPulling && currentY - startY > 100) {
+                window.location.reload();
+            }
+            isPulling = false;
+        });
+
+        // Notification badge functionality
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (!badge) {
+                return;
+            }
+
+            fetch('/mobile/notifications/unread-count')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.count > 0) {
+                        badge.textContent = data.count > 99 ? '99+' : data.count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error updating notification badge:', error));
+        }
+
+
+
+        // Mobile optimizations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Prevent zoom on input focus
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            });
+
+            // Add loading states to buttons
+            // Derive the effective disable flag: server-side route check (authoritative)
+            // plus any per-page override (older pages may set window.DISABLE_PAGE_LOADER).
+            var __DISABLE_PAGE_LOADER_SERVER = <?php echo json_encode(request()->routeIs('mobile.kelola-izin') || request()->routeIs('mobile.siswa.*'), 15, 512) ?>;
+            // Ensure per-page flag is reset on initial load unless server says otherwise.
+            if (!__DISABLE_PAGE_LOADER_SERVER) {
+                // force false to avoid leftover true from previous navigation (SPA/bfcache)
+                window.DISABLE_PAGE_LOADER = false;
+            }
+            var __DISABLE_PAGE_LOADER = __DISABLE_PAGE_LOADER_SERVER || !!window.DISABLE_PAGE_LOADER;
+
+            // Debugging: print effective values so we can trace why loader is disabled
+            console.debug('DISABLE_PAGE_LOADER server:', __DISABLE_PAGE_LOADER_SERVER, 'window flag:', !!window.DISABLE_PAGE_LOADER, 'effective:', __DISABLE_PAGE_LOADER, 'path:', location.pathname);
+
+            if (!__DISABLE_PAGE_LOADER) {
+                const submitButtons = document.querySelectorAll('button[type="submit"].btn, input[type="submit"].btn');
+                submitButtons.forEach(button => {
+                    const form = button.form;
+                    if (!form) {
+                        return;
+                    }
+
+                    form.addEventListener('submit', function(event) {
+                        if (event.defaultPrevented || form.dataset.noLoader === 'true' || !form.checkValidity()) {
+                            return;
+                        }
+
+                        if (button.dataset.loadingApplied === 'true') {
+                            return;
+                        }
+
+                        button.dataset.loadingApplied = 'true';
+
+                        if (button.tagName === 'BUTTON') {
+                            button.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Loading...';
+                        } else {
+                            button.value = 'Loading...';
+                        }
+
+                        button.disabled = true;
+                    });
+                });
+
+                const actionButtons = document.querySelectorAll('.btn[href="#"]');
+                actionButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Loading...';
+                        this.disabled = true;
+                    });
+                });
+            }
+
+            // Update notification badge on page load
+            updateNotificationBadge();
+
+            // Update badge every 30 seconds
+            setInterval(updateNotificationBadge, 30000);
+
+            // Show SweetAlert success message if present
+            const successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                const message = successMessage.getAttribute('data-message');
+                console.log('Success message found:', message);
+                if (message) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: message,
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#004b4c',
+                        customClass: {
+                            popup: 'swal-mobile'
+                        }
+                    });
+                }
+            }
+
+            // ===============================
+            // GLOBAL PAGE LOADER
+            // ===============================
+
+            var pageLoader = document.getElementById('pageLoader');
+
+            function showLoader(){
+                if(!pageLoader) return;
+                if(window.DISABLE_PAGE_LOADER) return;
+                pageLoader.classList.remove('hidden');
+            }
+
+            function hideLoader(){
+                if(!pageLoader) return;
+                pageLoader.classList.add('hidden');
+            }
+
+
+            // tampilkan loader saat pertama load
+            if(!window.DISABLE_PAGE_LOADER){
+                showLoader();
+            }
+
+            window.addEventListener('load', function(){
+                setTimeout(hideLoader, 300);
+            });
+
+
+            // ===============================
+            // BIND NAVIGATION
+            // ===============================
+
+            function bindLoaderBindings(){
+
+                if(window.DISABLE_PAGE_LOADER) return;
+
+                // FORM SUBMIT
+                document.querySelectorAll('form').forEach(function(form){
+                    form.addEventListener('submit', function(event){
+                        // AJAX forms manage their own loading state and do not navigate.
+                        if (form.dataset.noLoader === 'true') return;
+                        queueMicrotask(function () {
+                            if (!event.defaultPrevented && form.checkValidity()) showLoader();
+                        });
+                    });
+                });
+
+                // LINK NAVIGATION
+                document.querySelectorAll('a[href]').forEach(function(link){
+
+                    var href = link.getAttribute('href');
+
+                    if(!href) return;
+                    if(href.startsWith('#')) return;
+                    if(href.startsWith('mailto:')) return;
+                    if(href.startsWith('tel:')) return;
+
+                    link.addEventListener('click', function(e){
+
+                        if (link.dataset.noLoader === 'true') {
+                            window.DISABLE_PAGE_LOADER = true;
+                            hideLoader();
+                            return;
+                        }
+
+                        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+                        try{
+                            var url = new URL(href, location.href);
+                            if(url.origin !== location.origin) return;
+                        }catch(err){
+                            return;
+                        }
+
+                        showLoader();
+
+                    });
+
+                });
+
+            }
+
+            bindLoaderBindings();
+
+
+            // fallback ketika reload
+            window.addEventListener('beforeunload', function(){
+                showLoader();
+            });
+
+
+            // ketika halaman kembali dari cache
+            window.addEventListener('pageshow', function(){
+                hideLoader();
+            });
+        });
+    </script>
+    <script>
+        // Tambahkan efek shadow saat user scroll
+        document.addEventListener('scroll', () => {
+            const header = document.querySelector('.mobile-header');
+            if (!header) {
+                return;
+            }
+            if (window.scrollY > 10) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
+        <?php echo $__env->make('mobile.partials.firebase-push', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+</body>
+
+</html>
+<?php /**PATH /Users/lpmnudiymacpro/Documents/Project Nuist/nuist/resources/views/layouts/mobile.blade.php ENDPATH**/ ?>
