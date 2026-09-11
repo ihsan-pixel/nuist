@@ -36,8 +36,7 @@ class BpppmnuMemberController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($member->id)],
-            'ketugasan' => 'nullable|string|max:255', 'no_hp' => 'nullable|string|max:30',
-            'alamat' => 'nullable|string|max:2000', 'is_active' => 'required|boolean',
+            'ketugasan' => 'nullable|string|max:255', 'is_active' => 'required|boolean',
             'password' => [$member->exists ? 'nullable' : 'required', 'string', 'min:8', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[@$!%*?&]/', 'confirmed'],
         ]);
         $action = $member->exists ? 'updated' : 'created';
