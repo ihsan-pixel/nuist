@@ -16,8 +16,8 @@ class BpppmnuMemberController extends Controller
 {
     public function index()
     {
-        $members = User::where('role', 'pengurus_bpppmnu')->orderBy('name')->paginate(30);
-        $teachers = User::where('role', 'tenaga_pendidik')->where('is_active', true)->orderBy('name')->get(['id', 'name', 'email', 'jabatan', 'ketugasan', 'instansi_asal']);
+        $members = User::with('madrasah:id,name')->where('role', 'pengurus_bpppmnu')->orderBy('name')->paginate(30);
+        $teachers = User::with('madrasah:id,name')->where('role', 'tenaga_pendidik')->where('is_active', true)->orderBy('name')->get(['id', 'name', 'email', 'jabatan', 'ketugasan', 'instansi_asal', 'madrasah_id']);
 
         return view('admin.bpppmnu.members', compact('members', 'teachers'));
     }
