@@ -150,7 +150,16 @@ class BpppmnuEventController extends Controller
     public function scanMember(Request $request, BpppmnuEvent $event, BpppmnuAttendanceService $service)
     {
         $data = $request->validate(['nuist_id' => 'required|string|max:100']);
-        $member = User::where('nuist_id', $data['nuist_id'])->where('role', 'pengurus_bpppmnu')->first();
+        $member = User::where('nuist_id', $data['nuist_id'])
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->where('role', 'pengurus_bpppmnu')
+                    ->orWhere(function ($q) {
+                        $q->where('role', 'tenaga_pendidik')
+                            ->whereHas('bpppmnuMember', fn ($member) => $member->where('is_active', true));
+                    });
+            })
+            ->first();
         abort_unless($member, 404, 'Barcode peserta tidak dikenali.');
         $result = $service->recordMember($member, $event);
         return response()->json(['message' => $result['duplicate'] ? 'Peserta sudah tercatat hadir.' : 'Presensi peserta berhasil dicatat.', 'name' => $member->name, 'attended_at' => $result['attendance']->attended_at->format('d-m-Y H:i:s').' WIB', 'duplicate' => $result['duplicate']]);
