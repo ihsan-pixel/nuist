@@ -88,10 +88,14 @@ class BpppmnuEventController extends Controller
             'attendance_close_at' => 'required|date|after:attendance_open_at|after_or_equal:start_at',
             'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'invitees' => 'required|array|min:1|max:5000',
-            'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])->where('is_active', true)->whereExists(fn ($q) => $q->from('bpppmnu_members')->whereColumn('bpppmnu_members.user_id', 'users.id')->where('is_active', true))],
+            'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])->where('is_active', true)],
         ];
         $data = $request->validate($rules);
         $invitees = $data['invitees'];
+        $validMemberIds = User::whereIn('id', $invitees)->whereHas('bpppmnuMember', fn ($q) => $q->where('is_active', true))->pluck('id')->all();
+        if (count($validMemberIds) !== count(array_unique($invitees))) {
+            throw ValidationException::withMessages(['invitees' => 'Semua peserta undangan harus terdaftar sebagai member BPPPMNU aktif.']);
+        }
         unset($data['invitees'], $data['attachment']);
         $uploaded = null;
         try {
