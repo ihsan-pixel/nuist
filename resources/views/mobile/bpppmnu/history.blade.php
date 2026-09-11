@@ -11,32 +11,32 @@
 <style>
 .bpp-shell.bpp-history-shell { max-width:760px; background:#f6f8f7; padding:16px 16px 32px; }
 .bpp-history-header { margin-bottom:20px; }
-.bpp-history-header h1 { font-size:22px; font-weight:600; line-height:1.4; margin:0 0 6px; color:#183d32; }
-.bpp-history-header p { font-size:13px; color:#64756d; margin:0; }
+.bpp-history-header h1 { font-size:18px; font-weight:600; line-height:1.4; margin:0 0 6px; color:#183d32; }
+.bpp-history-header p { font-size:12px; color:#64756d; margin:0; }
 .bpp-history-card { background:#fff; border:1px solid #e1e8e3; border-radius:12px; margin-bottom:12px; padding:18px; }
 .bpp-history-filter { margin-bottom:24px; }
-.bpp-history-filter .form-label { font-size:12px; font-weight:500; margin-bottom:6px; }
-.bpp-history-filter .form-control,.bpp-history-filter .form-select { min-height:44px; border-color:#d7e0da; border-radius:8px; font-size:14px; min-width:0; }
+.bpp-history-filter .form-label { font-size:11px; font-weight:500; margin-bottom:6px; }
+.bpp-history-filter .form-control,.bpp-history-filter .form-select { min-height:44px; border-color:#d7e0da; border-radius:8px; font-size:12px; min-width:0; }
 .bpp-history-filter .form-control:focus,.bpp-history-filter .form-select:focus { border-color:#38775e; box-shadow:0 0 0 3px #38775e18; }
 .bpp-history-actions { display:flex; gap:10px; margin-top:16px; }
 .bpp-history-actions .btn-primary { flex:1; }
 .bpp-history-actions .btn-outline-secondary { background:#fff; }
 .bpp-history-status { display:inline-block; font-size:11px; font-weight:600; line-height:1.5; padding:4px 9px; border-radius:6px; margin-bottom:10px; background:#eef1ef; color:#59665f; }
 .bpp-history-status-present { background:#e8f3eb; color:#235a3e; }
-.bpp-history-shell .bpp-history-name { font-size:16px; font-weight:600; line-height:1.5; margin:0 0 5px; overflow-wrap:anywhere; }
-.bpp-history-date { font-size:13px; color:#627269; margin:0; }
+.bpp-history-shell .bpp-history-name { font-size:14px; font-weight:600; line-height:1.5; margin:0 0 5px; overflow-wrap:anywhere; }
+.bpp-history-date { font-size:12px; color:#627269; margin:0; }
 .bpp-history-checkin { border-top:1px solid #edf0ed; margin-top:14px; padding-top:12px; }
 .bpp-history-checkin-label { font-size:11px; color:#6a7870; margin:0 0 4px; }
-.bpp-history-checkin-time { font-size:13px; color:#344e40; margin:0; }
-.bpp-history-detail { display:inline-flex; align-items:center; gap:8px; min-height:44px; margin-top:6px; font-size:13px; font-weight:600; color:#205c43; text-decoration:none; }
+.bpp-history-checkin-time { font-size:12px; color:#344e40; margin:0; }
+.bpp-history-detail { display:inline-flex; align-items:center; gap:8px; min-height:44px; margin-top:6px; font-size:12px; font-weight:600; color:#205c43; text-decoration:none; }
 .bpp-history-detail:hover { color:#123d2c; text-decoration:underline; }
 .bpp-history-detail:focus-visible { outline:2px solid #38775e; outline-offset:3px; border-radius:4px; }
 .bpp-history-empty { text-align:center; padding:30px 20px; }
-.bpp-history-empty h2 { font-size:16px; font-weight:600; margin:0 0 8px; }
-.bpp-history-empty p { font-size:13px; color:#64756d; margin:0 auto; max-width:360px; }
-.bpp-history-pagination { margin-top:24px; font-size:12px; }
+.bpp-history-empty h2 { font-size:14px; font-weight:600; margin:0 0 8px; }
+.bpp-history-empty p { font-size:12px; color:#64756d; margin:0 auto; max-width:360px; }
+.bpp-history-pagination { margin-top:24px; font-size:11px; }
 .bpp-history-pagination .pagination { gap:4px; margin-bottom:0; flex-wrap:wrap; }
-.bpp-history-pagination .page-link { min-width:40px; min-height:44px; display:inline-flex; justify-content:center; align-items:center; font-size:13px; }
+.bpp-history-pagination .page-link { min-width:40px; min-height:44px; display:inline-flex; justify-content:center; align-items:center; font-size:12px; }
 @media(min-width:768px) { .bpp-shell.bpp-history-shell { padding:24px 24px 40px; } }
 </style>
 
