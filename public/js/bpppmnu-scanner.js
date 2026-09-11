@@ -82,6 +82,10 @@
             message(error.name === 'NotAllowedError' ? 'Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser.' : error.message);
         }
     });
+    if (window.location.hash === '#scanner') {
+        root.closest('.bpp-shell')?.classList.add('bpp-scanner-only');
+        window.setTimeout(() => start.click(), 120);
+    }
     stopButton.addEventListener('click', stop);
     window.addEventListener('pagehide', stop);
     document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
