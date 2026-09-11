@@ -78,6 +78,7 @@ class BpppmnuEventController extends Controller
     private function save(Request $request, BpppmnuEvent $event)
     {
         $rules = [];
+        $rules += ['location_validation_enabled' => 'nullable|boolean', 'latitude' => 'nullable|numeric|between:-90,90', 'longitude' => 'nullable|numeric|between:-180,180', 'location_radius_meters' => 'required|integer|between:10,1000'];
         foreach (['name', 'type', 'organizer', 'location_name'] as $field) {
             $rules[$field] = 'required|string|max:255';
         }
