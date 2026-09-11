@@ -139,7 +139,7 @@
                 </div>
                 <div class="bpp-sheet-footer">
                     @if($open && !$present)
-                        <a class="bpp-sheet-scan" href="{{ route('mobile.bpppmnu.events.show', $event) }}#scanner">Scan QR Presensi</a>
+                        <a class="bpp-sheet-scan" data-no-loader="true" href="{{ route('mobile.bpppmnu.events.show', $event) }}#scanner">Scan QR Presensi</a>
                         <button type="button" class="bpp-sheet-barcode-button" data-bs-toggle="collapse" data-bs-target="#bpp-barcode-{{ $event->id }}" aria-expanded="false" aria-controls="bpp-barcode-{{ $event->id }}"><i class="bx bx-barcode me-1" aria-hidden="true"></i>Tampilkan Barcode Saya</button>
                         <div class="collapse" id="bpp-barcode-{{ $event->id }}">
                             <p class="bpp-sheet-barcode-title">Tunjukkan barcode ini kepada admin untuk presensi.</p>
