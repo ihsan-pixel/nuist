@@ -33,7 +33,7 @@ class BpppmnuAttendanceService
             403
         );
 
-        return DB::transaction(function () use ($user, $event, $token) {
+        return DB::transaction(function () use ($user, $event, $token, $latitude, $longitude) {
             // Every mutation locks the event first, serializing scan, revoke, and admin changes.
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
             $this->check($event->invitations()->where('user_id', $user->id)->exists(), 'Anda tidak terdaftar sebagai peserta kegiatan ini.');
