@@ -1261,7 +1261,11 @@ class SkYayasanController extends Controller
                     $unchanged++;
                 });
 
-                $this->synchronizeBatchRequestsFromRows($batch);
+                $requestSyncSummary = $this->synchronizeBatchRequestsFromRows($batch);
+                $requestChanges = (int) ($syncSummary['created'] ?? 0)
+                    + (int) ($syncSummary['linked'] ?? 0)
+                    + (int) ($syncSummary['updated'] ?? 0)
+                    + (int) ($requestSyncSummary['updated'] ?? 0);
 
                 $batch->requests()->update([
                     'current_status' => 'submitted',
@@ -1270,7 +1274,7 @@ class SkYayasanController extends Controller
                     'reviewed_at' => now(),
                 ]);
 
-                $message = "Data review import berhasil diperbarui dan disinkronisasi ulang. {$updated} data diperbarui, {$unchanged} baris tidak mengubah data.";
+                $message = "Data review import berhasil diperbarui dan disinkronisasi ulang. {$updated} profil pegawai diperbarui, {$requestChanges} pengajuan/jenis/template diperbarui, {$unchanged} profil pegawai tidak berubah.";
                 return;
             }
 
@@ -4504,8 +4508,11 @@ class SkYayasanController extends Controller
         ]);
 
         $matchedRow = $this->submissionMatchedImportRow($submission);
+        $rowKeteranganValue = $matchedRow
+            ? (data_get($matchedRow->sk_payload, 'keterangan') ?: $matchedRow->source_keterangan)
+            : null;
         $rowKeterangan = $this->resolveEffectiveSkYayasanKeteranganLabel(
-            $matchedRow?->source_keterangan,
+            $rowKeteranganValue,
             $matchedRow?->source_tmt_pertama,
             $submission->employee?->tmt,
             $matchedRow?->source_masa_kerja ?: $submission->employee?->masa_kerja,
