@@ -5349,6 +5349,10 @@ class SkYayasanController extends Controller
         $created = 0;
         $linked = 0;
         $updated = 0;
+        $activeTemplates = SkYayasanTemplate::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
         foreach ($validRows as $row) {
             $employeeId = (int) $row->matched_user_id;
@@ -5379,7 +5383,7 @@ class SkYayasanController extends Controller
                         'submitted_by' => (int) ($batch->uploaded_by ?: auth()->id()),
                         'submission_letter_number' => $referenceRequest?->submission_letter_number,
                         'submission_letter_date' => $referenceRequest?->submission_letter_date,
-                        'request_type' => 'perpanjangan',
+                        'request_type' => $this->requestTypeFromImportRow($row),
                         'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
                         'current_status' => 'submitted',
                         'submitted_at' => $batch->uploaded_at ?: now(),
@@ -5393,6 +5397,7 @@ class SkYayasanController extends Controller
 
             $requestUpdate = [];
             $employmentCategory = $employee->statusKepegawaian?->name ?? $employee->ketugasan;
+            $requestType = $this->requestTypeFromImportRow($row);
 
             if ((int) $request->import_batch_id !== (int) $batch->id) {
                 $requestUpdate['import_batch_id'] = $batch->id;
@@ -5404,6 +5409,22 @@ class SkYayasanController extends Controller
 
             if ($employmentCategory && $request->employment_category !== $employmentCategory) {
                 $requestUpdate['employment_category'] = $employmentCategory;
+            }
+
+            if ($request->request_type !== $requestType) {
+                $requestUpdate['request_type'] = $requestType;
+            }
+
+            // Resolve the template again from the latest edited import row. Previously,
+            // a re-sync only updated employee data, leaving the request permanently tied
+            // to the type/template selected during its first synchronization.
+            $request->setRelation('employee', $employee);
+            $request->setRelation('importBatch', $batch);
+            $request->forceFill($requestUpdate);
+            $resolvedTemplate = $this->resolveTemplateForSubmission($request, $activeTemplates);
+
+            if ($resolvedTemplate && (int) $request->template_id !== (int) $resolvedTemplate->id) {
+                $requestUpdate['template_id'] = (int) $resolvedTemplate->id;
             }
 
             if (empty($request->submitted_by) && !empty($batch->uploaded_by)) {
@@ -5429,6 +5450,25 @@ class SkYayasanController extends Controller
         ];
     }
 
+    private function requestTypeFromImportRow(SkYayasanImportRow $row): string
+    {
+        $keterangan = $this->normalizeTemplateText((string) (
+            data_get($row->sk_payload, 'keterangan') ?: $row->source_keterangan
+        ));
+        $hasPengangkatan = $this->containsTemplateWord($keterangan, 'pengangkatan');
+        $hasPerpanjangan = $this->containsTemplateWord($keterangan, 'perpanjangan');
+
+        if ($hasPengangkatan && !$hasPerpanjangan) {
+            return 'pengangkatan';
+        }
+
+        if ($hasPengangkatan && $hasPerpanjangan) {
+            return 'pengangkatan_perpanjangan';
+        }
+
+        return 'perpanjangan';
+    }
+
     private function repairSyncedBatchesRequests(?int $madrasahId = null): void
     {
         $batches = SkYayasanImportBatch::query()
@@ -5451,17 +5491,8 @@ class SkYayasanController extends Controller
                 continue;
             }
 
-            $actualEmployeeIds = $batch->requests
-                ->map(fn (SkYayasanRequest $request) => (int) $request->employee_id)
-                ->filter()
-                ->unique()
-                ->sort()
-                ->values();
-
-            if ($actualEmployeeIds->all() === $expectedEmployeeIds->all()) {
-                continue;
-            }
-
+            // This also repairs stale request type/template values from older
+            // synchronizations, even when all employee/request links already exist.
             $this->synchronizeBatchRequestsFromRows($batch);
         }
     }
