@@ -96,6 +96,9 @@ class BpppmnuEventController extends Controller
         // dihilangkan dari form. Pastikan selalu dikirim saat insert/update.
         $data['description'] = (string) ($data['description'] ?? '');
         $data['person_in_charge'] = (string) ($data['person_in_charge'] ?? '');
+        // Checkbox yang tidak dicentang tidak dikirim browser; ubah eksplisit
+        // menjadi false agar status validasi lokasi benar-benar nonaktif.
+        $data['location_validation_enabled'] = $request->boolean('location_validation_enabled');
         $invitees = $data['invitees'];
         $validMemberIds = User::whereIn('id', $invitees)->whereHas('bpppmnuMember', fn ($q) => $q->where('is_active', true))->pluck('id')->all();
         if (count($validMemberIds) !== count(array_unique($invitees))) {
