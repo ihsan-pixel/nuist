@@ -4606,18 +4606,6 @@ class SkYayasanController extends Controller
             return $normalized;
         }
 
-        if (in_array($employmentType, ['gtt', 'ptt'], true) && $isTwoYearsOrMore === true) {
-            if ($hasNipm) {
-                return $employmentType === 'gtt'
-                    ? 'Perpanjangan GTY'
-                    : 'Perpanjangan PTY';
-            }
-
-            return $employmentType === 'gtt'
-                ? 'Pengangkatan GTY'
-                : 'Pengangkatan PTY';
-        }
-
         return $normalized;
     }
 

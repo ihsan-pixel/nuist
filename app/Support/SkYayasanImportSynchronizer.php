@@ -498,18 +498,6 @@ class SkYayasanImportSynchronizer
             }
         }
 
-        if (in_array($employmentType, ['gtt', 'ptt'], true) && in_array($tenureBand, ['between_2_and_3_years', 'three_years_or_more'], true)) {
-            if ($hasNipm) {
-                return $employmentType === 'gtt'
-                    ? 'Perpanjangan GTY'
-                    : 'Perpanjangan PTY';
-            }
-
-            return $employmentType === 'gtt'
-                ? 'Pengangkatan GTY'
-                : 'Pengangkatan PTY';
-        }
-
         return $normalized;
     }
 
