@@ -24,6 +24,7 @@
 
     const isConfigured = missingConfig.length === 0;
     const canUseWebPush = 'serviceWorker' in navigator && 'Notification' in window;
+    const isBpppmnuPage = <?php echo json_encode(request()->routeIs('mobile.bpppmnu.*'), 15, 512) ?>;
     let firebaseMessaging = null;
 
     const log = (message, details = {}) => {
@@ -48,6 +49,9 @@
     }
 
     function addPermissionTrigger() {
+        if (isBpppmnuPage) {
+            return;
+        }
         if (document.getElementById('fcm-web-enable') || Notification.permission !== 'default') {
             return;
         }

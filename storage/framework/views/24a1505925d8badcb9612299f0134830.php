@@ -545,6 +545,9 @@
                     break;
                 }
             }
+            if (request()->routeIs('mobile.bpppmnu.*') && $user?->bpppmnuMember?->is_active) {
+                $showNav = true;
+            }
             if (! $showNav && $isTeacherMobileAliasHost) {
                 foreach ($teacherMobilePathPatterns as $pattern) {
                     if (request()->is($pattern)) {
@@ -568,7 +571,7 @@
         $isTeacherProfileActive = request()->routeIs('mobile.profile') || ($isTeacherMobileAliasHost && (request()->is('mobile/profile') || request()->is('mobile/ubah-akun')));
     ?>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showNav): ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'pengurus_bpppmnu'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'pengurus_bpppmnu' || ($user?->bpppmnuMember?->is_active && request()->routeIs('mobile.bpppmnu.*'))): ?>
     <nav class="mobile-nav custom-bottom-nav" aria-label="Menu utama">
         <div class="nav-container">
             <a href="<?php echo e(route('mobile.bpppmnu.presensi')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.bpppmnu.presensi', 'mobile.bpppmnu.events.*') ? 'active' : ''); ?>"><i class="bx bx-qr-scan"></i><span>Presensi</span></a>

@@ -43,7 +43,7 @@
     </div>
 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <div class="bpp-history-pagination">
-    <?php echo e($history->links()); ?>
+    <?php echo e($history->links('pagination::bootstrap-5')); ?>
 
 </div>
 <?php $__env->stopSection(); ?>

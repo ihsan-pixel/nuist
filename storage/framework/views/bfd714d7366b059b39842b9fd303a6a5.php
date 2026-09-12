@@ -138,7 +138,7 @@
                 </div>
                 <div class="bpp-sheet-footer">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($open && !$present): ?>
-                        <a class="bpp-sheet-scan" href="<?php echo e(route('mobile.bpppmnu.events.show', $event)); ?>#scanner">Scan QR Presensi</a>
+                        <a class="bpp-sheet-scan" data-no-loader="true" href="<?php echo e(route('mobile.bpppmnu.events.show', $event)); ?>#scanner">Scan QR Presensi</a>
                         <button type="button" class="bpp-sheet-barcode-button" data-bs-toggle="collapse" data-bs-target="#bpp-barcode-<?php echo e($event->id); ?>" aria-expanded="false" aria-controls="bpp-barcode-<?php echo e($event->id); ?>"><i class="bx bx-barcode me-1" aria-hidden="true"></i>Tampilkan Barcode Saya</button>
                         <div class="collapse" id="bpp-barcode-<?php echo e($event->id); ?>">
                             <p class="bpp-sheet-barcode-title">Tunjukkan barcode ini kepada admin untuk presensi.</p>
@@ -160,7 +160,7 @@
     </div>
 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <div class="bpp-home-pagination">
-    <?php echo e($events->links()); ?>
+    <?php echo e($events->links('pagination::bootstrap-5')); ?>
 
 </div>
 <?php $__env->stopSection(); ?>

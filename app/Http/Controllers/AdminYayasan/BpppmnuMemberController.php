@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\BpppmnuMember;
 use App\Imports\BpppmnuMembersImport;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -21,6 +22,19 @@ class BpppmnuMemberController extends Controller
         $teachers = User::with(['madrasah:id,name', 'madrasahTambahan:id,name'])->where('role', 'tenaga_pendidik')->where('is_active', true)->orderBy('name')->get(['id', 'name', 'email', 'jabatan', 'ketugasan', 'instansi_asal', 'madrasah_id', 'madrasah_id_tambahan']);
 
         return view('admin.bpppmnu.members', compact('members', 'teachers'));
+    }
+
+    public function exportPdf()
+    {
+        $members = User::with('bpppmnuMember')
+            ->whereHas('bpppmnuMember', fn ($query) => $query->where('is_active', true))
+            ->orderBy('name')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.bpppmnu.members-pdf', compact('members'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download('data-pengurus-bpppmnu-'.now()->format('Y-m-d').'.pdf');
     }
 
     public function store(Request $request)
