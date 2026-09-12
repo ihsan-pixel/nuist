@@ -12,6 +12,7 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
+use BaconQrCode\Common\ErrorCorrectionLevel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -210,7 +211,7 @@ class BpppmnuEventController extends Controller
     {
         $token = $service->issue($event);
         $payload = json_encode(['type' => 'bpppmnu', 'event_id' => $event->id, 'token' => $token]);
-        $svg = (new Writer(new ImageRenderer(new RendererStyle(360), new SvgImageBackEnd)))->writeString($payload);
+        $svg = (new Writer(new ImageRenderer(new RendererStyle(360), new SvgImageBackEnd)))->writeString($payload, 'UTF-8', ErrorCorrectionLevel::H());
 
         return response()->view('admin.bpppmnu.qr', compact('event', 'svg'))->header('Cache-Control', 'private, no-store');
     }

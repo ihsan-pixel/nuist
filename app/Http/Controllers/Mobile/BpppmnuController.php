@@ -9,6 +9,8 @@ use App\Services\BpppmnuReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use BaconQrCode\Common\ErrorCorrectionLevel;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -32,7 +34,12 @@ class BpppmnuController extends Controller
     {
         abort_unless($request->user()->nuist_id, 422, 'ID NUIST belum tersedia.');
         $renderer = new ImageRenderer(new RendererStyle(320), new SvgImageBackEnd());
-        $svg = (new Writer($renderer))->writeString((string) $request->user()->nuist_id);
+        $svg = (new Writer($renderer))->writeString((string) $request->user()->nuist_id, 'UTF-8', ErrorCorrectionLevel::H());
+        $logoPath = public_path('images/logo-maarif-nu.png');
+        if (File::exists($logoPath)) {
+            $logo = 'data:image/png;base64,'.base64_encode(File::get($logoPath));
+            $svg = preg_replace('/<\/svg>\s*$/', '<rect x="140" y="140" width="40" height="40" rx="6" fill="white" stroke="#0b6b3a" stroke-width="2"/><image x="145" y="145" width="30" height="30" href="'.$logo.'" preserveAspectRatio="xMidYMid meet"/></svg>', $svg);
+        }
 
         return response($svg, 200, [
             'Content-Type' => 'image/svg+xml',
