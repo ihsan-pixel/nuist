@@ -92,6 +92,10 @@ class BpppmnuEventController extends Controller
             'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])->where('is_active', true)],
         ];
         $data = $request->validate($rules);
+        // Kolom lama pada database masih NOT NULL, meskipun field-nya sudah
+        // dihilangkan dari form. Pastikan selalu dikirim saat insert/update.
+        $data['description'] = (string) ($data['description'] ?? '');
+        $data['person_in_charge'] = (string) ($data['person_in_charge'] ?? '');
         $invitees = $data['invitees'];
         $validMemberIds = User::whereIn('id', $invitees)->whereHas('bpppmnuMember', fn ($q) => $q->where('is_active', true))->pluck('id')->all();
         if (count($validMemberIds) !== count(array_unique($invitees))) {
@@ -113,8 +117,8 @@ class BpppmnuEventController extends Controller
                 $event->fill($data);
                 if (! $event->exists) {
                     // Retain compatibility with the existing non-null database column.
-                    $event->person_in_charge = '';
-                    $event->fill(['created_by' => $request->user()->id, 'status' => 'draft']);
+                    $event->created_by = $request->user()->id;
+                    $event->status = 'draft';
                 }
                 if ($uploaded) {
                     $event->attachment = $uploaded;
