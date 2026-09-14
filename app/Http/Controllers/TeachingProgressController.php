@@ -49,7 +49,7 @@ class TeachingProgressController extends Controller
         $monthlyHolidayKeys = $this->getHolidayKeys($startOfMonth, $effectiveEndOfMonth);
 
         foreach ($allMadrasahs as $madrasah) {
-            $teachers = $this->getEligibleTeachers($madrasah->id, false);
+            $teachers = $this->getEligibleTeachers($madrasah->id);
             $totalTeachers = $teachers->count();
 
             if ($totalTeachers == 0) {
@@ -543,20 +543,16 @@ class TeachingProgressController extends Controller
             ->all();
     }
 
-    private function getEligibleTeachers($madrasahId, $excludePrincipal = true)
+    private function getEligibleTeachers($madrasahId)
     {
-        $query = User::where('madrasah_id', $madrasahId)
+        return User::where('madrasah_id', $madrasahId)
             ->where('role', 'tenaga_pendidik')
-            ->whereNotIn('status_kepegawaian_id', [7, 8]);
-
-        if ($excludePrincipal) {
-            $query->where(function ($subQuery) {
+            ->whereNotIn('status_kepegawaian_id', [7, 8])
+            ->where(function ($subQuery) {
                 $subQuery->whereNull('ketugasan')
                     ->orWhereRaw('LOWER(ketugasan) NOT LIKE ?', ['%kepala%']);
-            });
-        }
-
-        return $query->get();
+            })
+            ->get();
     }
 
     private function hasTeachingAttendance($teacherId, Carbon $date)
