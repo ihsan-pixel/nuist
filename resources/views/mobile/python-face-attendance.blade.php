@@ -241,7 +241,7 @@
         for (let index = 0; index < 5; index++) {
             frames.push(captureFrame());
             if (index < 4) {
-                await new Promise(resolve => setTimeout(resolve, 280));
+                await new Promise(resolve => setTimeout(resolve, 180));
             }
         }
         return frames;
@@ -323,7 +323,7 @@
             stopCamera();
             await startCamera();
             setStatus('Kamera siap. Pegang ponsel stabil dan pastikan wajah cukup terang.', 'success');
-            await new Promise(resolve => window.setTimeout(resolve, 900));
+            await new Promise(resolve => window.setTimeout(resolve, 600));
             initializing = false;
             await verifyFace();
         } catch (error) {

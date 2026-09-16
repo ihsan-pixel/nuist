@@ -6,6 +6,7 @@ import logging
 import math
 import os
 import time
+import threading
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -20,6 +21,7 @@ from pydantic import BaseModel, Field
 
 APP_VERSION = "0.2.0"
 logger = logging.getLogger("kiosk_face_engine")
+analysis_lock = threading.Lock()
 logging.basicConfig(
     level=os.getenv("KIOSK_FACE_LOG_LEVEL", "INFO").upper(),
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -457,6 +459,13 @@ def detect_face(image: np.ndarray, engine: ModelBundle) -> tuple[np.ndarray, tup
 
 
 def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
+    # YuNet's setInputSize/detect mutate a shared detector. Serialize the
+    # burst so concurrent requests cannot change its dimensions mid-frame.
+    with analysis_lock:
+        return _analyze_frames(frame_payloads)
+
+
+def _analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
     try:
         engine = face_engine()
     except EngineUnavailable as exc:
@@ -471,12 +480,8 @@ def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
         # first, then the three rotated variants before rejecting the sample.
         oriented_image = None
         detection = None
-        for candidate_image in (
-            image,
-            cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE),
-            cv2.rotate(image, cv2.ROTATE_180),
-            cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE),
-        ):
+        for rotation in (None, cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_180, cv2.ROTATE_90_COUNTERCLOCKWISE):
+            candidate_image = image if rotation is None else cv2.rotate(image, rotation)
             detection = detect_face(candidate_image, engine)
             if detection is not None:
                 oriented_image = candidate_image
@@ -899,9 +904,16 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         for candidate in request.candidates
         if any(vector.dimension == 512 and is_vector_compatible(vector.type) for vector in candidate.vectors)
     }
-    if not embedding_cache.has_users(set(compatible_candidates)):
+    # Verification must compare only against the request's current profiles,
+    # independent of the shared kiosk cache and other logged-in users.
+    match_cache = embedding_cache
+    if request.context.get("verification_mode") == "1:1":
+        match_cache = EmbeddingCache()
+        if len(compatible_candidates) != 1:
+            raise HTTPException(status_code=422, detail="Verifikasi 1:1 membutuhkan tepat satu pengguna.")
+    if not match_cache.has_users(set(compatible_candidates)):
         try:
-            embedding_cache.refresh(request.candidates)
+            match_cache.refresh(request.candidates)
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -909,15 +921,15 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
     best_face_id: str | None = None
     best_similarity = -1.0
 
-    if embedding_cache.matrix.shape[0]:
-        similarities = embedding_cache.matrix @ best.embedding
+    if match_cache.matrix.shape[0]:
+        similarities = match_cache.matrix @ best.embedding
         best_index = int(np.argmax(similarities))
         best_similarity = float(similarities[best_index])
-        best_user_id = int(embedding_cache.user_ids[best_index])
+        best_user_id = int(match_cache.user_ids[best_index])
         best_candidate = compatible_candidates.get(best_user_id)
-        best_face_id = embedding_cache.face_ids[best_index]
+        best_face_id = match_cache.face_ids[best_index]
 
-    compatible_vector_count = int(embedding_cache.matrix.shape[0])
+    compatible_vector_count = int(match_cache.matrix.shape[0])
 
     if compatible_vector_count == 0:
         raise HTTPException(
@@ -953,11 +965,11 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         for analysis in analyses:
             winner_id = None
             winner_similarity = -1.0
-            if embedding_cache.matrix.shape[0]:
-                similarities = embedding_cache.matrix @ analysis.embedding
+            if match_cache.matrix.shape[0]:
+                similarities = match_cache.matrix @ analysis.embedding
                 winner_index = int(np.argmax(similarities))
                 winner_similarity = float(similarities[winner_index])
-                winner_id = int(embedding_cache.user_ids[winner_index])
+                winner_id = int(match_cache.user_ids[winner_index])
             if winner_id is not None:
                 frame_winners.append(winner_id)
 

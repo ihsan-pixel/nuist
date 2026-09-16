@@ -52,7 +52,7 @@ class KioskFaceEngineService
             'context' => $this->normalizeContext($context),
         ]);
 
-        if (!($response['success'] ?? false)) {
+        if (! ($response['success'] ?? false)) {
             return $response;
         }
 
@@ -108,7 +108,7 @@ class KioskFaceEngineService
             'context' => $this->normalizeContext($context),
         ]);
 
-        if (!($response['success'] ?? false)) {
+        if (! ($response['success'] ?? false)) {
             return $response;
         }
 
@@ -116,7 +116,7 @@ class KioskFaceEngineService
             ? (int) $response['user_id']
             : null;
 
-        if (!$userId) {
+        if (! $userId) {
             return $this->failure(
                 'Engine wajah Python tidak mengembalikan identitas guru yang valid.',
                 'engine_user_missing'
@@ -149,7 +149,7 @@ class KioskFaceEngineService
      */
     public function verify(User $user, array $payload, array $context = []): array
     {
-        $profile = $user->biometricProfiles()
+        $profiles = $user->biometricProfiles()
             ->where('status', 'active')
             ->where('engine', 'onnxruntime')
             ->where('model', config('kiosk_face_v2.model', 'arcface'))
@@ -157,10 +157,21 @@ class KioskFaceEngineService
             ->where('dimension', 512)
             ->orderByDesc('enrolled_at')
             ->orderByDesc('id')
-            ->first();
+            ->get();
 
-        $embedding = $profile ? $this->normalizeVector($profile->embedding) : [];
-        if (!$profile || count($embedding) !== 512) {
+        $vectors = [];
+        foreach ($profiles as $profile) {
+            $embedding = $this->normalizeVector($profile->embedding);
+            if (count($embedding) === 512) {
+                $vectors[] = [
+                    'type' => 'face_embedding:'.config('kiosk_face_v2.provider', 'insightface_arcface'),
+                    'dimension' => 512,
+                    'values' => $embedding,
+                    'pose' => $profile->pose,
+                ];
+            }
+        }
+        if ($vectors === []) {
             return $this->failure(
                 'Profil wajah ArcFace aktif belum tersedia untuk akun ini.',
                 'arcface_profile_not_found'
@@ -172,12 +183,7 @@ class KioskFaceEngineService
                 'user_id' => $user->id,
                 'name' => $user->name,
                 'face_id' => $user->face_id,
-                'vectors' => [[
-                    'type' => 'face_embedding:'.config('kiosk_face_v2.provider', 'insightface_arcface'),
-                    'dimension' => 512,
-                    'values' => $embedding,
-                    'pose' => $profile->pose,
-                ]],
+                'vectors' => $vectors,
             ]],
             $payload,
             $context + ['verification_mode' => '1:1']
@@ -201,7 +207,7 @@ class KioskFaceEngineService
         try {
             $response = $this->request()->post($path, $payload);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 $json = $response->json();
 
                 $failure = $this->failure(
@@ -216,11 +222,12 @@ class KioskFaceEngineService
                         }
                     }
                 }
+
                 return $failure;
             }
 
             $json = $response->json();
-            if (!is_array($json)) {
+            if (! is_array($json)) {
                 return $this->failure(
                     'Respons engine wajah Python tidak dapat dibaca.',
                     'engine_invalid_response',
@@ -261,7 +268,7 @@ class KioskFaceEngineService
         $candidates = [];
 
         foreach ($users as $user) {
-            if (!$user instanceof User) {
+            if (! $user instanceof User) {
                 continue;
             }
 
@@ -291,14 +298,14 @@ class KioskFaceEngineService
             'context' => $this->normalizeContext($context),
         ]);
 
-        if (!($response['success'] ?? false)) {
+        if (! ($response['success'] ?? false)) {
             return $response;
         }
 
         $userId = isset($response['user_id']) && is_numeric($response['user_id'])
             ? (int) $response['user_id']
             : null;
-        if (!$userId) {
+        if (! $userId) {
             return $this->failure(
                 'Engine wajah Python tidak mengembalikan identitas yang valid.',
                 'engine_user_missing'
@@ -449,13 +456,13 @@ class KioskFaceEngineService
 
     private function normalizeVector(mixed $vector): array
     {
-        if (!is_array($vector)) {
+        if (! is_array($vector)) {
             return [];
         }
 
         $normalized = [];
         foreach ($vector as $value) {
-            if (!is_numeric($value)) {
+            if (! is_numeric($value)) {
                 return [];
             }
 
@@ -467,7 +474,7 @@ class KioskFaceEngineService
 
     private function normalizeChallenges(mixed $challenges): array
     {
-        if (!is_array($challenges)) {
+        if (! is_array($challenges)) {
             return [];
         }
 
@@ -504,7 +511,7 @@ class KioskFaceEngineService
 
     private function normalizeProvider(mixed $value): ?string
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return null;
         }
 

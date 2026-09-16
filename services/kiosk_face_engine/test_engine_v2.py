@@ -1,4 +1,5 @@
 import time
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -49,3 +50,26 @@ def test_cache_invalidation_removes_only_requested_users():
     cache.refresh([candidate(1, 1), candidate(2, 2), candidate(3, 3)])
     assert cache.invalidate([2]) == 1
     assert set(cache.user_ids.tolist()) == {1, 3}
+
+
+def test_mobile_verification_uses_current_profiles_without_shared_cache(monkeypatch):
+    import main
+
+    current = candidate(1, 5)
+    stale = candidate(1, 2)
+    other = candidate(2, 5)
+    main.embedding_cache.refresh([stale, other])
+    best = SimpleNamespace(embedding=np.asarray(current.vectors[0].values, dtype=np.float32), frame_data='test')
+    monkeypatch.setattr(main, 'analyze_frames', lambda frames: [best, best, best])
+    monkeypatch.setattr(main, 'choose_best_analysis', lambda analyses: best)
+    monkeypatch.setattr(main, 'compute_liveness', lambda analyses: (1.0, [], {}))
+    try:
+        result = main.identify(main.IdentifyRequest(
+            frames=['test'], candidates=[current], context={'verification_mode': '1:1'},
+        ))
+        assert result['success'] is True
+        assert result['user_id'] == 1
+        assert result['similarity'] > 0.99
+        assert set(main.embedding_cache.user_ids.tolist()) == {1, 2}
+    finally:
+        main.embedding_cache.invalidate([])
