@@ -4610,6 +4610,17 @@ window.addEventListener('load', function() {
 
             const pythonUrl = this.dataset.pythonUrl;
             if (pythonUrl) {
+                const reading = syncLatestLocationState().lastReading;
+                if (!reading || !Number.isFinite(Number(reading.latitude))
+                    || !Number.isFinite(Number(reading.longitude))
+                    || Date.now() - Number(reading.timestamp) > 120000) {
+                    showFormalErrorAlert('Lokasi Belum Siap', 'Tunggu pembacaan lokasi terbaru di halaman presensi sebelum melanjutkan.');
+                    return;
+                }
+                sessionStorage.setItem('python-presensi-location', JSON.stringify({
+                    userId: @json(auth()->id()),
+                    reading,
+                }));
                 window.location.assign(pythonUrl);
                 return;
             }

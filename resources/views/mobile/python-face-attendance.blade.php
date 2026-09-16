@@ -142,7 +142,7 @@
         <canvas id="python-face-canvas" hidden></canvas>
 
         <p class="face-check-instruction">Arahkan wajah ke tengah bingkai dan tetap diam sejenak.</p>
-        <output id="python-face-status" class="alert alert-info" aria-live="polite">Menyiapkan kamera dan lokasi...</output>
+        <output id="python-face-status" class="alert alert-info" aria-live="polite">Menyiapkan kamera...</output>
         <button id="python-face-submit" type="button" class="btn btn-success" hidden>
             <span class="button-label">Scan ulang</span>
             <span class="spinner-border spinner-border-sm ms-1" hidden role="status" aria-hidden="true"></span>
@@ -164,6 +164,7 @@
     const endpoint = @json($presensiStoreUrl);
     const presensiUrl = @json($presensiUrl);
     const csrf = @json(csrf_token());
+    const userId = @json($user->id);
     let stream = null;
     let location = null;
     let verificationInFlight = false;
@@ -191,20 +192,37 @@
         });
         video.srcObject = stream;
         await video.play();
+        await new Promise((resolve, reject) => {
+            const deadline = Date.now() + 10000;
+            function check() {
+                if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+                    resolve();
+                } else if (Date.now() >= deadline) {
+                    reject(new Error('Gambar kamera belum siap. Silakan coba kembali.'));
+                } else {
+                    window.setTimeout(check, 100);
+                }
+            }
+            check();
+        });
     }
 
     function readLocation() {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject(new Error('Lokasi tidak didukung oleh browser.'));
-                return;
-            }
-            navigator.geolocation.getCurrentPosition(
-                position => resolve(position),
-                () => reject(new Error('Izin lokasi diperlukan untuk presensi.')),
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
-        });
+        let saved;
+        try {
+            saved = JSON.parse(sessionStorage.getItem('python-presensi-location') || 'null');
+        } catch (_) {
+            saved = null;
+        }
+        const reading = saved?.reading;
+        if (saved?.userId !== userId || !reading
+            || !Number.isFinite(reading.latitude) || Math.abs(reading.latitude) > 90
+            || !Number.isFinite(reading.longitude) || Math.abs(reading.longitude) > 180
+            || !Number.isFinite(reading.timestamp)
+            || Date.now() - reading.timestamp < 0 || Date.now() - reading.timestamp > 120000) {
+            throw new Error('Lokasi dari halaman presensi sudah tidak tersedia atau kedaluwarsa. Kembali ke halaman presensi untuk memperbarui lokasi.');
+        }
+        return { coords: reading };
     }
 
     function captureFrame() {
@@ -248,6 +266,7 @@
         setStatus('Memeriksa wajah...', 'info');
 
         try {
+            location = readLocation();
             const frames = await captureFrames();
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -284,19 +303,37 @@
         }
     }
 
-    submit.addEventListener('click', verifyFace);
+    submit.addEventListener('click', () => {
+        if (!stream || video.readyState < 2) {
+            initialize();
+        } else {
+            verifyFace();
+        }
+    });
     window.addEventListener('pagehide', stopCamera);
 
-    Promise.all([
-        startCamera(),
-        readLocation().then(position => { location = position; }),
-    ]).then(() => {
-        setStatus('Kamera siap. Tetap diam, verifikasi dimulai otomatis.', 'success');
-        // Let auto-exposure settle before collecting the recognition burst.
-        window.setTimeout(verifyFace, 900);
-    }).catch(error => {
-        showRetry(error.message || 'Kamera atau lokasi belum siap.');
-    });
+    let initializing = false;
+    async function initialize() {
+        if (initializing || verificationInFlight) return;
+        initializing = true;
+        submit.hidden = true;
+        setStatus('Menyiapkan kamera...', 'info');
+        try {
+            location = readLocation();
+            stopCamera();
+            await startCamera();
+            setStatus('Kamera siap. Pegang ponsel stabil dan pastikan wajah cukup terang.', 'success');
+            await new Promise(resolve => window.setTimeout(resolve, 900));
+            initializing = false;
+            await verifyFace();
+        } catch (error) {
+            stopCamera();
+            showRetry(error.message || 'Kamera belum siap.');
+        } finally {
+            initializing = false;
+        }
+    }
+    initialize();
 })();
 </script>
 @endsection
