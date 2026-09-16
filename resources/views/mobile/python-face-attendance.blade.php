@@ -222,7 +222,13 @@
             || Date.now() - reading.timestamp < 0 || Date.now() - reading.timestamp > 120000) {
             throw new Error('Lokasi dari halaman presensi sudah tidak tersedia atau kedaluwarsa. Kembali ke halaman presensi untuk memperbarui lokasi.');
         }
-        return { coords: reading };
+        return {
+            coords: reading,
+            lokasi: typeof saved.lokasi === 'string' && saved.lokasi.trim()
+                ? saved.lokasi.trim()
+                : `${reading.latitude.toFixed(6)}, ${reading.longitude.toFixed(6)}`,
+            readings: Array.isArray(saved.readings) ? saved.readings : [reading],
+        };
     }
 
     function captureFrame() {
@@ -284,6 +290,8 @@
                     presensi_mode: mode,
                     latitude: location.coords.latitude,
                     longitude: location.coords.longitude,
+                    lokasi: location.lokasi,
+                    location_readings: JSON.stringify(location.readings),
                     accuracy: location.coords.accuracy,
                     altitude: location.coords.altitude,
                     speed: location.coords.speed,

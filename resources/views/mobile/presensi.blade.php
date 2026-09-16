@@ -4610,7 +4610,8 @@ window.addEventListener('load', function() {
 
             const pythonUrl = this.dataset.pythonUrl;
             if (pythonUrl) {
-                const reading = syncLatestLocationState().lastReading;
+                const locationState = syncLatestLocationState();
+                const reading = locationState.lastReading;
                 if (!reading || !Number.isFinite(Number(reading.latitude))
                     || !Number.isFinite(Number(reading.longitude))
                     || Date.now() - Number(reading.timestamp) > 120000) {
@@ -4620,6 +4621,8 @@ window.addEventListener('load', function() {
                 sessionStorage.setItem('python-presensi-location', JSON.stringify({
                     userId: @json(auth()->id()),
                     reading,
+                    lokasi: locationState.lokasi || '',
+                    readings: locationReadings,
                 }));
                 window.location.assign(pythonUrl);
                 return;
