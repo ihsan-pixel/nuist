@@ -562,15 +562,14 @@ def compute_liveness(analyses: list[FaceFrameAnalysis]) -> tuple[float, list[dic
     blur_quality = clamp(typical_blur / 140.0)
     contrast_quality = clamp(typical_contrast / 35.0)
     lighting_quality = clamp((typical_brightness / 165.0) * 0.8 + contrast_quality * 0.2)
-    natural_motion = clamp((movement / 18.0) * 0.7 + area_shift * 3.2)
-    # A stable face should not fail liveness merely because the user holds still.
-    # Conversely, large bounding-box jumps are more likely to be capture noise
-    # than a useful live-motion signal, so they are explicitly penalized.
-    # Camera/device movement can change the detected box even when the face is
-    # held still. Treat a low-motion burst as valid and reserve rejection for
-    # genuinely excessive frame-to-frame jumps.
-    expected_motion = 0.05
-    motion_tolerance = 0.55
+    # Measure displacement relative to face size, so the same small movement
+    # is treated consistently when the user is closer to the camera.
+    face_scale = max(math.sqrt(float(np.median(areas))), 1.0)
+    relative_movement = movement / face_scale
+    natural_motion = clamp((relative_movement / 0.18) * 0.7 + area_shift * 2.0)
+    # Allow ordinary handheld movement; retain rejection for large jumps.
+    expected_motion = 0.10
+    motion_tolerance = 0.75
     motion_quality = clamp(1.0 - abs(natural_motion - expected_motion) / motion_tolerance)
     excessive_motion = natural_motion > (expected_motion + motion_tolerance)
     replay_risk = clamp(1.0 - ((natural_motion * 0.55) + (blur_quality * 0.3) + (contrast_quality * 0.15)))
@@ -635,6 +634,7 @@ def compute_liveness(analyses: list[FaceFrameAnalysis]) -> tuple[float, list[dic
         "typical_detection": round(typical_detection, 4),
         "capture_quality": round(capture_quality, 4),
         "natural_motion": round(natural_motion, 4),
+        "relative_movement": round(relative_movement, 4),
         "motion_quality": round(motion_quality, 4),
         "excessive_motion": excessive_motion,
         "replay_risk": round(replay_risk, 4),

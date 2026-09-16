@@ -73,3 +73,35 @@ def test_mobile_verification_uses_current_profiles_without_shared_cache(monkeypa
         assert set(main.embedding_cache.user_ids.tolist()) == {1, 2}
     finally:
         main.embedding_cache.invalidate([])
+
+
+def motion_burst(offsets, scale=1.0):
+    return [SimpleNamespace(
+        bbox=(x * scale, 0, (x + 160) * scale, 160 * scale),
+        blur_score=140, brightness=160, contrast=35, det_score=0.95,
+    ) for x in offsets]
+
+
+def test_small_handheld_motion_passes_liveness_at_default_threshold():
+    from main import compute_liveness
+
+    score, _, metadata = compute_liveness(motion_burst([0, 8, -6, 10, -4]))
+    assert metadata['excessive_motion'] is False
+    assert score >= 0.68
+
+
+def test_motion_tolerance_is_relative_to_face_size():
+    from main import compute_liveness
+
+    score, _, metadata = compute_liveness(motion_burst([0, 8, -6, 10, -4]))
+    scaled_score, _, scaled_metadata = compute_liveness(motion_burst([0, 8, -6, 10, -4], 2))
+    assert score == scaled_score
+    assert metadata['relative_movement'] == scaled_metadata['relative_movement']
+
+
+def test_large_motion_still_fails_liveness():
+    from main import compute_liveness
+
+    score, _, metadata = compute_liveness(motion_burst([0, 100, -100, 100, -100]))
+    assert metadata['excessive_motion'] is True
+    assert score < 0.68
