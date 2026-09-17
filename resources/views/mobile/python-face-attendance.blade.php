@@ -48,10 +48,15 @@
     }
 
     .face-check-eyebrow {
-        margin: 0 0 5px;
-        color: var(--face-muted);
+        display: inline-block;
+        margin: 0 0 10px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: var(--face-accent);
+        color: #fff;
         font-size: 12px;
-        font-weight: 500;
+        font-weight: 600;
+        line-height: 1.4;
     }
 
     .face-check-title {
@@ -113,7 +118,7 @@
     .face-check-instruction {
         margin: 20px 0 6px;
         color: var(--face-ink);
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 600;
     }
 
@@ -121,7 +126,7 @@
         margin: 0 auto 20px;
         max-width: 300px;
         color: var(--face-muted);
-        font-size: 13px;
+        font-size: 11px;
         line-height: 1.6;
     }
 
@@ -137,7 +142,7 @@
         border-radius: 12px;
         background: #fff;
         color: var(--face-muted);
-        font-size: 13px;
+        font-size: 12px;
         line-height: 1.5;
         text-align: left;
         overflow-wrap: anywhere;
