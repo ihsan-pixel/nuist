@@ -74,7 +74,10 @@ class RebuildFaceEmbeddingsTest extends TestCase
     private function mockEngine(int $dimension = 512): void
     {
         $this->mock(KioskFaceEngineService::class, function ($mock) use ($dimension) {
-            $mock->shouldReceive('enroll')->andReturn([
+            $mock->shouldReceive('enroll')->withArgs(function ($user, $payload, $context) {
+                return ($context['rebuild'] ?? false) === true
+                    && ! array_key_exists('expected_pose', $context);
+            })->andReturn([
                 'success' => true, 'provider' => 'insightface_arcface',
                 'model' => 'arcface', 'model_version' => 'buffalo_l_w600k_r50',
                 'face_embedding' => array_fill(0, $dimension, 1 / sqrt($dimension)),

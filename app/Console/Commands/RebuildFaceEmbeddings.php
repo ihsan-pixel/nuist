@@ -65,7 +65,8 @@ class RebuildFaceEmbeddings extends Command
                         $user,
                         ['selfie_frames' => [$captureImage]],
                         [
-                            'expected_pose' => str_starts_with($capture->phase_key, 'front') ? 'front' : $capture->phase_key,
+                            // Archived phase labels are retained on the profile,
+                            // but are not a live directional pose challenge.
                             'rebuild' => true,
                         ],
                     );
