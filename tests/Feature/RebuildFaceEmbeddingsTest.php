@@ -112,4 +112,22 @@ class RebuildFaceEmbeddingsTest extends TestCase
         $this->artisan('face:rebuild-embeddings')->assertExitCode(1);
         $this->assertDatabaseCount('biometric_profiles', 1);
     }
+
+    public function test_existing_hosting_arcface_profile_is_untouched_without_engine_calls(): void
+    {
+        $user = $this->seedCaptures();
+        $profile = BiometricProfile::create([
+            'user_id' => $user->id, 'enrollment_uuid' => (string) Str::uuid(),
+            'engine' => 'onnxruntime', 'model' => 'arcface',
+            'model_version' => 'buffalo_l_w600k_r50', 'dimension' => 512,
+            'embedding' => array_fill(0, 512, 1 / sqrt(512)),
+            'source' => 'kiosk', 'status' => 'active',
+        ]);
+        $before = $profile->fresh()->getAttributes();
+        $this->mock(KioskFaceEngineService::class, fn ($mock) => $mock->shouldNotReceive('enroll'));
+        $this->artisan('face:rebuild-embeddings', ['--dry-run' => true])->assertExitCode(0);
+        $this->artisan('face:rebuild-embeddings')->assertExitCode(0);
+        $this->assertDatabaseCount('biometric_profiles', 2);
+        $this->assertSame($before, $profile->fresh()->getAttributes());
+    }
 }

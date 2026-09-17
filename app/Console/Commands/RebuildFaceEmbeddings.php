@@ -48,6 +48,11 @@ class RebuildFaceEmbeddings extends Command
         foreach ($sessions as $session) {
             $user = $session->user;
             $pending = [];
+            if ($user instanceof User && $this->hasActiveArcFaceProfile($user)) {
+                $this->line("User {$user->id} dilewati: profil ArcFace aktif sudah tersedia; tidak diubah.");
+
+                continue;
+            }
             if (! $user instanceof User || $session->captures->count() < 6) {
                 $this->warn("Session {$session->id} dilewati: minimal 6 capture diperlukan.");
                 $failed++;
@@ -125,6 +130,10 @@ class RebuildFaceEmbeddings extends Command
             try {
                 $written += DB::transaction(function () use ($user, $pending) {
                     User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+                    // A kiosk enrollment may have completed while photos were processed.
+                    if ($this->hasActiveArcFaceProfile($user)) {
+                        return 0;
+                    }
                     $created = 0;
                     foreach ($pending as $attributes) {
                         $exists = $user->biometricProfiles()->where('engine', 'onnxruntime')
@@ -153,6 +162,14 @@ class RebuildFaceEmbeddings extends Command
         }
 
         return $failed > 0 ? self::FAILURE : self::SUCCESS;
+    }
+
+    private function hasActiveArcFaceProfile(User $user): bool
+    {
+        return $user->biometricProfiles()->where('status', 'active')
+            ->where('engine', 'onnxruntime')->where('model', 'arcface')
+            ->where('model_version', config('kiosk_face_v2.model_version'))
+            ->where('dimension', 512)->exists();
     }
 
     private function resolveCaptureImage(mixed $capturedImage): ?string
