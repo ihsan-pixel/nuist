@@ -1788,6 +1788,65 @@
         </div>
     </div>
 
+    @php
+        $user = Auth::user();
+        $isPenjagaSekolah = $user->ketugasan === 'penjaga sekolah';
+        $hasApprovedPicketToday = !empty($approvedPicketSubmission);
+
+        // For penjaga sekolah, check for any open presensi regardless of date
+        if ($isPenjagaSekolah) {
+            $openPresensi = \App\Models\Presensi::where('user_id', $user->id)
+                ->whereNotNull('waktu_masuk')
+                ->whereNull('waktu_keluar')
+                ->orderBy('tanggal', 'desc')
+                ->first();
+        }
+    @endphp
+
+        @php
+            $showKeluar = false;
+            if ($isPenjagaSekolah && isset($openPresensi)) {
+                $showKeluar = true;
+            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
+                $showKeluar = $presensiHariIni->where('waktu_keluar', null)->count() > 0;
+            }
+        @endphp
+
+        @php
+            $isDisabled = false;
+            $buttonText = 'Presensi Sekarang';
+            $buttonIcon = 'check-circle';
+            $verificationMode = $faceVerificationState['mode'] ?? 'selfie';
+            $verificationLabel = $faceVerificationState['label'] ?? 'Selfie';
+            $faceEnrollmentRequired = $faceVerificationState['requires_face_scan'] ?? false;
+            $faceEnrollmentReady = $faceVerificationState['enrolled'] ?? false;
+            $pythonVerificationUrl = route('mobile.presensi.python', [
+                'mode' => $showKeluar ? 'keluar' : 'masuk',
+            ]);
+
+            if ($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment) {
+                $isDisabled = true;
+                $buttonText = 'Daftarkan Wajah Terlebih Dahulu';
+                $buttonIcon = 'scan';
+            } elseif ($isPenjagaSekolah) {
+                // For penjaga sekolah, always allow presensi
+                $isDisabled = false;
+                $buttonText = 'Presensi Sekarang';
+            } elseif ($isHoliday && !$hasApprovedPicketToday) {
+                $isDisabled = true;
+                $buttonText = 'Hari Libur - Presensi Ditutup';
+                $buttonIcon = 'calendar-x';
+            } elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0)) {
+                $isDisabled = true;
+                $buttonText = 'Izin Disetujui';
+                $buttonIcon = 'file';
+            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
+                $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
+                $isDisabled = $allComplete;
+                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
+            }
+        @endphp
+
     <!-- User Location Map -->
     <div class="presensi-form">
         <!-- Header -->
@@ -1825,23 +1884,20 @@
             </div>
             <div id="user-location-map" style="height: 100%; width: 100%;"></div>
         </div>
+
+        <div class="form-section">
+            <button type="button" id="btn-presensi"
+                    class="presensi-btn"
+                    data-python-url="{{ $hasKiosk2Enrollment ? $pythonVerificationUrl : '' }}"
+                    disabled
+                    {{ $isDisabled ? 'disabled' : '' }}>
+                <i class="bx bx-{{ $buttonIcon }} me-1"></i>
+                {{ $buttonText }}
+            </button>
+        </div>
     </div>
 
     <!-- Status Card -->
-    @php
-        $user = Auth::user();
-        $isPenjagaSekolah = $user->ketugasan === 'penjaga sekolah';
-        $hasApprovedPicketToday = !empty($approvedPicketSubmission);
-
-        // For penjaga sekolah, check for any open presensi regardless of date
-        if ($isPenjagaSekolah) {
-            $openPresensi = \App\Models\Presensi::where('user_id', $user->id)
-                ->whereNotNull('waktu_masuk')
-                ->whereNull('waktu_keluar')
-                ->orderBy('tanggal', 'desc')
-                ->first();
-        }
-    @endphp
 
     @if($isHoliday && !$isPenjagaSekolah && !$hasApprovedPicketToday)
     <div class="alert-custom warning">
@@ -1974,14 +2030,7 @@
                 <div class="status-icon">
                     <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }}"></i>
                 </div>
-        @php
-            $showKeluar = false;
-            if ($isPenjagaSekolah && isset($openPresensi)) {
-                $showKeluar = true;
-            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
-                $showKeluar = $presensiHariIni->where('waktu_keluar', null)->count() > 0;
-            }
-        @endphp
+
                 <h6 class="section-title mb-0">{{ $showKeluar ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
             </div>
             <div id="location-info" class="location-info location-badge info">
@@ -2010,41 +2059,7 @@
             </div>
         </div>
 
-        <!-- Presensi Button -->
-        @php
-            $isDisabled = false;
-            $buttonText = 'Presensi Sekarang';
-            $buttonIcon = 'check-circle';
-            $verificationMode = $faceVerificationState['mode'] ?? 'selfie';
-            $verificationLabel = $faceVerificationState['label'] ?? 'Selfie';
-            $faceEnrollmentRequired = $faceVerificationState['requires_face_scan'] ?? false;
-            $faceEnrollmentReady = $faceVerificationState['enrolled'] ?? false;
-            $pythonVerificationUrl = route('mobile.presensi.python', [
-                'mode' => $showKeluar ? 'keluar' : 'masuk',
-            ]);
 
-            if ($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment) {
-                $isDisabled = true;
-                $buttonText = 'Daftarkan Wajah Terlebih Dahulu';
-                $buttonIcon = 'scan';
-            } elseif ($isPenjagaSekolah) {
-                // For penjaga sekolah, always allow presensi
-                $isDisabled = false;
-                $buttonText = 'Presensi Sekarang';
-            } elseif ($isHoliday && !$hasApprovedPicketToday) {
-                $isDisabled = true;
-                $buttonText = 'Hari Libur - Presensi Ditutup';
-                $buttonIcon = 'calendar-x';
-            } elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0)) {
-                $isDisabled = true;
-                $buttonText = 'Izin Disetujui';
-                $buttonIcon = 'file';
-            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
-                $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
-                $isDisabled = $allComplete;
-                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
-            }
-        @endphp
 
         @if($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment)
         <div class="alert-custom warning">
@@ -2069,16 +2084,7 @@
             </div>
         </div> --}}
 
-        <div class="form-section">
-            <button type="button" id="btn-presensi"
-                    class="presensi-btn"
-                    data-python-url="{{ $hasKiosk2Enrollment ? $pythonVerificationUrl : '' }}"
-                    disabled
-                    {{ $isDisabled ? 'disabled' : '' }}>
-                <i class="bx bx-{{ $buttonIcon }} me-1"></i>
-                {{ $buttonText }}
-            </button>
-        </div>
+
 
         <!-- Selfie Section -->
         {{-- <div class="form-section">
