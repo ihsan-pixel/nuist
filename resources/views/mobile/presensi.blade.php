@@ -1914,11 +1914,17 @@
                 @endif
             </div>
         </div> --}}
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-map-pin"></i>
+        <div class="section-header">
+            <div class="section-header-main">
+                <div class="status-icon">
+                    <i class="bx bx-map-pin"></i>
+                </div>
+                <h6 class="section-title mb-0">Lokasi Anda Saat Ini</h6>
             </div>
-            <h6 class="section-title mb-0">Lokasi Anda Saat Ini</h6>
+            <div id="location-info" class="location-info location-badge info">
+                <span class="badge-icon"><i class="bx bx-loader-alt bx-spin"></i></span>
+                <span class="badge-title">GPS aktif</span>
+            </div>
         </div>
         <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
             <div id="map-placeholder" class="map-placeholder">
@@ -2046,10 +2052,6 @@
                 </div>
 
                 <h6 class="section-title mb-0">{{ $showKeluar ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
-            </div>
-            <div id="location-info" class="location-info location-badge info">
-                <span class="badge-icon"><i class="bx bx-loader-alt bx-spin"></i></span>
-                <span class="badge-title">GPS aktif</span>
             </div>
         </div>
 
