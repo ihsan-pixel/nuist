@@ -147,6 +147,7 @@
         .attendance-summary-label i { color: #0b5b47; font-size: 16px; }
         .attendance-summary-time {
             display: block;
+            text-align: center;
             margin-top: 6px;
             color: #173d2e;
             font-size: 22px;
