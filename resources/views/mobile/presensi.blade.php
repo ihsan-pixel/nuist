@@ -113,6 +113,48 @@
             margin-top: 6px;
         }
 
+        .attendance-summary { margin-bottom: 14px; }
+        .attendance-summary-heading {
+            margin: 0 0 10px;
+            color: #34534a;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .attendance-summary-record + .attendance-summary-record { margin-top: 12px; }
+        .attendance-summary-context {
+            margin: 0 0 6px;
+            color: #687b73;
+            font-size: 11px;
+        }
+        .attendance-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .attendance-summary-cell {
+            padding: 14px;
+            border: 1px solid #e0e8e3;
+            border-radius: 12px;
+            background: #fff;
+        }
+        .attendance-summary-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #62766c;
+            font-size: 12px;
+        }
+        .attendance-summary-label i { color: #0b5b47; font-size: 16px; }
+        .attendance-summary-time {
+            display: block;
+            margin-top: 6px;
+            color: #173d2e;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .attendance-summary-empty { color: #88978f; }
+
         .status-card {
             background: #fff;
             border-radius: 14px;
@@ -1967,60 +2009,31 @@
     </div>
 
     @elseif(($presensiHariIni && $presensiHariIni->count() > 0) || ($isPenjagaSekolah && isset($openPresensi)))
-    <div class="status-card success">
-        <div class="d-flex align-items-center">
-            <div class="status-icon">
-                <i class="bx bx-check-circle"></i>
-            </div>
-            <div class="w-100">
-                <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                @if($isPenjagaSekolah && isset($openPresensi))
-                    <div class="status-detail-list">
-                        <div class="status-detail-item">
-                            <small>{{ $openPresensi->madrasah?->name ?? 'Madrasah' }} • {{ \Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y') }}</small>
-                            <p>Masuk: <strong>{{ $openPresensi->waktu_masuk->format('H:i') }}</strong></p>
-                        </div>
-                        @if($openPresensi->keterangan)
-                        <div class="status-detail-item">
-                            <small>Keterangan</small>
-                            <p><strong>{{ $openPresensi->keterangan }}</strong></p>
-                        </div>
-                        @endif
-                    </div>
-                    <p class="status-inline-note mb-0">Belum presensi keluar. Lakukan presensi keluar jika sudah selesai.</p>
-                @else
-                    <div class="status-detail-list">
-                        @foreach($presensiHariIni as $presensi)
-                        <div class="status-detail-item">
-                            <small>{{ $presensi->madrasah?->name ?? 'Madrasah' }} • {{ \Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y') }}</small>
-                            @if($presensi->waktu_masuk)
-                            <p>Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
-                            @if($presensi->waktu_keluar)
-                            <p>Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
-                            @else
-                            <p class="text-muted">Belum presensi keluar</p>
-                            @endif
-                            @if($presensi->keterangan)
-                            <p class="text-muted">Keterangan: <strong>{{ $presensi->keterangan }}</strong></p>
-                            @endif
-                            @else
-                            <p>Masuk: <strong>-</strong></p>
-                            <p class="text-muted">Belum presensi masuk</p>
-                            @endif
-                        </div>
-                        @endforeach
-                    </div>
-                    @if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count())
-                    <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
-                        <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
-                    </div>
-                    @else
-                    <p class="status-inline-note mb-0">Lakukan presensi keluar jika sudah selesai.</p>
-                    @endif
-                @endif
+    @php
+        $recordedAttendances = $isPenjagaSekolah && isset($openPresensi)
+            ? collect([$openPresensi])
+            : $presensiHariIni;
+    @endphp
+    <section class="attendance-summary" aria-labelledby="attendance-summary-title">
+        <h6 id="attendance-summary-title" class="attendance-summary-heading">Presensi tercatat</h6>
+        @foreach($recordedAttendances as $presensi)
+        <div class="attendance-summary-record">
+            @if($recordedAttendances->count() > 1 || ($isPenjagaSekolah && isset($openPresensi)))
+            <p class="attendance-summary-context">{{ $presensi->madrasah?->name ?? 'Madrasah' }} · {{ \Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y') }}</p>
+            @endif
+            <div class="attendance-summary-grid">
+                <div class="attendance-summary-cell">
+                    <span class="attendance-summary-label"><i class="bx bx-log-in-circle" aria-hidden="true"></i>Masuk</span>
+                    <strong class="attendance-summary-time {{ $presensi->waktu_masuk ? '' : 'attendance-summary-empty' }}" aria-label="{{ $presensi->waktu_masuk ? 'Waktu masuk' : 'Belum presensi masuk' }}">{{ $presensi->waktu_masuk?->format('H:i') ?? '—' }}</strong>
+                </div>
+                <div class="attendance-summary-cell">
+                    <span class="attendance-summary-label"><i class="bx bx-log-out-circle" aria-hidden="true"></i>Keluar</span>
+                    <strong class="attendance-summary-time {{ $presensi->waktu_keluar ? '' : 'attendance-summary-empty' }}" aria-label="{{ $presensi->waktu_keluar ? 'Waktu keluar' : 'Belum presensi keluar' }}">{{ $presensi->waktu_keluar?->format('H:i') ?? '—' }}</strong>
+                </div>
             </div>
         </div>
-    </div>
+        @endforeach
+    </section>
     @endif
 
     <!-- Presensi Form -->
