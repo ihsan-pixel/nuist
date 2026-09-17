@@ -9,7 +9,10 @@
         --face-ink: #17312c;
         --face-muted: #62746d;
         --face-accent: #0b5b47;
-        padding: 24px 16px 28px;
+        position: fixed;
+        inset: 0 0 104px;
+        overflow: hidden;
+        padding: max(24px, env(safe-area-inset-top)) 16px 16px;
         background: #f7faf8;
     }
 
@@ -17,15 +20,31 @@
         width: min(100%, 420px);
         margin: 0 auto;
         text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .face-check-preview {
+        flex-shrink: 0;
+    }
+
+    .face-check-feedback {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 0 3px 4px;
     }
 
     .face-check-toolbar {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         gap: 16px;
         margin-bottom: 24px;
-        text-align: left;
+        text-align: center;
     }
 
     .face-check-eyebrow {
@@ -43,27 +62,12 @@
         letter-spacing: -.5px;
     }
 
-    .face-check-back {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 44px;
-        padding: 10px 14px;
-        border: 1px solid #dce5df;
-        border-radius: 12px;
-        color: var(--face-ink);
-        background: #fff;
-        font-size: 13px;
-        text-decoration: none;
-    }
-
-    .face-check-back:hover { background: #edf3ef; color: var(--face-ink); }
-    .face-check-back:focus-visible,
     #python-face-submit:focus-visible { outline: 3px solid #78bba6; outline-offset: 3px; }
 
     .face-camera-shell {
         position: relative;
-        width: 100%;
+        width: min(100%, 48dvh);
+        margin-inline: auto !important;
         aspect-ratio: 1 / 1;
         overflow: hidden;
         border: 1px solid #dce5df;
@@ -166,20 +170,22 @@
 
 <main class="face-check-page">
     <section class="face-check-panel" aria-labelledby="face-check-title">
+        <div class="face-check-preview">
         <header class="face-check-toolbar">
             <div>
                 <p class="face-check-eyebrow">Presensi {{ $mode === 'masuk' ? 'Masuk' : 'Keluar' }}</p>
                 <h1 id="face-check-title" class="face-check-title">Verifikasi wajah</h1>
             </div>
-            <a href="{{ $presensiUrl }}" class="face-check-back">Batal</a>
         </header>
 
         <figure class="face-camera-shell m-0">
             <video id="python-face-video" autoplay muted playsinline aria-label="Preview kamera wajah"></video>
             <figcaption class="face-camera-label"><i class="bx bx-camera me-1"></i>Kamera depan</figcaption>
         </figure>
+        </div>
         <canvas id="python-face-canvas" hidden></canvas>
 
+        <div class="face-check-feedback">
         <p class="face-check-instruction">Posisikan wajah di dalam bingkai</p>
         <p class="face-check-hint">Pastikan wajah cukup terang dan ponsel stabil. Scan akan dimulai otomatis.</p>
         <output id="python-face-status" class="alert alert-info" aria-live="polite" aria-atomic="true">
@@ -190,6 +196,7 @@
             <span class="button-label">Scan ulang</span>
             <span class="spinner-border spinner-border-sm ms-1" hidden role="status" aria-hidden="true"></span>
         </button>
+        </div>
     </section>
 </main>
 @endsection
