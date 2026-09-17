@@ -35,6 +35,7 @@
         min-height: 0;
         overflow-y: auto;
         overscroll-behavior: contain;
+        margin-top: 12px;
         padding: 0 3px 4px;
     }
 
@@ -71,7 +72,7 @@
 
     .face-camera-shell {
         position: relative;
-        width: min(100%, 48dvh, max(80px, calc(100dvh - 340px)));
+        width: min(100%, 48dvh, max(80px, calc(100dvh - 420px)));
         margin-inline: auto !important;
         aspect-ratio: 1 / 1;
         overflow: hidden;
@@ -148,6 +149,10 @@
         overflow-wrap: anywhere;
     }
 
+    .face-check-panel[data-status="danger"] .face-check-instruction,
+    .face-check-panel[data-status="danger"] .face-check-hint { display: none; }
+
+    .face-status-message { min-width: 0; }
     .face-status-icon { flex-shrink: 0; font-size: 20px; }
     #python-face-status.alert-success { background: #edf7f1; border-color: #cce7d7; color: #22613d; }
     #python-face-status.alert-danger { background: #fff3f1; border-color: #f2d6d0; color: #a13c2f; }
@@ -192,12 +197,12 @@
         <canvas id="python-face-canvas" hidden></canvas>
 
         <div class="face-check-feedback">
-        <p class="face-check-instruction">Posisikan wajah di dalam bingkai</p>
-        <p class="face-check-hint">Pastikan wajah cukup terang dan ponsel stabil. Scan akan dimulai otomatis.</p>
         <output id="python-face-status" class="alert alert-info" aria-live="polite" aria-atomic="true">
             <i class="bx bx-camera face-status-icon" aria-hidden="true"></i>
             <span class="face-status-message">Menyiapkan kamera...</span>
         </output>
+        <p class="face-check-instruction">Posisikan wajah di dalam bingkai</p>
+        <p class="face-check-hint">Pastikan wajah cukup terang dan ponsel stabil. Scan akan dimulai otomatis.</p>
         </div>
         <button id="python-face-submit" type="button" class="btn btn-success" hidden>
             <span class="button-label">Scan ulang</span>
@@ -213,6 +218,8 @@
     const video = document.getElementById('python-face-video');
     const canvas = document.getElementById('python-face-canvas');
     const status = document.getElementById('python-face-status');
+    const panel = document.querySelector('.face-check-panel');
+    const feedback = document.querySelector('.face-check-feedback');
     const statusMessage = status.querySelector('.face-status-message');
     const statusIcon = status.querySelector('.face-status-icon');
     const submit = document.getElementById('python-face-submit');
@@ -230,6 +237,8 @@
     function setStatus(message, type = 'info') {
         status.className = `alert alert-${type}`;
         statusMessage.textContent = message;
+        panel.dataset.status = type;
+        feedback.scrollTop = 0;
         const icon = type === 'success' ? 'bx-check-circle' : type === 'danger' ? 'bx-error-circle' : 'bx-camera';
         statusIcon.className = `bx ${icon} face-status-icon`;
     }
