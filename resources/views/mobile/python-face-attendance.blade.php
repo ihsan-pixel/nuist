@@ -71,7 +71,7 @@
 
     .face-camera-shell {
         position: relative;
-        width: min(100%, 48dvh);
+        width: min(100%, 48dvh, max(80px, calc(100dvh - 340px)));
         margin-inline: auto !important;
         aspect-ratio: 1 / 1;
         overflow: hidden;
@@ -153,6 +153,7 @@
     #python-face-status.alert-danger { background: #fff3f1; border-color: #f2d6d0; color: #a13c2f; }
 
     #python-face-submit {
+        flex-shrink: 0;
         width: 100%;
         min-height: 48px;
         margin-top: 12px;
@@ -197,11 +198,11 @@
             <i class="bx bx-camera face-status-icon" aria-hidden="true"></i>
             <span class="face-status-message">Menyiapkan kamera...</span>
         </output>
+        </div>
         <button id="python-face-submit" type="button" class="btn btn-success" hidden>
             <span class="button-label">Scan ulang</span>
             <span class="spinner-border spinner-border-sm ms-1" hidden role="status" aria-hidden="true"></span>
         </button>
-        </div>
     </section>
 </main>
 @endsection
