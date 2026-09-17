@@ -530,10 +530,12 @@ class PresensiController extends \App\Http\Controllers\Controller
                     'message' => ($pythonVerification['notes'] ?? '') === 'engine_unreachable'
                         ? 'Layanan verifikasi wajah sedang tidak tersedia. Silakan mencoba kembali beberapa saat lagi.'
                         : (!($pythonVerification['success'] ?? false)
-                            ? ($pythonVerification['message'] ?? 'Verifikasi wajah gagal. Silakan ulangi scan.')
+                            ? (($pythonVerification['notes'] ?? '') === 'face_similarity_below_threshold'
+                                ? 'Wajah tidak cocok.'
+                                : ($pythonVerification['message'] ?? 'Verifikasi wajah gagal. Silakan ulangi scan.'))
                             : (!$livenessDisabled && (!is_numeric($livenessScore) || (float) $livenessScore < (float) config('kiosk_face_v2.thresholds.min_liveness', 0.68))
                                 ? 'Verifikasi liveness belum memenuhi syarat. Pastikan wajah cukup terang dan pegang ponsel stabil.'
-                                : 'Wajah atau profil verifikasi tidak cocok dengan akun aktif.')),
+                                : 'Wajah tidak cocok.')),
                     'notes' => $pythonVerification['notes'] ?? 'face_not_verified',
                     'similarity' => $pythonVerification['similarity'] ?? null,
                     'liveness_score' => $livenessScore,

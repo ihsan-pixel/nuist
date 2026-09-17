@@ -998,7 +998,7 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         raise HTTPException(
             status_code=422,
             detail={
-                "message": "Wajah tidak dikenali oleh engine Python.",
+                "message": "Wajah tidak cocok.",
                 "notes": "face_similarity_below_threshold",
                 "provider": settings.provider,
                 "similarity": round(best_similarity, 4),
