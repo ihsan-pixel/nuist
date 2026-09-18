@@ -156,6 +156,14 @@ class BpppmnuEventController extends Controller
         return view('admin.bpppmnu.show', ['event' => $event, 'recap' => $reports->recap($event)]);
     }
 
+    public function loginQr(BpppmnuEvent $event)
+    {
+        $loginUrl = route('mobile.login');
+        $svg = (new Writer(new ImageRenderer(new RendererStyle(360), new SvgImageBackEnd)))->writeString($loginUrl, 'UTF-8', ErrorCorrectionLevel::H());
+
+        return view('admin.bpppmnu.login-qr', compact('event', 'loginUrl', 'svg'));
+    }
+
     public function scanMember(Request $request, BpppmnuEvent $event, BpppmnuAttendanceService $service)
     {
         $data = $request->validate(['nuist_id' => 'required|string|max:100']);

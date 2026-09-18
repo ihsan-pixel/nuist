@@ -9,6 +9,7 @@
 @include('bpppmnu.event-details')
 @if($event->attachment)<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.bpppmnu.events.attachment', $event) }}">Unduh lampiran</a>@endif
 <div class="action-bar">
+<a class="btn btn-outline-success" href="{{ route('admin.bpppmnu.events.login-qr', $event) }}">Tampilkan QR Login NUIST Mobile</a>
 @if($event->status !== 'cancelled')<a class="btn btn-outline-primary" href="{{ route('admin.bpppmnu.events.edit', $event) }}">Edit Agenda & Undangan</a>@endif
 @if($event->status === 'draft')<form method="post" action="{{ route('admin.bpppmnu.events.publish', $event) }}">@csrf<button class="btn btn-success">Terbitkan</button></form>@endif
 @if($event->status === 'published' && now()->lte($event->attendance_close_at))
