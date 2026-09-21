@@ -911,11 +911,13 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         match_cache = EmbeddingCache()
         if len(compatible_candidates) != 1:
             raise HTTPException(status_code=422, detail="Verifikasi 1:1 membutuhkan tepat satu pengguna.")
-    if not match_cache.has_users(set(compatible_candidates)):
-        try:
-            match_cache.refresh(request.candidates)
-        except ValueError as exc:
-            raise HTTPException(status_code=422, detail=str(exc)) from exc
+    # A user's enrollment can change without changing the candidate user IDs.
+    # Rebuild from the profiles supplied by Laravel so an older enrollment
+    # cannot remain in the process-local cache after a replacement.
+    try:
+        match_cache.refresh(request.candidates)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     best_candidate: CandidatePayload | None = None
     best_face_id: str | None = None

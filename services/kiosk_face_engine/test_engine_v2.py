@@ -75,6 +75,24 @@ def test_mobile_verification_uses_current_profiles_without_shared_cache(monkeypa
         main.embedding_cache.invalidate([])
 
 
+def test_kiosk_identify_refreshes_changed_vectors_for_same_user(monkeypatch):
+    import main
+
+    current = candidate(1, 5)
+    stale = candidate(1, 2)
+    main.embedding_cache.refresh([stale])
+    best = SimpleNamespace(embedding=np.asarray(current.vectors[0].values, dtype=np.float32), frame_data='test')
+    monkeypatch.setattr(main, 'analyze_frames', lambda frames: [best, best, best])
+    monkeypatch.setattr(main, 'choose_best_analysis', lambda analyses: best)
+    monkeypatch.setattr(main, 'compute_liveness', lambda analyses: (1.0, [], {}))
+    try:
+        result = main.identify(main.IdentifyRequest(frames=['test'], candidates=[current]))
+        assert result['success'] is True
+        assert result['similarity'] > 0.99
+    finally:
+        main.embedding_cache.invalidate([])
+
+
 def motion_burst(offsets, scale=1.0):
     return [SimpleNamespace(
         bbox=(x * scale, 0, (x + 160) * scale, 160 * scale),
