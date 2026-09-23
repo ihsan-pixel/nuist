@@ -34,6 +34,7 @@
                 {{-- <p class="text-muted mb-0">Tagihan pada modul ini dikunci khusus untuk pembuatan tagihan SPP siswa.</p> --}}
             </div>
             <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportBniVaModal" {{ !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-credit-card me-1"></i>CSV BNI VA</button>
                 <a class="btn btn-outline-secondary" href="{{ route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}"><i class="bx bx-download me-1"></i>Template Import</a>
                 <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#importTagihanModal" {{ $userRole === 'admin_spp' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-upload me-1"></i>Import Tagihan</button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal" {{ $userRole === 'admin_spp' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
@@ -98,6 +99,7 @@
                 <tbody>
                 @forelse($bills as $index => $bill)
                     @php($latestVa = $bill->transactions->firstWhere('payment_channel', 'bni_va'))
+                    @php($studentVa = $studentVirtualAccounts->get($bill->siswa_id))
                     <tr>
                         <td>{{ $bills->firstItem() + $index }}</td>
                         <td>{{ $bill->nomor_tagihan }}</td>
@@ -112,11 +114,15 @@
                         <td><span class="badge bg-{{ $bill->status === 'lunas' ? 'success' : ($bill->status === 'sebagian' ? 'warning' : 'danger') }}">{{ ucfirst(str_replace('_', ' ', $bill->status)) }}</span></td>
                         <td>
                             @if(($bill->setting->payment_provider ?? 'manual') === 'bni_va' && $bill->status !== 'lunas')
-                                @if($latestVa && $latestVa->va_number)
+                                @if($studentVa)
+                                    <div class="fw-semibold">{{ $studentVa->virtual_account }}</div>
+                                    <small class="text-muted d-block">{{ $studentVa->tahun_ajaran }} · {{ $studentVa->expired_at->format('d M Y H:i') }}</small>
+                                    <span class="badge bg-{{ $studentVa->status === 'active' ? 'success' : 'info' }}-subtle text-{{ $studentVa->status === 'active' ? 'success' : 'info' }}">{{ ucfirst($studentVa->status) }}</span>
+                                @elseif($latestVa && $latestVa->va_number)
                                     <div class="fw-semibold">{{ $latestVa->va_number }}</div>
-                                    <small class="text-muted d-block">{{ optional($latestVa->va_expired_at)->format('d M Y H:i') ?? 'Belum ada expiry' }}</small>
+                                    <small class="text-muted d-block">VA tagihan lama · {{ optional($latestVa->va_expired_at)->format('d M Y H:i') ?? 'Belum ada expiry' }}</small>
                                 @else
-                                    <small class="text-muted d-block">VA akan diterbitkan saat siswa mencetak billing.</small>
+                                    <small class="text-muted d-block">Belum dibuat pada CSV BNI.</small>
                                 @endif
                             @else
                                 <span class="text-muted">Manual</span>
@@ -137,6 +143,62 @@
             </table>
         </div>
         {{ $bills->links() }}
+    </div>
+</div>
+
+<div class="modal fade" id="exportBniVaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('spp-siswa.bni-va.export') }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Buat dan Unduh CSV BNI Virtual Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        Satu VA dibuat untuk setiap siswa per tahun ajaran. Ekspor ulang akan memakai nomor VA yang sama. Nominal dikirim sebagai <strong>0 (open amount)</strong>.
+                    </div>
+                    <div class="row g-3">
+                        @if($userRole !== 'admin_spp')
+                            <div class="col-md-6">
+                                <label class="form-label">Madrasah</label>
+                                <select name="madrasah_id" class="form-select" required>
+                                    @foreach($madrasahOptions as $madrasah)
+                                        <option value="{{ $madrasah->id }}" @selected((string) $selectedMadrasahId === (string) $madrasah->id)>{{ $madrasah->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
+                        @endif
+                        <div class="col-md-6">
+                            <label class="form-label">Pengaturan Tahun Ajaran</label>
+                            <select name="setting_id" class="form-select" required>
+                                @foreach($settings->where('payment_provider', 'bni_va') as $setting)
+                                    <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - BNI VA</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Jurusan</label>
+                            <select name="jurusan" class="form-select"><option value="">Semua</option>@foreach($jurusanOptions as $jurusan)<option value="{{ $jurusan }}">{{ $jurusan }}</option>@endforeach</select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Kelas</label>
+                            <select name="kelas" class="form-select"><option value="">Semua</option>@foreach($kelasOptions as $kelas)<option value="{{ $kelas }}">{{ $kelas }}</option>@endforeach</select>
+                        </div>
+                        <div class="col-md-4"><label class="form-label">Prefix VA BNI (8 digit)</label><input type="text" name="va_prefix" class="form-control" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" value="{{ old('va_prefix', '98879105') }}" required><div class="form-text">Pastikan sesuai Virtual Code resmi dari BNI.</div></div>
+                        <div class="col-md-4"><label class="form-label">Berlaku Sampai</label><input type="date" name="expired_date" class="form-control" value="{{ old('expired_date', now()->month >= 7 ? now()->addYear()->format('Y-06-30') : now()->format('Y-06-30')) }}" required></div>
+                        <div class="col-md-4"><label class="form-label">Jam Kedaluwarsa</label><input type="time" name="expired_time" class="form-control" value="{{ old('expired_time', '20:00') }}" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary"><i class="bx bx-download me-1"></i>Buat & Unduh CSV</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -207,7 +269,6 @@
                             <input type="text" class="form-control" value="SPP" readonly>
                         </div>
                         <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" id="bulkTagihanPeriode" class="form-control" value="{{ old('periode') }}" required></div>
-                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" id="bulkTagihanJatuhTempo" class="form-control" value="{{ old('jatuh_tempo') }}"></div>
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" value="{{ old('nominal') }}" placeholder="Isi nominal tagihan" required></div>
                         <div class="col-md-12"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control" value="{{ old('catatan') }}"></div>
                     </div>

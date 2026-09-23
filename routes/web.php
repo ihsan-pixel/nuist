@@ -1969,6 +1969,7 @@ Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin_spp,peng
     Route::post('/tagihan/bulk', [App\Http\Controllers\SppSiswaController::class, 'storeBulkTagihan'])->name('tagihan.bulk-store');
     Route::post('/tagihan/import', [App\Http\Controllers\SppSiswaController::class, 'importTagihan'])->name('tagihan.import');
     Route::get('/tagihan/template', [App\Http\Controllers\SppSiswaController::class, 'templateTagihan'])->name('tagihan.template');
+    Route::post('/bni-va/export', [App\Http\Controllers\SppSiswaController::class, 'exportBniVa'])->name('bni-va.export');
     Route::delete('/tagihan/{bill}', [App\Http\Controllers\SppSiswaController::class, 'destroyTagihan'])->name('tagihan.destroy');
     Route::post('/tagihan/{bill}/generate-bni-va', [App\Http\Controllers\SppSiswaPaymentController::class, 'generateBniVa'])->name('tagihan.generate-bni-va');
     Route::get('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'transaksi'])->name('transaksi');

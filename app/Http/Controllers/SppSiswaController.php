@@ -9,6 +9,8 @@ use App\Models\Siswa;
 use App\Models\SppSiswaBill;
 use App\Models\SppSiswaSetting;
 use App\Models\SppSiswaTransaction;
+use App\Models\SppSiswaVirtualAccount;
+use App\Services\BniVaCsvService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SppSiswaController extends Controller
 {
@@ -128,6 +131,12 @@ class SppSiswaController extends Controller
             ->pluck('jenis_tagihan');
 
         $hasActiveBniVaSetting = $this->hasActiveBniVaSettingForMadrasah($selectedMadrasahId);
+        $studentVirtualAccounts = SppSiswaVirtualAccount::query()
+            ->when($selectedMadrasahId, fn ($query) => $query->where('madrasah_id', $selectedMadrasahId))
+            ->latest('expired_at')
+            ->get()
+            ->unique('siswa_id')
+            ->keyBy('siswa_id');
 
         return view('spp-siswa.tagihan', [
             'madrasahOptions' => $scope['madrasahOptions'],
@@ -140,7 +149,65 @@ class SppSiswaController extends Controller
             'jenisTagihanOptions' => $jenisTagihanOptions,
             'userRole' => $this->normalizedRole($user->role),
             'hasActiveBniVaSetting' => $hasActiveBniVaSetting,
+            'studentVirtualAccounts' => $studentVirtualAccounts,
         ]);
+    }
+
+    public function exportBniVa(Request $request, BniVaCsvService $service): StreamedResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'madrasah_id' => $this->madrasahRules(),
+            'setting_id' => ['required', 'integer', Rule::exists('spp_siswa_settings', 'id')],
+            'jurusan' => ['nullable', 'string', 'max:100'],
+            'kelas' => ['nullable', 'string', 'max:50'],
+            'va_prefix' => ['required', 'digits:8'],
+            'expired_date' => ['required', 'date'],
+            'expired_time' => ['required', 'date_format:H:i'],
+        ]);
+
+        $madrasahId = (int) $validated['madrasah_id'];
+        $this->ensureMadrasahAccess($madrasahId);
+        $setting = SppSiswaSetting::query()
+            ->whereKey($validated['setting_id'])
+            ->where('madrasah_id', $madrasahId)
+            ->where('payment_provider', 'bni_va')
+            ->where('is_active', true)
+            ->firstOrFail();
+        $madrasah = Madrasah::query()->findOrFail($madrasahId);
+        $students = $this->studentQuery($madrasahId)
+            ->where('is_active', true)
+            ->when(filled($validated['jurusan'] ?? null), fn ($query) => $query->where('jurusan', trim($validated['jurusan'])))
+            ->when(filled($validated['kelas'] ?? null), fn ($query) => $query->where('kelas', trim($validated['kelas'])))
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        if ($students->isEmpty()) {
+            return back()->withErrors(['students' => 'Tidak ada siswa aktif yang cocok dengan filter ekspor BNI.'])->withInput();
+        }
+
+        $expiredAt = Carbon::parse($validated['expired_date'] . ' ' . $validated['expired_time'], config('app.timezone'));
+        if ($expiredAt->isPast()) {
+            return back()->withErrors(['expired_date' => 'Masa berlaku VA harus berada di masa mendatang.'])->withInput();
+        }
+
+        $accounts = $service->generate($madrasah, $setting, $students, $expiredAt, $validated['va_prefix'], auth()->id());
+        preg_match_all('/\d{4}/', $setting->tahun_ajaran, $yearMatches);
+        $years = $yearMatches[0] ?? [];
+        $academicCode = count($years) === 2 ? 'TA' . substr($years[0], -2) . substr($years[1], -2) : preg_replace('/\D+/', '', $setting->tahun_ajaran);
+        $filename = sprintf('bni-upload-ready-%s-%s.csv', $madrasah->scod ?: $madrasah->id, $academicCode);
+
+        return response()->streamDownload(function () use ($accounts, $service) {
+            $stream = fopen('php://output', 'wb');
+            fputcsv($stream, BniVaCsvService::HEADERS);
+            foreach ($accounts as $account) {
+                fputcsv($stream, $service->csvRow($account));
+            }
+            fclose($stream);
+            SppSiswaVirtualAccount::query()->whereKey($accounts->pluck('id'))->update([
+                'status' => 'exported',
+                'exported_at' => now(),
+            ]);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function storeTagihan(Request $request): RedirectResponse

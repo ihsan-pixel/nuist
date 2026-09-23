@@ -35,4 +35,9 @@ class SppSiswaSetting extends Model
     {
         return $this->hasMany(SppSiswaBill::class, 'setting_id');
     }
+
+    public function virtualAccounts()
+    {
+        return $this->hasMany(SppSiswaVirtualAccount::class, 'setting_id');
+    }
 }

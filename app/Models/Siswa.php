@@ -99,6 +99,11 @@ class Siswa extends Authenticatable
         return $this->hasMany(SppSiswaTransaction::class);
     }
 
+    public function sppVirtualAccounts()
+    {
+        return $this->hasMany(SppSiswaVirtualAccount::class);
+    }
+
     public function setNamaLengkapAttribute($value): void
     {
         $normalized = $this->normalizeNullableString($value);
