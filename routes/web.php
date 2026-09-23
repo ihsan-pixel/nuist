@@ -238,8 +238,9 @@ Route::middleware(['auth', 'role:admin_yayasan'])
         Route::get('/', [PendataanGtkController::class, 'index'])->name('index');
         Route::get('/export', [PendataanGtkController::class, 'export'])->name('export');
         Route::get('/users/{user}/documents/{document}', [PendataanGtkController::class, 'downloadDocument'])
-            ->where('document', 'sk-awal|sk-akhir')
+            ->where('document', 'sk-awal|sk-akhir|ktp')
             ->name('documents.download');
+        Route::put('/users/{user}/documents', [PendataanGtkController::class, 'updateDocuments'])->name('documents.update');
         Route::get('/{madrasah}/export', [PendataanGtkController::class, 'export'])->name('export-school');
         Route::get('/{madrasah}', [PendataanGtkController::class, 'show'])->middleware('role:admin_yayasan')->name('show');
         Route::put('/users/{user}', [PendataanGtkController::class, 'update'])->middleware('role:admin_yayasan')->name('update');

@@ -166,6 +166,7 @@
                                     'foto_guru_url' => $user->avatar ? asset('storage/' . ltrim($user->avatar, '/')) : null,
                                     'sk_awal_url' => $gtkPendataan?->sk_awal_path ? route('pendataan-gtk.documents.download', [$user, 'sk-awal']) : null,
                                     'sk_akhir_url' => $gtkPendataan?->sk_akhir_path ? route('pendataan-gtk.documents.download', [$user, 'sk-akhir']) : null,
+                                    'ktp_url' => $gtkPendataan?->ktp_path ? route('pendataan-gtk.documents.download', [$user, 'ktp']) : null,
                                 ];
                             @endphp
                             <tr>
@@ -187,13 +188,21 @@
                                 <td class="gtk-completion">
                                     @php
                                         // Catatan hanya sebagai informasi dan tidak dihitung sebagai kelengkapan.
-                                        $completionFields = [$user->nuist_id, $user->name, $user->status_kepegawaian_id, $user->no_hp, $user->email, $user->pendidikan_terakhir, $user->avatar, $gtkPendataan?->nik, $gtkPendataan?->tmt_sk_pertama, $gtkPendataan?->sk_awal_path, $gtkPendataan?->sk_akhir_path];
+                                        $completionFields = [$user->nuist_id, $user->name, $user->status_kepegawaian_id, $user->no_hp, $user->email, $user->pendidikan_terakhir, $user->avatar, $gtkPendataan?->nik, $gtkPendataan?->ktp_path, $gtkPendataan?->tmt_sk_pertama, $gtkPendataan?->sk_awal_path, $gtkPendataan?->sk_akhir_path];
                                         $completion = (int) round(collect($completionFields)->filter(fn ($value) => filled($value))->count() / count($completionFields) * 100);
                                     @endphp
                                     <div class="d-flex justify-content-between gtk-meta mb-1"><span>Kelengkapan</span><strong>{{ $completion }}%</strong></div>
                                     <div class="progress"><div class="progress-bar {{ $completion === 100 ? 'bg-success' : 'bg-primary' }}" style="width:{{ $completion }}%"></div></div>
                                 </td>
                                 <td class="text-end">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-success open-gtk-documents"
+                                        data-user='{{ json_encode($gtkPayload, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                        data-action="{{ route('pendataan-gtk.documents.update', $user->id) }}"
+                                    >
+                                        <i class="bx bx-upload me-1"></i> Berkas
+                                    </button>
                                     <button
                                         type="button"
                                         class="btn btn-sm btn-outline-primary open-gtk-wizard"
@@ -214,7 +223,7 @@
 
 <div class="modal fade gtk-wizard-modal" id="gtkWizardModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <form id="gtkWizardForm" class="modal-content" method="POST" enctype="multipart/form-data">
+            <form id="gtkWizardForm" class="modal-content" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-header">
@@ -271,11 +280,6 @@
                         <div class="row g-3">
                             <div class="col-md-4"><label class="form-label">NIK</label><input class="form-control" name="nik" id="input_nik" inputmode="numeric"></div>
                             <div class="col-md-4"><label class="form-label">Golongan Darah</label><select class="form-select" name="gol_darah" id="input_gol_darah"><option value="">- pilih -</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div>
-                            <div class="col-md-4">
-                                <label class="form-label">Foto Guru</label>
-                                <input type="file" class="form-control" name="foto_guru" id="input_foto_guru" accept="image/jpeg,image/png,image/webp">
-                                <div class="form-text">JPG, PNG, atau WebP maksimal 4 MB. <a id="current_foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
-                            </div>
                             <div class="col-md-4"><label class="form-label">Status Perkawinan</label><select class="form-select" name="status_pernikahan" id="input_status_pernikahan"><option value="">- pilih -</option><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div>
                             <div class="col-md-4"><label class="form-label">No HP</label><input class="form-control" name="no_hp" id="input_no_hp"></div>
                             <div class="col-md-6"><label class="form-label">Email Aktif</label><input type="email" class="form-control" name="email_aktif" id="input_email_aktif"></div>
@@ -291,16 +295,6 @@
                             <div class="col-md-4"><label class="form-label">TMT SK Terakhir</label><input type="date" class="form-control" name="tmt_sk_terakhir" id="input_tmt_sk_terakhir"></div>
                             <div class="col-md-4"><label class="form-label">Nomor SK Pertama</label><input class="form-control" name="nomor_sk_pertama" id="input_nomor_sk_pertama"></div>
                             <div class="col-md-4"><label class="form-label">Tahun SK Pertama</label><input type="number" class="form-control" name="tahun_sk_pertama" id="input_tahun_sk_pertama" min="1900" max="2100"></div>
-                            <div class="col-md-6">
-                                <label class="form-label">PDF SK Awal</label>
-                                <input type="file" class="form-control" name="sk_awal" id="input_sk_awal" accept="application/pdf,.pdf">
-                                <div class="form-text">PDF maksimal 10 MB. <a id="current_sk_awal" class="d-none" target="_blank" rel="noopener">Lihat file saat ini</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">PDF SK Akhir</label>
-                                <input type="file" class="form-control" name="sk_akhir" id="input_sk_akhir" accept="application/pdf,.pdf">
-                                <div class="form-text">PDF maksimal 10 MB. <a id="current_sk_akhir" class="d-none" target="_blank" rel="noopener">Lihat file saat ini</a></div>
-                            </div>
                             <div class="col-md-4"><label class="form-label">No. Sertifikasi Pendidik</label><input class="form-control" name="nomor_sertifikasi_pendidik" id="input_nomor_sertifikasi_pendidik"></div>
                             <div class="col-12"><label class="form-label">Keterangan SK</label><textarea class="form-control" rows="3" name="keterangan_sk" id="input_keterangan_sk" placeholder="Tuliskan keterangan atau catatan terkait SK"></textarea></div>
                             <div class="col-md-4"><label class="form-label">Masa Kerja</label><input class="form-control" name="masa_kerja" id="input_masa_kerja"></div>
@@ -356,6 +350,51 @@
                     </div>
                 </div>
             </form>
+    </div>
+</div>
+
+<div class="modal fade" id="gtkDocumentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form id="gtkDocumentsForm" class="modal-content" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1">Upload Berkas GTK</h5>
+                    <small class="text-muted" id="documentsSubtitle">Pilih berkas yang ingin diperbarui.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-light border">Berkas yang tidak dipilih tidak akan diubah. Mengunggah berkas baru akan menggantikan berkas lama.</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Foto Guru</label>
+                        <input type="file" class="form-control" name="foto_guru" accept="image/jpeg,image/png,image/webp">
+                        <div class="form-text">JPG, PNG, atau WebP maksimal 4 MB. <a data-current-file="foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">KTP</label>
+                        <input type="file" class="form-control" name="ktp" accept="application/pdf,image/jpeg,image/png,image/webp,.pdf">
+                        <div class="form-text">PDF/JPG/PNG/WebP maksimal 5 MB. <a data-current-file="ktp" class="d-none" target="_blank" rel="noopener">Lihat KTP saat ini</a></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">PDF SK Awal</label>
+                        <input type="file" class="form-control" name="sk_awal" accept="application/pdf,.pdf">
+                        <div class="form-text">PDF maksimal 10 MB. <a data-current-file="sk_awal" class="d-none" target="_blank" rel="noopener">Lihat SK awal saat ini</a></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">PDF SK Akhir</label>
+                        <input type="file" class="form-control" name="sk_akhir" accept="application/pdf,.pdf">
+                        <div class="form-text">PDF maksimal 10 MB. <a data-current-file="sk_akhir" class="d-none" target="_blank" rel="noopener">Lihat SK akhir saat ini</a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-success"><i class="bx bx-upload me-1"></i> Upload Berkas</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -450,19 +489,34 @@
                 if (!el) return;
                 el.value = user[field] ?? '';
             });
-            form.querySelectorAll('input[type="file"]').forEach(input => input.value = '');
-            [
-                ['current_foto_guru', user.foto_guru_url],
-                ['current_sk_awal', user.sk_awal_url],
-                ['current_sk_akhir', user.sk_akhir_url],
-            ].forEach(([id, url]) => {
-                const link = document.getElementById(id);
+            sync(1);
+            new bootstrap.Modal(modal).show();
+        });
+    });
+
+    const documentsModal = document.getElementById('gtkDocumentsModal');
+    const documentsForm = document.getElementById('gtkDocumentsForm');
+    document.querySelectorAll('.open-gtk-documents').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const user = JSON.parse(btn.dataset.user);
+            documentsForm.action = btn.dataset.action;
+            documentsForm.querySelectorAll('input[type="file"]').forEach(input => input.value = '');
+            document.getElementById('documentsSubtitle').textContent = `Upload berkas untuk ${user.name}.`;
+
+            const urls = {
+                foto_guru: user.foto_guru_url,
+                ktp: user.ktp_url,
+                sk_awal: user.sk_awal_url,
+                sk_akhir: user.sk_akhir_url,
+            };
+            documentsForm.querySelectorAll('[data-current-file]').forEach(link => {
+                const url = urls[link.dataset.currentFile];
                 link.classList.toggle('d-none', !url);
                 if (url) link.href = url;
                 else link.removeAttribute('href');
             });
-            sync(1);
-            new bootstrap.Modal(modal).show();
+
+            new bootstrap.Modal(documentsModal).show();
         });
     });
 
