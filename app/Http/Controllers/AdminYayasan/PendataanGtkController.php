@@ -261,9 +261,28 @@ class PendataanGtkController extends Controller
         $this->authorizeAccess();
 
         $request->validate([
-            'files' => 'required|array|min:1|max:200',
-            'files.*' => 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'ktp_files' => 'nullable|array|max:200',
+            'ktp_files.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+            'sk_awal_files' => 'nullable|array|max:200',
+            'sk_awal_files.*' => 'file|mimes:pdf|max:10240',
+            'sk_akhir_files' => 'nullable|array|max:200',
+            'sk_akhir_files.*' => 'file|mimes:pdf|max:10240',
+            'foto_resmi_files' => 'nullable|array|max:200',
+            'foto_resmi_files.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+            'foto_bebas_files' => 'nullable|array|max:200',
+            'foto_bebas_files.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
+
+        $fileGroups = [
+            'ktp_files' => 'ktp',
+            'sk_awal_files' => 'sk_awal',
+            'sk_akhir_files' => 'sk_akhir',
+            'foto_resmi_files' => 'foto_resmi',
+            'foto_bebas_files' => 'foto_bebas',
+        ];
+        if (! collect(array_keys($fileGroups))->contains(fn ($field) => $request->hasFile($field))) {
+            return back()->withErrors(['files' => 'Pilih minimal satu berkas untuk diunggah.']);
+        }
 
         $users = User::query()
             ->where('madrasah_id', $madrasah->id)
@@ -277,57 +296,33 @@ class PendataanGtkController extends Controller
             }
         }
 
-        $typeAliases = [
-            'skawal' => 'sk_awal',
-            'skakhir' => 'sk_akhir',
-            'ktp' => 'ktp',
-            'fotoresmi' => 'foto_resmi',
-            'fotobebas' => 'foto_bebas',
-        ];
         $assignments = [];
         $failures = [];
         $seen = [];
 
-        foreach ($request->file('files', []) as $file) {
-            $originalName = $file->getClientOriginalName();
-            $baseName = pathinfo($originalName, PATHINFO_FILENAME);
-            if (! preg_match('/^(.+?)[\s_-]+(sk[\s_-]*awal|sk[\s_-]*akhir|ktp|foto[\s_-]*resmi|foto[\s_-]*bebas)$/i', $baseName, $matches)) {
-                $failures[] = "{$originalName}: format nama file tidak dikenali";
+        foreach ($fileGroups as $field => $type) {
+            foreach ($request->file($field, []) as $file) {
+                $originalName = $file->getClientOriginalName();
+                $identifier = pathinfo($originalName, PATHINFO_FILENAME);
+                $identifier = preg_replace('/[\s_-]+(sk[\s_-]*awal|sk[\s_-]*akhir|ktp|foto[\s_-]*resmi|foto[\s_-]*bebas)$/i', '', $identifier);
+                $matchedUsers = collect($lookup[$this->normalizeDocumentIdentifier($identifier)] ?? [])->unique('id')->values();
+                if ($matchedUsers->count() !== 1) {
+                    $reason = $matchedUsers->isEmpty() ? 'GTK tidak ditemukan' : 'nama GTK ambigu, gunakan NUIST ID';
+                    $failures[] = "{$originalName}: {$reason}";
 
-                continue;
+                    continue;
+                }
+
+                $user = $matchedUsers->first();
+                $key = $user->id.':'.$type;
+                if (isset($seen[$key])) {
+                    $failures[] = "{$originalName}: jenis berkas untuk GTK ini dipilih lebih dari sekali";
+
+                    continue;
+                }
+                $seen[$key] = true;
+                $assignments[] = compact('user', 'type', 'file', 'originalName');
             }
-
-            $identifier = $this->normalizeDocumentIdentifier($matches[1]);
-            $type = $typeAliases[$this->normalizeDocumentIdentifier($matches[2])] ?? null;
-            $matchedUsers = collect($lookup[$identifier] ?? [])->unique('id')->values();
-            if ($matchedUsers->count() !== 1) {
-                $reason = $matchedUsers->isEmpty() ? 'GTK tidak ditemukan' : 'nama GTK ambigu, gunakan NUIST ID';
-                $failures[] = "{$originalName}: {$reason}";
-
-                continue;
-            }
-
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (in_array($type, ['sk_awal', 'sk_akhir'], true) && $extension !== 'pdf') {
-                $failures[] = "{$originalName}: SK harus berformat PDF";
-
-                continue;
-            }
-            if (in_array($type, ['foto_resmi', 'foto_bebas'], true) && ! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
-                $failures[] = "{$originalName}: foto harus berformat JPG, PNG, atau WebP";
-
-                continue;
-            }
-
-            $user = $matchedUsers->first();
-            $key = $user->id.':'.$type;
-            if (isset($seen[$key])) {
-                $failures[] = "{$originalName}: jenis berkas untuk GTK ini dipilih lebih dari sekali";
-
-                continue;
-            }
-            $seen[$key] = true;
-            $assignments[] = compact('user', 'type', 'file', 'originalName');
         }
 
         if ($assignments === []) {
