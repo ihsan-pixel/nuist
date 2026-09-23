@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -197,9 +198,10 @@ class PendataanGtkController extends Controller
             'sk_akhir' => 'nullable|file|mimes:pdf|max:10240',
             'ktp' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
             'foto_guru' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'foto_bebas' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
 
-        if (! collect(['sk_awal', 'sk_akhir', 'ktp', 'foto_guru'])->contains(fn ($field) => $request->hasFile($field))) {
+        if (! collect(['sk_awal', 'sk_akhir', 'ktp', 'foto_guru', 'foto_bebas'])->contains(fn ($field) => $request->hasFile($field))) {
             return back()->withErrors(['berkas' => 'Pilih minimal satu berkas untuk diunggah.']);
         }
 
@@ -209,7 +211,7 @@ class PendataanGtkController extends Controller
         $documentPaths = [];
 
         try {
-            foreach (['sk_awal', 'sk_akhir', 'ktp'] as $field) {
+            foreach (['sk_awal', 'sk_akhir', 'ktp', 'foto_bebas'] as $field) {
                 if (! $request->hasFile($field)) {
                     continue;
                 }
@@ -254,6 +256,137 @@ class PendataanGtkController extends Controller
         return back()->with('success', 'Berkas GTK berhasil diperbarui.');
     }
 
+    public function bulkUpdateDocuments(Request $request, Madrasah $madrasah)
+    {
+        $this->authorizeAccess();
+
+        $request->validate([
+            'files' => 'required|array|min:1|max:200',
+            'files.*' => 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+        ]);
+
+        $users = User::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where('role', 'tenaga_pendidik')
+            ->with('gtkPendataan')
+            ->get();
+        $lookup = [];
+        foreach ($users as $user) {
+            foreach (array_filter([$user->nuist_id, $user->name]) as $identifier) {
+                $lookup[$this->normalizeDocumentIdentifier($identifier)][] = $user;
+            }
+        }
+
+        $typeAliases = [
+            'skawal' => 'sk_awal',
+            'skakhir' => 'sk_akhir',
+            'ktp' => 'ktp',
+            'fotoresmi' => 'foto_resmi',
+            'fotobebas' => 'foto_bebas',
+        ];
+        $assignments = [];
+        $failures = [];
+        $seen = [];
+
+        foreach ($request->file('files', []) as $file) {
+            $originalName = $file->getClientOriginalName();
+            $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+            if (! preg_match('/^(.+?)[\s_-]+(sk[\s_-]*awal|sk[\s_-]*akhir|ktp|foto[\s_-]*resmi|foto[\s_-]*bebas)$/i', $baseName, $matches)) {
+                $failures[] = "{$originalName}: format nama file tidak dikenali";
+
+                continue;
+            }
+
+            $identifier = $this->normalizeDocumentIdentifier($matches[1]);
+            $type = $typeAliases[$this->normalizeDocumentIdentifier($matches[2])] ?? null;
+            $matchedUsers = collect($lookup[$identifier] ?? [])->unique('id')->values();
+            if ($matchedUsers->count() !== 1) {
+                $reason = $matchedUsers->isEmpty() ? 'GTK tidak ditemukan' : 'nama GTK ambigu, gunakan NUIST ID';
+                $failures[] = "{$originalName}: {$reason}";
+
+                continue;
+            }
+
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (in_array($type, ['sk_awal', 'sk_akhir'], true) && $extension !== 'pdf') {
+                $failures[] = "{$originalName}: SK harus berformat PDF";
+
+                continue;
+            }
+            if (in_array($type, ['foto_resmi', 'foto_bebas'], true) && ! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                $failures[] = "{$originalName}: foto harus berformat JPG, PNG, atau WebP";
+
+                continue;
+            }
+
+            $user = $matchedUsers->first();
+            $key = $user->id.':'.$type;
+            if (isset($seen[$key])) {
+                $failures[] = "{$originalName}: jenis berkas untuk GTK ini dipilih lebih dari sekali";
+
+                continue;
+            }
+            $seen[$key] = true;
+            $assignments[] = compact('user', 'type', 'file', 'originalName');
+        }
+
+        if ($assignments === []) {
+            return back()->withErrors(['files' => 'Tidak ada file yang dapat dipasangkan ke GTK.'])->with('bulk_upload_failures', $failures);
+        }
+
+        $newFiles = [];
+        $oldFiles = [];
+        $storedAssignments = [];
+
+        try {
+            foreach ($assignments as $assignment) {
+                $user = $assignment['user'];
+                $type = $assignment['type'];
+                $disk = $type === 'foto_resmi' ? 'public' : 'local';
+                $directory = $type === 'foto_resmi'
+                    ? "tenaga_pendidik/{$user->id}"
+                    : "pendataan-gtk/{$user->id}/documents";
+                $path = $assignment['file']->store($directory, $disk);
+                $newFiles[] = [$disk, $path];
+                $storedAssignments[] = compact('user', 'type', 'disk', 'path');
+
+                $oldPath = $type === 'foto_resmi'
+                    ? $user->avatar
+                    : $user->gtkPendataan?->{$type.'_path'};
+                if ($oldPath) {
+                    $oldFiles[] = [$disk, $oldPath];
+                }
+            }
+
+            DB::transaction(function () use ($storedAssignments) {
+                foreach ($storedAssignments as $assignment) {
+                    $user = $assignment['user'];
+                    if ($assignment['type'] === 'foto_resmi') {
+                        $user->update(['avatar' => $assignment['path']]);
+                    } else {
+                        $user->gtkPendataan()->updateOrCreate(
+                            ['user_id' => $user->id],
+                            [$assignment['type'].'_path' => $assignment['path']]
+                        );
+                    }
+                }
+            });
+        } catch (\Throwable $exception) {
+            foreach ($newFiles as [$disk, $path]) {
+                Storage::disk($disk)->delete($path);
+            }
+            throw $exception;
+        }
+
+        foreach ($oldFiles as [$disk, $path]) {
+            Storage::disk($disk)->delete($path);
+        }
+
+        return back()
+            ->with('success', count($storedAssignments).' berkas berhasil dipasangkan dan diunggah.')
+            ->with('bulk_upload_failures', $failures);
+    }
+
     public function downloadDocument(User $user, string $document)
     {
         $this->authorizeAccess();
@@ -263,6 +396,7 @@ class PendataanGtkController extends Controller
             'sk-awal' => 'sk_awal_path',
             'sk-akhir' => 'sk_akhir_path',
             'ktp' => 'ktp_path',
+            'foto-bebas' => 'foto_bebas_path',
         ];
         $column = $documents[$document] ?? abort(404);
         $label = $document;
@@ -275,6 +409,11 @@ class PendataanGtkController extends Controller
         $extension = pathinfo($path, PATHINFO_EXTENSION) ?: 'pdf';
 
         return Storage::disk('local')->download($path, "{$label}-{$safeName}.{$extension}");
+    }
+
+    private function normalizeDocumentIdentifier(string $value): string
+    {
+        return preg_replace('/[^a-z0-9]+/', '', Str::lower(Str::ascii(trim($value)))) ?? '';
     }
 
     private function authorizeAccess(): void

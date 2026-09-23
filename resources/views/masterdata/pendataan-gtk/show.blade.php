@@ -97,9 +97,14 @@
                     <h5 class="mb-1">Daftar GTK</h5>
                     <div class="text-muted small">Kepala sekolah ditampilkan paling atas. Kolom action membuka modal pendataan.</div>
                 </div>
-                <a href="{{ route('pendataan-gtk.export-school', $madrasah->id) }}" class="btn btn-success">
-                    <i class="bx bx-download me-1"></i> Export Excel
-                </a>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkDocumentsModal">
+                        <i class="bx bx-cloud-upload me-1"></i> Upload Banyak Berkas
+                    </button>
+                    <a href="{{ route('pendataan-gtk.export-school', $madrasah->id) }}" class="btn btn-success">
+                        <i class="bx bx-download me-1"></i> Export Excel
+                    </a>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -167,6 +172,7 @@
                                     'sk_awal_url' => $gtkPendataan?->sk_awal_path ? route('pendataan-gtk.documents.download', [$user, 'sk-awal']) : null,
                                     'sk_akhir_url' => $gtkPendataan?->sk_akhir_path ? route('pendataan-gtk.documents.download', [$user, 'sk-akhir']) : null,
                                     'ktp_url' => $gtkPendataan?->ktp_path ? route('pendataan-gtk.documents.download', [$user, 'ktp']) : null,
+                                    'foto_bebas_url' => $gtkPendataan?->foto_bebas_path ? route('pendataan-gtk.documents.download', [$user, 'foto-bebas']) : null,
                                 ];
                             @endphp
                             <tr>
@@ -188,7 +194,7 @@
                                 <td class="gtk-completion">
                                     @php
                                         // Catatan hanya sebagai informasi dan tidak dihitung sebagai kelengkapan.
-                                        $completionFields = [$user->nuist_id, $user->name, $user->status_kepegawaian_id, $user->no_hp, $user->email, $user->pendidikan_terakhir, $user->avatar, $gtkPendataan?->nik, $gtkPendataan?->ktp_path, $gtkPendataan?->tmt_sk_pertama, $gtkPendataan?->sk_awal_path, $gtkPendataan?->sk_akhir_path];
+                                        $completionFields = [$user->nuist_id, $user->name, $user->status_kepegawaian_id, $user->no_hp, $user->email, $user->pendidikan_terakhir, $user->avatar, $gtkPendataan?->foto_bebas_path, $gtkPendataan?->nik, $gtkPendataan?->ktp_path, $gtkPendataan?->tmt_sk_pertama, $gtkPendataan?->sk_awal_path, $gtkPendataan?->sk_akhir_path];
                                         $completion = (int) round(collect($completionFields)->filter(fn ($value) => filled($value))->count() / count($completionFields) * 100);
                                     @endphp
                                     <div class="d-flex justify-content-between gtk-meta mb-1"><span>Kelengkapan</span><strong>{{ $completion }}%</strong></div>
@@ -371,7 +377,12 @@
                     <div class="col-md-6">
                         <label class="form-label">Foto Guru</label>
                         <input type="file" class="form-control" name="foto_guru" accept="image/jpeg,image/png,image/webp">
-                        <div class="form-text">JPG, PNG, atau WebP maksimal 4 MB. <a data-current-file="foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
+                        <div class="form-text">Foto resmi, JPG/PNG/WebP maksimal 4 MB. <a data-current-file="foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Foto Bebas</label>
+                        <input type="file" class="form-control" name="foto_bebas" accept="image/jpeg,image/png,image/webp">
+                        <div class="form-text">JPG, PNG, atau WebP maksimal 4 MB. <a data-current-file="foto_bebas" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">KTP</label>
@@ -398,6 +409,40 @@
     </div>
 </div>
 
+<div class="modal fade" id="bulkDocumentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form action="{{ route('pendataan-gtk.documents.bulk', $madrasah) }}" method="POST" enctype="multipart/form-data" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1">Upload Banyak Berkas GTK</h5>
+                    <small class="text-muted">{{ $madrasah->name }}</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    Nama file harus memakai format <code>NUISTID_jenis.ext</code> atau <code>nama-guru_jenis.ext</code>.
+                    Jenis yang tersedia: <code>ktp</code>, <code>sk_awal</code>, <code>sk_akhir</code>, <code>foto_resmi</code>, dan <code>foto_bebas</code>.
+                </div>
+                <div class="mb-3">
+                    <div class="fw-semibold mb-2">Contoh nama file</div>
+                    <div class="small text-muted">
+                        <code>123456_ktp.pdf</code>, <code>123456_sk_awal.pdf</code>, <code>123456_foto_resmi.jpg</code>, atau <code>ahmad-fauzi_foto_bebas.png</code>.
+                    </div>
+                </div>
+                <label class="form-label">Pilih semua berkas</label>
+                <input type="file" class="form-control" name="files[]" multiple required accept="application/pdf,image/jpeg,image/png,image/webp,.pdf">
+                <div class="form-text">Maksimal 10 MB per file. Gunakan NUIST ID jika ada nama GTK yang sama.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="bx bx-cloud-upload me-1"></i> Proses Semua Berkas</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section('script')
 <script src="{{ asset('build/libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
 @if(session('success'))
@@ -411,6 +456,19 @@
                 confirmButtonColor: '#0d6efd',
                 timer: 3200,
                 timerProgressBar: true,
+            });
+        });
+    </script>
+@endif
+@if(session('bulk_upload_failures'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sebagian file tidak diproses',
+                html: @json(collect(session('bulk_upload_failures'))->map(fn ($message) => e($message))->implode('<br>')),
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#f59e0b',
             });
         });
     </script>
@@ -505,6 +563,7 @@
 
             const urls = {
                 foto_guru: user.foto_guru_url,
+                foto_bebas: user.foto_bebas_url,
                 ktp: user.ktp_url,
                 sk_awal: user.sk_awal_url,
                 sk_akhir: user.sk_akhir_url,

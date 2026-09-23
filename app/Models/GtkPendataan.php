@@ -21,6 +21,7 @@ class GtkPendataan extends Model
         'sk_awal_path',
         'sk_akhir_path',
         'ktp_path',
+        'foto_bebas_path',
         'gaji_satpen',
         'nomor_sertifikasi_pendidik',
         'gaji_sertifikasi',
