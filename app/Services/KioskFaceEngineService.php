@@ -326,6 +326,8 @@ class KioskFaceEngineService
             'face_distance' => $this->normalizeFloat($response['face_distance'] ?? null),
             'liveness_score' => $this->normalizeFloat($response['liveness_score'] ?? null),
             'liveness_challenges' => $this->normalizeChallenges($response['liveness_challenges'] ?? $response['challenges'] ?? []),
+            'captured_image' => $this->normalizeDataUrl($response['captured_image'] ?? $response['best_frame'] ?? null)
+                ?? $frames[0],
             'notes' => (string) ($response['notes'] ?? 'face_verified_python_1to1'),
             'metadata' => is_array($response['metadata'] ?? null) ? $response['metadata'] : [],
         ];

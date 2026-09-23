@@ -237,6 +237,9 @@ Route::middleware(['auth', 'role:admin_yayasan'])
     ->group(function () {
         Route::get('/', [PendataanGtkController::class, 'index'])->name('index');
         Route::get('/export', [PendataanGtkController::class, 'export'])->name('export');
+        Route::get('/users/{user}/documents/{document}', [PendataanGtkController::class, 'downloadDocument'])
+            ->where('document', 'sk-awal|sk-akhir')
+            ->name('documents.download');
         Route::get('/{madrasah}/export', [PendataanGtkController::class, 'export'])->name('export-school');
         Route::get('/{madrasah}', [PendataanGtkController::class, 'show'])->middleware('role:admin_yayasan')->name('show');
         Route::put('/users/{user}', [PendataanGtkController::class, 'update'])->middleware('role:admin_yayasan')->name('update');

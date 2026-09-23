@@ -501,6 +501,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             ], 400);
         }
 
+        $selfieDataForStorage = $request->input('selfie_data');
+
         if ($request->input('face_engine') === 'python') {
             $pythonVerification = $this->kioskFaceEngineService->verify(
                 $user,
@@ -556,6 +558,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'challenges' => $pythonVerification['liveness_challenges'] ?? [],
                 'notes' => $pythonVerification['notes'] ?? 'face_verified_python_1to1',
             ];
+            $selfieDataForStorage = $pythonVerification['captured_image'] ?? $selfieDataForStorage;
         } else {
             $faceVerification = $this->faceVerificationService->verifyForAttendance(
                 $user,
@@ -610,7 +613,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         ]);
 
         $selfiePath = $this->processAndSaveSelfie(
-            $request->input('selfie_data'),
+            $selfieDataForStorage,
             $user->id,
             $tanggal,
             $isPresensiMasuk

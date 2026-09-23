@@ -18,6 +18,8 @@ class GtkPendataan extends Model
         'nomor_sk_pertama',
         'tahun_sk_pertama',
         'keterangan_sk',
+        'sk_awal_path',
+        'sk_akhir_path',
         'gaji_satpen',
         'nomor_sertifikasi_pendidik',
         'gaji_sertifikasi',

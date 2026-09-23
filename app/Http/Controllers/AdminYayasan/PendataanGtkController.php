@@ -8,8 +8,9 @@ use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PendataanGtkController extends Controller
@@ -29,9 +30,9 @@ class PendataanGtkController extends Controller
             ->orderBy('name')
             ->get();
 
-        $scope = $madrasah ? 'sekolah-' . $madrasah->id : 'semua-sekolah';
+        $scope = $madrasah ? 'sekolah-'.$madrasah->id : 'semua-sekolah';
 
-        return Excel::download(new PendataanGtkExport($gtk), 'pendataan-gtk-' . $scope . '-' . now()->format('Ymd-His') . '.xlsx');
+        return Excel::download(new PendataanGtkExport($gtk), 'pendataan-gtk-'.$scope.'-'.now()->format('Ymd-His').'.xlsx');
     }
 
     public function index()
@@ -118,79 +119,140 @@ class PendataanGtkController extends Controller
             'catatan_step_3' => 'nullable|string|max:5000',
             'catatan_step_4' => 'nullable|string|max:5000',
             'catatan_step_5' => 'nullable|string|max:5000',
+            'sk_awal' => 'nullable|file|mimes:pdf|max:10240',
+            'sk_akhir' => 'nullable|file|mimes:pdf|max:10240',
+            'foto_guru' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
 
         if ($validated['madrasah_id'] != $user->madrasah_id) {
             abort(403, 'Unauthorized access');
         }
 
-        DB::transaction(function () use ($user, $validated) {
-            $user->fill([
-                'gelar' => $validated['gelar'] ?? null,
-                'name' => $validated['name'],
-                'nuist_id' => $validated['nuist_id'] ?? $user->nuist_id,
-                'madrasah_id' => $validated['madrasah_id'],
-                'email' => $validated['email_aktif'] ?? $user->email,
-                'status_kepegawaian_id' => $validated['status_kepegawaian_id'] ?? null,
-                'tempat_lahir' => $validated['tempat_lahir'] ?? null,
-                'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
-                'alamat' => $validated['alamat'] ?? null,
-                'nuptk' => $validated['nuptk'] ?? null,
-                'nip' => $validated['nip'] ?? null,
-                'kartanu' => $validated['kartanu'] ?? null,
-                'tmt' => $validated['tmt'] ?? null,
-                'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
-                'tahun_lulus' => $validated['tahun_lulus'] ?? null,
-                'program_studi' => $validated['program_studi'] ?? null,
-                'ketugasan' => $validated['ketugasan'] ?? null,
-                'no_hp' => $validated['no_hp'] ?? null,
-                'is_active' => $validated['is_active'],
-                'masa_kerja' => $validated['masa_kerja'] ?? null,
-                'jabatan' => $validated['jabatan'] ?? null,
-                'mengajar' => $validated['mengajar'] ?? null,
-            ]);
+        $oldGtkPendataan = $user->gtkPendataan;
+        $oldFiles = [];
+        $newFiles = [];
 
-            $user->save();
+        try {
+            if ($request->hasFile('sk_awal')) {
+                $validated['sk_awal_path'] = $request->file('sk_awal')->store("pendataan-gtk/{$user->id}/sk", 'local');
+                $newFiles[] = ['local', $validated['sk_awal_path']];
+                if ($oldGtkPendataan?->sk_awal_path) {
+                    $oldFiles[] = ['local', $oldGtkPendataan->sk_awal_path];
+                }
+            }
+            if ($request->hasFile('sk_akhir')) {
+                $validated['sk_akhir_path'] = $request->file('sk_akhir')->store("pendataan-gtk/{$user->id}/sk", 'local');
+                $newFiles[] = ['local', $validated['sk_akhir_path']];
+                if ($oldGtkPendataan?->sk_akhir_path) {
+                    $oldFiles[] = ['local', $oldGtkPendataan->sk_akhir_path];
+                }
+            }
+            if ($request->hasFile('foto_guru')) {
+                $validated['foto_guru_path'] = $request->file('foto_guru')->store("tenaga_pendidik/{$user->id}", 'public');
+                $newFiles[] = ['public', $validated['foto_guru_path']];
+                if ($user->avatar) {
+                    $oldFiles[] = ['public', $user->avatar];
+                }
+            }
 
-            $user->simfoni()->updateOrCreate(
-                ['user_id' => $user->id],
-                ['status_pernikahan' => $validated['status_pernikahan'] ?? null]
-            );
+            DB::transaction(function () use ($user, $validated) {
+                $user->fill([
+                    'gelar' => $validated['gelar'] ?? null,
+                    'name' => $validated['name'],
+                    'nuist_id' => $validated['nuist_id'] ?? $user->nuist_id,
+                    'madrasah_id' => $validated['madrasah_id'],
+                    'email' => $validated['email_aktif'] ?? $user->email,
+                    'status_kepegawaian_id' => $validated['status_kepegawaian_id'] ?? null,
+                    'tempat_lahir' => $validated['tempat_lahir'] ?? null,
+                    'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
+                    'alamat' => $validated['alamat'] ?? null,
+                    'nuptk' => $validated['nuptk'] ?? null,
+                    'nip' => $validated['nip'] ?? null,
+                    'kartanu' => $validated['kartanu'] ?? null,
+                    'tmt' => $validated['tmt'] ?? null,
+                    'pendidikan_terakhir' => $validated['pendidikan_terakhir'] ?? null,
+                    'tahun_lulus' => $validated['tahun_lulus'] ?? null,
+                    'program_studi' => $validated['program_studi'] ?? null,
+                    'ketugasan' => $validated['ketugasan'] ?? null,
+                    'no_hp' => $validated['no_hp'] ?? null,
+                    'is_active' => $validated['is_active'],
+                    'masa_kerja' => $validated['masa_kerja'] ?? null,
+                    'jabatan' => $validated['jabatan'] ?? null,
+                    'mengajar' => $validated['mengajar'] ?? null,
+                    'avatar' => $validated['foto_guru_path'] ?? $user->avatar,
+                ]);
 
-            $user->gtkPendataan()->updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'nik' => $validated['nik'] ?? null,
-                    'gol_darah' => $validated['gol_darah'] ?? null,
-                    'email_aktif' => $validated['email_aktif'] ?? $user->email,
-                    'tmt_sk_pertama' => $validated['tmt_sk_pertama'] ?? null,
-                    'tmt_sk_terakhir' => $validated['tmt_sk_terakhir'] ?? null,
-                    'nomor_sk_pertama' => $validated['nomor_sk_pertama'] ?? null,
-                    'tahun_sk_pertama' => $validated['tahun_sk_pertama'] ?? null,
-                    'keterangan_sk' => $validated['keterangan_sk'] ?? null,
-                    'gaji_satpen' => $validated['gaji_satpen'] ?? null,
-                    'nomor_sertifikasi_pendidik' => $validated['nomor_sertifikasi_pendidik'] ?? null,
-                    'gaji_sertifikasi' => $validated['gaji_sertifikasi'] ?? null,
-                    'tunjangan_rerata_bulanan' => $validated['tunjangan_rerata_bulanan'] ?? null,
-                    'nama_mgmp' => $validated['nama_mgmp'] ?? null,
-                    'produk_kerja_kolaboratif' => $validated['produk_kerja_kolaboratif'] ?? null,
-                    'catatan_step_1' => $validated['catatan_step_1'] ?? null,
-                    'catatan_step_2' => $validated['catatan_step_2'] ?? null,
-                    'catatan_step_3' => $validated['catatan_step_3'] ?? null,
-                    'catatan_step_4' => $validated['catatan_step_4'] ?? null,
-                    'catatan_step_5' => $validated['catatan_step_5'] ?? null,
-                ]
-            );
-        });
+                $user->save();
+
+                $user->simfoni()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['status_pernikahan' => $validated['status_pernikahan'] ?? null]
+                );
+
+                $user->gtkPendataan()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'nik' => $validated['nik'] ?? null,
+                        'gol_darah' => $validated['gol_darah'] ?? null,
+                        'email_aktif' => $validated['email_aktif'] ?? $user->email,
+                        'tmt_sk_pertama' => $validated['tmt_sk_pertama'] ?? null,
+                        'tmt_sk_terakhir' => $validated['tmt_sk_terakhir'] ?? null,
+                        'nomor_sk_pertama' => $validated['nomor_sk_pertama'] ?? null,
+                        'tahun_sk_pertama' => $validated['tahun_sk_pertama'] ?? null,
+                        'keterangan_sk' => $validated['keterangan_sk'] ?? null,
+                        'sk_awal_path' => $validated['sk_awal_path'] ?? $user->gtkPendataan?->sk_awal_path,
+                        'sk_akhir_path' => $validated['sk_akhir_path'] ?? $user->gtkPendataan?->sk_akhir_path,
+                        'gaji_satpen' => $validated['gaji_satpen'] ?? null,
+                        'nomor_sertifikasi_pendidik' => $validated['nomor_sertifikasi_pendidik'] ?? null,
+                        'gaji_sertifikasi' => $validated['gaji_sertifikasi'] ?? null,
+                        'tunjangan_rerata_bulanan' => $validated['tunjangan_rerata_bulanan'] ?? null,
+                        'nama_mgmp' => $validated['nama_mgmp'] ?? null,
+                        'produk_kerja_kolaboratif' => $validated['produk_kerja_kolaboratif'] ?? null,
+                        'catatan_step_1' => $validated['catatan_step_1'] ?? null,
+                        'catatan_step_2' => $validated['catatan_step_2'] ?? null,
+                        'catatan_step_3' => $validated['catatan_step_3'] ?? null,
+                        'catatan_step_4' => $validated['catatan_step_4'] ?? null,
+                        'catatan_step_5' => $validated['catatan_step_5'] ?? null,
+                    ]
+                );
+            });
+        } catch (\Throwable $exception) {
+            foreach ($newFiles as [$disk, $path]) {
+                Storage::disk($disk)->delete($path);
+            }
+            throw $exception;
+        }
+
+        foreach ($oldFiles as [$disk, $path]) {
+            Storage::disk($disk)->delete($path);
+        }
 
         return back()->with('success', 'Data GTK berhasil diperbarui.');
+    }
+
+    public function downloadDocument(User $user, string $document)
+    {
+        $this->authorizeAccess();
+        $this->authorizeUserBelongsToCurrentSchool($user);
+
+        $column = $document === 'sk-awal' ? 'sk_awal_path' : 'sk_akhir_path';
+        $label = $document === 'sk-awal' ? 'sk-awal' : 'sk-akhir';
+        $path = $user->gtkPendataan?->{$column};
+
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
+
+        $safeName = preg_replace('/[^A-Za-z0-9_-]+/', '-', trim($user->name)) ?: 'gtk';
+
+        return Storage::disk('local')->download($path, "{$label}-{$safeName}.pdf", [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     private function authorizeAccess(): void
     {
         $user = auth()->user();
 
-        if (!$user || trim(strtolower((string) $user->role)) !== 'admin_yayasan') {
+        if (! $user || trim(strtolower((string) $user->role)) !== 'admin_yayasan') {
             abort(403, 'Unauthorized access');
         }
     }
