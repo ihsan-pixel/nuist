@@ -51,11 +51,22 @@ class DataSiswaController extends Controller
             $statsQuery->where('madrasah_id', $selectedMadrasahId);
         }
 
+        $madrasahStatusQuery = Madrasah::query()
+            ->when($selectedMadrasahId, fn ($query) => $query->whereKey($selectedMadrasahId));
+
+        $madrasahsWithoutStudents = (clone $madrasahStatusQuery)
+            ->whereDoesntHave('siswas')
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderBy('scod')
+            ->orderBy('name')
+            ->get(['id', 'scod', 'name', 'kabupaten']);
+
         $stats = [
             'total' => (clone $statsQuery)->count(),
             'aktif' => (clone $statsQuery)->where('is_active', true)->count(),
             'rata_rata_kelengkapan' => $siswas->isNotEmpty() ? (int) round($siswas->avg('completion_percentage')) : 0,
             'sekolah_upload' => (clone $statsQuery)->whereNotNull('madrasah_id')->distinct('madrasah_id')->count('madrasah_id'),
+            'sekolah_belum_upload' => $madrasahsWithoutStudents->count(),
             'kelas' => (clone $statsQuery)->distinct('kelas')->count('kelas'),
             'nisn' => (clone $statsQuery)->whereNotNull('nisn')->count(),
         ];
@@ -65,6 +76,7 @@ class DataSiswaController extends Controller
             'madrasahOptions' => $madrasahOptions,
             'selectedMadrasahId' => $selectedMadrasahId,
             'stats' => $stats,
+            'madrasahsWithoutStudents' => $madrasahsWithoutStudents,
             'userRole' => $userRole,
         ]);
     }
