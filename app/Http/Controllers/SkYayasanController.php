@@ -2190,7 +2190,7 @@ class SkYayasanController extends Controller
         $summary = $paymentService->summaryForSchoolYear((int) $madrasah->id, (int) $requirement['year']);
         $paymentPeriod = $summary['period_summaries'][$requirement['period_key']] ?? [];
         $paymentValidationEnabled = $paymentService->shouldEnforceSkGenerateGate((int) $requirement['year']);
-        $uppmIsPaid = !$paymentValidationEnabled || (bool) ($paymentPeriod['is_lunas'] ?? false);
+        $uppmIsPaid = (bool) ($paymentPeriod['is_lunas'] ?? false);
         $correctStatus = $uppmIsPaid ? 'ready_for_pickup' : 'waiting_uppm_payment';
 
         $requests->where('sk_verification_status', 'correct')->each(function (SkYayasanRequest $submission) use ($correctStatus) {
@@ -2206,7 +2206,7 @@ class SkYayasanController extends Controller
             'uppmPeriodLabel' => (string) $requirement['period_label'],
             'uppmIsPaid' => $uppmIsPaid,
             'uppmStatusLabel' => !$paymentValidationEnabled
-                ? 'Validasi UPPPM tidak aktif'
+                ? 'Belum ada pembayaran UPPPM yang terverifikasi'
                 : (string) ($paymentPeriod['status_label'] ?? 'Belum Lunas'),
         ]);
     }
@@ -2247,8 +2247,7 @@ class SkYayasanController extends Controller
                 (int) $requirement['year']
             );
             $periodSummary = $paymentSummary['period_summaries'][$requirement['period_key']] ?? [];
-            $paymentValidationEnabled = $paymentService->shouldEnforceSkGenerateGate((int) $requirement['year']);
-            $isPaid = !$paymentValidationEnabled || (bool) ($periodSummary['is_lunas'] ?? false);
+            $isPaid = (bool) ($periodSummary['is_lunas'] ?? false);
 
             $verificationStatus = 'correct';
             $currentStatus = $isPaid ? 'ready_for_pickup' : 'waiting_uppm_payment';
