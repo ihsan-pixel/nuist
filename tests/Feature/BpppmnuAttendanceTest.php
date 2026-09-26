@@ -98,6 +98,19 @@ class BpppmnuAttendanceTest extends TestCase
         $this->assertAuthenticatedAs($this->member);
     }
 
+    public function test_desktop_login_and_attendance_route(): void
+    {
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+        $this->post('/login', ['email' => $this->member->email, 'password' => 'Password1!'])
+            ->assertRedirect('/bpppmnu/presensi');
+
+        $this->assertAuthenticatedAs($this->member);
+        $this->getJson('/bpppmnu/presensi')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $this->event->id);
+    }
+
     public function test_alias_domain_login_and_redirect(): void
     {
         $this->post('https://presensi.nuist.id/mobile/login', ['email' => $this->member->email, 'password' => 'Password1!'])->assertRedirect('/mobile/bpppmnu/presensi');

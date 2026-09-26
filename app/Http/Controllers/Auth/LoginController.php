@@ -55,6 +55,10 @@ class LoginController extends Controller
             ]);
         }
 
+        if ($this->normalizeRole($user->role ?? '') === 'pengurus_bpppmnu') {
+            return redirect()->route('bpppmnu.presensi');
+        }
+
         // Redirect pengurus users to mobile pengurus dashboard
         if ($user->role === 'pengurus') {
             return redirect()->route('dashboard');
@@ -194,6 +198,10 @@ class LoginController extends Controller
 
         if ($this->normalizeRole($user->role ?? '') === 'admin_spp') {
             return '/spp-siswa/dashboard';
+        }
+
+        if ($this->normalizeRole($user->role ?? '') === 'pengurus_bpppmnu') {
+            return '/bpppmnu/presensi';
         }
 
         if ($user->role === 'mgmp') {

@@ -143,7 +143,7 @@ class BpppmnuController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/mobile/login');
+        return redirect()->route($request->routeIs('mobile.bpppmnu.*') ? 'mobile.login' : 'login');
     }
 
     private function authorizeEvent(Request $request, BpppmnuEvent $event): void

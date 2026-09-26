@@ -31,6 +31,19 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan'])->prefix('admin-
     Route::get('kegiatan/{event}/export', [BpppmnuEventController::class, 'export'])->name('events.export');
 });
 
+Route::middleware(['auth', BpppmnuRole::class.':pengurus_bpppmnu'])->prefix('bpppmnu')->name('bpppmnu.')->group(function () {
+    Route::get('presensi', [BpppmnuController::class, 'index'])->name('presensi');
+    Route::get('barcode', [BpppmnuController::class, 'barcode'])->name('barcode');
+    Route::get('riwayat-presensi', [BpppmnuController::class, 'history'])->name('history');
+    Route::get('profil', [BpppmnuController::class, 'profile'])->name('profile');
+    Route::post('profil/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:5,1')->name('password');
+    Route::post('logout', [BpppmnuController::class, 'logout'])->name('logout');
+    Route::get('kegiatan/{event}', [BpppmnuController::class, 'show'])->name('events.show');
+    Route::get('kegiatan/{event}/recap', [BpppmnuController::class, 'recap'])->name('events.recap');
+    Route::get('kegiatan/{event}/attachment', [BpppmnuController::class, 'attachment'])->name('events.attachment');
+    Route::post('kegiatan/{event}/scan', [BpppmnuController::class, 'scan'])->middleware('throttle:15,1')->name('events.scan');
+});
+
 Route::middleware(['auth', BpppmnuRole::class.':pengurus_bpppmnu'])->prefix('mobile/bpppmnu')->name('mobile.bpppmnu.')->group(function () {
     Route::get('presensi', [BpppmnuController::class, 'index'])->name('presensi');
     Route::get('barcode', [BpppmnuController::class, 'barcode'])->name('barcode');

@@ -258,7 +258,7 @@
                 @endphp
                 @if($bpppmnuAllowed)
                 <li>
-                    <a href="{{ route('mobile.bpppmnu.presensi') }}" class="waves-effect">
+                    <a href="{{ route('bpppmnu.presensi') }}" class="waves-effect">
                         <i class="bx bx-calendar-event"></i>
                         <span>Agenda BPPPMNU</span>
                     </a>

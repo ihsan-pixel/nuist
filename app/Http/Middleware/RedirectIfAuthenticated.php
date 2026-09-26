@@ -25,7 +25,7 @@ class RedirectIfAuthenticated
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 if (Auth::guard($guard)->user()->role === 'pengurus_bpppmnu') {
-                    return redirect('/mobile/bpppmnu/presensi');
+                    return redirect()->route($request->is('mobile/*') ? 'mobile.bpppmnu.presensi' : 'bpppmnu.presensi');
                 }
                 return redirect(RouteServiceProvider::HOME);
             }
