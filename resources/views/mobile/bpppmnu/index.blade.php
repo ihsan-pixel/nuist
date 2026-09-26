@@ -39,6 +39,15 @@
 .bpp-home-heading { margin-bottom:16px; }
 .bpp-home-heading h2 { margin:0 0 4px; font-size:13px; font-weight:600; }
 .bpp-home-heading p { margin:0; color:#68736e; font-size:11px; }
+.bpp-member-code { display:flex; align-items:center; gap:16px; margin:0 0 22px; padding:16px; border:1px solid #dfe9e4; border-radius:14px; background:linear-gradient(135deg,#fff,#f1f7f4); box-shadow:0 4px 14px #183d3208; }
+.bpp-member-code-image { width:132px; height:132px; flex:0 0 132px; padding:7px; border:1px solid #dfe9e4; border-radius:12px; background:#fff; }
+.bpp-member-code-copy { min-width:0; }
+.bpp-member-code-label { margin:0 0 5px; color:#00553f; font-size:10px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; }
+.bpp-member-code-copy h2 { margin:0 0 7px; font-size:13px; font-weight:600; line-height:1.5; overflow-wrap:anywhere; }
+.bpp-member-code-copy p { margin:0 0 8px; color:#68736e; font-size:10px; line-height:1.6; }
+.bpp-member-code-id { display:inline-block; padding:4px 7px; border-radius:6px; background:#e4f1eb; color:#00553f; font-size:10px; font-weight:600; overflow-wrap:anywhere; }
+.bpp-member-code--missing { display:block; }
+.bpp-member-code--missing p { margin:0; }
 .bpp-agenda-card { display:grid; grid-template-columns:48px minmax(0,1fr) 16px; gap:12px; width:100%; padding:16px 14px; margin:0 0 10px; border:1px solid #e6eae8; border-radius:13px; background:#fff; color:#18201d; text-align:left; font:inherit; box-shadow:0 2px 5px #18201d03; }
 .bpp-agenda-card:hover { border-color:#b7cec4; }
 .bpp-agenda-card:active { background:#f0f5f2; }
@@ -87,7 +96,28 @@
 .bpp-sheet-barcode { display:block; width:170px; height:170px; margin:4px auto 14px; padding:8px; border:1px solid #e6eae8; border-radius:10px; background:#fff; }
 .bpp-sheet-barcode-title { margin:0 0 10px; text-align:center; font-size:11px; color:#68736e; }
 @media(min-width:768px) { .bpp-sheet .modal-dialog { align-items:center; padding:24px 0; } .bpp-sheet .modal-content { border-radius:14px; max-height:calc(100vh - 48px); } }
+@media(max-width:380px) { .bpp-member-code { gap:12px; padding:13px; } .bpp-member-code-image { width:112px; height:112px; flex-basis:112px; } }
 </style>
+
+@if(auth()->user()->nuist_id)
+    <section class="bpp-member-code" aria-labelledby="bpp-member-code-title">
+        <img class="bpp-member-code-image" src="{{ route('mobile.bpppmnu.barcode') }}" alt="Barcode identitas {{ auth()->user()->name }}">
+        <div class="bpp-member-code-copy">
+            <p class="bpp-member-code-label">Barcode Saya</p>
+            <h2 id="bpp-member-code-title">Tunjukkan kepada penjaga presensi</h2>
+            <p>Penjaga dapat memindai kode ini untuk mencatat kehadiran Anda pada kegiatan yang sedang berlangsung.</p>
+            <span class="bpp-member-code-id">ID NUIST: {{ auth()->user()->nuist_id }}</span>
+        </div>
+    </section>
+@else
+    <section class="bpp-member-code bpp-member-code--missing" role="status">
+        <div class="bpp-member-code-copy">
+            <p class="bpp-member-code-label">Barcode Saya</p>
+            <h2>Barcode belum tersedia</h2>
+            <p>ID NUIST akun Anda belum terisi. Hubungi admin agar barcode presensi dapat ditampilkan.</p>
+        </div>
+    </section>
+@endif
 
 <div class="bpp-home-heading">
     <h2>Agenda Anda</h2>

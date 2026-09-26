@@ -147,6 +147,35 @@ class BpppmnuAttendanceTest extends TestCase
         $this->getJson('/mobile/bpppmnu/kegiatan/'.$draft->id)->assertNotFound();
     }
 
+    public function test_presensi_page_displays_logged_in_members_barcode(): void
+    {
+        $this->member->update(['nuist_id' => 'BPP-000123']);
+
+        $this->actingAs($this->member)
+            ->get('/mobile/bpppmnu/presensi')
+            ->assertOk()
+            ->assertSee('Barcode Saya')
+            ->assertSee('Tunjukkan kepada penjaga presensi')
+            ->assertSee('ID NUIST: BPP-000123')
+            ->assertSee(route('mobile.bpppmnu.barcode'));
+
+        $this->get('/mobile/bpppmnu/barcode')
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/svg+xml')
+            ->assertSee('<svg', false);
+    }
+
+    public function test_presensi_page_explains_when_member_has_no_nuist_id(): void
+    {
+        $this->member->update(['nuist_id' => null]);
+
+        $this->actingAs($this->member)
+            ->get('/mobile/bpppmnu/presensi')
+            ->assertOk()
+            ->assertSee('Barcode belum tersedia')
+            ->assertDontSee('<img class="bpp-member-code-image"', false);
+    }
+
     public function test_uninvited_scan_is_rejected(): void
     {
         $this->member = $this->user('pengurus_bpppmnu');
