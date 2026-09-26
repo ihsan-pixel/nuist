@@ -31,8 +31,12 @@
 </style>
 
 @forelse($history as $row)
+    @php
+        $statusLabels = ['hadir' => 'Hadir', 'tidak_hadir' => 'Tidak Hadir', 'belum_presensi' => 'Belum Presensi'];
+        $statusLabel = $statusLabels[$row->status] ?? 'Belum Presensi';
+    @endphp
     <article class="bpp-history-card">
-        <span class="bpp-history-status {{ $row->attended_at ? 'bpp-history-status-present' : '' }}">{{ $row->attended_at ? 'Hadir' : 'Tidak Hadir' }}</span>
+        <span class="bpp-history-status {{ $row->status === 'hadir' ? 'bpp-history-status-present' : '' }}">{{ $statusLabel }}</span>
         <h2 class="bpp-history-name">{{ $row->name }}</h2>
         <p class="bpp-history-date">{{ \Carbon\Carbon::parse($row->start_at)->locale('id')->translatedFormat('d F Y') }} &bull; {{ \Carbon\Carbon::parse($row->start_at)->format('H:i') }} WIB</p>
         <a class="bpp-history-detail" href="{{ route('mobile.bpppmnu.events.show', $row->id) }}">Lihat Detail <span aria-hidden="true">&rarr;</span></a>

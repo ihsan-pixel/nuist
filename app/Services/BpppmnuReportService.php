@@ -22,7 +22,7 @@ class BpppmnuReportService
             ->where('i.event_id', $event->id)->orderBy('u.name')
             ->get(['u.name', 'u.nuist_id', 'u.ketugasan as jabatan', 'a.attended_at']);
         foreach ($rows as $row) {
-            $row->status = $row->attended_at ? 'Hadir' : ($event->status === 'cancelled' ? 'Dibatalkan' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'));
+            $row->status = $row->attended_at ? 'Hadir' : ($event->status === 'cancelled' ? 'Dibatalkan' : ($event->status === 'published' && now()->gt($event->attendance_close_at) ? 'Tidak Hadir' : 'Belum Presensi'));
         }
         $total = $rows->count();
         $present = $rows->whereNotNull('attended_at')->count();

@@ -81,7 +81,8 @@ class BpppmnuController extends Controller
     {
         $data = $request->validate(['month' => 'nullable|integer|between:1,12', 'year' => 'nullable|integer|between:2000,2200', 'status' => 'nullable|in:hadir,tidak_hadir']);
         $query = $reports->invitations()->where('i.user_id', $request->user()->id)
-            ->where('e.status', 'published');
+            ->where('e.status', 'published')
+            ->where('e.attendance_close_at', '<', now());
         if (! empty($data['month'])) {
             $query->whereMonth('e.start_at', $data['month']);
         }
@@ -94,7 +95,16 @@ class BpppmnuController extends Controller
         if (($data['status'] ?? null) === 'tidak_hadir') {
             $query->whereNull('a.attended_at');
         }
-        $history = $query->orderByDesc('e.start_at')->select(['e.id', 'e.name', 'e.start_at', 'a.attended_at'])->paginate(20)->withQueryString();
+        $history = $query->orderByDesc('e.start_at')
+            ->select(['e.id', 'e.name', 'e.start_at', 'e.attendance_close_at', 'a.attended_at'])
+            ->paginate(20)->withQueryString();
+        $history->getCollection()->transform(function ($row) {
+            $row->status = $row->attended_at
+                ? 'hadir'
+                : (now()->gt($row->attendance_close_at) ? 'tidak_hadir' : 'belum_presensi');
+
+            return $row;
+        });
 
         return $request->expectsJson() ? response()->json($history) : view('mobile.bpppmnu.history', compact('history'));
     }

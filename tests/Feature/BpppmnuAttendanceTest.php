@@ -241,6 +241,25 @@ class BpppmnuAttendanceTest extends TestCase
         $this->assertSame('Tidak Hadir', app(BpppmnuReportService::class)->recap($this->event)['rows'][0]->status);
     }
 
+    public function test_missing_attendance_becomes_absent_immediately_after_attendance_closes(): void
+    {
+        $this->event->update([
+            'attendance_close_at' => now()->subMinute(),
+            'end_at' => now()->addHour(),
+        ]);
+
+        $this->actingAs($this->member)
+            ->getJson('/mobile/bpppmnu/riwayat-presensi')
+            ->assertOk()
+            ->assertJsonPath('data.0.status', 'tidak_hadir');
+
+        $this->get('/mobile/bpppmnu/riwayat-presensi')
+            ->assertOk()
+            ->assertSee('Tidak Hadir');
+
+        $this->assertSame('Tidak Hadir', app(BpppmnuReportService::class)->recap($this->event)['rows'][0]->status);
+    }
+
     public function test_finished_attended_event_and_history_filters(): void
     {
         $this->scan()->assertOk();
