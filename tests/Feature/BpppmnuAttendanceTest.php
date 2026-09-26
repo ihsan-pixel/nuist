@@ -157,6 +157,7 @@ class BpppmnuAttendanceTest extends TestCase
             ->assertSee('Barcode Saya')
             ->assertSee('Tunjukkan kepada penjaga presensi')
             ->assertSee('ID NUIST: BPP-000123')
+            ->assertDontSee('Penjaga dapat memindai kode ini')
             ->assertSee(route('mobile.bpppmnu.barcode'));
 
         $this->get('/mobile/bpppmnu/barcode')
