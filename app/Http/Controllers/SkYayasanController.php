@@ -640,7 +640,12 @@ class SkYayasanController extends Controller
         $submissions = SkYayasanRequest::query()
             ->with(['employee.statusKepegawaian', 'document', 'importBatch'])
             ->where('madrasah_id', $madrasahId)
-            ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $status = $request->string('status')->toString();
+                $status === 'processing'
+                    ? $query->whereNotIn('current_status', ['revision_required', 'waiting_uppm_payment', 'ready_for_pickup'])
+                    : $query->where('current_status', $status);
+            })
             ->latest('submitted_at')
             ->paginate(10)
             ->withQueryString();
@@ -674,6 +679,13 @@ class SkYayasanController extends Controller
             ->where('madrasah_id', $madrasahId)
             ->when($request->filled('status'), function ($query) use ($request) {
                 $status = $request->string('status')->toString();
+
+                if ($status === 'processing') {
+                    $query->whereHas('requests', fn ($requestQuery) => $requestQuery
+                        ->whereNotIn('current_status', ['revision_required', 'waiting_uppm_payment', 'ready_for_pickup']));
+
+                    return;
+                }
 
                 if ($status === 'rejected') {
                     $query->where(function ($builder) {
@@ -709,13 +721,6 @@ class SkYayasanController extends Controller
             'latestSchoolSubmissionBatch' => $latestSchoolSubmissionBatch,
             'autoSelectedEmployeeIds' => old('employee_ids', $latestSyncedImport?->matched_user_ids ?? []),
             'latestSyncedImport' => $latestSyncedImport,
-            'publishedDocuments' => SkYayasanDocument::query()
-                ->with(['request.employee'])
-                ->whereHas('request', fn ($query) => $query->where('madrasah_id', $madrasahId))
-                ->where('status', 'published')
-                ->latest('published_at')
-                ->take(6)
-                ->get(),
         ]);
     }
 

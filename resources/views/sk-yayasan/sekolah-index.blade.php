@@ -145,6 +145,15 @@
 @include('sk-yayasan.partials.sweet-alert')
 
 @php
+    $verificationStatusMap = [
+        'revision_required' => ['color' => 'danger', 'label' => 'Perlu Penyesuaian', 'description' => 'SK masih perlu disesuaikan oleh Yayasan.'],
+        'waiting_uppm_payment' => ['color' => 'warning', 'label' => 'Menunggu UPPPM', 'description' => 'SK sudah sesuai dan menunggu pembayaran UPPPM sekolah.'],
+        'ready_for_pickup' => ['color' => 'success', 'label' => 'Siap Diambil', 'description' => 'SK sudah sesuai dan persyaratan UPPPM telah terpenuhi.'],
+    ];
+    $processStatusCount = max(0, $statusCounts->sum()
+        - (int) ($statusCounts['revision_required'] ?? 0)
+        - (int) ($statusCounts['waiting_uppm_payment'] ?? 0)
+        - (int) ($statusCounts['ready_for_pickup'] ?? 0));
     $keteranganOptions = \App\Support\SkYayasanImportSynchronizer::allowedKeteranganOptions();
     $importPreviewColumns = \App\Support\SkYayasanImportSynchronizer::expectedHeadings();
     $importPreviewFieldMap = [
@@ -270,7 +279,7 @@
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $submissions->total() }} total pengajuan</span>
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $publishedDocuments->count() }} SK terbaru</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $statusCounts['ready_for_pickup'] ?? 0 }} SK siap diambil</span>
             </div>
         </div>
     </div>
@@ -278,27 +287,113 @@
     <div class="row g-3 mb-3">
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Diajukan</div>
-                <div class="h4 mb-0">{{ $statusCounts['submitted'] ?? 0 }}</div>
+                <div class="text-muted small">Proses</div>
+                <div class="h4 mb-0">{{ $processStatusCount }}</div>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Direview</div>
-                <div class="h4 mb-0">{{ $statusCounts['reviewed'] ?? 0 }}</div>
+                <div class="text-muted small">Perlu Penyesuaian</div>
+                <div class="h4 mb-0 text-danger">{{ $statusCounts['revision_required'] ?? 0 }}</div>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Disetujui</div>
-                <div class="h4 mb-0">{{ $statusCounts['approved'] ?? 0 }}</div>
+                <div class="text-muted small">Menunggu UPPPM</div>
+                <div class="h4 mb-0 text-warning">{{ $statusCounts['waiting_uppm_payment'] ?? 0 }}</div>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Terbit</div>
-                <div class="h4 mb-0">{{ $statusCounts['published'] ?? 0 }}</div>
+                <div class="text-muted small">Siap Diambil</div>
+                <div class="h4 mb-0 text-success">{{ $statusCounts['ready_for_pickup'] ?? 0 }}</div>
             </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Status SK Per Guru/Pegawai</div>
+                    <h6 class="mb-0">Pantau hasil pemeriksaan dan kesiapan pengambilan SK</h6>
+                </div>
+                <form method="GET" class="d-flex gap-2">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Semua status</option>
+                        <option value="processing" @selected(request('status') === 'processing')>Proses</option>
+                        <option value="revision_required" @selected(request('status') === 'revision_required')>Perlu Penyesuaian</option>
+                        <option value="waiting_uppm_payment" @selected(request('status') === 'waiting_uppm_payment')>Menunggu UPPPM</option>
+                        <option value="ready_for_pickup" @selected(request('status') === 'ready_for_pickup')>Siap Diambil</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
+                </form>
+            </div>
+
+            @if($submissions->count() > 0)
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Guru/Pegawai</th>
+                                <th>Nomor Pengajuan</th>
+                                <th>Nomor SK</th>
+                                <th>Status</th>
+                                <th>Catatan Yayasan</th>
+                                <th class="text-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($submissions as $submission)
+                                @php
+                                    $schoolStatus = $verificationStatusMap[$submission->current_status]
+                                        ?? ['color' => 'info', 'label' => 'Proses', 'description' => 'Pengajuan atau SK sedang diproses oleh Yayasan.'];
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
+                                        <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employment_category ?: '-') }}</small>
+                                    </td>
+                                    <td>
+                                        <div>{{ $submission->request_number }}</div>
+                                        <small class="text-muted">{{ optional($submission->submitted_at)->format('d/m/Y') ?? '-' }}</small>
+                                    </td>
+                                    <td>{{ $submission->document?->document_number ?? '-' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $schoolStatus['color'] }}-subtle text-{{ $schoolStatus['color'] }}">{{ $schoolStatus['label'] }}</span>
+                                        <small class="text-muted d-block mt-1">{{ $schoolStatus['description'] }}</small>
+                                    </td>
+                                    <td>{{ $submission->sk_verification_notes ?: ($submission->review_notes ?: '-') }}</td>
+                                    <td class="text-end">
+                                        @if($submission->document && $submission->current_status === 'ready_for_pickup')
+                                            <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" target="_blank" rel="noopener" class="btn btn-sm btn-success">
+                                                <i class="bx bx-show me-1"></i>Lihat SK
+                                            </a>
+                                        @elseif($submission->document)
+                                            <button type="button" class="btn btn-sm btn-light" disabled title="SK dapat dilihat setelah berstatus Siap Diambil">
+                                                <i class="bx bx-lock-alt me-1"></i>Belum Tersedia
+                                            </button>
+                                        @else
+                                            <span class="text-muted small">Belum digenerate</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @if($submissions->hasPages())
+                    <div class="sky-pagination-wrap border-top pt-3 mt-3">
+                        {{ $submissions->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
+            @else
+                <div class="sky-empty-state py-4">
+                    <i class="bx bx-file-find"></i>
+                    <strong>Belum ada pengajuan pada status ini</strong>
+                    <small>Silakan ubah filter atau tunggu pengajuan diproses oleh Yayasan.</small>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -519,7 +614,7 @@
                         <form method="GET" class="d-flex gap-2">
                             <select name="status" class="form-select form-select-sm">
                                 <option value="">Semua status</option>
-                                @foreach(['submitted' => 'Diajukan', 'reviewed' => 'Direview', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'published' => 'Terbit'] as $value => $label)
+                                @foreach(['submitted' => 'Diajukan', 'reviewed' => 'Proses', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'published' => 'Terbit', 'revision_required' => 'Perlu Penyesuaian', 'waiting_uppm_payment' => 'Menunggu UPPPM', 'ready_for_pickup' => 'Siap Diambil'] as $value => $label)
                                     <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
@@ -550,7 +645,13 @@
                                                 ->filter()
                                                 ->countBy();
 
-                                            if ($batch->status === 'rejected' || ($requestStatusCounts['rejected'] ?? 0) > 0) {
+                                            if (($requestStatusCounts['revision_required'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'danger', 'label' => 'Perlu Penyesuaian'];
+                                            } elseif (($requestStatusCounts['waiting_uppm_payment'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'warning', 'label' => 'Menunggu UPPPM'];
+                                            } elseif (($requestStatusCounts['ready_for_pickup'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'success', 'label' => ($requestStatusCounts->count() === 1 ? 'Siap Diambil' : 'Siap Diambil Sebagian')];
+                                            } elseif ($batch->status === 'rejected' || ($requestStatusCounts['rejected'] ?? 0) > 0) {
                                                 $historyBadge = ['color' => 'danger', 'label' => 'Ditolak'];
                                             } elseif (($requestStatusCounts['published'] ?? 0) > 0) {
                                                 $historyBadge = ['color' => 'success', 'label' => ($requestStatusCounts->count() === 1 ? 'Terbit' : 'Terbit Sebagian')];
@@ -599,12 +700,15 @@
                                                                 ($requestStatusCounts['reviewed'] ?? 0) ? (($requestStatusCounts['reviewed'] ?? 0) . ' direview') : null,
                                                                 ($requestStatusCounts['approved'] ?? 0) ? (($requestStatusCounts['approved'] ?? 0) . ' disetujui') : null,
                                                                 ($requestStatusCounts['published'] ?? 0) ? (($requestStatusCounts['published'] ?? 0) . ' terbit') : null,
+                                                                ($requestStatusCounts['revision_required'] ?? 0) ? (($requestStatusCounts['revision_required'] ?? 0) . ' perlu penyesuaian') : null,
+                                                                ($requestStatusCounts['waiting_uppm_payment'] ?? 0) ? (($requestStatusCounts['waiting_uppm_payment'] ?? 0) . ' menunggu UPPPM') : null,
+                                                                ($requestStatusCounts['ready_for_pickup'] ?? 0) ? (($requestStatusCounts['ready_for_pickup'] ?? 0) . ' siap diambil') : null,
                                                             ])->filter()->implode(' • ') }}
                                                         </small>
                                                     @endif
                                                 </div>
                                             </td>
-                                            <td>{{ $batch->review_notes ?? $firstRequest?->review_notes ?? '-' }}</td>
+                                            <td>{{ $firstRequest?->sk_verification_notes ?: ($batch->review_notes ?? $firstRequest?->review_notes ?? '-') }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
