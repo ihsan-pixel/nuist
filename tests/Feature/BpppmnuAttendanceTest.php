@@ -258,6 +258,16 @@ class BpppmnuAttendanceTest extends TestCase
             ->assertOk()
             ->assertSee('Tidak Hadir');
 
+        $this->get('/mobile/bpppmnu/kegiatan/'.$this->event->id)
+            ->assertOk()
+            ->assertSee('Tidak Hadir')
+            ->assertDontSee('Belum Hadir');
+
+        $this->getJson('/mobile/bpppmnu/kegiatan/'.$this->event->id.'/recap')
+            ->assertOk()
+            ->assertJsonPath('remaining_label', 'Tidak hadir')
+            ->assertJsonPath('rows.0.status', 'Tidak Hadir');
+
         $this->assertSame('Tidak Hadir', app(BpppmnuReportService::class)->recap($this->event)['rows'][0]->status);
     }
 

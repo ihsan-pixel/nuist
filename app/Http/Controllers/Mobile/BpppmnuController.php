@@ -60,7 +60,17 @@ class BpppmnuController extends Controller
     {
         $this->authorizeEvent($request, $event);
         $recap = $reports->recap($event);
-        return response()->json(['present' => $recap['present'], 'remaining' => $recap['remaining'], 'percentage' => $recap['percentage'], 'rows' => $recap['rows']->map(fn ($row) => ['name' => $row->name, 'jabatan' => $row->jabatan, 'status' => $row->attended_at ? 'Hadir' : 'Belum Hadir'])->values()]);
+        return response()->json([
+            'present' => $recap['present'],
+            'remaining' => $recap['remaining'],
+            'remaining_label' => now()->gt($event->attendance_close_at) ? 'Tidak hadir' : 'Belum hadir',
+            'percentage' => $recap['percentage'],
+            'rows' => $recap['rows']->map(fn ($row) => [
+                'name' => $row->name,
+                'jabatan' => $row->jabatan,
+                'status' => $row->status,
+            ])->values(),
+        ]);
     }
 
     public function scan(Request $request, BpppmnuEvent $event, BpppmnuAttendanceService $service)
