@@ -1489,7 +1489,10 @@ class SkYayasanController extends Controller
         $this->ensureSuperAdmin();
 
         $validated = $request->validate([
-            'current_status' => ['required', 'in:submitted,reviewed,approved,rejected'],
+            'current_status' => ['required', Rule::in([
+                'submitted', 'reviewed', 'approved', 'rejected',
+                'revision_required', 'waiting_uppm_payment', 'ready_for_pickup',
+            ])],
             'review_notes' => ['nullable', 'string'],
             'template_id' => ['nullable', 'integer', 'exists:sk_yayasan_templates,id'],
         ]);
@@ -2156,6 +2159,112 @@ class SkYayasanController extends Controller
             ]);
 
         return back()->with('success', 'Nomor dan tanggal surat pengajuan berhasil diperbarui untuk ' . $updatedCount . ' pengajuan pada sekolah ini.');
+    }
+
+    public function verifySchoolIndex(Madrasah $madrasah): View
+    {
+        $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests((int) $madrasah->id);
+
+        $requests = SkYayasanRequest::query()
+            ->with(['employee.statusKepegawaian', 'document.template', 'importBatch', 'skVerifier'])
+            ->where('madrasah_id', $madrasah->id)
+            ->whereHas('importBatch', fn (Builder $query) => $query->where('status', 'synced'))
+            ->get()
+            ->sortBy(function (SkYayasanRequest $submission) {
+                return sprintf(
+                    '%010d-%s',
+                    $this->extractDocumentNumberSequence($submission->document?->document_number) ?? PHP_INT_MAX,
+                    mb_strtolower((string) ($submission->employee?->name ?? ''))
+                );
+            })
+            ->values();
+
+        $paymentService = app(UppmPaymentStatusService::class);
+        $requirement = $paymentService->resolveSkPaymentRequirement($this->getGlobalSkSettings()['issued_date'] ?? null);
+        $summary = $paymentService->summaryForSchoolYear((int) $madrasah->id, (int) $requirement['year']);
+        $paymentPeriod = $summary['period_summaries'][$requirement['period_key']] ?? [];
+        $paymentValidationEnabled = $paymentService->shouldEnforceSkGenerateGate((int) $requirement['year']);
+        $uppmIsPaid = !$paymentValidationEnabled || (bool) ($paymentPeriod['is_lunas'] ?? false);
+        $correctStatus = $uppmIsPaid ? 'ready_for_pickup' : 'waiting_uppm_payment';
+
+        $requests->where('sk_verification_status', 'correct')->each(function (SkYayasanRequest $submission) use ($correctStatus) {
+            if ($submission->current_status !== $correctStatus) {
+                $submission->update(['current_status' => $correctStatus]);
+            }
+        });
+
+        return view('sk-yayasan.verify-school-index', [
+            'madrasah' => $madrasah,
+            'requests' => $requests,
+            'uppmYear' => (int) $requirement['year'],
+            'uppmPeriodLabel' => (string) $requirement['period_label'],
+            'uppmIsPaid' => $uppmIsPaid,
+            'uppmStatusLabel' => !$paymentValidationEnabled
+                ? 'Validasi UPPPM tidak aktif'
+                : (string) ($paymentPeriod['status_label'] ?? 'Belum Lunas'),
+        ]);
+    }
+
+    public function updateSkVerification(Request $request, SkYayasanRequest $submission): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        $validated = $request->validate([
+            'decision' => ['required', Rule::in(['processing', 'correct', 'needs_revision'])],
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $submission->load(['document', 'madrasah', 'importBatch']);
+
+        if ($submission->importBatch?->status !== 'synced') {
+            return back()->with('error', 'Hanya pengajuan tersinkron yang dapat diverifikasi.');
+        }
+
+        if ($validated['decision'] === 'correct' && !$submission->document) {
+            return back()->with('error', 'SK belum tersedia. Generate dokumen terlebih dahulu sebelum menandainya sudah sesuai.');
+        }
+
+        $verificationStatus = null;
+        $currentStatus = 'reviewed';
+
+        if ($validated['decision'] === 'needs_revision') {
+            $verificationStatus = 'needs_revision';
+            $currentStatus = 'revision_required';
+        } elseif ($validated['decision'] === 'correct') {
+            $paymentService = app(UppmPaymentStatusService::class);
+            $requirement = $paymentService->resolveSkPaymentRequirement(
+                optional($submission->document?->issued_date)->toDateString()
+                    ?: ($this->getGlobalSkSettings()['issued_date'] ?? null)
+            );
+            $paymentSummary = $paymentService->summaryForSchoolYear(
+                (int) $submission->madrasah_id,
+                (int) $requirement['year']
+            );
+            $periodSummary = $paymentSummary['period_summaries'][$requirement['period_key']] ?? [];
+            $paymentValidationEnabled = $paymentService->shouldEnforceSkGenerateGate((int) $requirement['year']);
+            $isPaid = !$paymentValidationEnabled || (bool) ($periodSummary['is_lunas'] ?? false);
+
+            $verificationStatus = 'correct';
+            $currentStatus = $isPaid ? 'ready_for_pickup' : 'waiting_uppm_payment';
+        }
+
+        $submission->update([
+            'sk_verification_status' => $verificationStatus,
+            'sk_verification_notes' => $validated['notes'] ?? null,
+            'sk_verified_by' => $verificationStatus ? auth()->id() : null,
+            'sk_verified_at' => $verificationStatus ? now() : null,
+            'current_status' => $currentStatus,
+        ]);
+
+        $message = match ($currentStatus) {
+            'ready_for_pickup' => 'SK sudah sesuai dan pembayaran UPPPM terpenuhi. Status diubah menjadi Siap Diambil.',
+            'waiting_uppm_payment' => 'SK sudah sesuai, tetapi pembayaran UPPPM belum terpenuhi.',
+            'revision_required' => 'SK ditandai perlu penyesuaian.',
+            default => 'Checklist verifikasi dikosongkan. Status kembali menjadi Proses.',
+        };
+
+        return back()->with('success', $message);
     }
 
     public function generateDocument(Request $request)
@@ -3008,7 +3117,7 @@ class SkYayasanController extends Controller
     private function generateEligibleRequestsConstraint(): Closure
     {
         return function (Builder $query) {
-            $query->whereIn('current_status', ['approved', 'published'])
+            $query->whereIn('current_status', ['approved', 'published', 'reviewed', 'revision_required', 'waiting_uppm_payment', 'ready_for_pickup'])
                 ->orWhere(function (Builder $syncedQuery) {
                     $syncedQuery->whereIn('current_status', ['submitted', 'reviewed'])
                         ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced'));
@@ -3019,7 +3128,7 @@ class SkYayasanController extends Controller
     private function numberManagementRequestsConstraint(): Closure
     {
         return function (Builder $query) {
-            $query->whereIn('current_status', ['submitted', 'reviewed', 'approved', 'published']);
+            $query->whereIn('current_status', ['submitted', 'reviewed', 'approved', 'published', 'revision_required', 'waiting_uppm_payment', 'ready_for_pickup']);
         };
     }
 
@@ -3032,7 +3141,7 @@ class SkYayasanController extends Controller
 
     private function submissionCanBeGenerated(SkYayasanRequest $submission): bool
     {
-        return in_array($submission->current_status, ['approved', 'published'], true)
+        return in_array($submission->current_status, ['approved', 'published', 'reviewed', 'revision_required', 'waiting_uppm_payment', 'ready_for_pickup'], true)
             || (
                 in_array($submission->current_status, ['submitted', 'reviewed'], true)
                 && $submission->importBatch?->status === 'synced'
@@ -3041,7 +3150,7 @@ class SkYayasanController extends Controller
 
     private function submissionCanBeManagedForNumbers(SkYayasanRequest $submission): bool
     {
-        return in_array($submission->current_status, ['submitted', 'reviewed', 'approved', 'published'], true);
+        return in_array($submission->current_status, ['submitted', 'reviewed', 'approved', 'published', 'revision_required', 'waiting_uppm_payment', 'ready_for_pickup'], true);
     }
 
     private function schoolHasLockedDocumentNumbers(int $madrasahId): bool

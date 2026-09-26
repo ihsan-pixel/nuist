@@ -536,6 +536,9 @@
         'approved' => 'Disetujui',
         'rejected' => 'Ditolak',
         'published' => 'Terbit',
+        'revision_required' => 'Perlu Penyesuaian',
+        'waiting_uppm_payment' => 'Menunggu UPPPM',
+        'ready_for_pickup' => 'Siap Diambil',
     ];
 
     $statusBadgeMap = [
@@ -544,6 +547,9 @@
         'approved' => ['color' => 'primary', 'label' => 'Disetujui'],
         'published' => ['color' => 'success', 'label' => 'Terbit'],
         'rejected' => ['color' => 'danger', 'label' => 'Ditolak'],
+        'revision_required' => ['color' => 'danger', 'label' => 'Perlu Penyesuaian'],
+        'waiting_uppm_payment' => ['color' => 'warning', 'label' => 'Menunggu UPPPM'],
+        'ready_for_pickup' => ['color' => 'success', 'label' => 'Siap Diambil'],
     ];
 
     $batchStatusBadgeMap = [
@@ -1207,6 +1213,9 @@
                                 <option value="reviewed" @selected($submission->current_status === 'reviewed')>Direview</option>
                                 <option value="approved" @selected($submission->current_status === 'approved')>Setujui</option>
                                 <option value="rejected" @selected($submission->current_status === 'rejected')>Tolak</option>
+                                <option value="revision_required" @selected($submission->current_status === 'revision_required')>Perlu Penyesuaian</option>
+                                <option value="waiting_uppm_payment" @selected($submission->current_status === 'waiting_uppm_payment')>Menunggu UPPPM</option>
+                                <option value="ready_for_pickup" @selected($submission->current_status === 'ready_for_pickup')>Siap Diambil</option>
                             </select>
                         </div>
                         <div class="mb-3">

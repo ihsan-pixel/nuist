@@ -2102,6 +2102,8 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::post('/generate/regenerate-all', [SkYayasanController::class, 'regenerateAllDocuments'])->name('generate.regenerate-all');
         Route::patch('/generate/lock-all', [SkYayasanController::class, 'lockAllDocumentNumbers'])->name('generate.lock-all');
         Route::get('/generate/sekolah/{madrasah}', [SkYayasanController::class, 'generateSchoolIndex'])->name('generate.school');
+        Route::get('/generate/sekolah/{madrasah}/verifikasi', [SkYayasanController::class, 'verifySchoolIndex'])->name('generate.school.verify');
+        Route::patch('/generate/verifikasi/{submission}', [SkYayasanController::class, 'updateSkVerification'])->name('generate.verify.update');
         Route::patch('/generate/sekolah/{madrasah}/submission-letter', [SkYayasanController::class, 'updateGenerateSchoolSubmissionLetter'])->name('generate.school.submission-letter.update');
         Route::patch('/generate/sekolah/{madrasah}/lock-number', [SkYayasanController::class, 'lockSchoolDocumentNumbers'])->name('generate.school.lock-number');
         Route::post('/generate/sekolah/{madrasah}/renumber', [SkYayasanController::class, 'renumberSchoolDocumentNumbers'])->name('generate.school.renumber');

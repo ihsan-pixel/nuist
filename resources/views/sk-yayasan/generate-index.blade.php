@@ -152,6 +152,9 @@
                                                     <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-primary">
                                                         Lihat Pengajuan
                                                     </a>
+                                                    <a href="{{ route('sk-yayasan.generate.school.verify', $school) }}" class="btn btn-sm btn-outline-success">
+                                                        Verifikasi SK
+                                                    </a>
                                                     <a href="{{ route('sk-yayasan.numbers.index', ['madrasah_id' => $school->id]) }}#document-list" class="btn btn-sm btn-outline-primary">
                                                         Kelola Nomor
                                                     </a>
@@ -267,6 +270,9 @@
                                                     <div class="d-flex flex-wrap gap-2">
                                                         <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-warning">
                                                             Lihat Pengajuan
+                                                        </a>
+                                                        <a href="{{ route('sk-yayasan.generate.school.verify', $school) }}" class="btn btn-sm btn-outline-success">
+                                                            Verifikasi SK
                                                         </a>
                                                         <a href="{{ route('sk-yayasan.numbers.index', ['madrasah_id' => $school->id]) }}#document-list" class="btn btn-sm btn-outline-primary">
                                                             Kelola Nomor

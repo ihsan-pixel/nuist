@@ -23,6 +23,10 @@ class SkYayasanRequest extends Model
         'employment_category',
         'current_status',
         'review_notes',
+        'sk_verification_status',
+        'sk_verification_notes',
+        'sk_verified_by',
+        'sk_verified_at',
         'submitted_at',
         'reviewed_at',
     ];
@@ -31,6 +35,7 @@ class SkYayasanRequest extends Model
         'submission_letter_date' => 'date',
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'sk_verified_at' => 'datetime',
     ];
 
     public function madrasah()
@@ -56,6 +61,11 @@ class SkYayasanRequest extends Model
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function skVerifier()
+    {
+        return $this->belongsTo(User::class, 'sk_verified_by');
     }
 
     public function template()
