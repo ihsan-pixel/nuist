@@ -18,6 +18,7 @@ class IzinController extends \App\Http\Controllers\Controller
         return Izin::query()
             ->where('user_id', $userId)
             ->where('type', 'tugas_luar')
+            ->whereIn('status', ['pending', 'approved'])
             ->whereDate('tanggal', '<=', $tanggalSelesai)
             ->where(function ($query) use ($tanggalMulai) {
                 $query->where(function ($singleDayQuery) use ($tanggalMulai) {
@@ -133,6 +134,7 @@ class IzinController extends \App\Http\Controllers\Controller
         $existingIzin = \App\Models\Izin::where('user_id', $user->id)
             ->where('tanggal', $tanggal)
             ->where('type', $type)
+            ->whereIn('status', ['pending', 'approved'])
             ->first();
 
         if ($existingIzin) {

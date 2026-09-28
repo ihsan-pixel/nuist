@@ -4245,6 +4245,7 @@ class TeacherAppController extends Controller
             ->where('user_id', $user->id)
             ->whereDate('tanggal', $tanggal)
             ->where('type', $type)
+            ->whereIn('status', ['pending', 'approved'])
             ->when(
                 $currentIzin,
                 fn ($query) => $query->where('id', '!=', $currentIzin->id)
@@ -4263,6 +4264,7 @@ class TeacherAppController extends Controller
         return Izin::query()
             ->where('user_id', $user->id)
             ->where('type', 'tugas_luar')
+            ->whereIn('status', ['pending', 'approved'])
             ->whereDate('tanggal', '<=', $tanggalSelesai)
             ->where(function ($query) use ($tanggalMulai) {
                 $query->where(function ($singleDayQuery) use ($tanggalMulai) {
