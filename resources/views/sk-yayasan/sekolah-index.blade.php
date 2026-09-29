@@ -743,7 +743,11 @@
     @if(in_array($batch->status, ['pending_review', 'rejected']))
         <div class="modal fade sky-admin-import-modal" id="editImportBatchRowsModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
-                <form action="{{ route('sk-yayasan.sekolah.import-batches.rows.update', $batch) }}" method="POST" class="modal-content">
+                <form action="{{ route('sk-yayasan.sekolah.import-batches.rows.update', $batch) }}"
+                      method="POST"
+                      class="modal-content"
+                      data-next-form-index="{{ $batch->rows->count() }}"
+                      data-next-row-number="{{ ((int) $batch->rows->max('row_number')) + 1 }}">
                     @csrf
                     @method('PATCH')
                     <div class="modal-header">
@@ -799,11 +803,16 @@
 
                         <div class="sky-table-actions">
                             <div class="text-muted small">
-                                Pilih satu atau beberapa baris untuk dihapus dari batch ini sebelum disimpan.
+                                Tambahkan guru yang belum diajukan atau pilih baris yang ingin dihapus sebelum disimpan.
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-delete-selected-rows>
-                                Hapus Baris Terpilih
-                            </button>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-add-import-row>
+                                    <i class="bx bx-plus me-1"></i>Tambah Kolom Baru
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-delete-selected-rows>
+                                    Hapus Baris Terpilih
+                                </button>
+                            </div>
                         </div>
 
                         <div class="sky-modal-table-wrap">
@@ -821,13 +830,13 @@
                                         <th class="wrap">Keterangan</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody data-import-rows>
                                     @foreach($batch->rows as $row)
                                         @php
                                             $rowErrorFields = $resolveImportErrorFields($row);
                                             $nipmWarning = $resolveNipmImportWarning($row);
                                         @endphp
-                                        <tr>
+                                        <tr data-import-row>
                                             <td class="sky-row-select-col">
                                                 <input type="checkbox" class="form-check-input" data-row-select>
                                             </td>
@@ -961,6 +970,59 @@
 @section('script')
 <script src="{{ asset('build/libs/select2/js/select2.min.js') }}"></script>
 <script>
+    const schoolImportPreviewColumns = @json($importPreviewColumns);
+    const schoolImportPreviewFieldMap = @json($importPreviewFieldMap);
+    const schoolImportKeteranganOptions = @json(array_values($keteranganOptions));
+
+    function escapeSchoolImportRowHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function buildSchoolImportRowEditorCell(column, field, rowIndex) {
+        if (!field) {
+            return '<td class="sky-edit-cell"></td>';
+        }
+
+        if (column === 'Keterangan') {
+            const options = schoolImportKeteranganOptions.map(function (option) {
+                const escapedOption = escapeSchoolImportRowHtml(option);
+
+                return '<option value="' + escapedOption + '">' + escapedOption + '</option>';
+            }).join('');
+
+            return '<td class="sky-edit-cell">'
+                + '<select name="rows[' + rowIndex + '][' + field + ']" class="form-select form-select-sm">'
+                + '<option value="">Pilih</option>'
+                + options
+                + '</select>'
+                + '</td>';
+        }
+
+        return '<td class="sky-edit-cell ' + (column === 'No' ? 'sky-edit-cell-sm' : '') + '">'
+            + '<input type="text" name="rows[' + rowIndex + '][' + field + ']" value="" class="form-control form-control-sm">'
+            + '</td>';
+    }
+
+    function buildSchoolImportRowMarkup(rowIndex, rowNumber) {
+        const cells = schoolImportPreviewColumns.map(function (column) {
+            return buildSchoolImportRowEditorCell(column, schoolImportPreviewFieldMap[column] ?? null, rowIndex);
+        }).join('');
+
+        return '<tr data-import-row>'
+            + '<td class="sky-row-select-col"><input type="checkbox" class="form-check-input" data-row-select></td>'
+            + '<input type="hidden" name="rows[' + rowIndex + '][row_number]" value="' + rowNumber + '">'
+            + cells
+            + '<td class="text-muted">Belum dicek</td>'
+            + '<td><span class="badge bg-secondary-subtle text-secondary">Baru ditambahkan</span></td>'
+            + '<td class="wrap text-muted">Simpan data import untuk memvalidasi dan mencocokkan guru.</td>'
+            + '</tr>';
+    }
+
     window.skyOpenModal = function (target) {
         const modalElement = target ? document.querySelector(target) : null;
 
@@ -1059,6 +1121,28 @@
 
             selectAll.checked = totalRows > 0 && checkedRows === totalRows;
             selectAll.indeterminate = checkedRows > 0 && checkedRows < totalRows;
+        });
+
+        $(document).on('click', '[data-add-import-row]', function () {
+            const form = $(this).closest('form').get(0);
+            const tbody = form ? form.querySelector('[data-import-rows]') : null;
+
+            if (!form || !tbody) {
+                return;
+            }
+
+            const nextFormIndex = Number(form.dataset.nextFormIndex || 0);
+            const nextRowNumber = Number(form.dataset.nextRowNumber || 1);
+
+            tbody.insertAdjacentHTML('beforeend', buildSchoolImportRowMarkup(nextFormIndex, nextRowNumber));
+            form.dataset.nextFormIndex = String(nextFormIndex + 1);
+            form.dataset.nextRowNumber = String(nextRowNumber + 1);
+
+            const newRow = tbody.querySelector('tr[data-import-row]:last-child input.form-control, tr[data-import-row]:last-child select.form-select');
+
+            if (newRow) {
+                newRow.focus();
+            }
         });
 
         $(document).on('click', '[data-delete-selected-rows]', function () {
