@@ -12,7 +12,8 @@
     thead .teacher-cell { z-index: 3; background: #f8fafc; }
     .drop-zone { min-width: 155px; min-height: 88px; border: 2px dashed #cbd5e1; border-radius: .75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: .6rem; text-align: center; cursor: pointer; transition: .15s ease; background: #f8fafc; }
     .drop-zone:hover, .drop-zone.dragging { border-color: #0d6efd; background: #eff6ff; }
-    .drop-zone.has-file { border-color: #22c55e; background: #f0fdf4; }
+    .drop-zone.has-file, .drop-zone.has-stored-file { border-color: #22c55e; background: #f0fdf4; }
+    .drop-zone.has-stored-file { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, .08); }
     .drop-zone input { display: none; }
     .drop-zone .file-name, .drop-zone .stored-file-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; color: #15803d; }
     .drop-zone .stored-file-name { color: #64748b; }
@@ -84,7 +85,7 @@
                                 'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
                             ] as $type => [$hint, $accept, $storedPath])
                                 <td>
-                                    <label class="drop-zone" tabindex="0">
+                                    <label class="drop-zone {{ $storedPath ? 'has-stored-file' : '' }}" tabindex="0">
                                         <input type="file" name="documents[{{ $user->id }}][{{ $type }}]" accept="{{ $accept }}">
                                         <i class="bx bx-cloud-upload fs-4 text-primary"></i>
                                         <span class="small">Drop atau pilih</span>
