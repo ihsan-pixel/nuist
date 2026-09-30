@@ -265,59 +265,85 @@
             allowEscapeKey: false,
             showConfirmButton: false,
             didOpen: () => {
-                const xhr = new XMLHttpRequest();
                 const progressBar = document.getElementById('uploadProgressBar');
                 const progressStatus = document.getElementById('uploadProgressStatus');
+                const selectedFiles = inputs
+                    .filter(input => input.files.length)
+                    .map(input => ({name: input.name, file: input.files[0]}));
+                const totalBytes = selectedFiles.reduce((sum, item) => sum + item.file.size, 0);
+                let confirmedBytes = 0;
+                let confirmedFiles = 0;
 
-                xhr.open('POST', form.action);
-                xhr.setRequestHeader('Accept', 'application/json');
-                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-                xhr.upload.addEventListener('progress', uploadEvent => {
-                    if (!uploadEvent.lengthComputable) return;
-                    const percentage = Math.min(100, Math.round((uploadEvent.loaded / uploadEvent.total) * 100));
+                const setProgress = (loadedBytes, fileIndex) => {
+                    // Tahan pada 99% sampai semua respons server sudah mengonfirmasi penyimpanan.
+                    const percentage = Math.min(99, Math.round(((confirmedBytes + loadedBytes) / totalBytes) * 100));
                     progressBar.style.width = percentage + '%';
                     progressBar.setAttribute('aria-valuenow', percentage);
-                    progressStatus.textContent = percentage < 100
-                        ? `Mengunggah berkas... ${percentage}%`
-                        : 'Upload 100%. Memproses dan menyimpan berkas...';
+                    progressStatus.textContent = `Mengunggah file ${fileIndex + 1} dari ${selectedFiles.length}... ${percentage}%`;
+                };
+
+                const uploadOne = (item, index) => new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    const payload = new FormData();
+                    payload.append('_token', @json(csrf_token()));
+                    payload.append(item.name, item.file, item.file.name);
+
+                    xhr.open('POST', form.action);
+                    xhr.setRequestHeader('Accept', 'application/json');
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    xhr.upload.addEventListener('progress', uploadEvent => {
+                        if (uploadEvent.lengthComputable) setProgress(Math.min(uploadEvent.loaded, item.file.size), index);
+                    });
+                    xhr.addEventListener('load', () => {
+                        let result = {};
+                        try { result = JSON.parse(xhr.responseText); } catch (_) {}
+                        if (xhr.status >= 200 && xhr.status < 300 && Number(result.uploaded) === 1) {
+                            resolve(result);
+                            return;
+                        }
+                        const message = result.errors
+                            ? Object.values(result.errors).flat().join('\n')
+                            : (result.message || `Server tidak mengonfirmasi file ${item.file.name}.`);
+                        reject(new Error(message));
+                    });
+                    xhr.addEventListener('error', () => reject(new Error('Koneksi terputus saat mengunggah '+item.file.name+'.')));
+                    xhr.send(payload);
                 });
 
-                xhr.addEventListener('load', async () => {
-                    let result = {};
-                    try { result = JSON.parse(xhr.responseText); } catch (_) {}
+                (async () => {
+                    try {
+                        for (let index = 0; index < selectedFiles.length; index++) {
+                            const item = selectedFiles[index];
+                            await uploadOne(item, index);
+                            confirmedBytes += item.file.size;
+                            confirmedFiles++;
+                            progressStatus.textContent = `${confirmedFiles} dari ${selectedFiles.length} file berhasil disimpan.`;
+                        }
 
-                    if (xhr.status >= 200 && xhr.status < 300) {
                         progressBar.style.width = '100%';
                         progressBar.setAttribute('aria-valuenow', '100');
                         progressBar.classList.remove('progress-bar-animated');
-                        progressStatus.textContent = 'Semua berkas berhasil disimpan.';
+                        progressStatus.textContent = `100% - semua ${confirmedFiles} file berhasil disimpan.`;
                         await Swal.fire({
                             icon: 'success',
                             title: 'Upload selesai',
-                            text: result.message || 'Semua berkas berhasil disimpan.',
+                            text: `Semua ${confirmedFiles} file berhasil disimpan.`,
                             confirmButtonText: 'Selesai',
                             confirmButtonColor: '#198754',
                         });
                         window.location.reload();
-                        return;
+                    } catch (error) {
+                        progressBar.classList.remove('progress-bar-animated');
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Upload belum lengkap',
+                            text: `${confirmedFiles} dari ${selectedFiles.length} file tersimpan. ${error.message}`,
+                            confirmButtonText: 'Muat ulang dan periksa',
+                            confirmButtonColor: '#dc3545',
+                        });
+                        window.location.reload();
                     }
-
-                    const validationMessages = result.errors
-                        ? Object.values(result.errors).flat().join('\n')
-                        : (result.message || 'Berkas gagal diunggah. Silakan coba kembali.');
-                    save.disabled = false;
-                    save.innerHTML = '<i class="bx bx-save me-1"></i> Simpan Semua Berkas';
-                    Swal.fire({icon:'error', title:'Upload gagal', text:validationMessages, confirmButtonColor:'#dc3545'});
-                });
-
-                xhr.addEventListener('error', () => {
-                    save.disabled = false;
-                    save.innerHTML = '<i class="bx bx-save me-1"></i> Simpan Semua Berkas';
-                    Swal.fire({icon:'error', title:'Koneksi terputus', text:'Upload gagal karena masalah jaringan.', confirmButtonColor:'#dc3545'});
-                });
-
-                xhr.send(new FormData(form));
+                })();
             },
         });
     });
