@@ -356,6 +356,46 @@ class PendataanGtkController extends Controller
             ->with('success', count($storedAssignments).' berkas GTK berhasil disimpan atau diperbarui.');
     }
 
+    public function destroyManagedDocument(Request $request, Madrasah $madrasah, User $user, string $type)
+    {
+        $this->authorizeAccess();
+        abort_unless(
+            (int) $user->madrasah_id === (int) $madrasah->id
+            && trim(strtolower((string) $user->role)) === 'tenaga_pendidik',
+            404
+        );
+
+        $documentColumns = [
+            'ktp' => 'ktp_path',
+            'sk_awal' => 'sk_awal_path',
+            'sk_akhir' => 'sk_akhir_path',
+            'foto_bebas' => 'foto_bebas_path',
+        ];
+
+        if ($type === 'foto_resmi') {
+            $path = $user->avatar;
+            $disk = 'public';
+            $user->update(['avatar' => null]);
+        } else {
+            $column = $documentColumns[$type] ?? abort(404);
+            $path = $user->gtkPendataan?->{$column};
+            $disk = 'local';
+            if ($user->gtkPendataan) {
+                $user->gtkPendataan->update([$column => null]);
+            }
+        }
+
+        if ($path) {
+            Storage::disk($disk)->delete($path);
+        }
+
+        $message = 'Berkas '.str_replace('_', ' ', $type).' milik '.$user->name.' berhasil dihapus.';
+
+        return $request->expectsJson()
+            ? response()->json(['message' => $message])
+            : back()->with('success', $message);
+    }
+
     public function bulkUpdateDocuments(Request $request, Madrasah $madrasah)
     {
         $this->authorizeAccess();

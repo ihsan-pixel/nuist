@@ -11,6 +11,7 @@
     .teacher-cell { min-width: 230px; position: sticky; left: 0; z-index: 2; background: #fff; }
     thead .teacher-cell { z-index: 3; background: #f8fafc; }
     .drop-zone { min-width: 155px; min-height: 88px; border: 2px dashed #cbd5e1; border-radius: .75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: .6rem; text-align: center; cursor: pointer; transition: .15s ease; background: #f8fafc; }
+    .drop-zone { position: relative; }
     .drop-zone:hover, .drop-zone.dragging { border-color: #0d6efd; background: #eff6ff; }
     .drop-zone.has-file, .drop-zone.has-stored-file { border-color: #22c55e; background: #f0fdf4; }
     .drop-zone.has-stored-file { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, .08); }
@@ -18,6 +19,7 @@
     .drop-zone .file-name, .drop-zone .stored-file-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; color: #15803d; }
     .drop-zone .stored-file-name { color: #64748b; }
     .existing { font-size: .7rem; color: #15803d; }
+    .remove-document { position: absolute; top: .3rem; right: .3rem; width: 25px; height: 25px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
 </style>
@@ -87,6 +89,16 @@
                                 <td>
                                     <label class="drop-zone {{ $storedPath ? 'has-stored-file' : '' }}" tabindex="0">
                                         <input type="file" name="documents[{{ $user->id }}][{{ $type }}]" accept="{{ $accept }}">
+                                        @if($storedPath)
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-danger remove-document"
+                                                title="Hapus berkas"
+                                                aria-label="Hapus {{ str_replace('_', ' ', $type) }} {{ $user->name }}"
+                                                data-delete-url="{{ route('pendataan-gtk.documents.manage.destroy', [$madrasah, $user, $type]) }}"
+                                                data-document-label="{{ str_replace('_', ' ', $type) }} - {{ $user->name }}"
+                                            ><i class="bx bx-trash"></i></button>
+                                        @endif
                                         <i class="bx bx-cloud-upload fs-4 text-primary"></i>
                                         <span class="small">Drop atau pilih</span>
                                         <span class="text-muted" style="font-size:.68rem">{{ $hint }}</span>
@@ -161,6 +173,46 @@
         });
         zone.addEventListener('keydown', e => {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+        });
+    });
+
+    document.querySelectorAll('.remove-document').forEach(button => {
+        button.addEventListener('click', async event => {
+            event.preventDefault();
+            event.stopPropagation();
+            const confirmation = await Swal.fire({
+                icon: 'warning',
+                title: 'Hapus berkas?',
+                text: button.dataset.documentLabel + ' akan dihapus permanen.',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc3545',
+            });
+            if (!confirmation.isConfirmed) return;
+
+            button.disabled = true;
+            try {
+                const response = await fetch(button.dataset.deleteUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': @json(csrf_token()),
+                    },
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Berkas gagal dihapus.');
+
+                const zone = button.closest('.drop-zone');
+                zone.classList.remove('has-stored-file');
+                zone.querySelector('.existing')?.remove();
+                zone.querySelector('.stored-file-name')?.remove();
+                button.remove();
+                Swal.fire({icon:'success', title:'Berhasil dihapus', text:result.message, timer:2200, showConfirmButton:false});
+            } catch (error) {
+                button.disabled = false;
+                Swal.fire({icon:'error', title:'Gagal menghapus', text:error.message, confirmButtonColor:'#dc3545'});
+            }
         });
     });
 
