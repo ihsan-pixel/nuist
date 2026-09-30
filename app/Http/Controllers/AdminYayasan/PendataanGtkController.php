@@ -547,6 +547,27 @@ class PendataanGtkController extends Controller
         return Storage::disk('local')->download($path, "{$label}-{$safeName}.{$extension}");
     }
 
+    public function viewDocument(User $user, string $document)
+    {
+        $this->authorizeAccess();
+        $this->authorizeUserBelongsToCurrentSchool($user);
+
+        $documents = [
+            'sk-awal' => ['local', $user->gtkPendataan?->sk_awal_path],
+            'sk-akhir' => ['local', $user->gtkPendataan?->sk_akhir_path],
+            'ktp' => ['local', $user->gtkPendataan?->ktp_path],
+            'foto-resmi' => ['public', $user->avatar],
+            'foto-bebas' => ['local', $user->gtkPendataan?->foto_bebas_path],
+        ];
+        [$disk, $path] = $documents[$document] ?? abort(404);
+
+        abort_unless($path && Storage::disk($disk)->exists($path), 404);
+
+        return Storage::disk($disk)->response($path, basename($path), [
+            'Content-Disposition' => 'inline; filename="'.basename($path).'"',
+        ]);
+    }
+
     private function normalizeDocumentIdentifier(string $value): string
     {
         return preg_replace('/[^a-z0-9]+/', '', Str::lower(Str::ascii(trim($value)))) ?? '';

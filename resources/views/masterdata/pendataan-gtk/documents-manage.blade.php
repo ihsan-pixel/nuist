@@ -19,7 +19,9 @@
     .drop-zone .file-name, .drop-zone .stored-file-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; color: #15803d; }
     .drop-zone .stored-file-name { color: #64748b; }
     .existing { font-size: .7rem; color: #15803d; }
+    .document-preview { font-size: .7rem; font-weight: 600; text-decoration: none; }
     .remove-document { position: absolute; top: .3rem; right: .3rem; width: 25px; height: 25px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+    #uploadProgressBar { background-color: #198754 !important; }
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
 </style>
@@ -105,8 +107,15 @@
                                         @if($storedPath)
                                             <span class="existing"><i class="bx bx-check-circle"></i> Tersimpan</span>
                                             <span class="stored-file-name" title="{{ basename($storedPath) }}">{{ basename($storedPath) }}</span>
+                                            <a
+                                                href="{{ route('pendataan-gtk.documents.view', [$user, str_replace('_', '-', $type)]) }}"
+                                                target="_blank"
+                                                rel="noopener"
+                                                class="document-preview view-stored-file"
+                                            ><i class="bx bx-show me-1"></i>Lihat file</a>
                                         @endif
                                         <span class="file-name d-none"></span>
+                                        <a href="#" target="_blank" rel="noopener" class="document-preview preview-selected d-none"><i class="bx bx-show me-1"></i>Preview file baru</a>
                                     </label>
                                 </td>
                             @endforeach
@@ -149,11 +158,21 @@
         const zone = input.closest('.drop-zone');
         const name = zone.querySelector('.file-name');
         const storedName = zone.querySelector('.stored-file-name');
+        const preview = zone.querySelector('.preview-selected');
         const hasFile = input.files.length > 0;
         zone.classList.toggle('has-file', hasFile);
         name.classList.toggle('d-none', !hasFile);
         storedName?.classList.toggle('d-none', hasFile);
         name.textContent = hasFile ? input.files[0].name : '';
+        if (preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
+        preview.classList.toggle('d-none', !hasFile);
+        if (hasFile) {
+            preview.dataset.objectUrl = URL.createObjectURL(input.files[0]);
+            preview.href = preview.dataset.objectUrl;
+        } else {
+            preview.removeAttribute('href');
+            delete preview.dataset.objectUrl;
+        }
         const total = inputs.filter(item => item.files.length).length;
         count.textContent = total;
         save.disabled = total === 0;
@@ -174,6 +193,10 @@
         zone.addEventListener('keydown', e => {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
         });
+    });
+
+    document.querySelectorAll('.document-preview').forEach(link => {
+        link.addEventListener('click', event => event.stopPropagation());
     });
 
     document.querySelectorAll('.remove-document').forEach(button => {
@@ -207,6 +230,7 @@
                 zone.classList.remove('has-stored-file');
                 zone.querySelector('.existing')?.remove();
                 zone.querySelector('.stored-file-name')?.remove();
+                zone.querySelector('.view-stored-file')?.remove();
                 button.remove();
                 Swal.fire({icon:'success', title:'Berhasil dihapus', text:result.message, timer:2200, showConfirmButton:false});
             } catch (error) {
@@ -234,7 +258,7 @@
             html: `
                 <div class="text-muted mb-3" id="uploadProgressStatus">Menyiapkan berkas...</div>
                 <div class="progress" style="height:18px">
-                    <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    <div id="uploadProgressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;background-color:#198754" aria-valuemin="0" aria-valuemax="100">0%</div>
                 </div>
             `,
             allowOutsideClick: false,

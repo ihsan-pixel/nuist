@@ -240,6 +240,9 @@ Route::middleware(['auth', 'role:admin_yayasan'])
         Route::get('/users/{user}/documents/{document}', [PendataanGtkController::class, 'downloadDocument'])
             ->where('document', 'sk-awal|sk-akhir|ktp|foto-bebas')
             ->name('documents.download');
+        Route::get('/users/{user}/documents/{document}/view', [PendataanGtkController::class, 'viewDocument'])
+            ->where('document', 'sk-awal|sk-akhir|ktp|foto-resmi|foto-bebas')
+            ->name('documents.view');
         Route::put('/users/{user}/documents', [PendataanGtkController::class, 'updateDocuments'])->name('documents.update');
         Route::get('/{madrasah}/documents/manage', [PendataanGtkController::class, 'manageDocuments'])->name('documents.manage');
         Route::post('/{madrasah}/documents/manage', [PendataanGtkController::class, 'storeManagedDocuments'])->name('documents.manage.store');
