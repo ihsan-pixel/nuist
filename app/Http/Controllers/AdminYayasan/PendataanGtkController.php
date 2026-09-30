@@ -351,9 +351,13 @@ class PendataanGtkController extends Controller
             Storage::disk($disk)->delete($path);
         }
 
-        return redirect()
-            ->route('pendataan-gtk.documents.manage', $madrasah)
-            ->with('success', count($storedAssignments).' berkas GTK berhasil disimpan atau diperbarui.');
+        $message = count($storedAssignments).' berkas GTK berhasil disimpan atau diperbarui.';
+
+        return $request->expectsJson()
+            ? response()->json(['message' => $message, 'uploaded' => count($storedAssignments)])
+            : redirect()
+                ->route('pendataan-gtk.documents.manage', $madrasah)
+                ->with('success', $message);
     }
 
     public function destroyManagedDocument(Request $request, Madrasah $madrasah, User $user, string $type)

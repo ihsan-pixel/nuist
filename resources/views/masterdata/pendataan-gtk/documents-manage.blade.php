@@ -223,10 +223,80 @@
         });
     });
 
-    form.addEventListener('submit', () => {
+    form.addEventListener('submit', event => {
+        event.preventDefault();
         if (!save) return;
         save.disabled = true;
         save.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+        Swal.fire({
+            title: 'Mengunggah berkas GTK',
+            html: `
+                <div class="text-muted mb-3" id="uploadProgressStatus">Menyiapkan berkas...</div>
+                <div class="progress" style="height:18px">
+                    <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%" aria-valuemin="0" aria-valuemax="100">0%</div>
+                </div>
+            `,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                const xhr = new XMLHttpRequest();
+                const progressBar = document.getElementById('uploadProgressBar');
+                const progressStatus = document.getElementById('uploadProgressStatus');
+
+                xhr.open('POST', form.action);
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                xhr.upload.addEventListener('progress', uploadEvent => {
+                    if (!uploadEvent.lengthComputable) return;
+                    const percentage = Math.min(100, Math.round((uploadEvent.loaded / uploadEvent.total) * 100));
+                    progressBar.style.width = percentage + '%';
+                    progressBar.textContent = percentage + '%';
+                    progressBar.setAttribute('aria-valuenow', percentage);
+                    progressStatus.textContent = percentage < 100
+                        ? `Mengunggah berkas... ${percentage}%`
+                        : 'Upload 100%. Memproses dan menyimpan berkas...';
+                });
+
+                xhr.addEventListener('load', async () => {
+                    let result = {};
+                    try { result = JSON.parse(xhr.responseText); } catch (_) {}
+
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        progressBar.style.width = '100%';
+                        progressBar.textContent = '100%';
+                        progressBar.classList.remove('progress-bar-animated');
+                        progressStatus.textContent = 'Semua berkas berhasil disimpan.';
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Upload selesai',
+                            text: result.message || 'Semua berkas berhasil disimpan.',
+                            confirmButtonText: 'Selesai',
+                            confirmButtonColor: '#198754',
+                        });
+                        window.location.reload();
+                        return;
+                    }
+
+                    const validationMessages = result.errors
+                        ? Object.values(result.errors).flat().join('\n')
+                        : (result.message || 'Berkas gagal diunggah. Silakan coba kembali.');
+                    save.disabled = false;
+                    save.innerHTML = '<i class="bx bx-save me-1"></i> Simpan Semua Berkas';
+                    Swal.fire({icon:'error', title:'Upload gagal', text:validationMessages, confirmButtonColor:'#dc3545'});
+                });
+
+                xhr.addEventListener('error', () => {
+                    save.disabled = false;
+                    save.innerHTML = '<i class="bx bx-save me-1"></i> Simpan Semua Berkas';
+                    Swal.fire({icon:'error', title:'Koneksi terputus', text:'Upload gagal karena masalah jaringan.', confirmButtonColor:'#dc3545'});
+                });
+
+                xhr.send(new FormData(form));
+            },
+        });
     });
 })();
 </script>
