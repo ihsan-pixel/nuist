@@ -258,7 +258,7 @@
             html: `
                 <div class="text-muted mb-3" id="uploadProgressStatus">Menyiapkan berkas...</div>
                 <div class="progress" style="height:18px">
-                    <div id="uploadProgressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;background-color:#198754" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    <div id="uploadProgressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;background-color:#198754" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
                 </div>
             `,
             allowOutsideClick: false,
@@ -277,7 +277,6 @@
                     if (!uploadEvent.lengthComputable) return;
                     const percentage = Math.min(100, Math.round((uploadEvent.loaded / uploadEvent.total) * 100));
                     progressBar.style.width = percentage + '%';
-                    progressBar.textContent = percentage + '%';
                     progressBar.setAttribute('aria-valuenow', percentage);
                     progressStatus.textContent = percentage < 100
                         ? `Mengunggah berkas... ${percentage}%`
@@ -290,7 +289,7 @@
 
                     if (xhr.status >= 200 && xhr.status < 300) {
                         progressBar.style.width = '100%';
-                        progressBar.textContent = '100%';
+                        progressBar.setAttribute('aria-valuenow', '100');
                         progressBar.classList.remove('progress-bar-animated');
                         progressStatus.textContent = 'Semua berkas berhasil disimpan.';
                         await Swal.fire({
