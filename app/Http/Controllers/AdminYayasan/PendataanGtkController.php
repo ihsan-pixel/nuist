@@ -256,6 +256,108 @@ class PendataanGtkController extends Controller
         return back()->with('success', 'Berkas GTK berhasil diperbarui.');
     }
 
+    public function manageDocuments(Madrasah $madrasah)
+    {
+        $this->authorizeAccess();
+
+        $gtk = User::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where('role', 'tenaga_pendidik')
+            ->with('gtkPendataan')
+            ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
+            ->orderBy('name')
+            ->get();
+
+        return view('masterdata.pendataan-gtk.documents-manage', compact('madrasah', 'gtk'));
+    }
+
+    public function storeManagedDocuments(Request $request, Madrasah $madrasah)
+    {
+        $this->authorizeAccess();
+
+        $request->validate([
+            'documents' => 'required|array|max:200',
+            'documents.*' => 'array',
+            'documents.*.ktp' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+            'documents.*.sk_awal' => 'nullable|file|mimes:pdf|max:10240',
+            'documents.*.sk_akhir' => 'nullable|file|mimes:pdf|max:10240',
+            'documents.*.foto_resmi' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'documents.*.foto_bebas' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+        ]);
+
+        $uploaded = $request->file('documents', []);
+        $allowedTypes = ['ktp', 'sk_awal', 'sk_akhir', 'foto_resmi', 'foto_bebas'];
+        foreach ($uploaded as $files) {
+            abort_if(array_diff(array_keys($files), $allowedTypes) !== [], 422, 'Jenis berkas GTK tidak valid.');
+        }
+        $userIds = collect(array_keys($uploaded))->map(fn ($id) => (int) $id)->filter()->unique()->values();
+        $users = User::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where('role', 'tenaga_pendidik')
+            ->whereIn('id', $userIds)
+            ->with('gtkPendataan')
+            ->get()
+            ->keyBy('id');
+
+        abort_if($users->count() !== $userIds->count(), 422, 'Terdapat GTK yang tidak valid untuk madrasah ini.');
+
+        $newFiles = [];
+        $oldFiles = [];
+        $storedAssignments = [];
+
+        try {
+            foreach ($uploaded as $userId => $files) {
+                $user = $users->get((int) $userId);
+                foreach ($files as $type => $file) {
+                    if (! $file) {
+                        continue;
+                    }
+
+                    $disk = $type === 'foto_resmi' ? 'public' : 'local';
+                    $directory = $type === 'foto_resmi'
+                        ? "tenaga_pendidik/{$user->id}"
+                        : "pendataan-gtk/{$user->id}/documents";
+                    $path = $file->store($directory, $disk);
+                    $newFiles[] = [$disk, $path];
+                    $storedAssignments[] = compact('user', 'type', 'path');
+
+                    $oldPath = $type === 'foto_resmi'
+                        ? $user->avatar
+                        : $user->gtkPendataan?->{$type.'_path'};
+                    if ($oldPath) {
+                        $oldFiles[] = [$disk, $oldPath];
+                    }
+                }
+            }
+
+            DB::transaction(function () use ($storedAssignments) {
+                foreach ($storedAssignments as $assignment) {
+                    if ($assignment['type'] === 'foto_resmi') {
+                        $assignment['user']->update(['avatar' => $assignment['path']]);
+                    } else {
+                        $assignment['user']->gtkPendataan()->updateOrCreate(
+                            ['user_id' => $assignment['user']->id],
+                            [$assignment['type'].'_path' => $assignment['path']]
+                        );
+                    }
+                }
+            });
+        } catch (\Throwable $exception) {
+            foreach ($newFiles as [$disk, $path]) {
+                Storage::disk($disk)->delete($path);
+            }
+            throw $exception;
+        }
+
+        foreach ($oldFiles as [$disk, $path]) {
+            Storage::disk($disk)->delete($path);
+        }
+
+        return redirect()
+            ->route('pendataan-gtk.documents.manage', $madrasah)
+            ->with('success', count($storedAssignments).' berkas GTK berhasil disimpan atau diperbarui.');
+    }
+
     public function bulkUpdateDocuments(Request $request, Madrasah $madrasah)
     {
         $this->authorizeAccess();

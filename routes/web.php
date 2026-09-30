@@ -241,6 +241,8 @@ Route::middleware(['auth', 'role:admin_yayasan'])
             ->where('document', 'sk-awal|sk-akhir|ktp|foto-bebas')
             ->name('documents.download');
         Route::put('/users/{user}/documents', [PendataanGtkController::class, 'updateDocuments'])->name('documents.update');
+        Route::get('/{madrasah}/documents/manage', [PendataanGtkController::class, 'manageDocuments'])->name('documents.manage');
+        Route::post('/{madrasah}/documents/manage', [PendataanGtkController::class, 'storeManagedDocuments'])->name('documents.manage.store');
         Route::post('/{madrasah}/documents/bulk', [PendataanGtkController::class, 'bulkUpdateDocuments'])->name('documents.bulk');
         Route::get('/{madrasah}/export', [PendataanGtkController::class, 'export'])->name('export-school');
         Route::get('/{madrasah}', [PendataanGtkController::class, 'show'])->middleware('role:admin_yayasan')->name('show');

@@ -98,9 +98,9 @@
                     <div class="text-muted small">Kepala sekolah ditampilkan paling atas. Kolom action membuka modal pendataan.</div>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkDocumentsModal">
+                    <a href="{{ route('pendataan-gtk.documents.manage', $madrasah) }}" class="btn btn-primary">
                         <i class="bx bx-cloud-upload me-1"></i> Upload Banyak Berkas
-                    </button>
+                    </a>
                     <a href="{{ route('pendataan-gtk.export-school', $madrasah->id) }}" class="btn btn-success">
                         <i class="bx bx-download me-1"></i> Export Excel
                     </a>
@@ -404,64 +404,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" class="btn btn-success"><i class="bx bx-upload me-1"></i> Upload Berkas</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="modal fade" id="bulkDocumentsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <form action="{{ route('pendataan-gtk.documents.bulk', $madrasah) }}" method="POST" enctype="multipart/form-data" class="modal-content">
-            @csrf
-            <div class="modal-header">
-                <div>
-                    <h5 class="modal-title mb-1">Upload Banyak Berkas GTK</h5>
-                    <small class="text-muted">{{ $madrasah->name }}</small>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info">
-                    Pilih berkas pada kolom sesuai jenisnya. Nama file cukup memakai <code>NUISTID.ext</code> atau <code>nama-guru.ext</code> agar otomatis dipasangkan ke GTK.
-                </div>
-                <div class="mb-3">
-                    <div class="fw-semibold mb-2">Contoh nama file</div>
-                    <div class="small text-muted">
-                        Pada kolom KTP pilih <code>123456.pdf</code> atau <code>ahmad-fauzi.jpg</code>. Format lama seperti <code>123456_ktp.pdf</code> juga tetap diterima.
-                    </div>
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Upload KTP</label>
-                        <input type="file" class="form-control" name="ktp_files[]" multiple accept="application/pdf,image/jpeg,image/png,image/webp,.pdf">
-                        <div class="form-text">PDF/JPG/PNG/WebP, maksimal 5 MB per file.</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Upload SK Awal</label>
-                        <input type="file" class="form-control" name="sk_awal_files[]" multiple accept="application/pdf,.pdf">
-                        <div class="form-text">PDF, maksimal 10 MB per file.</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Upload SK Akhir</label>
-                        <input type="file" class="form-control" name="sk_akhir_files[]" multiple accept="application/pdf,.pdf">
-                        <div class="form-text">PDF, maksimal 10 MB per file.</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Upload Foto Resmi</label>
-                        <input type="file" class="form-control" name="foto_resmi_files[]" multiple accept="image/jpeg,image/png,image/webp">
-                        <div class="form-text">JPG/PNG/WebP, maksimal 4 MB per file.</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Upload Foto Bebas</label>
-                        <input type="file" class="form-control" name="foto_bebas_files[]" multiple accept="image/jpeg,image/png,image/webp">
-                        <div class="form-text">JPG/PNG/WebP, maksimal 4 MB per file.</div>
-                    </div>
-                </div>
-                <div class="form-text mt-3">Anda boleh mengisi satu atau beberapa jenis sekaligus. Gunakan NUIST ID jika terdapat nama GTK yang sama.</div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary"><i class="bx bx-cloud-upload me-1"></i> Proses Semua Berkas</button>
             </div>
         </form>
     </div>
