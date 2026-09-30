@@ -217,7 +217,7 @@ class PendataanGtkController extends Controller
                 }
 
                 $pathColumn = $field.'_path';
-                $documentPaths[$pathColumn] = $request->file($field)->store("pendataan-gtk/{$user->id}/documents", 'local');
+                $documentPaths[$pathColumn] = $this->storeGtkDocument($request->file($field), $user, $field, 'local');
                 $newFiles[] = ['local', $documentPaths[$pathColumn]];
                 if ($gtkPendataan?->{$pathColumn}) {
                     $oldFiles[] = ['local', $gtkPendataan->{$pathColumn}];
@@ -226,7 +226,7 @@ class PendataanGtkController extends Controller
 
             $avatarPath = null;
             if ($request->hasFile('foto_guru')) {
-                $avatarPath = $request->file('foto_guru')->store("tenaga_pendidik/{$user->id}", 'public');
+                $avatarPath = $this->storeGtkDocument($request->file('foto_guru'), $user, 'foto_resmi', 'public');
                 $newFiles[] = ['public', $avatarPath];
                 if ($user->avatar) {
                     $oldFiles[] = ['public', $user->avatar];
@@ -314,10 +314,7 @@ class PendataanGtkController extends Controller
                     }
 
                     $disk = $type === 'foto_resmi' ? 'public' : 'local';
-                    $directory = $type === 'foto_resmi'
-                        ? "tenaga_pendidik/{$user->id}"
-                        : "pendataan-gtk/{$user->id}/documents";
-                    $path = $file->store($directory, $disk);
+                    $path = $this->storeGtkDocument($file, $user, $type, $disk);
                     $newFiles[] = [$disk, $path];
                     $storedAssignments[] = compact('user', 'type', 'path');
 
@@ -440,10 +437,7 @@ class PendataanGtkController extends Controller
                 $user = $assignment['user'];
                 $type = $assignment['type'];
                 $disk = $type === 'foto_resmi' ? 'public' : 'local';
-                $directory = $type === 'foto_resmi'
-                    ? "tenaga_pendidik/{$user->id}"
-                    : "pendataan-gtk/{$user->id}/documents";
-                $path = $assignment['file']->store($directory, $disk);
+                $path = $this->storeGtkDocument($assignment['file'], $user, $type, $disk);
                 $newFiles[] = [$disk, $path];
                 $storedAssignments[] = compact('user', 'type', 'disk', 'path');
 
@@ -511,6 +505,21 @@ class PendataanGtkController extends Controller
     private function normalizeDocumentIdentifier(string $value): string
     {
         return preg_replace('/[^a-z0-9]+/', '', Str::lower(Str::ascii(trim($value)))) ?? '';
+    }
+
+    private function storeGtkDocument($file, User $user, string $type, string $disk): string
+    {
+        $directory = $type === 'foto_resmi'
+            ? "tenaga_pendidik/{$user->id}"
+            : "pendataan-gtk/{$user->id}/documents";
+        $typeName = str_replace('_', '-', $type);
+        $teacherName = Str::slug($user->name) ?: 'gtk-'.$user->id;
+        $identifier = Str::slug((string) $user->nuist_id);
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'bin');
+        $timestamp = now()->format('Ymd-His-v');
+        $filename = implode('-', array_filter([$typeName, $identifier, $teacherName, $timestamp])).'.'.$extension;
+
+        return $file->storeAs($directory, $filename, $disk);
     }
 
     private function authorizeAccess(): void

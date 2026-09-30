@@ -14,7 +14,8 @@
     .drop-zone:hover, .drop-zone.dragging { border-color: #0d6efd; background: #eff6ff; }
     .drop-zone.has-file { border-color: #22c55e; background: #f0fdf4; }
     .drop-zone input { display: none; }
-    .drop-zone .file-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; color: #15803d; }
+    .drop-zone .file-name, .drop-zone .stored-file-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; color: #15803d; }
+    .drop-zone .stored-file-name { color: #64748b; }
     .existing { font-size: .7rem; color: #15803d; }
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
@@ -76,19 +77,22 @@
                                 </div>
                             </td>
                             @foreach([
-                                'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', (bool) $data?->ktp_path],
-                                'sk_awal' => ['PDF maks. 10 MB', '.pdf,application/pdf', (bool) $data?->sk_awal_path],
-                                'sk_akhir' => ['PDF maks. 10 MB', '.pdf,application/pdf', (bool) $data?->sk_akhir_path],
-                                'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', (bool) $user->avatar],
-                                'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', (bool) $data?->foto_bebas_path],
-                            ] as $type => [$hint, $accept, $exists])
+                                'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
+                                'sk_awal' => ['PDF maks. 10 MB', '.pdf,application/pdf', $data?->sk_awal_path],
+                                'sk_akhir' => ['PDF maks. 10 MB', '.pdf,application/pdf', $data?->sk_akhir_path],
+                                'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
+                                'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
+                            ] as $type => [$hint, $accept, $storedPath])
                                 <td>
                                     <label class="drop-zone" tabindex="0">
                                         <input type="file" name="documents[{{ $user->id }}][{{ $type }}]" accept="{{ $accept }}">
                                         <i class="bx bx-cloud-upload fs-4 text-primary"></i>
                                         <span class="small">Drop atau pilih</span>
                                         <span class="text-muted" style="font-size:.68rem">{{ $hint }}</span>
-                                        @if($exists)<span class="existing"><i class="bx bx-check-circle"></i> File tersimpan</span>@endif
+                                        @if($storedPath)
+                                            <span class="existing"><i class="bx bx-check-circle"></i> Tersimpan</span>
+                                            <span class="stored-file-name" title="{{ basename($storedPath) }}">{{ basename($storedPath) }}</span>
+                                        @endif
                                         <span class="file-name d-none"></span>
                                     </label>
                                 </td>
@@ -131,9 +135,11 @@
     function refresh(input) {
         const zone = input.closest('.drop-zone');
         const name = zone.querySelector('.file-name');
+        const storedName = zone.querySelector('.stored-file-name');
         const hasFile = input.files.length > 0;
         zone.classList.toggle('has-file', hasFile);
         name.classList.toggle('d-none', !hasFile);
+        storedName?.classList.toggle('d-none', hasFile);
         name.textContent = hasFile ? input.files[0].name : '';
         const total = inputs.filter(item => item.files.length).length;
         count.textContent = total;
