@@ -391,13 +391,13 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">PDF SK Awal</label>
-                        <input type="file" class="form-control" name="sk_awal" accept="application/pdf,.pdf">
-                        <div class="form-text">PDF maksimal 10 MB. <a data-current-file="sk_awal" class="d-none" target="_blank" rel="noopener">Lihat SK awal saat ini</a></div>
+                        <input type="file" class="form-control" name="sk_awal" accept="application/pdf,image/jpeg,image/png,image/webp,.pdf">
+                        <div class="form-text">PDF/foto maksimal 10 MB. Foto otomatis dikonversi menjadi PDF. <a data-current-file="sk_awal" class="d-none" target="_blank" rel="noopener">Lihat SK awal saat ini</a></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">PDF SK Akhir</label>
-                        <input type="file" class="form-control" name="sk_akhir" accept="application/pdf,.pdf">
-                        <div class="form-text">PDF maksimal 10 MB. <a data-current-file="sk_akhir" class="d-none" target="_blank" rel="noopener">Lihat SK akhir saat ini</a></div>
+                        <input type="file" class="form-control" name="sk_akhir" accept="application/pdf,image/jpeg,image/png,image/webp,.pdf">
+                        <div class="form-text">PDF/foto maksimal 10 MB. Foto otomatis dikonversi menjadi PDF. <a data-current-file="sk_akhir" class="d-none" target="_blank" rel="noopener">Lihat SK akhir saat ini</a></div>
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -194,8 +195,8 @@ class PendataanGtkController extends Controller
         $this->authorizeUserBelongsToCurrentSchool($user);
 
         $request->validate([
-            'sk_awal' => 'nullable|file|mimes:pdf|max:10240',
-            'sk_akhir' => 'nullable|file|mimes:pdf|max:10240',
+            'sk_awal' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'sk_akhir' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'ktp' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
             'foto_guru' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'foto_bebas' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
@@ -279,8 +280,8 @@ class PendataanGtkController extends Controller
             'documents' => 'required|array|max:200',
             'documents.*' => 'array',
             'documents.*.ktp' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
-            'documents.*.sk_awal' => 'nullable|file|mimes:pdf|max:10240',
-            'documents.*.sk_akhir' => 'nullable|file|mimes:pdf|max:10240',
+            'documents.*.sk_awal' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'documents.*.sk_akhir' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'documents.*.foto_resmi' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'documents.*.foto_bebas' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
@@ -363,9 +364,9 @@ class PendataanGtkController extends Controller
             'ktp_files' => 'nullable|array|max:200',
             'ktp_files.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
             'sk_awal_files' => 'nullable|array|max:200',
-            'sk_awal_files.*' => 'file|mimes:pdf|max:10240',
+            'sk_awal_files.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'sk_akhir_files' => 'nullable|array|max:200',
-            'sk_akhir_files.*' => 'file|mimes:pdf|max:10240',
+            'sk_akhir_files.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'foto_resmi_files' => 'nullable|array|max:200',
             'foto_resmi_files.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
             'foto_bebas_files' => 'nullable|array|max:200',
@@ -515,9 +516,34 @@ class PendataanGtkController extends Controller
         $typeName = str_replace('_', '-', $type);
         $teacherName = Str::slug($user->name) ?: 'gtk-'.$user->id;
         $identifier = Str::slug((string) $user->nuist_id);
-        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'bin');
+        $extension = strtolower($file->extension() ?: $file->getClientOriginalExtension() ?: 'bin');
+        $convertToPdf = in_array($type, ['sk_awal', 'sk_akhir'], true) && $extension !== 'pdf';
+        if ($convertToPdf) {
+            $extension = 'pdf';
+        }
         $timestamp = now()->format('Ymd-His-v');
         $filename = implode('-', array_filter([$typeName, $identifier, $teacherName, $timestamp])).'.'.$extension;
+
+        if ($convertToPdf) {
+            $imageData = base64_encode(file_get_contents($file->getRealPath()));
+            $mimeType = $file->getMimeType() ?: 'image/jpeg';
+            $dimensions = @getimagesize($file->getRealPath());
+            $orientation = $dimensions && $dimensions[0] > $dimensions[1] ? 'landscape' : 'portrait';
+            $html = '<!doctype html><html><head><meta charset="utf-8"><style>'
+                .'@page{margin:10mm}html,body{margin:0;padding:0;width:100%;height:100%}'
+                .'table{border-collapse:collapse;width:100%;height:100%}td{text-align:center;vertical-align:middle}'
+                .'img{max-width:100%;max-height:257mm;object-fit:contain}'
+                .'</style></head><body><table><tr><td><img src="data:'
+                .$mimeType.';base64,'.$imageData.'"></td></tr></table></body></html>';
+            $pdfContent = Pdf::loadHTML($html)->setPaper('a4', $orientation)->output();
+            $path = $directory.'/'.$filename;
+
+            if (! Storage::disk($disk)->put($path, $pdfContent)) {
+                throw new \RuntimeException('Gagal menyimpan hasil konversi PDF.');
+            }
+
+            return $path;
+        }
 
         return $file->storeAs($directory, $filename, $disk);
     }

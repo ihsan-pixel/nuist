@@ -79,8 +79,8 @@
                             </td>
                             @foreach([
                                 'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
-                                'sk_awal' => ['PDF maks. 10 MB', '.pdf,application/pdf', $data?->sk_awal_path],
-                                'sk_akhir' => ['PDF maks. 10 MB', '.pdf,application/pdf', $data?->sk_akhir_path],
+                                'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
+                                'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
                                 'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
                                 'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
                             ] as $type => [$hint, $accept, $storedPath])
