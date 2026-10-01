@@ -65,8 +65,13 @@ return [
     ],
 
     'turnstile' => [
+        'enabled' => env('TURNSTILE_ENABLED', false),
         'site_key' => env('TURNSTILE_SITE_KEY'),
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
+        'allowed_hostnames' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('TURNSTILE_ALLOWED_HOSTNAMES', ''))
+        ))),
     ],
 
 ];

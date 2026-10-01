@@ -39,13 +39,12 @@ class LoginController extends Controller
     /**
      * The user has been authenticated.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  mixed  $user
      * @return mixed
      */
     protected function authenticated(Request $request, $user)
     {
-        if (isset($user->is_active) && !$user->is_active) {
+        if (isset($user->is_active) && ! $user->is_active) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -90,7 +89,7 @@ class LoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withErrors(['email' => 'Email atau password Operator SPP tidak sesuai.'])
                 ->withInput($request->only('email'));
@@ -111,7 +110,7 @@ class LoginController extends Controller
                 ->withInput($request->only('email'));
         }
 
-        if (isset($user->is_active) && !$user->is_active) {
+        if (isset($user->is_active) && ! $user->is_active) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -132,12 +131,12 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+        $this->middleware('cloudflare.turnstile')->only('login');
     }
 
     /**
      * Log the current user out of the application.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function logout(Request $request)
@@ -154,7 +153,7 @@ class LoginController extends Controller
         return redirect('/login');
     }
 
-        /**
+    /**
      * Handle a login request to the application.
      */
     public function login(Request $request)
@@ -166,6 +165,7 @@ class LoginController extends Controller
         if (method_exists($this, 'hasTooManyLoginAttempts') &&
             $this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
+
             return $this->sendLockoutResponse($request);
         }
 
@@ -190,8 +190,10 @@ class LoginController extends Controller
 
         // Jika gagal login
         $this->incrementLoginAttempts($request);
+
         return $this->sendFailedLoginResponse($request);
     }
+
     protected function redirectTo()
     {
         $user = Auth::user();
@@ -210,6 +212,4 @@ class LoginController extends Controller
 
         return '/dashboard';
     }
-
-
 }

@@ -72,5 +72,6 @@ class Kernel extends HttpKernel
         'midtrans.callback' => \App\Http\Middleware\VerifyMidtransCallbackSignature::class,
         'bni-va.callback' => \App\Http\Middleware\VerifyBniVaCallbackToken::class,
         'firebase.app-check' => \App\Http\Middleware\VerifyFirebaseAppCheck::class,
+        'cloudflare.turnstile' => \App\Http\Middleware\VerifyCloudflareTurnstile::class,
     ];
 }
