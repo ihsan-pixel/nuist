@@ -122,6 +122,16 @@ class BpppmnuAttendanceTest extends TestCase
         $this->post('/mobile/login', ['email' => $teacher->email, 'password' => 'Password1!'])->assertRedirect('/mobile/dashboard');
     }
 
+    public function test_desktop_role_can_login_from_mobile_page(): void
+    {
+        $superAdmin = $this->user('super_admin');
+
+        $this->post('/mobile/login', ['email' => $superAdmin->email, 'password' => 'Password1!'])
+            ->assertRedirect('/dashboard');
+
+        $this->assertAuthenticatedAs($superAdmin);
+    }
+
     public function test_api_login_and_safe_payload(): void
     {
         $this->postJson('/api/mobile/login', ['identifier' => $this->member->email, 'password' => 'Password1!', 'login_as' => 'pengurus_bpppmnu'])

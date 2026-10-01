@@ -1,6 +1,20 @@
 @extends('layouts.master-without-nav')
 @section('title', 'Masuk - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY')
 @section('css')
+@php
+$primaryLoginHost=parse_url((string) config('app.url'), PHP_URL_HOST);
+$currentLoginHost=request()->getHost();
+$canUseMobileLogin=in_array($currentLoginHost, array_filter([$primaryLoginHost, 'www.'.$primaryLoginHost, 'localhost', '127.0.0.1']), true);
+@endphp
+@if($canUseMobileLogin)
+<script>
+(function(){
+    if(window.matchMedia&&window.matchMedia('(max-width: 767px)').matches){
+        window.location.replace(@json(route('mobile.login', [], false))+(window.location.search||''));
+    }
+})();
+</script>
+@endif
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 @if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key')))<link rel="preconnect" href="https://challenges.cloudflare.com"><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>@endif

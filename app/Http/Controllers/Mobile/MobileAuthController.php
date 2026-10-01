@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class MobileAuthController extends Controller
 {
     /**
-     * Handle mobile form login for supported mobile roles.
+     * Handle mobile form login for every active role.
      */
     public function authenticate(Request $request, SiswaMobileAuthService $siswaMobileAuthService)
     {
@@ -21,7 +21,7 @@ class MobileAuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             try {
                 $user = $siswaMobileAuthService->authenticate($credentials['email'], $credentials['password']);
             } catch (ValidationException $exception) {
@@ -30,13 +30,13 @@ class MobileAuthController extends Controller
                     ->withInput($request->only('email'));
             }
 
-            if (!$user) {
-            return redirect()->route('mobile.login')
-                ->withErrors(['email' => 'Email atau password salah'])
-                ->withInput($request->only('email'));
-        }
+            if (! $user) {
+                return redirect()->route('mobile.login')
+                    ->withErrors(['email' => 'Email atau password salah'])
+                    ->withInput($request->only('email'));
+            }
 
-        Auth::login($user, $request->boolean('remember'));
+            Auth::login($user, $request->boolean('remember'));
         }
 
         $request->session()->regenerate();
@@ -53,7 +53,7 @@ class MobileAuthController extends Controller
 
         $user = Auth::user();
 
-        if (isset($user->is_active) && !$user->is_active) {
+        if (isset($user->is_active) && ! $user->is_active) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -64,29 +64,36 @@ class MobileAuthController extends Controller
                 ->withCookies($queuedCookies);
         }
 
-        if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa', 'dps', 'pengurus_bpppmnu'])) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        $role = preg_replace('/\s+/', '_', trim(strtolower((string) $user->role))) ?? '';
 
-            return redirect()->route('mobile.login')
-                ->withErrors(['email' => 'Akun tidak memiliki akses mobile.'])
-                ->withInput($request->only('email'))
-                ->withCookies($queuedCookies);
-        }
-
-        if ($user->role === 'pengurus_bpppmnu') {
+        if ($role === 'pengurus_bpppmnu') {
             return redirect()->route('mobile.bpppmnu.presensi')->withCookies($queuedCookies);
         }
 
-        if ($user->role === 'siswa') {
+        if ($role === 'siswa') {
             return redirect()->route('mobile.siswa.dashboard')->withCookies($queuedCookies);
         }
 
-        if ($user->role === 'dps') {
+        if ($role === 'dps') {
             return redirect()->route('mobile.dps.dashboard')->withCookies($queuedCookies);
         }
 
-        return redirect()->route('mobile.dashboard')->withCookies($queuedCookies);
+        if ($role === 'tenaga_pendidik') {
+            return redirect()->route('mobile.dashboard')->withCookies($queuedCookies);
+        }
+
+        if ($role === 'admin_spp') {
+            return redirect()->route('spp-siswa.dashboard')->withCookies($queuedCookies);
+        }
+
+        if ($role === 'mgmp') {
+            return redirect()->route('mgmp.dashboard')->withCookies($queuedCookies);
+        }
+
+        if (in_array($role, ['pemateri', 'fasilitator'], true)) {
+            return redirect()->route('talenta.dashboard')->withCookies($queuedCookies);
+        }
+
+        return redirect()->intended('/dashboard')->withCookies($queuedCookies);
     }
 }
