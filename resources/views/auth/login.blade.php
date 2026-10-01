@@ -31,7 +31,6 @@ $loginAction=$isSpmbHost?url('/login'):route('login');
 $forgotPasswordUrl=$isSpmbHost?url('/password/reset'):route('mobile.password.request');
 $backUrl=$isSpmbHost?url('/'):route('landing');
 @endphp
-@include('mobile._auth-loader')
 <div class="web-login-page"><main class="login-layout" aria-labelledby="login-title">
 <section class="journey-panel" aria-labelledby="journey-title">
 <a class="journey-brand" href="{{ $backUrl }}" aria-label="Kembali ke halaman utama NUIST"><img src="{{ asset('images/logo1.png') }}" alt="NUIST"></a>
@@ -51,7 +50,6 @@ $backUrl=$isSpmbHost?url('/'):route('landing');
 </div></section></main></div>
 @endsection
 @section('script-bottom')
-@include('mobile._auth-loader-script')
 <script>
 window.toggleLoginPassword=function(button){
     var input=document.getElementById('password');
