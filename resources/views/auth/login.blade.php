@@ -43,7 +43,7 @@ $backUrl=$isSpmbHost?url('/'):route('landing');
 @if(session('error'))<div class="status-alert error" role="alert">{{ session('error') }}</div>@endif
 <form method="POST" action="{{ $loginAction }}">@csrf
 <div class="auth-field-group"><label class="input-label" for="email">Email</label><div class="field-shell"><span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5Z"/></svg></span><input id="email" name="email" type="email" class="input-control" value="{{ old('email') }}" placeholder="nama@email.com" autocomplete="email" required autofocus></div>@error('email')<div class="field-error" role="alert">{{ $message }}</div>@enderror</div>
-<div class="auth-field-group"><label class="input-label" for="password">Password</label><div class="field-shell"><span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-5 8a2 2 0 1 1 2-2 2 2 0 0 1-2 2Zm-2-8V6a2 2 0 0 1 4 0v2Z"/></svg></span><input id="password" name="password" type="password" class="input-control" placeholder="Masukkan password" autocomplete="current-password" required><button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 5c5.33 0 9.73 3.61 11 7-1.27 3.39-5.67 7-11 7S2.27 15.39 1 12c1.27-3.39 5.67-7 11-7Zm0 2C8.08 7 4.72 9.37 3.34 12 4.72 14.63 8.08 17 12 17s7.28-2.37 8.66-5C19.28 9.37 15.92 7 12 7Zm0 2.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5Z"/></svg></button></div>@error('password')<div class="field-error" role="alert">{{ $message }}</div>@enderror</div>
+<div class="auth-field-group"><label class="input-label" for="password">Password</label><div class="field-shell"><span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-5 8a2 2 0 1 1 2-2 2 2 0 0 1-2 2Zm-2-8V6a2 2 0 0 1 4 0v2Z"/></svg></span><input id="password" name="password" type="password" class="input-control" placeholder="Masukkan password" autocomplete="current-password" required><button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password" aria-pressed="false" onclick="toggleLoginPassword(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c5.33 0 9.73 3.61 11 7-1.27 3.39-5.67 7-11 7S2.27 15.39 1 12c1.27-3.39 5.67-7 11-7Zm0 2C8.08 7 4.72 9.37 3.34 12 4.72 14.63 8.08 17 12 17s7.28-2.37 8.66-5C19.28 9.37 15.92 7 12 7Zm0 2.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5Z"/></svg></button></div>@error('password')<div class="field-error" role="alert">{{ $message }}</div>@enderror</div>
 <div class="form-actions"><label class="remember-check"><input type="checkbox" name="remember" value="1" {{ old('remember')?'checked':'' }}><span>Ingat saya</span></label><a href="{{ $forgotPasswordUrl }}" class="forgot-link">Lupa Password?</a></div>
 @if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key')))<div class="turnstile-wrap"><div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-action="login" data-theme="light" data-size="flexible" data-appearance="always"></div></div>@error('turnstile')<div class="field-error" role="alert">{{ $message }}</div>@enderror @endif
 <button class="submit-btn" type="submit">Masuk ke NUIST</button></form>
@@ -52,5 +52,15 @@ $backUrl=$isSpmbHost?url('/'):route('landing');
 @endsection
 @section('script-bottom')
 @include('mobile._auth-loader-script')
-<script>document.addEventListener('DOMContentLoaded',function(){var i=document.getElementById('password'),b=document.getElementById('togglePassword');if(!i||!b)return;b.addEventListener('click',function(){var v=i.type==='text';i.type=v?'password':'text';b.setAttribute('aria-pressed',v?'false':'true');b.setAttribute('aria-label',v?'Tampilkan password':'Sembunyikan password')})});</script>
+<script>
+window.toggleLoginPassword=function(button){
+    var input=document.getElementById('password');
+    if(!input)return;
+    var showPassword=input.type==='password';
+    input.type=showPassword?'text':'password';
+    button.setAttribute('aria-pressed',showPassword?'true':'false');
+    button.setAttribute('aria-label',showPassword?'Sembunyikan password':'Tampilkan password');
+    input.focus({preventScroll:true});
+};
+</script>
 @endsection
