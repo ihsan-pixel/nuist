@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'github.webhook' => \App\Http\Middleware\VerifyGithubWebhookSignature::class,
         'midtrans.callback' => \App\Http\Middleware\VerifyMidtransCallbackSignature::class,
         'bni-va.callback' => \App\Http\Middleware\VerifyBniVaCallbackToken::class,
+        'firebase.app-check' => \App\Http\Middleware\VerifyFirebaseAppCheck::class,
     ];
 }

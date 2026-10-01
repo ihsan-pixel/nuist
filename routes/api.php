@@ -29,13 +29,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Public registration is intentionally disabled. Teacher and management
 // accounts are provisioned from verified institutional data by administrators.
 Route::post('/mobile/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword'])
-    ->middleware(['throttle:6,1']);
+    ->middleware(['firebase.app-check', 'throttle:6,1']);
 Route::post('/mobile/student-password-reset', [App\Http\Controllers\Api\AuthController::class, 'resetStudentPassword'])
-    ->middleware(['throttle:5,15']);
+    ->middleware(['firebase.app-check', 'throttle:5,15']);
 Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
-    ->middleware(['throttle:6,1']);
-Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
+    ->middleware(['firebase.app-check', 'throttle:6,1']);
+Route::middleware(['auth:sanctum', 'firebase.app-check', 'throttle:10,1'])->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
+Route::middleware(['auth:sanctum', 'firebase.app-check'])->prefix('/mobile')->group(function () {
     Route::post('/push-token', [App\Http\Controllers\Api\AuthController::class, 'registerPushToken'])
         ->middleware('throttle:20,1');
     Route::delete('/push-token', [App\Http\Controllers\Api\AuthController::class, 'unregisterPushToken'])

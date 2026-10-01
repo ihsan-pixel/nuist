@@ -279,8 +279,18 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $validated = $request->validate([
+            'push_token' => ['nullable', 'string', 'max:4096'],
+        ]);
+
         $user = $request->user();
         if ($user) {
+            if (!empty($validated['push_token'])) {
+                $user->pushDeviceTokens()
+                    ->where('token', trim((string) $validated['push_token']))
+                    ->delete();
+            }
+
             // Revoke current access token
             $user->currentAccessToken()->delete();
         }
