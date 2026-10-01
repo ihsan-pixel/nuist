@@ -5,7 +5,15 @@
 @endsection
 
 @section('css')
+    @if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key')))
+        <link rel="preconnect" href="https://challenges.cloudflare.com">
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
     @include('mobile._auth-styles')
+    <style>
+        .turnstile-wrap { display: flex; justify-content: center; margin: 4px 0 14px; }
+        .turnstile-wrap .cf-turnstile { max-width: 100%; }
+    </style>
 @endsection
 
 @section('content')
@@ -106,6 +114,22 @@
                                 </label>
                                 <a href="{{ route('mobile.password.request') }}" class="forgot-link">Lupa Password?</a>
                             </div>
+
+                            @if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key')))
+                                <div class="turnstile-wrap">
+                                    <div
+                                        class="cf-turnstile"
+                                        data-sitekey="{{ config('services.turnstile.site_key') }}"
+                                        data-action="login"
+                                        data-theme="dark"
+                                        data-size="flexible"
+                                        data-appearance="always"
+                                    ></div>
+                                </div>
+                                @error('turnstile')
+                                    <div class="field-error" role="alert">{{ $message }}</div>
+                                @enderror
+                            @endif
 
                             <button class="submit-btn" type="submit">Masuk</button>
                         </form>

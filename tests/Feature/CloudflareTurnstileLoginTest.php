@@ -27,12 +27,32 @@ class CloudflareTurnstileLoginTest extends TestCase
         $this->assertStringContainsString('data-action="login"', $template);
     }
 
+    public function test_mobile_login_page_contains_visible_turnstile_widget(): void
+    {
+        $template = file_get_contents(resource_path('views/mobile/login.blade.php'));
+
+        $this->assertIsString($template);
+        $this->assertStringContainsString('https://challenges.cloudflare.com/turnstile/v0/api.js', $template);
+        $this->assertStringContainsString('class="cf-turnstile"', $template);
+        $this->assertStringContainsString('data-action="login"', $template);
+    }
+
     public function test_login_rejects_a_missing_turnstile_token(): void
     {
         $this->from('/login')->post('/login', [
             'email' => 'user@example.test',
             'password' => 'secret',
         ])->assertRedirect('/login')->assertSessionHasErrors('turnstile');
+
+        Http::assertNothingSent();
+    }
+
+    public function test_mobile_login_rejects_a_missing_turnstile_token(): void
+    {
+        $this->from('/mobile/login')->post('/mobile/login', [
+            'email' => 'user@example.test',
+            'password' => 'secret',
+        ])->assertRedirect('/mobile/login')->assertSessionHasErrors('turnstile');
 
         Http::assertNothingSent();
     }

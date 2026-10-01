@@ -1,35 +1,29 @@
 <?php
 
+use App\Http\Controllers\AcademicCalendarEventController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminYayasan\PendataanGtkController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DevelopmentHistoryController;
+use App\Http\Controllers\DpsController;
+use App\Http\Controllers\MadrasahController;
+use App\Http\Controllers\Mobile\Izin\IzinController;
+use App\Http\Controllers\Mobile\Siswa\SiswaController;
+use App\Http\Controllers\PanduanController;
+use App\Http\Controllers\PicketScheduleController;
+use App\Http\Controllers\PPDB\AdminLPController;
+use App\Http\Controllers\PPDB\AdminSekolahController;
+use App\Http\Controllers\PPDB\PendaftarController;
+use App\Http\Controllers\PPDB\PPDBController;
+use App\Http\Controllers\PresensiAdminController;
+use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\SkYayasanController;
+use App\Http\Controllers\StatusKepegawaianController;
+use App\Http\Controllers\TeachingClassStudentCountController;
+use App\Http\Controllers\TeachingScheduleController;
+use App\Http\Controllers\TenagaPendidikController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\MadrasahController;
-use App\Http\Controllers\TenagaPendidikController;
-use App\Http\Controllers\StatusKepegawaianController;
-use App\Http\Controllers\PresensiController;
-use App\Http\Controllers\PresensiAdminController;
-use App\Http\Controllers\DevelopmentHistoryController;
-use App\Http\Controllers\PanduanController;
-use App\Http\Controllers\Mobile\Izin\IzinController;
-use App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController;
-use App\Http\Controllers\Mobile\Siswa\SiswaController;
-use App\Http\Controllers\TeachingScheduleController;
-use App\Http\Controllers\TeachingClassStudentCountController;
-use App\Http\Controllers\DpsController;
-use App\Http\Controllers\AcademicCalendarEventController;
-use App\Http\Controllers\PicketScheduleController;
-use App\Http\Controllers\SkYayasanController;
-use App\Http\Controllers\AdminYayasan\PendataanGtkController;
-
-use App\Http\Controllers\PPDB\{
-    PPDBController,
-    PendaftarController,
-    AdminSekolahController,
-    AdminLPController
-};
-
 
 /*
 |--------------------------------------------------------------------------
@@ -78,9 +72,9 @@ Route::get('/uploads/{path}', function (string $path) {
         abort(404);
     }
 
-    $absolutePath = public_path('uploads/' . $normalizedPath);
+    $absolutePath = public_path('uploads/'.$normalizedPath);
 
-    if (!is_file($absolutePath)) {
+    if (! is_file($absolutePath)) {
         abort(404);
     }
 
@@ -219,7 +213,7 @@ Route::domain('sekolah.nuist.id')->group(function () {
 
     Route::fallback(function (\Illuminate\Http\Request $request) {
         $primaryBaseUrl = rtrim((string) config('app.url'), '/');
-        $target = $primaryBaseUrl . $request->getRequestUri();
+        $target = $primaryBaseUrl.$request->getRequestUri();
 
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             return redirect()->away($target);
@@ -329,7 +323,7 @@ Route::domain('mgmp.nuist.id')->group(function () {
 
     Route::fallback(function (\Illuminate\Http\Request $request) {
         $primaryBaseUrl = rtrim((string) config('app.url'), '/');
-        $target = $primaryBaseUrl . $request->getRequestUri();
+        $target = $primaryBaseUrl.$request->getRequestUri();
 
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             return redirect()->away($target);
@@ -352,7 +346,7 @@ Route::domain('mgmp.nuist.id')->group(function () {
 */
 Route::domain('keuangan.nuist.id')->group(function () {
     $financeHomeRedirect = function () {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('/login');
         }
 
@@ -367,7 +361,7 @@ Route::domain('keuangan.nuist.id')->group(function () {
             return redirect('/uppm');
         }
 
-        return redirect()->away(rtrim((string) config('app.url'), '/') . '/dashboard');
+        return redirect()->away(rtrim((string) config('app.url'), '/').'/dashboard');
     };
 
     Route::get('/', $financeHomeRedirect);
@@ -380,7 +374,7 @@ Route::domain('keuangan.nuist.id')->group(function () {
                 'password' => ['required', 'string'],
             ]);
 
-            if (!\Illuminate\Support\Facades\Auth::attempt($credentials, $request->boolean('remember'))) {
+            if (! \Illuminate\Support\Facades\Auth::attempt($credentials, $request->boolean('remember'))) {
                 return back()
                     ->withErrors(['email' => 'Email atau password tidak sesuai.'])
                     ->withInput($request->only('email'));
@@ -520,7 +514,7 @@ Route::domain('keuangan.nuist.id')->group(function () {
 
     Route::fallback(function (\Illuminate\Http\Request $request) {
         $primaryBaseUrl = rtrim((string) config('app.url'), '/');
-        $target = $primaryBaseUrl . $request->getRequestUri();
+        $target = $primaryBaseUrl.$request->getRequestUri();
 
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             return redirect()->away($target);
@@ -543,7 +537,7 @@ Route::domain('keuangan.nuist.id')->group(function () {
 */
 Route::domain('admin.nuist.id')->group(function () {
     $superAdminHomeRedirect = function () {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('/login');
         }
 
@@ -554,7 +548,7 @@ Route::domain('admin.nuist.id')->group(function () {
             return redirect('/dashboard');
         }
 
-        return redirect()->away(rtrim((string) config('app.url'), '/') . '/dashboard');
+        return redirect()->away(rtrim((string) config('app.url'), '/').'/dashboard');
     };
 
     Route::get('/', $superAdminHomeRedirect);
@@ -600,7 +594,7 @@ Route::domain('admin.nuist.id')->group(function () {
             } catch (\Exception $e) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal membersihkan cache: ' . $e->getMessage(),
+                    'message' => 'Gagal membersihkan cache: '.$e->getMessage(),
                 ], 500);
             }
         })->middleware(['role:super_admin', 'throttle:5,1']);
@@ -908,7 +902,7 @@ Route::domain('admin.nuist.id')->group(function () {
 
     Route::fallback(function (\Illuminate\Http\Request $request) {
         $primaryBaseUrl = rtrim((string) config('app.url'), '/');
-        $target = $primaryBaseUrl . $request->getRequestUri();
+        $target = $primaryBaseUrl.$request->getRequestUri();
 
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             return redirect()->away($target);
@@ -932,7 +926,7 @@ Route::domain('spmb.nuist.id')->group(function () {
     $spmbSchoolHome = '/dashboard';
 
     $ensureSpmbAdmin = function () {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('/login');
         }
 
@@ -975,7 +969,7 @@ Route::domain('spmb.nuist.id')->group(function () {
                 'password' => ['required', 'string'],
             ]);
 
-            if (!\Illuminate\Support\Facades\Auth::attempt($credentials, $request->boolean('remember'))) {
+            if (! \Illuminate\Support\Facades\Auth::attempt($credentials, $request->boolean('remember'))) {
                 return back()
                     ->withErrors(['email' => 'Email atau password tidak sesuai.'])
                     ->withInput($request->only('email'));
@@ -1137,7 +1131,7 @@ Route::domain('spmb.nuist.id')->group(function () {
 
     Route::fallback(function (\Illuminate\Http\Request $request) {
         $primaryBaseUrl = rtrim((string) config('app.url'), '/');
-        $target = $primaryBaseUrl . $request->getRequestUri();
+        $target = $primaryBaseUrl.$request->getRequestUri();
 
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             return redirect()->away($target);
@@ -1158,7 +1152,7 @@ Route::domain('spmb.nuist.id')->group(function () {
 */
 Route::domain('presensi.nuist.id')->group(function () {
     $teacherMobileHomeRedirect = function () {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('/login');
         }
 
@@ -1199,7 +1193,7 @@ Route::domain('presensi.nuist.id')->group(function () {
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withErrors(['email' => 'Email atau password salah'])
                 ->withInput($request->only('email'));
@@ -1210,7 +1204,7 @@ Route::domain('presensi.nuist.id')->group(function () {
         $user = Auth::user();
         $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
 
-        if (!in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && !$user->is_active)) {
+        if (! in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && ! $user->is_active)) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -1221,7 +1215,7 @@ Route::domain('presensi.nuist.id')->group(function () {
         }
 
         return redirect($normalizedRole === 'pengurus_bpppmnu' ? '/mobile/bpppmnu/presensi' : '/mobile/dashboard');
-    })->middleware(['guest', 'throttle:6,1']);
+    })->middleware(['guest', 'throttle:6,1', 'cloudflare.turnstile']);
 
     Route::post('/mobile/login', function (\Illuminate\Http\Request $request) {
         $credentials = $request->validate([
@@ -1229,7 +1223,7 @@ Route::domain('presensi.nuist.id')->group(function () {
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return redirect('/mobile/login')
                 ->withErrors(['email' => 'Email atau password salah'])
                 ->withInput($request->only('email'));
@@ -1240,7 +1234,7 @@ Route::domain('presensi.nuist.id')->group(function () {
         $user = Auth::user();
         $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
 
-        if (!in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && !$user->is_active)) {
+        if (! in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && ! $user->is_active)) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -1251,7 +1245,7 @@ Route::domain('presensi.nuist.id')->group(function () {
         }
 
         return redirect($normalizedRole === 'pengurus_bpppmnu' ? '/mobile/bpppmnu/presensi' : '/mobile/dashboard');
-    })->middleware(['guest', 'throttle:6,1']);
+    })->middleware(['guest', 'throttle:6,1', 'cloudflare.turnstile']);
 
     Route::get('/mobile/forgot-password', function () {
         return view('mobile.forgot-password-v2');
@@ -1396,7 +1390,7 @@ Route::domain('presensi.nuist.id')->group(function () {
 
     Route::fallback(function (\Illuminate\Http\Request $request) {
         $primaryBaseUrl = rtrim((string) config('app.url'), '/');
-        $target = $primaryBaseUrl . $request->getRequestUri();
+        $target = $primaryBaseUrl.$request->getRequestUri();
 
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             return redirect()->away($target);
@@ -1422,18 +1416,22 @@ Route::middleware(['auth'])->prefix('talenta')->name('talenta.')->group(function
     // Super Admin: manage questions, view results
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/admin/dashboard', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('admin.dashboard');
-    Route::resource('questions', App\Http\Controllers\Talenta\QuestionController::class);
+        Route::resource('questions', App\Http\Controllers\Talenta\QuestionController::class);
         // Rekap Kelulusan (Super Admin)
         Route::get('/rekap-kelulusan', [App\Http\Controllers\Talenta\ReportController::class, 'rekapKelulusan'])->name('rekap.kelulusan');
         // results and schoollevel
         Route::get('/results', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('results.index');
         Route::get('/schoollevel', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('schoollevel.index');
-        Route::get('/users', function () { return view('talenta.admin.users'); })->name('users.index');
+        Route::get('/users', function () {
+            return view('talenta.admin.users');
+        })->name('users.index');
     });
 
     // Tenaga Pendidik: fill assessment and view own result
     Route::middleware(['role:tenaga_pendidik'])->group(function () {
-        Route::get('/dashboard', function () { return view('talenta.dashboard'); })->name('dashboard');
+        Route::get('/dashboard', function () {
+            return view('talenta.dashboard');
+        })->name('dashboard');
         Route::get('/assessment/fill', [App\Http\Controllers\Talenta\AssessmentController::class, 'fill'])->name('assessment.fill');
         Route::post('/assessment', [App\Http\Controllers\Talenta\AssessmentController::class, 'store'])->name('assessment.store');
         Route::get('/assessment/results', [App\Http\Controllers\Talenta\AssessmentController::class, 'myResults'])->name('assessment.myresults');
@@ -1441,7 +1439,9 @@ Route::middleware(['auth'])->prefix('talenta')->name('talenta.')->group(function
 
     // Pemateri: rekap and detail
     Route::middleware(['role:pemateri,super_admin'])->group(function () {
-        Route::get('/dashboard', function () { return view('talenta.dashboard'); })->name('dashboard');
+        Route::get('/dashboard', function () {
+            return view('talenta.dashboard');
+        })->name('dashboard');
         Route::get('/rekap', [App\Http\Controllers\Talenta\ReportController::class, 'rekap'])->name('rekap.index');
         // Allow pemateri to view full rekap kelulusan (same controller, different route name)
         Route::get('/rekap-kelulusan', [App\Http\Controllers\Talenta\ReportController::class, 'rekapKelulusan'])->name('rekap.kelulusan.pemateri');
@@ -1555,7 +1555,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Super Admin - consolidated MGMP dashboard and user management
-    Route::middleware(['auth','role:super_admin,pengurus'])->group(function () {
+    Route::middleware(['auth', 'role:super_admin,pengurus'])->group(function () {
         Route::get('/admin/mgmp-dashboard', [App\Http\Controllers\MGMPController::class, 'superAdminDashboard'])->name('admin.mgmp_dashboard');
         Route::get('/admin/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'createMgmpUser'])->name('admin.create_mgmp_user');
         Route::post('/admin/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'storeMgmpUser'])->name('admin.store_mgmp_user');
@@ -1581,11 +1581,12 @@ Route::get('/csrf-token', function () {
 // Download route for APK (serves app-nuist.apk from project root)
 Route::get('/download/app-nuist', function () {
     $path = base_path('app-nuist.apk');
-    if (!file_exists($path)) {
+    if (! file_exists($path)) {
         abort(404);
     }
+
     return response()->download($path, 'app-nuist.apk', [
-        'Content-Type' => 'application/vnd.android.package-archive'
+        'Content-Type' => 'application/vnd.android.package-archive',
     ]);
 })->name('download.app-nuist')->middleware('auth');
 
@@ -1600,14 +1601,15 @@ Route::post('/clear-cache', function () {
     try {
         \Artisan::call('cache:clear');
         \Artisan::call('config:clear');
+
         return response()->json([
             'success' => true,
-            'message' => 'Cache berhasil dibersihkan'
+            'message' => 'Cache berhasil dibersihkan',
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Gagal membersihkan cache: ' . $e->getMessage()
+            'message' => 'Gagal membersihkan cache: '.$e->getMessage(),
         ], 500);
     }
 })->middleware(['auth', 'role:super_admin', 'throttle:5,1'])->name('clear-cache');
@@ -1657,11 +1659,12 @@ Route::view('/mobile-app', 'mobile.index')->name('mobile.app');
 // Mobile login POST handler (form-based mobile login)
 use App\Http\Controllers\Mobile\MobileAuthController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+
 Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])
-    ->middleware(['guest', 'throttle:6,1'])
+    ->middleware(['guest', 'throttle:6,1', 'cloudflare.turnstile'])
     ->name('mobile.login.authenticate');
 
 // Mobile forgot password (mobile-optimized view and submit)
@@ -1806,7 +1809,9 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::get('/riwayat-presensi-alpha', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensiAlpha'])->name('riwayat-presensi-alpha');
 
     // Face enrollment (mobile)
-    Route::get('/face-enrollment', function () { return view('mobile.face-enrollment'); })->name('face.enrollment');
+    Route::get('/face-enrollment', function () {
+        return view('mobile.face-enrollment');
+    })->name('face.enrollment');
     Route::post('/face-enroll', [App\Http\Controllers\Api\FaceController::class, 'enroll'])->name('face.enroll');
     Route::post('/face-verify', [App\Http\Controllers\Api\FaceController::class, 'verify'])
         ->middleware('throttle:20,1')
@@ -1905,11 +1910,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('instumen-talenta')->name('instumen-talenta.')->group(function () {
         Route::get('/kelengkapan', [App\Http\Controllers\InstumenTalentaController::class, 'kelengkapan'])->name('kelengkapan');
         Route::get('/upload-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'uploadTugas'])->name('upload-tugas');
-    Route::post('/download-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTugas'])->name('download-tugas');
-    // Download peserta yang BELUM upload tugas (Excel)
-    Route::get('/download-tugas-belum', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTugasBelum'])->name('download-tugas-belum');
-    // Page: lihat peserta yang BELUM upload tugas
-    Route::get('/belum-upload-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'belumUploadTugas'])->name('belum-upload-tugas');
+        Route::post('/download-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTugas'])->name('download-tugas');
+        // Download peserta yang BELUM upload tugas (Excel)
+        Route::get('/download-tugas-belum', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTugasBelum'])->name('download-tugas-belum');
+        // Page: lihat peserta yang BELUM upload tugas
+        Route::get('/belum-upload-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'belumUploadTugas'])->name('belum-upload-tugas');
         Route::get('/instrumen-penilaian', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaian'])->name('instrumen-penilaian');
         Route::get('/nilai-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'nilaiTugas'])->name('nilai-tugas');
         Route::get('/upload-sertifikat', [App\Http\Controllers\InstumenTalentaController::class, 'uploadSertifikat'])->name('upload-sertifikat');
@@ -2196,8 +2201,6 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware(['auth', 'throttle:10,1'])
     ->name('logout');
 
-
-
 // Data Sekolah Routes
 Route::middleware(['auth', 'role:super_admin,admin,admin_spp,pengurus'])->prefix('data-sekolah')->name('data-sekolah.')->group(function () {
     Route::get('/siswa', [App\Http\Controllers\DataSekolahController::class, 'siswa'])->name('siswa');
@@ -2229,7 +2232,6 @@ Route::post('/uppm/pembayaran/success', [App\Http\Controllers\PembayaranControll
 Route::post('/uppm/pembayaran/check-status', [App\Http\Controllers\PembayaranController::class, 'checkPaymentStatus'])
     ->middleware(['auth', 'role:super_admin,pengurus', 'throttle:10,1'])
     ->name('uppm.pembayaran.check-status');
-
 
 // UPPM Routes
 Route::middleware(['auth', 'role:super_admin,pengurus'])->prefix('uppm')->name('uppm.')->group(function () {
@@ -2377,7 +2379,7 @@ Route::post('/talenta/tugas-level-1/reset', [App\Http\Controllers\TalentaControl
     ->name('talenta.tugas-level-1.reset');
 
 // Soal management (admin)
-Route::middleware(['auth','role:super_admin,admin'])->group(function () {
+Route::middleware(['auth', 'role:super_admin,admin'])->group(function () {
     Route::get('/talenta/soals', [App\Http\Controllers\TalentaController::class, 'soalsIndex'])->name('talenta.soals.index');
     Route::post('/talenta/soals', [App\Http\Controllers\TalentaController::class, 'soalsStore'])->name('talenta.soals.store');
     Route::get('/talenta/soals/{soal}/edit', [App\Http\Controllers\TalentaController::class, 'soalsEdit'])->name('talenta.soals.edit');
@@ -2513,9 +2515,9 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/settings')->group(
 
 // DEBUG ROUTES - REMOVE IN PRODUCTION
 if (env('APP_DEBUG') === true) {
-    Route::get('/debug/ppdb-status', function() {
+    Route::get('/debug/ppdb-status', function () {
         $madrasahs = \App\Models\Madrasah::select('id', 'name', 'ppdb_status')
-            ->with(['ppdbSettings' => function($q) {
+            ->with(['ppdbSettings' => function ($q) {
                 $q->where('tahun', now()->year)->select('id', 'sekolah_id', 'slug', 'tahun', 'status');
             }])
             ->limit(10)
@@ -2523,7 +2525,7 @@ if (env('APP_DEBUG') === true) {
 
         return response()->json([
             'total' => count($madrasahs),
-            'data' => $madrasahs->map(function($m) {
+            'data' => $madrasahs->map(function ($m) {
                 return [
                     'id' => $m->id,
                     'name' => $m->name,
