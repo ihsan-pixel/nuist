@@ -21,7 +21,43 @@
 .form-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:-2px 0 21px;font-size:.72rem}.remember-check{display:inline-flex;align-items:center;gap:8px;color:var(--login-muted);cursor:pointer}.remember-check input{width:16px;height:16px;margin:0;accent-color:var(--login-green)}.forgot-link,.back-link{color:var(--login-green);font-weight:600;text-decoration:none}.forgot-link:hover,.back-link:hover{color:var(--login-green-dark);text-decoration:underline}.turnstile-wrap{display:flex;justify-content:center;margin:0 0 18px}.turnstile-wrap .cf-turnstile{max-width:100%}
 .submit-btn{width:100%;min-height:52px;border:0;border-radius:13px;color:#fff;background:linear-gradient(135deg,var(--login-green-light),var(--login-green-dark));box-shadow:0 13px 26px rgba(0,116,90,.22);font:600 .84rem/1 'Poppins',sans-serif;cursor:pointer;transition:transform .2s,box-shadow .2s}.submit-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(0,116,90,.28)}.submit-btn:focus-visible,.toggle-password:focus-visible,.forgot-link:focus-visible,.back-link:focus-visible{outline:3px solid rgba(0,116,90,.24);outline-offset:3px}.form-footer{margin:19px 0 0;text-align:center;color:var(--login-muted);font-size:.7rem;line-height:1.5}
 @media(max-width:900px){.web-login-page{align-items:start;padding:24px}.login-layout{min-height:auto;grid-template-columns:1fr;max-width:620px}.journey-panel{min-height:auto;padding:30px;border-radius:26px 26px 20px 20px}.journey-copy{padding-top:44px}.journey-title{font-size:2.3rem}.journey-steps{margin-top:26px}.journey-step{min-height:105px}.form-panel{padding:46px 42px 50px}}
-@media(max-width:560px){.web-login-page{display:block;padding:0;background:#fff}.web-login-page::before{display:none}.login-layout{width:100%;border:0;border-radius:0;box-shadow:none}.journey-panel{padding:24px 22px 28px;border-radius:0 0 28px 28px}.journey-brand{width:150px;min-height:48px}.journey-copy{padding-top:34px}.journey-kicker,.journey-description,.journey-steps{display:none}.journey-title{margin:0;font-size:1.75rem}.form-panel{align-items:flex-start;padding:38px 22px 42px}.form-title{font-size:1.75rem}}
+@media(max-width:640px){
+    html,body{background:#fff}
+    .web-login-page{display:block;min-height:100dvh;padding:0;background:#fff;overflow:visible}
+    .web-login-page::before{display:none}
+    .login-layout{width:100%;min-height:100dvh;display:flex;flex-direction:column;border:0;border-radius:0;box-shadow:none}
+    .journey-panel{min-height:150px;padding:18px 20px 22px;border-radius:0 0 24px 24px;flex:none}
+    .journey-panel::before{width:210px;height:210px;top:-125px;left:-80px}
+    .journey-panel::after{width:230px;height:230px;right:-145px;bottom:-150px}
+    .journey-brand{width:128px;min-height:42px;padding:7px 11px;border-radius:11px}
+    .journey-copy{margin-top:0;padding-top:22px}
+    .journey-kicker,.journey-description,.journey-steps{display:none}
+    .journey-title{max-width:310px;margin:0;font-size:1.38rem;line-height:1.18;letter-spacing:-.035em}
+    .form-panel{align-items:flex-start;flex:1;padding:27px 20px 30px}
+    .form-inner{max-width:none}
+    .form-eyebrow{margin-bottom:5px;font-size:.66rem}
+    .form-title{font-size:1.55rem}
+    .form-subtitle{max-width:40ch;margin:7px 0 22px;font-size:.75rem;line-height:1.5}
+    .auth-field-group{margin-bottom:14px}
+    .input-label{margin-bottom:6px;font-size:.7rem}
+    .field-shell{min-height:47px;border-radius:12px}
+    .field-icon{width:43px;flex-basis:43px}
+    .input-control{min-height:45px;font-size:.76rem}
+    .toggle-password{width:42px;height:42px;flex-basis:42px}
+    .form-actions{margin:-1px 0 17px;font-size:.68rem}
+    .submit-btn{min-height:48px;border-radius:12px;font-size:.8rem}
+    .turnstile-wrap{margin-bottom:15px}
+    .form-footer{margin-top:16px;font-size:.64rem}
+}
+@media(max-width:360px){
+    .journey-panel{min-height:136px;padding:16px 16px 19px}
+    .journey-brand{width:116px;min-height:38px}
+    .journey-copy{padding-top:18px}
+    .journey-title{font-size:1.2rem}
+    .form-panel{padding:23px 14px 26px}
+    .form-subtitle{margin-bottom:18px}
+    .turnstile-wrap{width:300px;position:relative;left:50%;transform:translateX(-50%) scale(.94);transform-origin:center;height:61px}
+}
 </style>
 @endsection
 @section('content')
