@@ -36,7 +36,7 @@ $backUrl=$isSpmbHost?url('/'):route('landing');
 <section class="journey-panel" aria-labelledby="journey-title">
 <a class="journey-brand" href="{{ $backUrl }}" aria-label="Kembali ke halaman utama NUIST"><img src="{{ asset('images/logo1.png') }}" alt="NUIST"></a>
 <div class="journey-copy"><span class="journey-kicker">Selamat datang kembali <span aria-hidden="true">👋</span></span><p class="journey-description">Akses layanan pendidikan digital LP. Ma'arif NU PWNU DIY dalam satu tempat.</p>
-<div class="journey-steps" aria-label="Tahapan akses NUIST"><div class="journey-step is-active"><span class="step-number">1</span><span>Masuk ke akun Anda</span></div><div class="journey-step"><span class="step-number">2</span><span>Akses layanan sesuai peran</span></div><div class="journey-step"><span class="step-number">3</span><span>Kelola data lebih mudah</span></div></div></div>
+{{-- <div class="journey-steps" aria-label="Tahapan akses NUIST"><div class="journey-step is-active"><span class="step-number">1</span><span>Masuk ke akun Anda</span></div><div class="journey-step"><span class="step-number">2</span><span>Akses layanan sesuai peran</span></div><div class="journey-step"><span class="step-number">3</span><span>Kelola data lebih mudah</span></div></div></div> --}}
 </section>
 <section class="form-panel"><div class="form-inner"><p class="form-eyebrow">NUIST.ID</p><h1 class="form-title" id="login-title">Masuk</h1><p class="form-subtitle">{{ $isSpmbHost?'Masuk sebagai Admin Sekolah untuk mengelola dashboard SPMB.':'Gunakan akun Anda untuk mengakses seluruh layanan NUIST.' }}</p>
 @if(session('status'))<div class="status-alert success" role="status">{{ session('status') }}</div>@endif
