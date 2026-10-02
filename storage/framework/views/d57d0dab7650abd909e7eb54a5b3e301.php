@@ -148,6 +148,23 @@
     color: #c58a00;
 }
 
+.stats-icon-soft-danger {
+    background: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+}
+
+.data-siswa-stat-action {
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.data-siswa-stat-action:focus-visible {
+    box-shadow: 0 0 0 .25rem rgba(220, 53, 69, .18);
+    outline: 0;
+}
+
 .stats-icon-soft-dark {
     background: rgba(33, 37, 41, 0.10);
     color: #212529;
@@ -397,6 +414,26 @@
         </div>
     </div>
     <div class="col-md-6 col-xl">
+        <button
+            type="button"
+            class="card data-siswa-stat data-siswa-stat-action h-100 border-0"
+            data-bs-toggle="modal"
+            data-bs-target="#madrasahBelumUploadModal"
+            aria-label="Lihat sekolah yang belum mengirim data siswa"
+        >
+            <span class="card-body p-3">
+                <span class="d-flex align-items-center">
+                    <span class="stats-icon stats-icon-soft-danger"><i class="bx bx-error-circle"></i></span>
+                    <span class="ms-3">
+                        <span class="text-muted d-block mb-1">Belum Upload</span>
+                        <span class="h4 d-block mb-0"><?php echo e(number_format($stats['sekolah_belum_upload'])); ?></span>
+                        <small class="text-danger">Klik untuk melihat sekolah</small>
+                    </span>
+                </span>
+            </span>
+        </button>
+    </div>
+    <div class="col-md-6 col-xl">
         <div class="card data-siswa-stat h-100">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center">
@@ -447,6 +484,54 @@
                         <h4 class="mb-0"><?php echo e(number_format($stats['nisn'])); ?></h4>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="madrasahBelumUploadModal" tabindex="-1" aria-labelledby="madrasahBelumUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="madrasahBelumUploadModalLabel">Sekolah Belum Mengirim Data Siswa</h5>
+                    <p class="text-muted mb-0 mt-1">Daftar sekolah yang belum memiliki satu pun data siswa.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasahsWithoutStudents->isEmpty()): ?>
+                    <div class="alert alert-success mb-0">
+                        <i class="bx bx-check-circle me-1"></i>Semua sekolah sudah mengirim data siswa.
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 64px;">No</th>
+                                    <th style="width: 140px;">SCOD</th>
+                                    <th>Nama Sekolah/Madrasah</th>
+                                    <th>Kabupaten</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahsWithoutStudents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <tr>
+                                        <td><?php echo e($loop->iteration); ?></td>
+                                        <td><?php echo e($madrasah->scod ?: '-'); ?></td>
+                                        <td class="fw-semibold"><?php echo e($madrasah->name); ?></td>
+                                        <td><?php echo e($madrasah->kabupaten ?: '-'); ?></td>
+                                    </tr>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+            <div class="modal-footer">
+                <span class="me-auto text-muted"><?php echo e(number_format($madrasahsWithoutStudents->count())); ?> sekolah belum upload</span>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>

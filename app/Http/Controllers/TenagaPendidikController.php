@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\TenagaPendidikSchoolSummaryExport;
 use App\Exports\TenagaPendidikCompleteExport;
+use App\Exports\PendataanGtkExport;
 use App\Imports\TenagaPendidikImport;
 use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
@@ -13,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use DataTables;
 
@@ -24,8 +26,9 @@ class TenagaPendidikController extends Controller
         $this->ensureAuthorizedRole($user);
 
         $madrasahs = Madrasah::query()
+            ->when(trim(strtolower($user->role)) === 'admin', fn ($query) => $query->whereKey($user->madrasah_id))
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'name', 'scod']);
         $statusKepegawaian = StatusKepegawaian::query()
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -48,6 +51,7 @@ class TenagaPendidikController extends Controller
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
+            ->addColumn('nama_dengan_gelar', fn ($row) => $row->nama_dengan_gelar)
             ->editColumn('nuist_id', fn ($row) => $row->nuist_id ?: '-')
             ->editColumn('kartanu', fn ($row) => $row->kartanu ?: '-')
             ->editColumn('nuptk', fn ($row) => $row->nuptk ?: '-')
@@ -154,6 +158,35 @@ class TenagaPendidikController extends Controller
             new TenagaPendidikCompleteExport($query->get()),
             $fileName
         );
+    }
+
+    public function exportBySchool(Request $request)
+    {
+        $user = auth()->user();
+        $this->ensureAuthorizedRole($user);
+
+        $validated = $request->validate([
+            'madrasah_id' => ['required', 'integer', 'exists:madrasahs,id'],
+        ]);
+
+        $madrasah = Madrasah::query()->findOrFail($validated['madrasah_id']);
+
+        if (trim(strtolower($user->role)) === 'admin' && (int) $madrasah->id !== (int) $user->madrasah_id) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $gtk = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $madrasah->id)
+            ->with(['madrasah', 'gtkPendataan', 'mgmpMemberships.mgmpGroup'])
+            ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
+            ->orderBy('name')
+            ->get();
+
+        $schoolName = Str::slug($madrasah->name) ?: 'sekolah-' . $madrasah->id;
+        $fileName = 'data-gtk-' . $schoolName . '-' . now()->format('Ymd-His') . '.xlsx';
+
+        return Excel::download(new PendataanGtkExport($gtk), $fileName);
     }
 
     public function store(Request $request)
@@ -322,6 +355,7 @@ class TenagaPendidikController extends Controller
             ->select([
                 'users.id',
                 'users.name',
+                'users.gelar',
                 'users.email',
                 'users.nuist_id',
                 'users.kartanu',

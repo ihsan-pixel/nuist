@@ -108,6 +108,9 @@
                         <p class="text-muted mb-0 small">Data dimuat bertahap dari server agar tetap cepat walau jumlah user besar.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalExportSekolah">
+                            <i class="bx bx-spreadsheet"></i> Export Excel per Sekolah
+                        </button>
                         <a href="{{ route('tenaga-pendidik.export-complete') }}" class="btn btn-success">
                             <i class="bx bx-download"></i> Download Excel Data Lengkap
                         </a>
@@ -160,6 +163,40 @@
                 <tbody></tbody>
             </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExportSekolah" tabindex="-1" aria-labelledby="modalExportSekolahLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('tenaga-pendidik.export-by-school') }}" method="GET">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title" id="modalExportSekolahLabel">Export Data GTK per Sekolah</h5>
+                        <p class="text-muted small mb-0">File mengikuti data hasil Pendataan GTK, termasuk nama dan gelar.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="export_madrasah_id" class="form-label fw-semibold">Sekolah/Madrasah</label>
+                    <select name="madrasah_id" id="export_madrasah_id" class="form-select" required>
+                        <option value="">-- Pilih Sekolah/Madrasah --</option>
+                        @foreach($madrasahs as $madrasah)
+                            <option value="{{ $madrasah->id }}" @selected($userRole === 'admin' && (int) auth()->user()->madrasah_id === (int) $madrasah->id)>
+                                {{ $madrasah->scod ? $madrasah->scod . ' - ' : '' }}{{ $madrasah->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">Data diurutkan dengan kepala sekolah lebih dahulu, kemudian berdasarkan nama.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bx bx-download me-1"></i> Download Excel
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -986,7 +1023,7 @@
                 order: [[7, 'asc'], [1, 'asc']],
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', searchable: false, orderable: false },
-                    { data: 'name', name: 'users.name' },
+                    { data: 'nama_dengan_gelar', name: 'users.name' },
                     { data: 'email', name: 'users.email' },
                     { data: 'nuist_id', name: 'users.nuist_id' },
                     { data: 'kartanu', name: 'users.kartanu' },

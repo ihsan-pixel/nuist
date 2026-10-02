@@ -1,0 +1,352 @@
+<?php $__env->startSection('title', 'Upload Banyak Berkas GTK'); ?>
+
+<?php $__env->startSection('css'); ?>
+<style>
+    .upload-card { border: 1px solid #e9edf4; border-radius: 1rem; background: #fff; }
+    .upload-table { min-width: 1180px; }
+    .upload-table th { white-space: nowrap; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+    .upload-table td { vertical-align: middle; }
+    .teacher-cell { min-width: 230px; position: sticky; left: 0; z-index: 2; background: #fff; }
+    thead .teacher-cell { z-index: 3; background: #f8fafc; }
+    .drop-zone { min-width: 155px; min-height: 88px; border: 2px dashed #cbd5e1; border-radius: .75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: .6rem; text-align: center; cursor: pointer; transition: .15s ease; background: #f8fafc; }
+    .drop-zone { position: relative; }
+    .drop-zone:hover, .drop-zone.dragging { border-color: #0d6efd; background: #eff6ff; }
+    .drop-zone.has-file, .drop-zone.has-stored-file { border-color: #22c55e; background: #f0fdf4; }
+    .drop-zone.has-stored-file { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, .08); }
+    .drop-zone input { display: none; }
+    .drop-zone .file-name, .drop-zone .stored-file-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; color: #15803d; }
+    .drop-zone .stored-file-name { color: #64748b; }
+    .existing { font-size: .7rem; color: #15803d; }
+    .document-preview { font-size: .7rem; font-weight: 600; text-decoration: none; }
+    .remove-document { position: absolute; top: .3rem; right: .3rem; width: 25px; height: 25px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+    #uploadProgressBar { background-color: #198754 !important; }
+    .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
+    .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
+</style>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
+<?php $__env->startComponent('components.breadcrumb'); ?>
+    <?php $__env->slot('li_1'); ?> Pendataan GTK <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Upload Banyak Berkas GTK <?php $__env->endSlot(); ?>
+<?php echo $__env->renderComponent(); ?>
+
+<div class="upload-card p-3 p-md-4 mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <h4 class="mb-1">Upload Berkas per Guru</h4>
+            <div class="text-muted"><?php echo e($madrasah->name); ?></div>
+            <div class="alert alert-info mt-3 mb-0 py-2">
+                Jatuhkan file ke kotak guru dan jenis berkas yang sesuai. Nama file bebas; sistem menggunakan posisi kotak untuk menentukan pemilik berkas.
+            </div>
+        </div>
+        <div class="d-flex align-items-start gap-2">
+            <a href="<?php echo e(route('pendataan-gtk.show', $madrasah)); ?>" class="btn btn-outline-secondary"><i class="bx bx-arrow-back me-1"></i> Kembali</a>
+        </div>
+    </div>
+</div>
+
+<form action="<?php echo e(route('pendataan-gtk.documents.manage.store', $madrasah)); ?>" method="POST" enctype="multipart/form-data" id="documentsGridForm">
+    <?php echo csrf_field(); ?>
+    <div class="upload-card p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div><strong><?php echo e($gtk->count()); ?> GTK</strong><span class="text-muted ms-2">Pilih atau drop beberapa file sebelum menyimpan.</span></div>
+            <input type="search" class="form-control" id="teacherSearch" placeholder="Cari nama guru..." style="max-width:260px">
+        </div>
+        <div class="table-responsive">
+            <table class="table upload-table align-middle" id="uploadTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="teacher-cell">Nama GTK</th>
+                        <th>KTP</th>
+                        <th>SK Awal</th>
+                        <th>SK Akhir</th>
+                        <th>Foto Resmi</th>
+                        <th>Foto Bebas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $gtk; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <?php ($data = $user->gtkPendataan); ?>
+                        <tr data-teacher-name="<?php echo e(strtolower($user->name.' '.$user->nuist_id)); ?>">
+                            <td class="teacher-cell">
+                                <div class="d-flex align-items-center gap-2">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user->avatar): ?>
+                                        <img class="teacher-avatar" src="<?php echo e(asset('storage/'.ltrim($user->avatar, '/'))); ?>" alt="Foto <?php echo e($user->name); ?>">
+                                    <?php else: ?>
+                                        <div class="teacher-avatar"><?php echo e(strtoupper(substr($user->name, 0, 1))); ?></div>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <div><div class="fw-semibold"><?php echo e($user->name); ?></div><small class="text-muted"><?php echo e($user->nuist_id ?: 'Tanpa NUIST ID'); ?></small></div>
+                                </div>
+                            </td>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [
+                                'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
+                                'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
+                                'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
+                                'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
+                                'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
+                            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type => [$hint, $accept, $storedPath]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <td>
+                                    <label class="drop-zone <?php echo e($storedPath ? 'has-stored-file' : ''); ?>" tabindex="0">
+                                        <input type="file" name="documents[<?php echo e($user->id); ?>][<?php echo e($type); ?>]" accept="<?php echo e($accept); ?>">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($storedPath): ?>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-danger remove-document"
+                                                title="Hapus berkas"
+                                                aria-label="Hapus <?php echo e(str_replace('_', ' ', $type)); ?> <?php echo e($user->name); ?>"
+                                                data-delete-url="<?php echo e(route('pendataan-gtk.documents.manage.destroy', [$madrasah, $user, $type])); ?>"
+                                                data-document-label="<?php echo e(str_replace('_', ' ', $type)); ?> - <?php echo e($user->name); ?>"
+                                            ><i class="bx bx-trash"></i></button>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <i class="bx bx-cloud-upload fs-4 text-primary"></i>
+                                        <span class="small">Drop atau pilih</span>
+                                        <span class="text-muted" style="font-size:.68rem"><?php echo e($hint); ?></span>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($storedPath): ?>
+                                            <span class="existing"><i class="bx bx-check-circle"></i> Tersimpan</span>
+                                            <span class="stored-file-name" title="<?php echo e(basename($storedPath)); ?>"><?php echo e(basename($storedPath)); ?></span>
+                                            <a
+                                                href="<?php echo e(route('pendataan-gtk.documents.view', [$user, str_replace('_', '-', $type)])); ?>"
+                                                target="_blank"
+                                                rel="noopener"
+                                                class="document-preview view-stored-file"
+                                            ><i class="bx bx-show me-1"></i>Lihat file</a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <span class="file-name d-none"></span>
+                                        <a href="#" target="_blank" rel="noopener" class="document-preview preview-selected d-none"><i class="bx bx-show me-1"></i>Preview file baru</a>
+                                    </label>
+                                </td>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </tr>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        <tr><td colspan="6" class="text-center text-muted py-5">Belum ada GTK pada madrasah ini.</td></tr>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($gtk->isNotEmpty()): ?>
+        <div class="save-bar d-flex justify-content-end mt-3">
+            <div class="bg-white border rounded-3 shadow-sm p-2 d-flex align-items-center gap-3">
+                <span class="text-muted small"><strong id="selectedCount">0</strong> file baru dipilih</span>
+                <button type="submit" class="btn btn-success" id="saveButton" disabled><i class="bx bx-save me-1"></i> Simpan Semua Berkas</button>
+            </div>
+        </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+</form>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('script'); ?>
+<script src="<?php echo e(asset('build/libs/sweetalert2/sweetalert2.all.min.js')); ?>"></script>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
+<script>document.addEventListener('DOMContentLoaded', () => Swal.fire({icon:'success', title:'Berhasil', text:<?php echo json_encode(session('success'), 15, 512) ?>, confirmButtonColor:'#0d6efd'}));</script>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
+<script>document.addEventListener('DOMContentLoaded', () => Swal.fire({icon:'error', title:'Berkas belum tersimpan', html:<?php echo json_encode(implode('<br>', $errors->all()), 512) ?>, confirmButtonColor:'#dc3545'}));</script>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<script>
+(() => {
+    const form = document.getElementById('documentsGridForm');
+    const inputs = [...form.querySelectorAll('input[type="file"]')];
+    const count = document.getElementById('selectedCount');
+    const save = document.getElementById('saveButton');
+
+    function refresh(input) {
+        const zone = input.closest('.drop-zone');
+        const name = zone.querySelector('.file-name');
+        const storedName = zone.querySelector('.stored-file-name');
+        const preview = zone.querySelector('.preview-selected');
+        const hasFile = input.files.length > 0;
+        zone.classList.toggle('has-file', hasFile);
+        name.classList.toggle('d-none', !hasFile);
+        storedName?.classList.toggle('d-none', hasFile);
+        name.textContent = hasFile ? input.files[0].name : '';
+        if (preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
+        preview.classList.toggle('d-none', !hasFile);
+        if (hasFile) {
+            preview.dataset.objectUrl = URL.createObjectURL(input.files[0]);
+            preview.href = preview.dataset.objectUrl;
+        } else {
+            preview.removeAttribute('href');
+            delete preview.dataset.objectUrl;
+        }
+        const total = inputs.filter(item => item.files.length).length;
+        count.textContent = total;
+        save.disabled = total === 0;
+    }
+
+    inputs.forEach(input => {
+        const zone = input.closest('.drop-zone');
+        input.addEventListener('change', () => refresh(input));
+        ['dragenter', 'dragover'].forEach(event => zone.addEventListener(event, e => { e.preventDefault(); zone.classList.add('dragging'); }));
+        ['dragleave', 'drop'].forEach(event => zone.addEventListener(event, e => { e.preventDefault(); zone.classList.remove('dragging'); }));
+        zone.addEventListener('drop', e => {
+            if (!e.dataTransfer.files.length) return;
+            const transfer = new DataTransfer();
+            transfer.items.add(e.dataTransfer.files[0]);
+            input.files = transfer.files;
+            refresh(input);
+        });
+        zone.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+        });
+    });
+
+    document.querySelectorAll('.document-preview').forEach(link => {
+        link.addEventListener('click', event => event.stopPropagation());
+    });
+
+    document.querySelectorAll('.remove-document').forEach(button => {
+        button.addEventListener('click', async event => {
+            event.preventDefault();
+            event.stopPropagation();
+            const confirmation = await Swal.fire({
+                icon: 'warning',
+                title: 'Hapus berkas?',
+                text: button.dataset.documentLabel + ' akan dihapus permanen.',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc3545',
+            });
+            if (!confirmation.isConfirmed) return;
+
+            button.disabled = true;
+            try {
+                const response = await fetch(button.dataset.deleteUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': <?php echo json_encode(csrf_token(), 15, 512) ?>,
+                    },
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Berkas gagal dihapus.');
+
+                const zone = button.closest('.drop-zone');
+                zone.classList.remove('has-stored-file');
+                zone.querySelector('.existing')?.remove();
+                zone.querySelector('.stored-file-name')?.remove();
+                zone.querySelector('.view-stored-file')?.remove();
+                button.remove();
+                Swal.fire({icon:'success', title:'Berhasil dihapus', text:result.message, timer:2200, showConfirmButton:false});
+            } catch (error) {
+                button.disabled = false;
+                Swal.fire({icon:'error', title:'Gagal menghapus', text:error.message, confirmButtonColor:'#dc3545'});
+            }
+        });
+    });
+
+    document.getElementById('teacherSearch').addEventListener('input', e => {
+        const query = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('#uploadTable tbody tr[data-teacher-name]').forEach(row => {
+            row.classList.toggle('d-none', !row.dataset.teacherName.includes(query));
+        });
+    });
+
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!save) return;
+        save.disabled = true;
+        save.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+        Swal.fire({
+            title: 'Mengunggah berkas GTK',
+            html: `
+                <div class="text-muted mb-3" id="uploadProgressStatus">Menyiapkan berkas...</div>
+                <div class="progress" style="height:18px">
+                    <div id="uploadProgressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;background-color:#198754" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+                </div>
+            `,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                const progressBar = document.getElementById('uploadProgressBar');
+                const progressStatus = document.getElementById('uploadProgressStatus');
+                const selectedFiles = inputs
+                    .filter(input => input.files.length)
+                    .map(input => ({name: input.name, file: input.files[0]}));
+                const totalBytes = selectedFiles.reduce((sum, item) => sum + item.file.size, 0);
+                let confirmedBytes = 0;
+                let confirmedFiles = 0;
+
+                const setProgress = (loadedBytes, fileIndex) => {
+                    // Tahan pada 99% sampai semua respons server sudah mengonfirmasi penyimpanan.
+                    const percentage = Math.min(99, Math.round(((confirmedBytes + loadedBytes) / totalBytes) * 100));
+                    progressBar.style.width = percentage + '%';
+                    progressBar.setAttribute('aria-valuenow', percentage);
+                    progressStatus.textContent = `Mengunggah file ${fileIndex + 1} dari ${selectedFiles.length}... ${percentage}%`;
+                };
+
+                const uploadOne = (item, index) => new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    const payload = new FormData();
+                    payload.append('_token', <?php echo json_encode(csrf_token(), 15, 512) ?>);
+                    payload.append(item.name, item.file, item.file.name);
+
+                    xhr.open('POST', form.action);
+                    xhr.setRequestHeader('Accept', 'application/json');
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    xhr.upload.addEventListener('progress', uploadEvent => {
+                        if (uploadEvent.lengthComputable) setProgress(Math.min(uploadEvent.loaded, item.file.size), index);
+                    });
+                    xhr.addEventListener('load', () => {
+                        let result = {};
+                        try { result = JSON.parse(xhr.responseText); } catch (_) {}
+                        if (xhr.status >= 200 && xhr.status < 300 && Number(result.uploaded) === 1) {
+                            resolve(result);
+                            return;
+                        }
+                        const message = result.errors
+                            ? Object.values(result.errors).flat().join('\n')
+                            : (result.message || `Server tidak mengonfirmasi file ${item.file.name}.`);
+                        reject(new Error(message));
+                    });
+                    xhr.addEventListener('error', () => reject(new Error('Koneksi terputus saat mengunggah '+item.file.name+'.')));
+                    xhr.send(payload);
+                });
+
+                (async () => {
+                    try {
+                        for (let index = 0; index < selectedFiles.length; index++) {
+                            const item = selectedFiles[index];
+                            await uploadOne(item, index);
+                            confirmedBytes += item.file.size;
+                            confirmedFiles++;
+                            progressStatus.textContent = `${confirmedFiles} dari ${selectedFiles.length} file berhasil disimpan.`;
+                        }
+
+                        progressBar.style.width = '100%';
+                        progressBar.setAttribute('aria-valuenow', '100');
+                        progressBar.classList.remove('progress-bar-animated');
+                        progressStatus.textContent = `100% - semua ${confirmedFiles} file berhasil disimpan.`;
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Upload selesai',
+                            text: `Semua ${confirmedFiles} file berhasil disimpan.`,
+                            confirmButtonText: 'Selesai',
+                            confirmButtonColor: '#198754',
+                        });
+                        window.location.reload();
+                    } catch (error) {
+                        progressBar.classList.remove('progress-bar-animated');
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Upload belum lengkap',
+                            text: `${confirmedFiles} dari ${selectedFiles.length} file tersimpan. ${error.message}`,
+                            confirmButtonText: 'Muat ulang dan periksa',
+                            confirmButtonColor: '#dc3545',
+                        });
+                        window.location.reload();
+                    }
+                })();
+            },
+        });
+    });
+})();
+</script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/Project Nuist/nuist/resources/views/masterdata/pendataan-gtk/documents-manage.blade.php ENDPATH**/ ?>

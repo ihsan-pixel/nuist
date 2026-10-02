@@ -237,6 +237,19 @@
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                <?php
+                    $bpppmnuAllowed = $userRole === 'pengurus_bpppmnu'
+                        || ($userRole === 'tenaga_pendidik' && auth()->user()->bpppmnuMember?->is_active);
+                ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($bpppmnuAllowed): ?>
+                <li>
+                    <a href="<?php echo e(route('bpppmnu.presensi')); ?>" class="waves-effect">
+                        <i class="bx bx-calendar-event"></i>
+                        <span>Agenda BPPPMNU</span>
+                    </a>
+                </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>
                 <li>
                     <a href="#presensiAdminSubmenu" data-bs-toggle="collapse" class="has-arrow">

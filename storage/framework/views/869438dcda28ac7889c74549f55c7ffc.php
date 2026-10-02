@@ -1,3 +1,6 @@
+<?php
+    $bppRoutePrefix = request()->routeIs('bpppmnu.*') ? 'bpppmnu.' : 'mobile.bpppmnu.';
+?>
 <?php $__env->startSection('title', 'Riwayat Presensi'); ?>
 <?php $__env->startSection('bpp-shell-class', 'bpp-history-shell'); ?>
 <?php $__env->startSection('bpp-header'); ?>
@@ -30,11 +33,15 @@
 </style>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $history; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+    <?php
+        $statusLabels = ['hadir' => 'Hadir', 'tidak_hadir' => 'Tidak Hadir', 'belum_presensi' => 'Belum Presensi'];
+        $statusLabel = $statusLabels[$row->status] ?? 'Belum Presensi';
+    ?>
     <article class="bpp-history-card">
-        <span class="bpp-history-status <?php echo e($row->attended_at ? 'bpp-history-status-present' : ''); ?>"><?php echo e($row->attended_at ? 'Hadir' : 'Tidak Hadir'); ?></span>
+        <span class="bpp-history-status <?php echo e($row->status === 'hadir' ? 'bpp-history-status-present' : ''); ?>"><?php echo e($statusLabel); ?></span>
         <h2 class="bpp-history-name"><?php echo e($row->name); ?></h2>
         <p class="bpp-history-date"><?php echo e(\Carbon\Carbon::parse($row->start_at)->locale('id')->translatedFormat('d F Y')); ?> &bull; <?php echo e(\Carbon\Carbon::parse($row->start_at)->format('H:i')); ?> WIB</p>
-        <a class="bpp-history-detail" href="<?php echo e(route('mobile.bpppmnu.events.show', $row->id)); ?>">Lihat Detail <span aria-hidden="true">&rarr;</span></a>
+        <a class="bpp-history-detail" href="<?php echo e(route($bppRoutePrefix.'events.show', $row->id)); ?>">Lihat Detail <span aria-hidden="true">&rarr;</span></a>
     </article>
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
     <div class="bpp-history-card bpp-history-empty">

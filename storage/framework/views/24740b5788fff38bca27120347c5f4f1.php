@@ -5,65 +5,86 @@
 <style>
     .face-check-page {
         --face-ink: #17312c;
-        --face-muted: #718087;
+        --face-muted: #62746d;
         --face-accent: #0b5b47;
-        min-height: calc(100vh - 150px);
-        display: grid;
-        place-items: center;
-        padding: 14px 12px 26px;
-        background: linear-gradient(150deg, #f8fbfa 0%, #eef5f3 100%);
+        position: fixed;
+        inset: 0 0 104px;
+        overflow: hidden;
+        padding: max(24px, env(safe-area-inset-top)) 16px 16px;
+        background: #f7faf8;
     }
 
     .face-check-panel {
-        width: min(100%, 410px);
+        width: min(100%, 420px);
+        margin: 0 auto;
         text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .face-check-preview {
+        flex-shrink: 0;
+    }
+
+    .face-check-feedback {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        margin-top: 12px;
+        padding: 0 3px 4px;
     }
 
     .face-check-toolbar {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        margin-bottom: 14px;
-        text-align: left;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        text-align: center;
     }
 
     .face-check-eyebrow {
-        margin: 0 0 2px;
-        color: var(--face-accent);
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: .08em;
-        text-transform: uppercase;
+        display: inline-block;
+        margin: 0 0 10px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: var(--face-accent);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
     }
 
     .face-check-title {
         margin: 0;
         color: var(--face-ink);
-        font-size: 19px;
+        font-size: 23px;
         font-weight: 700;
+        letter-spacing: -.5px;
     }
 
-    .face-check-back {
-        border-radius: 999px;
-        padding: 5px 12px;
-        font-size: 12px;
-    }
+    #python-face-submit:focus-visible { outline: 3px solid #78bba6; outline-offset: 3px; }
 
     .face-camera-shell {
         position: relative;
-        width: 100%;
-        aspect-ratio: 4 / 3;
+        width: min(100%, 48dvh, max(80px, calc(100dvh - 420px)));
+        margin-inline: auto !important;
+        aspect-ratio: 1 / 1;
         overflow: hidden;
-        border-radius: 18px;
-        background: #101827;
-        box-shadow: 0 14px 32px rgba(23, 49, 44, .16);
+        border: 1px solid #dce5df;
+        border-radius: 24px;
+        background: #172822;
     }
 
     .face-camera-shell::after {
         position: absolute;
-        inset: 11%;
-        border: 1px solid rgba(255, 255, 255, .72);
-        border-radius: 46% 46% 42% 42%;
+        inset: 12% 21%;
+        border: 2px solid rgba(255, 255, 255, .85);
+        border-radius: 50%;
+        box-shadow: 0 0 0 200px rgba(9, 24, 18, .22);
         content: '';
         pointer-events: none;
     }
@@ -78,69 +99,109 @@
 
     .face-camera-label {
         position: absolute;
-        right: 11px;
-        bottom: 10px;
+        left: 50%;
+        bottom: 16px;
+        transform: translateX(-50%);
         z-index: 1;
-        padding: 4px 8px;
-        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 8px;
         color: #fff;
-        background: rgba(16, 24, 39, .68);
-        font-size: 10px;
+        background: rgba(9, 24, 18, .65);
+        font-size: 11px;
+        white-space: nowrap;
     }
 
     .face-check-instruction {
-        margin: 13px auto 11px;
-        max-width: 330px;
-        color: var(--face-muted);
-        font-size: 12px;
-        line-height: 1.45;
-    }
-
-    #python-face-status {
-        min-height: 42px;
-        display: grid;
-        place-items: center;
-        margin: 0 0 11px;
-        padding: 9px 12px;
-        border: 0;
-        border-radius: 11px;
-        font-size: 12px;
-        line-height: 1.35;
-    }
-
-    #python-face-submit {
-        width: 100%;
-        min-height: 44px;
-        border: 0;
-        border-radius: 11px;
-        background: var(--face-accent);
+        margin: 20px 0 6px;
+        color: var(--face-ink);
         font-size: 13px;
         font-weight: 600;
     }
 
-    #python-face-submit:hover:not(:disabled) {
-        background: #084737;
+    .face-check-hint {
+        margin: 0 auto 20px;
+        max-width: 300px;
+        color: var(--face-muted);
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    #python-face-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 48px;
+        margin: 0;
+        padding: 12px 14px;
+        border: 1px solid #dce5df;
+        border-radius: 12px;
+        background: #fff;
+        color: var(--face-muted);
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: left;
+        overflow-wrap: anywhere;
+    }
+
+    .face-check-panel[data-status="danger"] .face-check-instruction,
+    .face-check-panel[data-status="danger"] .face-check-hint { display: none; }
+
+    .face-status-message { min-width: 0; }
+    .face-status-icon { flex-shrink: 0; font-size: 20px; }
+    #python-face-status.alert-success { background: #edf7f1; border-color: #cce7d7; color: #22613d; }
+    #python-face-status.alert-danger { background: #fff3f1; border-color: #f2d6d0; color: #a13c2f; }
+
+    #python-face-submit {
+        flex-shrink: 0;
+        width: 100%;
+        min-height: 48px;
+        margin-top: 12px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--face-accent);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    #python-face-submit:hover:not(:disabled) { background: #084737; }
+    #python-face-submit[hidden] { display: none; }
+
+    @media (max-width: 360px) {
+        .face-check-page { padding: 18px 12px 24px; }
+        .face-check-title { font-size: 21px; }
+        .face-check-toolbar { margin-bottom: 18px; }
     }
 </style>
 
 <main class="face-check-page">
     <section class="face-check-panel" aria-labelledby="face-check-title">
+        <div class="face-check-preview">
         <header class="face-check-toolbar">
-            <span>
+            <div>
                 <p class="face-check-eyebrow">Presensi <?php echo e($mode === 'masuk' ? 'Masuk' : 'Keluar'); ?></p>
                 <h1 id="face-check-title" class="face-check-title">Verifikasi wajah</h1>
-            </span>
-            <a href="<?php echo e($presensiUrl); ?>" class="btn btn-sm btn-outline-secondary face-check-back">Batal</a>
+            </div>
         </header>
 
         <figure class="face-camera-shell m-0">
             <video id="python-face-video" autoplay muted playsinline aria-label="Preview kamera wajah"></video>
             <figcaption class="face-camera-label"><i class="bx bx-camera me-1"></i>Kamera depan</figcaption>
         </figure>
+        </div>
         <canvas id="python-face-canvas" hidden></canvas>
 
-        <p class="face-check-instruction">Arahkan wajah ke tengah bingkai dan tetap diam sejenak.</p>
-        <output id="python-face-status" class="alert alert-info" aria-live="polite">Menyiapkan kamera dan lokasi...</output>
+        <div class="face-check-feedback">
+        <output id="python-face-status" class="alert alert-info" aria-live="polite" aria-atomic="true">
+            <i class="bx bx-camera face-status-icon" aria-hidden="true"></i>
+            <span class="face-status-message">Menyiapkan kamera...</span>
+        </output>
+        <p class="face-check-instruction">Posisikan wajah di dalam bingkai</p>
+        <p class="face-check-hint">Pastikan wajah cukup terang dan ponsel stabil. Scan akan dimulai otomatis.</p>
+        </div>
         <button id="python-face-submit" type="button" class="btn btn-success" hidden>
             <span class="button-label">Scan ulang</span>
             <span class="spinner-border spinner-border-sm ms-1" hidden role="status" aria-hidden="true"></span>
@@ -155,6 +216,10 @@
     const video = document.getElementById('python-face-video');
     const canvas = document.getElementById('python-face-canvas');
     const status = document.getElementById('python-face-status');
+    const panel = document.querySelector('.face-check-panel');
+    const feedback = document.querySelector('.face-check-feedback');
+    const statusMessage = status.querySelector('.face-status-message');
+    const statusIcon = status.querySelector('.face-status-icon');
     const submit = document.getElementById('python-face-submit');
     const label = submit.querySelector('.button-label');
     const spinner = submit.querySelector('.spinner-border');
@@ -162,13 +227,18 @@
     const endpoint = <?php echo json_encode($presensiStoreUrl, 15, 512) ?>;
     const presensiUrl = <?php echo json_encode($presensiUrl, 15, 512) ?>;
     const csrf = <?php echo json_encode(csrf_token(), 15, 512) ?>;
+    const userId = <?php echo json_encode($user->id, 15, 512) ?>;
     let stream = null;
     let location = null;
     let verificationInFlight = false;
 
     function setStatus(message, type = 'info') {
         status.className = `alert alert-${type}`;
-        status.textContent = message;
+        statusMessage.textContent = message;
+        panel.dataset.status = type;
+        feedback.scrollTop = 0;
+        const icon = type === 'success' ? 'bx-check-circle' : type === 'danger' ? 'bx-error-circle' : 'bx-camera';
+        statusIcon.className = `bx ${icon} face-status-icon`;
     }
 
     function stopCamera() {
@@ -189,20 +259,43 @@
         });
         video.srcObject = stream;
         await video.play();
+        await new Promise((resolve, reject) => {
+            const deadline = Date.now() + 10000;
+            function check() {
+                if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+                    resolve();
+                } else if (Date.now() >= deadline) {
+                    reject(new Error('Gambar kamera belum siap. Silakan coba kembali.'));
+                } else {
+                    window.setTimeout(check, 100);
+                }
+            }
+            check();
+        });
     }
 
     function readLocation() {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject(new Error('Lokasi tidak didukung oleh browser.'));
-                return;
-            }
-            navigator.geolocation.getCurrentPosition(
-                position => resolve(position),
-                () => reject(new Error('Izin lokasi diperlukan untuk presensi.')),
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
-        });
+        let saved;
+        try {
+            saved = JSON.parse(sessionStorage.getItem('python-presensi-location') || 'null');
+        } catch (_) {
+            saved = null;
+        }
+        const reading = saved?.reading;
+        if (saved?.userId !== userId || !reading
+            || !Number.isFinite(reading.latitude) || Math.abs(reading.latitude) > 90
+            || !Number.isFinite(reading.longitude) || Math.abs(reading.longitude) > 180
+            || !Number.isFinite(reading.timestamp)
+            || Date.now() - reading.timestamp < 0 || Date.now() - reading.timestamp > 120000) {
+            throw new Error('Lokasi dari halaman presensi sudah tidak tersedia atau kedaluwarsa. Kembali ke halaman presensi untuk memperbarui lokasi.');
+        }
+        return {
+            coords: reading,
+            lokasi: typeof saved.lokasi === 'string' && saved.lokasi.trim()
+                ? saved.lokasi.trim()
+                : `${reading.latitude.toFixed(6)}, ${reading.longitude.toFixed(6)}`,
+            readings: Array.isArray(saved.readings) ? saved.readings : [reading],
+        };
     }
 
     function captureFrame() {
@@ -221,7 +314,7 @@
         for (let index = 0; index < 5; index++) {
             frames.push(captureFrame());
             if (index < 4) {
-                await new Promise(resolve => setTimeout(resolve, 280));
+                await new Promise(resolve => setTimeout(resolve, 180));
             }
         }
         return frames;
@@ -246,6 +339,7 @@
         setStatus('Memeriksa wajah...', 'info');
 
         try {
+            location = readLocation();
             const frames = await captureFrames();
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -263,6 +357,8 @@
                     presensi_mode: mode,
                     latitude: location.coords.latitude,
                     longitude: location.coords.longitude,
+                    lokasi: location.lokasi,
+                    location_readings: JSON.stringify(location.readings),
                     accuracy: location.coords.accuracy,
                     altitude: location.coords.altitude,
                     speed: location.coords.speed,
@@ -282,19 +378,37 @@
         }
     }
 
-    submit.addEventListener('click', verifyFace);
+    submit.addEventListener('click', () => {
+        if (!stream || video.readyState < 2) {
+            initialize();
+        } else {
+            verifyFace();
+        }
+    });
     window.addEventListener('pagehide', stopCamera);
 
-    Promise.all([
-        startCamera(),
-        readLocation().then(position => { location = position; }),
-    ]).then(() => {
-        setStatus('Kamera siap. Tetap diam, verifikasi dimulai otomatis.', 'success');
-        // Let auto-exposure settle before collecting the recognition burst.
-        window.setTimeout(verifyFace, 900);
-    }).catch(error => {
-        showRetry(error.message || 'Kamera atau lokasi belum siap.');
-    });
+    let initializing = false;
+    async function initialize() {
+        if (initializing || verificationInFlight) return;
+        initializing = true;
+        submit.hidden = true;
+        setStatus('Menyiapkan kamera...', 'info');
+        try {
+            location = readLocation();
+            stopCamera();
+            await startCamera();
+            setStatus('Kamera siap. Pegang ponsel stabil dan pastikan wajah cukup terang.', 'success');
+            await new Promise(resolve => window.setTimeout(resolve, 600));
+            initializing = false;
+            await verifyFace();
+        } catch (error) {
+            stopCamera();
+            showRetry(error.message || 'Kamera belum siap.');
+        } finally {
+            initializing = false;
+        }
+    }
+    initialize();
 })();
 </script>
 <?php $__env->stopSection(); ?>

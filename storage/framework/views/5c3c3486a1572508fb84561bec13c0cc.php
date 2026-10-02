@@ -1,725 +1,100 @@
-<?php $__env->startSection('title'); ?>
-Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
-<?php $__env->stopSection(); ?>
-
+<?php $__env->startSection('title', 'Masuk - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY'); ?>
 <?php $__env->startSection('css'); ?>
-<link href="https://cdn.materialdesignicons.com/6.5.95/css/materialdesignicons.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<?php echo e(asset('build/libs/owl.carousel/assets/owl.carousel.min.css')); ?>">
-<link rel="stylesheet" href="<?php echo e(asset('build/libs/owl.carousel/assets/owl.theme.default.min.css')); ?>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<?php $__env->stopSection(); ?>
-
-<?php $__env->startSection('body'); ?>
-<body class="auth-body-bg">
-<?php $__env->stopSection(); ?>
-
-<?php $__env->startSection('content'); ?>
 <?php
-    $isSpmbHost = request()->getHost() === 'spmb.nuist.id';
-    $loginAction = $isSpmbHost ? url('/login') : route('login');
-    $forgotPasswordUrl = $isSpmbHost ? url('/password/reset') : route('mobile.password.request');
-    $backUrl = $isSpmbHost ? url('/') : route('landing');
+$primaryLoginHost=parse_url((string) config('app.url'), PHP_URL_HOST);
+$currentLoginHost=request()->getHost();
+$canUseMobileLogin=in_array($currentLoginHost, array_filter([$primaryLoginHost, 'www.'.$primaryLoginHost, 'localhost', '127.0.0.1']), true);
 ?>
-<div class="login-container">
-    <div class="login-wrapper">
-        <!-- Form Section -->
-        <div class="form-section">
-            <div class="form-container">
-                <div class="logo-section">
-                    <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" class="logo">
-                </div>
-                <h1 class="login-title">LOGIN</h1>
-                <p class="login-subtitle">
-                    <?php echo e($isSpmbHost ? 'Login Admin Sekolah untuk mengelola dashboard SPMB sekolah Anda.' : 'Welcome back! Please sign in to your account.'); ?>
-
-                </p>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
-                    <div class="alert alert-success">
-                        <?php echo e(session('status')); ?>
-
-                    </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
-                    <div class="alert alert-danger">
-                        <?php echo e(session('error')); ?>
-
-                    </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <form class="login-form" method="POST" action="<?php echo e($loginAction); ?>">
-                    <?php echo csrf_field(); ?>
-                    <div class="form-group">
-                        <label for="username" class="form-label">Email <span class="text-danger">*</span></label>
-                        <input name="email" type="email" class="form-control <?php $__errorArgs = ['email'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>"
-                               value="<?php echo e(old('email')); ?>" id="username"
-                               placeholder="Enter Email" autocomplete="email" autofocus>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                        <span class="invalid-feedback" role="alert">
-                            <strong><?php echo e($message); ?></strong>
-                        </span>
-                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
-                        <div class="password-input-container">
-                            <input type="password" name="password"
-                                class="form-control password-input <?php $__errorArgs = ['password'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>"
-                                id="userpassword" placeholder="Enter password"
-                                aria-label="Password" autocomplete="current-password">
-                            <button type="button" class="btn password-toggle-btn" id="togglePassword" aria-label="Lihat password">
-                                <i class="mdi mdi-eye-outline"></i>
-                            </button>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <span class="invalid-feedback" role="alert">
-                                <strong><?php echo e($message); ?></strong>
-                            </span>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="remember" <?php echo e(old('remember') ? 'checked' : ''); ?>>
-                        <label class="form-check-label" for="remember">
-                            Remember me
-                        </label>
-                    </div>
-
-                    <button class="btn btn-primary login-btn" type="submit">Log In</button>
-                </form>
-
-                
-
-                <!-- Clear Cache Button -->
-                
-
-                
-
-                <div class="mt-3 text-center">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! ($isSpmbHost)): ?>
-                    <p class="mb-0">Don't have an account? <a href="<?php echo e(url('register')); ?>" class="text-primary">Register here</a></p>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    <a href="<?php echo e($forgotPasswordUrl); ?>">Forgot password?</a>
-                </div>
-
-                <div class="mt-2 text-center">
-                    <p class="mb-0"><a href="<?php echo e($backUrl); ?>" class="text-primary"><?php echo e($isSpmbHost ? 'Kembali ke Halaman SPMB' : 'Kembali ke Halaman Utama'); ?></a></p>
-                </div>
-
-                <div class="footer-text">
-                    <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> Nuist. Crafted by LP. Ma'arif NU PWNU DIY</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Illustration Section -->
-        <div class="illustration-section">
-            <div class="illustration-content">
-                <h2>Welcome Back!</h2>
-                <p>Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</p>
-                <div class="illustration-placeholder">
-                    <img src="<?php echo e(asset('images/verification-img.png')); ?>" alt="Login Illustration" class="illustration-image">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canUseMobileLogin): ?>
+<script>
+(function(){
+    if(window.matchMedia&&window.matchMedia('(max-width: 767px)').matches){
+        window.location.replace(<?php echo json_encode(route('mobile.login', [], false)) ?>+(window.location.search||''));
+    }
+})();
+</script>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key'))): ?><link rel="preconnect" href="https://challenges.cloudflare.com"><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f8f9fa;
-        overflow-x: hidden;
-    }
-
-    .login-container {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-
-    .login-wrapper {
-        display: flex;
-        width: 100%;
-        max-width: 1200px;
-        min-height: 600px;
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-section {
-        flex: 1;
-        background: white;
-        padding: 60px 50px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .illustration-section {
-        flex: 1;
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        padding: 60px 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-    }
-
-    .form-container {
-        max-width: 400px;
-        width: 100%;
-    }
-
-    .logo-section {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .logo {
-        height: 80px;
-        width: auto;
-    }
-
-    .login-title {
-        font-size: 32px;
-        font-weight: 700;
-        color: #004b4c;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .login-subtitle {
-        font-size: 16px;
-        color: #6c757d;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .login-form {
-        margin-bottom: 30px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-label {
-        font-weight: 500;
-        color: #495057;
-        margin-bottom: 8px;
-        display: block;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px 16px;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: border-color 0.3s ease;
-    }
-
-    .form-control:focus {
-        border-color: #6C63FF;
-        box-shadow: 0 0 0 0.2rem rgba(108, 99, 255, 0.25);
-        outline: none;
-    }
-
-    /* .password-input-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-    } */
-
-    .password-input {
-        padding-right: 50px !important;
-    }
-
-    /* .password-toggle-btn {
-        position: absolute;
-        right: 0;
-        top: 0;
-        height: 100%;
-        width: 50px;
-        border: none;
-        background: transparent;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0 8px 8px 0;
-        cursor: pointer;
-        transition: background 0.2s ease, color 0.2s ease;
-    }
-
-    .password-toggle-btn:hover {
-        background: rgba(108, 99, 255, 0.05);
-        color: #495057;
-    } */
-
-    .password-input-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-
-    .password-toggle-btn {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: transparent;
-        border: none;
-        color: #6c757d;
-        cursor: pointer;
-        z-index: 2;
-        padding: 5px;
-    }
-
-    .password-toggle-btn:hover {
-        color: #004b4c;
-    }
-
-    .form-check {
-        margin-bottom: 20px;
-    }
-
-    .form-check-input:checked {
-        background-color: #6C63FF;
-        border-color: #6C63FF;
-    }
-
-    .login-btn {
-        width: 100%;
-        padding: 14px;
-        background: #004b4c;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
-    }
-
-    .login-btn:hover {
-        background: #006e70;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
-    }
-
-    .footer-text {
-        text-align: center;
-        color: #6c757d;
-        font-size: 14px;
-    }
-
-    .update-app-btn {
-        font-size: 12px;
-        padding: 4px 8px;
-        text-decoration: none;
-        border: none;
-        background: transparent;
-        transition: all 0.2s ease;
-    }
-
-    .update-app-btn:hover {
-        color: #004b4c !important;
-        text-decoration: underline;
-    }
-
-    .update-app-btn i {
-        font-size: 14px;
-        margin-right: 4px;
-    }
-
-    .illustration-content {
-        text-align: center;
-        max-width: 400px;
-    }
-
-    .illustration-content h2 {
-        font-size: 28px;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-
-    .illustration-content p {
-        font-size: 16px;
-        margin-bottom: 30px;
-        opacity: 0.9;
-    }
-
-    .illustration-placeholder {
-        display: flex;
-        justify-content: center;
-    }
-
-    .illustration-image {
-        max-width: 100%;
-        height: auto;
-        border-radius: 12px;
-    }
-
-    .alert {
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-
-    .alert-success {
-        background: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-
-    .alert-danger {
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-
-    .invalid-feedback {
-        display: block;
-        color: #dc3545;
-        font-size: 14px;
-        margin-top: 5px;
-    }
-
-    .is-invalid {
-        border-color: #dc3545;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .login-wrapper {
-            flex-direction: column;
-            min-height: auto;
-            max-width: 100%;
-        }
-
-        .form-section {
-            flex: none;
-            padding: 30px 20px;
-        }
-
-        .illustration-section {
-            order: -1;
-            min-height: 50px;
-            padding: 20px;
-        }
-
-        .illustration-content {
-            display: none;
-        }
-
-        .form-container {
-            max-width: none;
-        }
-
-        .login-title {
-            font-size: 24px;
-        }
-
-        .login-subtitle {
-            font-size: 14px;
-        }
-
-        .form-control {
-            font-size: 14px;
-            padding: 10px 12px;
-        }
-
-        .login-btn {
-            padding: 12px;
-            font-size: 14px;
-        }
-
-        .logo {
-            height: 60px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .login-container {
-            padding: 10px;
-        }
-
-        .form-section {
-            padding: 20px 15px;
-        }
-
-        .login-title {
-            font-size: 20px;
-        }
-
-        .login-subtitle {
-            font-size: 13px;
-        }
-
-        .form-control {
-            font-size: 13px;
-            padding: 8px 10px;
-        }
-
-        .login-btn {
-            padding: 10px;
-            font-size: 13px;
-        }
-
-        .logo {
-            height: 50px;
-        }
-    }
+:root{--login-green:#00745a;--login-green-light:#009071;--login-green-dark:#00553f;--login-ink:#172a24;--login-muted:#6d7f7d;--login-border:#dce7e3;--login-surface:#f4f8f6}html,body{min-height:100%;margin:0;font-family:'Poppins',sans-serif;background:#e9f2ef}*,*::before,*::after{box-sizing:border-box}
+.web-login-page{min-height:100vh;display:grid;place-items:center;position:relative;overflow:hidden;padding:42px;background:radial-gradient(circle at 13% 12%,rgba(0,144,113,.22),transparent 27%),radial-gradient(circle at 87% 86%,rgba(0,85,63,.15),transparent 26%),linear-gradient(145deg,#edf6f3 0%,#f8fbfa 48%,#e5f0ec 100%)}
+.web-login-page::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.35;background-image:linear-gradient(rgba(0,85,63,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,85,63,.08) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(to bottom,#000,transparent 76%)}
+.login-layout{width:min(1120px,100%);min-height:690px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(410px,.85fr);position:relative;z-index:1;overflow:hidden;border:8px solid rgba(255,255,255,.9);border-radius:34px;background:#fff;box-shadow:0 30px 80px rgba(23,42,36,.18)}
+.journey-panel{min-height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden;padding:48px 46px 38px;color:#fff;border-radius:26px;isolation:isolate;background:radial-gradient(circle at 76% 27%,rgba(66,210,171,.8),transparent 34%),radial-gradient(circle at 16% 78%,rgba(0,85,63,.72),transparent 38%),linear-gradient(145deg,var(--login-green-dark),var(--login-green-light))}
+.journey-panel::before,.journey-panel::after{content:'';position:absolute;z-index:-1;border-radius:50%;filter:blur(4px);opacity:.52}.journey-panel::before{width:360px;height:360px;top:-190px;left:-120px;background:#2ec59b}.journey-panel::after{width:430px;height:430px;right:-250px;bottom:-230px;background:#004b39}
+.journey-brand{width:178px;min-height:54px;display:flex;align-items:center;padding:8px 14px;border-radius:14px;background:rgba(255,255,255,.94);box-shadow:0 12px 28px rgba(0,49,37,.16)}.journey-brand img{display:block;width:100%;height:auto}.journey-copy{margin-top:auto;padding-top:74px}
+.journey-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;padding:9px 15px;border:1px solid rgba(255,255,255,.16);border-radius:999px;color:#fff;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);font-size:.79rem;font-weight:500}.journey-title{margin:0 0 10px;color:#fff;font-size:clamp(2.25rem,4vw,3.35rem);font-weight:500;line-height:1.08;letter-spacing:-.045em}.journey-description{margin:0;color:rgba(255,255,255,.82);font-size:.94rem;line-height:1.65}
+.journey-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:38px}.journey-step{min-height:132px;display:flex;flex-direction:column;justify-content:space-between;padding:15px;border:1px solid rgba(255,255,255,.14);border-radius:18px;color:rgba(255,255,255,.86);background:rgba(255,255,255,.11);backdrop-filter:blur(10px);font-size:.73rem;line-height:1.35}.journey-step.is-active{color:var(--login-ink);background:rgba(255,255,255,.95)}.step-number{width:27px;height:27px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.4);border-radius:50%;color:#fff;font-size:.72rem;font-weight:600}.is-active .step-number{border-color:var(--login-green);color:#fff;background:var(--login-green)}
+.form-panel{display:flex;align-items:center;justify-content:center;padding:54px 56px;background:#fff}.form-inner{width:100%;max-width:390px}.form-eyebrow{margin:0 0 8px;color:var(--login-green);font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.form-title{margin:0;color:var(--login-ink);font-size:2.05rem;font-weight:600;line-height:1.2;letter-spacing:-.04em}.form-subtitle{margin:10px 0 32px;color:var(--login-muted);font-size:.82rem;line-height:1.6}
+.status-alert{margin-bottom:16px;padding:11px 13px;border:1px solid;border-radius:12px;font-size:.75rem;line-height:1.45}.status-alert.success{border-color:#bfe8cb;color:#1d6b40;background:#e8f8ee}.status-alert.error{border-color:#f7c4c4;color:#a33b3b;background:#fdecec}.auth-field-group{margin-bottom:18px}.input-label{display:block;margin-bottom:8px;color:var(--login-ink);font-size:.75rem;font-weight:600}
+.field-shell{min-height:52px;display:flex;align-items:center;overflow:hidden;border:1px solid transparent;border-radius:13px;background:var(--login-surface);transition:border-color .2s,box-shadow .2s,background .2s}.field-shell:focus-within{border-color:var(--login-green);background:#fff;box-shadow:0 0 0 4px rgba(0,116,90,.1)}.field-icon{width:48px;flex:0 0 48px;display:grid;place-items:center;color:#78918a}.field-icon svg,.toggle-password svg{width:18px;height:18px;fill:currentColor}
+.input-control{width:100%;min-height:50px;border:0;outline:0;color:var(--login-ink);background:transparent;font:500 .78rem/1.4 'Poppins',sans-serif}.input-control::placeholder{color:#9aaba6;font-weight:400}.input-control:-webkit-autofill{-webkit-text-fill-color:var(--login-ink);-webkit-box-shadow:0 0 0 1000px var(--login-surface) inset}.toggle-password{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border:0;color:#78918a;background:transparent;cursor:pointer}.toggle-password:hover{color:var(--login-green)}.field-error{margin-top:6px;color:#b93434;font-size:.69rem;line-height:1.4}
+.form-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:-2px 0 21px;font-size:.72rem}.remember-check{display:inline-flex;align-items:center;gap:8px;color:var(--login-muted);cursor:pointer}.remember-check input{width:16px;height:16px;margin:0;accent-color:var(--login-green)}.forgot-link,.back-link{color:var(--login-green);font-weight:600;text-decoration:none}.forgot-link:hover,.back-link:hover{color:var(--login-green-dark);text-decoration:underline}.turnstile-wrap{display:flex;justify-content:center;margin:0 0 18px}.turnstile-wrap .cf-turnstile{max-width:100%}
+.submit-btn{width:100%;min-height:52px;border:0;border-radius:13px;color:#fff;background:linear-gradient(135deg,var(--login-green-light),var(--login-green-dark));box-shadow:0 13px 26px rgba(0,116,90,.22);font:600 .84rem/1 'Poppins',sans-serif;cursor:pointer;transition:transform .2s,box-shadow .2s}.submit-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(0,116,90,.28)}.submit-btn:focus-visible,.toggle-password:focus-visible,.forgot-link:focus-visible,.back-link:focus-visible{outline:3px solid rgba(0,116,90,.24);outline-offset:3px}.form-footer{margin:19px 0 0;text-align:center;color:var(--login-muted);font-size:.7rem;line-height:1.5}
+@media(max-width:900px){.web-login-page{align-items:start;padding:24px}.login-layout{min-height:auto;grid-template-columns:1fr;max-width:620px}.journey-panel{min-height:auto;padding:30px;border-radius:26px 26px 20px 20px}.journey-copy{padding-top:44px}.journey-title{font-size:2.3rem}.journey-steps{margin-top:26px}.journey-step{min-height:105px}.form-panel{padding:46px 42px 50px}}
+@media(max-width:560px){.web-login-page{display:block;padding:0;background:#fff}.web-login-page::before{display:none}.login-layout{width:100%;border:0;border-radius:0;box-shadow:none}.journey-panel{padding:24px 22px 28px;border-radius:0 0 28px 28px}.journey-brand{width:150px;min-height:48px}.journey-copy{padding-top:34px}.journey-kicker,.journey-description,.journey-steps{display:none}.journey-title{margin:0;font-size:1.75rem}.form-panel{align-items:flex-start;padding:38px 22px 42px}.form-title{font-size:1.75rem}}
 </style>
 <?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+<?php
+$isSpmbHost=request()->getHost()==='spmb.nuist.id';
+$loginAction=$isSpmbHost?url('/login'):route('login');
+$forgotPasswordUrl=$isSpmbHost?url('/password/reset'):route('mobile.password.request');
+$backUrl=$isSpmbHost?url('/'):route('landing');
+?>
+<div class="web-login-page"><main class="login-layout" aria-labelledby="login-title">
+<section class="journey-panel" aria-labelledby="journey-title">
+<a class="journey-brand" href="<?php echo e($backUrl); ?>" aria-label="Kembali ke halaman utama NUIST"><img src="<?php echo e(asset('images/logo1.png')); ?>" alt="NUIST"></a>
+<div class="journey-copy"><span class="journey-kicker">Selamat datang kembali <span aria-hidden="true">👋</span></span><p class="journey-description">Akses layanan pendidikan digital LP. Ma'arif NU PWNU DIY dalam satu tempat.</p>
 
-<?php $__env->startSection('script'); ?>
-<script src="<?php echo e(asset('build/libs/jquery/jquery.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/bootstrap/js/bootstrap.bundle.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/metismenu/metisMenu.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/simplebar/simplebar.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/node-waves/waves.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/owl.carousel/owl.carousel.min.js')); ?>"></script>
-
+</section>
+<section class="form-panel"><div class="form-inner"><p class="form-eyebrow">NUIST.ID</p><h1 class="form-title" id="login-title">Masuk</h1><p class="form-subtitle"><?php echo e($isSpmbHost?'Masuk sebagai Admin Sekolah untuk mengelola dashboard SPMB.':'Gunakan akun Anda untuk mengakses seluruh layanan NUIST.'); ?></p>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?><div class="status-alert success" role="status"><?php echo e(session('status')); ?></div><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?><div class="status-alert error" role="alert"><?php echo e(session('error')); ?></div><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<form method="POST" action="<?php echo e($loginAction); ?>"><?php echo csrf_field(); ?>
+<div class="auth-field-group"><label class="input-label" for="email">Email</label><div class="field-shell"><span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5Z"/></svg></span><input id="email" name="email" type="email" class="input-control" value="<?php echo e(old('email')); ?>" placeholder="nama@email.com" autocomplete="email" required autofocus></div><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="field-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></div>
+<div class="auth-field-group"><label class="input-label" for="password">Password</label><div class="field-shell"><span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-5 8a2 2 0 1 1 2-2 2 2 0 0 1-2 2Zm-2-8V6a2 2 0 0 1 4 0v2Z"/></svg></span><input id="password" name="password" type="password" class="input-control" placeholder="Masukkan password" autocomplete="current-password" required><button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password" aria-pressed="false" onclick="toggleLoginPassword(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c5.33 0 9.73 3.61 11 7-1.27 3.39-5.67 7-11 7S2.27 15.39 1 12c1.27-3.39 5.67-7 11-7Zm0 2C8.08 7 4.72 9.37 3.34 12 4.72 14.63 8.08 17 12 17s7.28-2.37 8.66-5C19.28 9.37 15.92 7 12 7Zm0 2.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5Z"/></svg></button></div><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="field-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></div>
+<div class="form-actions"><label class="remember-check"><input type="checkbox" name="remember" value="1" <?php echo e(old('remember')?'checked':''); ?>><span>Ingat saya</span></label><a href="<?php echo e($forgotPasswordUrl); ?>" class="forgot-link">Lupa Password?</a></div>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key'))): ?><div class="turnstile-wrap"><div class="cf-turnstile" data-sitekey="<?php echo e(config('services.turnstile.site_key')); ?>" data-action="login" data-theme="light" data-size="flexible" data-appearance="always"></div></div><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['turnstile'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="field-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?> <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<button class="submit-btn" type="submit">Masuk ke NUIST</button></form>
+<p class="form-footer"><a href="<?php echo e($backUrl); ?>" class="back-link"><?php echo e($isSpmbHost?'Kembali ke Halaman SPMB':'Kembali ke Halaman Utama'); ?></a><br>NUIST Desktop &middot; LP. Ma'arif NU PWNU DIY</p>
+</div></section></main></div>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script-bottom'); ?>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('password-addon');
-
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', function() {
-            const input = document.getElementById('userpassword');
-            const icon = this.querySelector('i');
-
-            if (!input || !icon) return;
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('mdi-eye-outline');
-                icon.classList.add('mdi-eye-off-outline');
-                this.setAttribute('aria-pressed', 'true');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('mdi-eye-off-outline');
-                icon.classList.add('mdi-eye-outline');
-                this.setAttribute('aria-pressed', 'false');
-            }
-        });
-    }
-});
+window.toggleLoginPassword=function(button){
+    var input=document.getElementById('password');
+    if(!input)return;
+    var showPassword=input.type==='password';
+    input.type=showPassword?'text':'password';
+    button.setAttribute('aria-pressed',showPassword?'true':'false');
+    button.setAttribute('aria-label',showPassword?'Sembunyikan password':'Tampilkan password');
+    input.focus({preventScroll:true});
+};
 </script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('userpassword');
-
-    if (togglePassword && passwordInput) {
-        togglePassword.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-
-            // Ganti ikon
-            icon.classList.toggle('mdi-eye-outline', !isPassword);
-            icon.classList.toggle('mdi-eye-off-outline', isPassword);
-        });
-    }
-});
-</script>
-
-<script>
-// Update App Button Handler
-document.addEventListener('DOMContentLoaded', function() {
-    const updateBtn = document.getElementById('updateAppBtn');
-    if (updateBtn) {
-        console.log('Update button found and event listener attached');
-        updateBtn.addEventListener('click', function() {
-            console.log('Update button clicked');
-            const button = this;
-            const originalText = button.innerHTML;
-
-            // Change button to loading state
-            button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Updating...';
-            button.disabled = true;
-
-            // Get CSRF token
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-            const token = csrfToken ? csrfToken.getAttribute('content') : '';
-
-            console.log('CSRF Token:', token);
-            console.log('Route URL:', '<?php echo e(route("clear-cache")); ?>');
-
-            // Make AJAX call to clear cache
-            fetch('<?php echo e(route("clear-cache")); ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({})
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response data:', data);
-                if (data.success) {
-                    // Show success message
-                    showToast('success', data.message);
-                    // Reload page after 2 seconds
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    showToast('error', data.message || 'Gagal update aplikasi');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Terjadi kesalahan saat update aplikasi: ' + error.message);
-            })
-            .finally(() => {
-                // Reset button state
-                button.innerHTML = originalText;
-                button.disabled = false;
-            });
-        });
-    } else {
-        console.error('Update button not found');
-    }
-});
-
-// Toast notification function
-function showToast(type, message) {
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
-    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
-    toast.innerHTML = `
-        <i class="bx bx-${type === 'success' ? 'check-circle' : 'error-circle'} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(toast);
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.remove();
-        }
-    }, 5000);
-}
-
-// ==== Force reload login page if cached by Service Worker ====
-if ('serviceWorker' in navigator) {
-    // Pastikan login page tidak diambil dari cache
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (let registration of registrations) {
-            registration.active?.postMessage({ type: 'CLEAR_LOGIN_CACHE' });
-        }
-    });
-
-    // Jika SW masih aktif dan mencoba ambil cache login
-    caches.keys().then(function(names) {
-        for (let name of names) {
-            caches.delete(name);
-        }
-    });
-}
-
-// ==== Disable browser back cache (bypass 419 issue) ====
-if (window.history && window.history.pushState) {
-    window.history.pushState('forward', null, '');
-    window.onpopstate = function () {
-        window.location.href = '/login';
-    };
-}
-
-</script>
-
-
-<script>
-document.getElementById('clearNuistCache').addEventListener('click', async () => {
-    try {
-        if ('caches' in window) {
-            const keys = await caches.keys();
-            await Promise.all(keys.map(k => caches.delete(k)));
-            console.log('Deleted caches:', keys);
-        }
-        if ('serviceWorker' in navigator) {
-            const regs = await navigator.serviceWorker.getRegistrations();
-            for (let r of regs) {
-                await r.unregister();
-            }
-            console.log('Unregistered SWs:', regs.length);
-        }
-        if (window.indexedDB && indexedDB.databases) {
-            const dbs = await indexedDB.databases();
-            for (let d of dbs) {
-                if (d.name) indexedDB.deleteDatabase(d.name);
-            }
-            console.log('Deleted IndexedDB:', dbs);
-        }
-        localStorage.clear();
-        sessionStorage.clear();
-        alert('Cache NUIST dibersihkan — akan dimuat ulang.');
-        window.location.reload();
-    } catch (e) {
-        console.error(e);
-        alert('Gagal membersihkan: ' + e.message);
-    }
-});
-</script>
-
-
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/Project Nuist/nuist/resources/views/auth/login.blade.php ENDPATH**/ ?>

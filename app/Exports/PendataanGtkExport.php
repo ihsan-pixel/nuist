@@ -44,7 +44,7 @@ class PendataanGtkExport extends DefaultValueBinder implements FromCollection, W
                 $index + 1,
                 $user->madrasah?->scod,
                 $user->nuist_id,
-                $user->name . ($user->gelar ? ', ' . $user->gelar : ''),
+                $user->nama_dengan_gelar,
                 $user->madrasah?->name,
                 $data?->nik,
                 $user->alamat,

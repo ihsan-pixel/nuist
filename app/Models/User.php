@@ -90,6 +90,18 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
+    public function getNamaDenganGelarAttribute(): string
+    {
+        $name = trim((string) $this->name);
+        $gelar = trim((string) $this->gelar);
+
+        if ($gelar === '' || preg_match('/(?:,\s*)?' . preg_quote($gelar, '/') . '$/iu', $name)) {
+            return $name;
+        }
+
+        return $name === '' ? $gelar : $name . ', ' . $gelar;
+    }
+
     // Existing code...
 
     public function statusKepegawaian()

@@ -38,6 +38,7 @@ class PendataanGtkExportTest extends TestCase
         $this->assertSame('001', $sheet->getCell('B3')->getValue());
         $this->assertSame('000123', $sheet->getCell('C3')->getValue());
         $this->assertSame(DataType::TYPE_STRING, $sheet->getCell('D3')->getDataType());
+        $this->assertSame('=1+1, S.Pd.', $sheet->getCell('D3')->getValue());
         $this->assertSame('0012345678901234', $sheet->getCell('F3')->getValue());
         $this->assertSame('081234567890', $sheet->getCell('I3')->getValue());
         $this->assertSame('guru@example.test', $sheet->getCell('J3')->getValue());
@@ -56,6 +57,18 @@ class PendataanGtkExportTest extends TestCase
         $this->assertSame(2, $sheet->getHighestRow());
         $this->assertSame('No', $sheet->getCell('A1')->getValue());
         $this->assertSame('F3', $sheet->getFreezePane());
+    }
+
+    public function test_name_does_not_repeat_an_existing_degree(): void
+    {
+        $user = new User(['name' => 'Ahmad, S.Pd.', 'gelar' => 'S.Pd.']);
+        $user->setRelation('madrasah', new Madrasah());
+        $user->setRelation('gtkPendataan', null);
+        $user->setRelation('mgmpMemberships', collect());
+
+        $sheet = $this->workbookSheet(new PendataanGtkExport(collect([$user])));
+
+        $this->assertSame('Ahmad, S.Pd.', $sheet->getCell('D3')->getValue());
     }
 
     private function workbookSheet(PendataanGtkExport $export)

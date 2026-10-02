@@ -143,6 +143,15 @@
 <?php echo $__env->make('sk-yayasan.partials.sweet-alert', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <?php
+    $verificationStatusMap = [
+        'revision_required' => ['color' => 'danger', 'label' => 'Perlu Penyesuaian', 'description' => 'SK masih perlu disesuaikan oleh Yayasan.'],
+        'waiting_uppm_payment' => ['color' => 'warning', 'label' => 'Menunggu UPPPM', 'description' => 'SK sudah sesuai dan menunggu pembayaran UPPPM sekolah.'],
+        'ready_for_pickup' => ['color' => 'success', 'label' => 'Siap Diambil', 'description' => 'SK sudah sesuai dan persyaratan UPPPM telah terpenuhi.'],
+    ];
+    $processStatusCount = max(0, $statusCounts->sum()
+        - (int) ($statusCounts['revision_required'] ?? 0)
+        - (int) ($statusCounts['waiting_uppm_payment'] ?? 0)
+        - (int) ($statusCounts['ready_for_pickup'] ?? 0));
     $keteranganOptions = \App\Support\SkYayasanImportSynchronizer::allowedKeteranganOptions();
     $importPreviewColumns = \App\Support\SkYayasanImportSynchronizer::expectedHeadings();
     $importPreviewFieldMap = [
@@ -266,7 +275,7 @@
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($submissions->total()); ?> total pengajuan</span>
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($publishedDocuments->count()); ?> SK terbaru</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($statusCounts['ready_for_pickup'] ?? 0); ?> SK siap diambil</span>
             </div>
         </div>
     </div>
@@ -274,27 +283,114 @@
     <div class="row g-3 mb-3">
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Diajukan</div>
-                <div class="h4 mb-0"><?php echo e($statusCounts['submitted'] ?? 0); ?></div>
+                <div class="text-muted small">Proses</div>
+                <div class="h4 mb-0"><?php echo e($processStatusCount); ?></div>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Direview</div>
-                <div class="h4 mb-0"><?php echo e($statusCounts['reviewed'] ?? 0); ?></div>
+                <div class="text-muted small">Perlu Penyesuaian</div>
+                <div class="h4 mb-0 text-danger"><?php echo e($statusCounts['revision_required'] ?? 0); ?></div>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Disetujui</div>
-                <div class="h4 mb-0"><?php echo e($statusCounts['approved'] ?? 0); ?></div>
+                <div class="text-muted small">Menunggu UPPPM</div>
+                <div class="h4 mb-0 text-warning"><?php echo e($statusCounts['waiting_uppm_payment'] ?? 0); ?></div>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card sky-stat-card p-3 h-100">
-                <div class="text-muted small">Terbit</div>
-                <div class="h4 mb-0"><?php echo e($statusCounts['published'] ?? 0); ?></div>
+                <div class="text-muted small">Siap Diambil</div>
+                <div class="h4 mb-0 text-success"><?php echo e($statusCounts['ready_for_pickup'] ?? 0); ?></div>
             </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Status SK Per Guru/Pegawai</div>
+                    <h6 class="mb-0">Pantau hasil pemeriksaan dan kesiapan pengambilan SK</h6>
+                </div>
+                <form method="GET" class="d-flex gap-2">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Semua status</option>
+                        <option value="processing" <?php if(request('status') === 'processing'): echo 'selected'; endif; ?>>Proses</option>
+                        <option value="revision_required" <?php if(request('status') === 'revision_required'): echo 'selected'; endif; ?>>Perlu Penyesuaian</option>
+                        <option value="waiting_uppm_payment" <?php if(request('status') === 'waiting_uppm_payment'): echo 'selected'; endif; ?>>Menunggu UPPPM</option>
+                        <option value="ready_for_pickup" <?php if(request('status') === 'ready_for_pickup'): echo 'selected'; endif; ?>>Siap Diambil</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
+                </form>
+            </div>
+
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->count() > 0): ?>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Guru/Pegawai</th>
+                                <th>Nomor Pengajuan</th>
+                                <th>Nomor SK</th>
+                                <th>Status</th>
+                                <th>Catatan Yayasan</th>
+                                <th class="text-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $submissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php
+                                    $schoolStatus = $verificationStatusMap[$submission->current_status]
+                                        ?? ['color' => 'info', 'label' => 'Proses', 'description' => 'Pengajuan atau SK sedang diproses oleh Yayasan.'];
+                                ?>
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold"><?php echo e($submission->employee?->name ?? '-'); ?></div>
+                                        <small class="text-muted"><?php echo e($submission->employee?->statusKepegawaian?->name ?? ($submission->employment_category ?: '-')); ?></small>
+                                    </td>
+                                    <td>
+                                        <div><?php echo e($submission->request_number); ?></div>
+                                        <small class="text-muted"><?php echo e(optional($submission->submitted_at)->format('d/m/Y') ?? '-'); ?></small>
+                                    </td>
+                                    <td><?php echo e($submission->document?->document_number ?? '-'); ?></td>
+                                    <td>
+                                        <span class="badge bg-<?php echo e($schoolStatus['color']); ?>-subtle text-<?php echo e($schoolStatus['color']); ?>"><?php echo e($schoolStatus['label']); ?></span>
+                                        <small class="text-muted d-block mt-1"><?php echo e($schoolStatus['description']); ?></small>
+                                    </td>
+                                    <td><?php echo e($submission->sk_verification_notes ?: ($submission->review_notes ?: '-')); ?></td>
+                                    <td class="text-end">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->document && $submission->current_status === 'ready_for_pickup'): ?>
+                                            <a href="<?php echo e(route('sk-yayasan.documents.download', $submission->document)); ?>" target="_blank" rel="noopener" class="btn btn-sm btn-success">
+                                                <i class="bx bx-show me-1"></i>Lihat SK
+                                            </a>
+                                        <?php elseif($submission->document): ?>
+                                            <button type="button" class="btn btn-sm btn-light" disabled title="SK dapat dilihat setelah berstatus Siap Diambil">
+                                                <i class="bx bx-lock-alt me-1"></i>Belum Tersedia
+                                            </button>
+                                        <?php else: ?>
+                                            <span class="text-muted small">Belum digenerate</span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->hasPages()): ?>
+                    <div class="sky-pagination-wrap border-top pt-3 mt-3">
+                        <?php echo e($submissions->links('pagination::bootstrap-5')); ?>
+
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php else: ?>
+                <div class="sky-empty-state py-4">
+                    <i class="bx bx-file-find"></i>
+                    <strong>Belum ada pengajuan pada status ini</strong>
+                    <small>Silakan ubah filter atau tunggu pengajuan diproses oleh Yayasan.</small>
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 
@@ -564,7 +660,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         <form method="GET" class="d-flex gap-2">
                             <select name="status" class="form-select form-select-sm">
                                 <option value="">Semua status</option>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['submitted' => 'Diajukan', 'reviewed' => 'Direview', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'published' => 'Terbit']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['submitted' => 'Diajukan', 'reviewed' => 'Proses', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'published' => 'Terbit', 'revision_required' => 'Perlu Penyesuaian', 'waiting_uppm_payment' => 'Menunggu UPPPM', 'ready_for_pickup' => 'Siap Diambil']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                     <option value="<?php echo e($value); ?>" <?php if(request('status') === $value): echo 'selected'; endif; ?>><?php echo e($label); ?></option>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </select>
@@ -595,7 +691,13 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                                 ->filter()
                                                 ->countBy();
 
-                                            if ($batch->status === 'rejected' || ($requestStatusCounts['rejected'] ?? 0) > 0) {
+                                            if (($requestStatusCounts['revision_required'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'danger', 'label' => 'Perlu Penyesuaian'];
+                                            } elseif (($requestStatusCounts['waiting_uppm_payment'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'warning', 'label' => 'Menunggu UPPPM'];
+                                            } elseif (($requestStatusCounts['ready_for_pickup'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'success', 'label' => ($requestStatusCounts->count() === 1 ? 'Siap Diambil' : 'Siap Diambil Sebagian')];
+                                            } elseif ($batch->status === 'rejected' || ($requestStatusCounts['rejected'] ?? 0) > 0) {
                                                 $historyBadge = ['color' => 'danger', 'label' => 'Ditolak'];
                                             } elseif (($requestStatusCounts['published'] ?? 0) > 0) {
                                                 $historyBadge = ['color' => 'success', 'label' => ($requestStatusCounts->count() === 1 ? 'Terbit' : 'Terbit Sebagian')];
@@ -646,13 +748,16 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                                                 ($requestStatusCounts['reviewed'] ?? 0) ? (($requestStatusCounts['reviewed'] ?? 0) . ' direview') : null,
                                                                 ($requestStatusCounts['approved'] ?? 0) ? (($requestStatusCounts['approved'] ?? 0) . ' disetujui') : null,
                                                                 ($requestStatusCounts['published'] ?? 0) ? (($requestStatusCounts['published'] ?? 0) . ' terbit') : null,
+                                                                ($requestStatusCounts['revision_required'] ?? 0) ? (($requestStatusCounts['revision_required'] ?? 0) . ' perlu penyesuaian') : null,
+                                                                ($requestStatusCounts['waiting_uppm_payment'] ?? 0) ? (($requestStatusCounts['waiting_uppm_payment'] ?? 0) . ' menunggu UPPPM') : null,
+                                                                ($requestStatusCounts['ready_for_pickup'] ?? 0) ? (($requestStatusCounts['ready_for_pickup'] ?? 0) . ' siap diambil') : null,
                                                             ])->filter()->implode(' • ')); ?>
 
                                                         </small>
                                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </div>
                                             </td>
-                                            <td><?php echo e($batch->review_notes ?? $firstRequest?->review_notes ?? '-'); ?></td>
+                                            <td><?php echo e($firstRequest?->sk_verification_notes ?: ($batch->review_notes ?? $firstRequest?->review_notes ?? '-')); ?></td>
                                         </tr>
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 </tbody>
@@ -688,7 +793,11 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($batch->status, ['pending_review', 'rejected'])): ?>
         <div class="modal fade sky-admin-import-modal" id="editImportBatchRowsModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
-                <form action="<?php echo e(route('sk-yayasan.sekolah.import-batches.rows.update', $batch)); ?>" method="POST" class="modal-content">
+                <form action="<?php echo e(route('sk-yayasan.sekolah.import-batches.rows.update', $batch)); ?>"
+                      method="POST"
+                      class="modal-content"
+                      data-next-form-index="<?php echo e($batch->rows->count()); ?>"
+                      data-next-row-number="<?php echo e(((int) $batch->rows->max('row_number')) + 1); ?>">
                     <?php echo csrf_field(); ?>
                     <?php echo method_field('PATCH'); ?>
                     <div class="modal-header">
@@ -745,11 +854,16 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
                         <div class="sky-table-actions">
                             <div class="text-muted small">
-                                Pilih satu atau beberapa baris untuk dihapus dari batch ini sebelum disimpan.
+                                Tambahkan guru yang belum diajukan atau pilih baris yang ingin dihapus sebelum disimpan.
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-delete-selected-rows>
-                                Hapus Baris Terpilih
-                            </button>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-add-import-row>
+                                    <i class="bx bx-plus me-1"></i>Tambah Kolom Baru
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-delete-selected-rows>
+                                    Hapus Baris Terpilih
+                                </button>
+                            </div>
                         </div>
 
                         <div class="sky-modal-table-wrap">
@@ -767,13 +881,13 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                         <th class="wrap">Keterangan</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody data-import-rows>
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $batch->rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                         <?php
                                             $rowErrorFields = $resolveImportErrorFields($row);
                                             $nipmWarning = $resolveNipmImportWarning($row);
                                         ?>
-                                        <tr>
+                                        <tr data-import-row>
                                             <td class="sky-row-select-col">
                                                 <input type="checkbox" class="form-check-input" data-row-select>
                                             </td>
@@ -909,6 +1023,59 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 <?php $__env->startSection('script'); ?>
 <script src="<?php echo e(asset('build/libs/select2/js/select2.min.js')); ?>"></script>
 <script>
+    const schoolImportPreviewColumns = <?php echo json_encode($importPreviewColumns, 15, 512) ?>;
+    const schoolImportPreviewFieldMap = <?php echo json_encode($importPreviewFieldMap, 15, 512) ?>;
+    const schoolImportKeteranganOptions = <?php echo json_encode(array_values($keteranganOptions), 15, 512) ?>;
+
+    function escapeSchoolImportRowHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function buildSchoolImportRowEditorCell(column, field, rowIndex) {
+        if (!field) {
+            return '<td class="sky-edit-cell"></td>';
+        }
+
+        if (column === 'Keterangan') {
+            const options = schoolImportKeteranganOptions.map(function (option) {
+                const escapedOption = escapeSchoolImportRowHtml(option);
+
+                return '<option value="' + escapedOption + '">' + escapedOption + '</option>';
+            }).join('');
+
+            return '<td class="sky-edit-cell">'
+                + '<select name="rows[' + rowIndex + '][' + field + ']" class="form-select form-select-sm">'
+                + '<option value="">Pilih</option>'
+                + options
+                + '</select>'
+                + '</td>';
+        }
+
+        return '<td class="sky-edit-cell ' + (column === 'No' ? 'sky-edit-cell-sm' : '') + '">'
+            + '<input type="text" name="rows[' + rowIndex + '][' + field + ']" value="" class="form-control form-control-sm">'
+            + '</td>';
+    }
+
+    function buildSchoolImportRowMarkup(rowIndex, rowNumber) {
+        const cells = schoolImportPreviewColumns.map(function (column) {
+            return buildSchoolImportRowEditorCell(column, schoolImportPreviewFieldMap[column] ?? null, rowIndex);
+        }).join('');
+
+        return '<tr data-import-row>'
+            + '<td class="sky-row-select-col"><input type="checkbox" class="form-check-input" data-row-select></td>'
+            + '<input type="hidden" name="rows[' + rowIndex + '][row_number]" value="' + rowNumber + '">'
+            + cells
+            + '<td class="text-muted">Belum dicek</td>'
+            + '<td><span class="badge bg-secondary-subtle text-secondary">Baru ditambahkan</span></td>'
+            + '<td class="wrap text-muted">Simpan data import untuk memvalidasi dan mencocokkan guru.</td>'
+            + '</tr>';
+    }
+
     window.skyOpenModal = function (target) {
         const modalElement = target ? document.querySelector(target) : null;
 
@@ -1007,6 +1174,28 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
             selectAll.checked = totalRows > 0 && checkedRows === totalRows;
             selectAll.indeterminate = checkedRows > 0 && checkedRows < totalRows;
+        });
+
+        $(document).on('click', '[data-add-import-row]', function () {
+            const form = $(this).closest('form').get(0);
+            const tbody = form ? form.querySelector('[data-import-rows]') : null;
+
+            if (!form || !tbody) {
+                return;
+            }
+
+            const nextFormIndex = Number(form.dataset.nextFormIndex || 0);
+            const nextRowNumber = Number(form.dataset.nextRowNumber || 1);
+
+            tbody.insertAdjacentHTML('beforeend', buildSchoolImportRowMarkup(nextFormIndex, nextRowNumber));
+            form.dataset.nextFormIndex = String(nextFormIndex + 1);
+            form.dataset.nextRowNumber = String(nextRowNumber + 1);
+
+            const newRow = tbody.querySelector('tr[data-import-row]:last-child input.form-control, tr[data-import-row]:last-child select.form-select');
+
+            if (newRow) {
+                newRow.focus();
+            }
         });
 
         $(document).on('click', '[data-delete-selected-rows]', function () {

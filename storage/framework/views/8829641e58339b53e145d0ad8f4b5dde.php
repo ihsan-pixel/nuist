@@ -534,6 +534,9 @@
         'approved' => 'Disetujui',
         'rejected' => 'Ditolak',
         'published' => 'Terbit',
+        'revision_required' => 'Perlu Penyesuaian',
+        'waiting_uppm_payment' => 'Menunggu UPPPM',
+        'ready_for_pickup' => 'Siap Diambil',
     ];
 
     $statusBadgeMap = [
@@ -542,6 +545,9 @@
         'approved' => ['color' => 'primary', 'label' => 'Disetujui'],
         'published' => ['color' => 'success', 'label' => 'Terbit'],
         'rejected' => ['color' => 'danger', 'label' => 'Ditolak'],
+        'revision_required' => ['color' => 'danger', 'label' => 'Perlu Penyesuaian'],
+        'waiting_uppm_payment' => ['color' => 'warning', 'label' => 'Menunggu UPPPM'],
+        'ready_for_pickup' => ['color' => 'success', 'label' => 'Siap Diambil'],
     ];
 
     $batchStatusBadgeMap = [
@@ -1207,6 +1213,9 @@
                                 <option value="reviewed" <?php if($submission->current_status === 'reviewed'): echo 'selected'; endif; ?>>Direview</option>
                                 <option value="approved" <?php if($submission->current_status === 'approved'): echo 'selected'; endif; ?>>Setujui</option>
                                 <option value="rejected" <?php if($submission->current_status === 'rejected'): echo 'selected'; endif; ?>>Tolak</option>
+                                <option value="revision_required" <?php if($submission->current_status === 'revision_required'): echo 'selected'; endif; ?>>Perlu Penyesuaian</option>
+                                <option value="waiting_uppm_payment" <?php if($submission->current_status === 'waiting_uppm_payment'): echo 'selected'; endif; ?>>Menunggu UPPPM</option>
+                                <option value="ready_for_pickup" <?php if($submission->current_status === 'ready_for_pickup'): echo 'selected'; endif; ?>>Siap Diambil</option>
                             </select>
                         </div>
                         <div class="mb-3">

@@ -1,3 +1,6 @@
+<?php
+    $bppRoutePrefix = request()->routeIs('bpppmnu.*') ? 'bpppmnu.' : 'mobile.bpppmnu.';
+?>
 <?php $__env->startSection('title', 'Presensi'); ?>
 <?php $__env->startSection('bpp-shell-class', 'bpp-home-shell'); ?>
 <?php $__env->startSection('bpp-header'); ?>
@@ -13,7 +16,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end bpp-home-dropdown">
                 <li>
-                    <form method="post" action="<?php echo e(route('mobile.bpppmnu.logout')); ?>">
+                    <form method="post" action="<?php echo e(route($bppRoutePrefix.'logout')); ?>">
                         <?php echo csrf_field(); ?>
                         <button type="submit" class="dropdown-item">Keluar</button>
                     </form>
@@ -38,6 +41,14 @@
 .bpp-home-heading { margin-bottom:16px; }
 .bpp-home-heading h2 { margin:0 0 4px; font-size:13px; font-weight:600; }
 .bpp-home-heading p { margin:0; color:#68736e; font-size:11px; }
+.bpp-member-code { display:flex; align-items:center; gap:16px; margin:0 0 22px; padding:16px; border:1px solid #dfe9e4; border-radius:14px; background:linear-gradient(135deg,#fff,#f1f7f4); box-shadow:0 4px 14px #183d3208; }
+.bpp-member-code-image { width:210px; height:210px; flex:0 0 210px; padding:9px; border:1px solid #dfe9e4; border-radius:12px; background:#fff; }
+.bpp-member-code-copy { min-width:0; }
+.bpp-member-code-copy h2 { margin:0 0 4px; color:#18201d; font-size:13px; font-weight:600; line-height:1.5; overflow-wrap:anywhere; }
+.bpp-member-code-copy p { margin:0 0 9px; color:#68736e; font-size:10px; line-height:1.6; }
+.bpp-member-code-id { display:inline-block; padding:4px 7px; border-radius:6px; background:#e4f1eb; color:#00553f; font-size:10px; font-weight:600; overflow-wrap:anywhere; }
+.bpp-member-code--missing { display:block; }
+.bpp-member-code--missing p { margin:0; }
 .bpp-agenda-card { display:grid; grid-template-columns:48px minmax(0,1fr) 16px; gap:12px; width:100%; padding:16px 14px; margin:0 0 10px; border:1px solid #e6eae8; border-radius:13px; background:#fff; color:#18201d; text-align:left; font:inherit; box-shadow:0 2px 5px #18201d03; }
 .bpp-agenda-card:hover { border-color:#b7cec4; }
 .bpp-agenda-card:active { background:#f0f5f2; }
@@ -86,7 +97,27 @@
 .bpp-sheet-barcode { display:block; width:170px; height:170px; margin:4px auto 14px; padding:8px; border:1px solid #e6eae8; border-radius:10px; background:#fff; }
 .bpp-sheet-barcode-title { margin:0 0 10px; text-align:center; font-size:11px; color:#68736e; }
 @media(min-width:768px) { .bpp-sheet .modal-dialog { align-items:center; padding:24px 0; } .bpp-sheet .modal-content { border-radius:14px; max-height:calc(100vh - 48px); } }
+@media(max-width:380px) { .bpp-member-code { gap:12px; padding:13px; } .bpp-member-code-image { width:160px; height:160px; flex-basis:160px; } }
 </style>
+
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->nuist_id): ?>
+    <section class="bpp-member-code" aria-labelledby="bpp-member-code-title">
+        <img class="bpp-member-code-image" src="<?php echo e(route($bppRoutePrefix.'barcode')); ?>" alt="Barcode identitas <?php echo e(auth()->user()->name); ?>">
+        <div class="bpp-member-code-copy">
+            <h2 id="bpp-member-code-title">Barcode Saya</h2>
+            <p>Tunjukkan kepada penjaga presensi</p>
+            <span class="bpp-member-code-id">ID NUIST: <?php echo e(auth()->user()->nuist_id); ?></span>
+        </div>
+    </section>
+<?php else: ?>
+    <section class="bpp-member-code bpp-member-code--missing" role="status">
+        <div class="bpp-member-code-copy">
+            <h2>Barcode Saya</h2>
+            <p>Barcode belum tersedia</p>
+            <p>ID NUIST akun Anda belum terisi. Hubungi admin agar barcode presensi dapat ditampilkan.</p>
+        </div>
+    </section>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <div class="bpp-home-heading">
     <h2>Agenda Anda</h2>
@@ -138,16 +169,16 @@
                 </div>
                 <div class="bpp-sheet-footer">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($open && !$present): ?>
-                        <a class="bpp-sheet-scan" data-no-loader="true" href="<?php echo e(route('mobile.bpppmnu.events.show', $event)); ?>#scanner">Scan QR Presensi</a>
+                        <a class="bpp-sheet-scan" data-no-loader="true" href="<?php echo e(route($bppRoutePrefix.'events.show', $event)); ?>#scanner">Scan QR Presensi</a>
                         <button type="button" class="bpp-sheet-barcode-button" data-bs-toggle="collapse" data-bs-target="#bpp-barcode-<?php echo e($event->id); ?>" aria-expanded="false" aria-controls="bpp-barcode-<?php echo e($event->id); ?>"><i class="bx bx-barcode me-1" aria-hidden="true"></i>Tampilkan Barcode Saya</button>
                         <div class="collapse" id="bpp-barcode-<?php echo e($event->id); ?>">
                             <p class="bpp-sheet-barcode-title">Tunjukkan barcode ini kepada admin untuk presensi.</p>
-                            <img class="bpp-sheet-barcode" src="<?php echo e(route('mobile.bpppmnu.barcode')); ?>" alt="Barcode identitas <?php echo e(auth()->user()->name); ?>" loading="lazy">
+                            <img class="bpp-sheet-barcode" src="<?php echo e(route($bppRoutePrefix.'barcode')); ?>" alt="Barcode identitas <?php echo e(auth()->user()->name); ?>" loading="lazy">
                         </div>
                     <?php elseif($present): ?>
                         <p class="bpp-sheet-confirmation"><span aria-hidden="true">✓</span> Presensi berhasil tercatat</p>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    <a class="bpp-sheet-link" href="<?php echo e(route('mobile.bpppmnu.events.show', $event)); ?>">Lihat Detail</a>
+                    <a class="bpp-sheet-link" href="<?php echo e(route($bppRoutePrefix.'events.show', $event)); ?>">Lihat Detail</a>
                 </div>
             </div>
         </div>

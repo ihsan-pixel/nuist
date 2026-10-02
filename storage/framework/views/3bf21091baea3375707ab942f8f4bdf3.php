@@ -111,6 +111,49 @@
             margin-top: 6px;
         }
 
+        .attendance-summary { margin-bottom: 14px; }
+        .attendance-summary-heading {
+            margin: 0 0 10px;
+            color: #34534a;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .attendance-summary-record + .attendance-summary-record { margin-top: 12px; }
+        .attendance-summary-context {
+            margin: 0 0 6px;
+            color: #687b73;
+            font-size: 11px;
+        }
+        .attendance-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .attendance-summary-cell {
+            padding: 14px;
+            border: 1px solid #e0e8e3;
+            border-radius: 12px;
+            background: #fff;
+        }
+        .attendance-summary-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #62766c;
+            font-size: 12px;
+        }
+        .attendance-summary-label i { color: #0b5b47; font-size: 16px; }
+        .attendance-summary-time {
+            display: block;
+            text-align: center;
+            margin-top: 6px;
+            color: #173d2e;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .attendance-summary-empty { color: #88978f; }
+
         .status-card {
             background: #fff;
             border-radius: 14px;
@@ -1786,26 +1829,6 @@
         </div>
     </div>
 
-    <!-- User Location Map -->
-    <div class="presensi-form">
-        <!-- Header -->
-        
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-map-pin"></i>
-            </div>
-            <h6 class="section-title mb-0">Lokasi Anda Saat Ini</h6>
-        </div>
-        <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
-            <div id="map-placeholder" class="map-placeholder">
-                <i class="bx bx-map"></i>
-                <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
-            </div>
-            <div id="user-location-map" style="height: 100%; width: 100%;"></div>
-        </div>
-    </div>
-
-    <!-- Status Card -->
     <?php
         $user = Auth::user();
         $isPenjagaSekolah = $user->ketugasan === 'penjaga sekolah';
@@ -1820,6 +1843,89 @@
                 ->first();
         }
     ?>
+
+        <?php
+            $showKeluar = false;
+            if ($isPenjagaSekolah && isset($openPresensi)) {
+                $showKeluar = true;
+            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
+                $showKeluar = $presensiHariIni->where('waktu_keluar', null)->count() > 0;
+            }
+        ?>
+
+        <?php
+            $isDisabled = false;
+            $buttonText = 'Presensi Sekarang';
+            $buttonIcon = 'check-circle';
+            $verificationMode = $faceVerificationState['mode'] ?? 'selfie';
+            $verificationLabel = $faceVerificationState['label'] ?? 'Selfie';
+            $faceEnrollmentRequired = $faceVerificationState['requires_face_scan'] ?? false;
+            $faceEnrollmentReady = $faceVerificationState['enrolled'] ?? false;
+            $pythonVerificationUrl = route('mobile.presensi.python', [
+                'mode' => $showKeluar ? 'keluar' : 'masuk',
+            ]);
+
+            if ($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment) {
+                $isDisabled = true;
+                $buttonText = 'Daftarkan Wajah Terlebih Dahulu';
+                $buttonIcon = 'scan';
+            } elseif ($isPenjagaSekolah) {
+                // For penjaga sekolah, always allow presensi
+                $isDisabled = false;
+                $buttonText = 'Presensi Sekarang';
+            } elseif ($isHoliday && !$hasApprovedPicketToday) {
+                $isDisabled = true;
+                $buttonText = 'Hari Libur - Presensi Ditutup';
+                $buttonIcon = 'calendar-x';
+            } elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0)) {
+                $isDisabled = true;
+                $buttonText = 'Izin Disetujui';
+                $buttonIcon = 'file';
+            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
+                $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
+                $isDisabled = $allComplete;
+                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
+            }
+        ?>
+
+    <!-- User Location Map -->
+    <div class="presensi-form">
+        <!-- Header -->
+        
+        <div class="section-header">
+            <div class="section-header-main">
+                <div class="status-icon">
+                    <i class="bx bx-map-pin"></i>
+                </div>
+                <h6 class="section-title mb-0">Lokasi Anda Saat Ini</h6>
+            </div>
+            <div id="location-info" class="location-info location-badge info">
+                <span class="badge-icon"><i class="bx bx-loader-alt bx-spin"></i></span>
+                <span class="badge-title">GPS aktif</span>
+            </div>
+        </div>
+        <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
+            <div id="map-placeholder" class="map-placeholder">
+                <i class="bx bx-map"></i>
+                <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
+            </div>
+            <div id="user-location-map" style="height: 100%; width: 100%;"></div>
+        </div>
+
+        <div class="form-section">
+            <button type="button" id="btn-presensi"
+                    class="presensi-btn"
+                    data-python-url="<?php echo e($hasKiosk2Enrollment ? $pythonVerificationUrl : ''); ?>"
+                    disabled
+                    <?php echo e($isDisabled ? 'disabled' : ''); ?>>
+                <i class="bx bx-<?php echo e($buttonIcon); ?> me-1"></i>
+                <?php echo e($buttonText); ?>
+
+            </button>
+        </div>
+    </div>
+
+    <!-- Status Card -->
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isHoliday && !$isPenjagaSekolah && !$hasApprovedPicketToday): ?>
     <div class="alert-custom warning">
@@ -1889,60 +1995,31 @@
     </div>
 
     <?php elseif(($presensiHariIni && $presensiHariIni->count() > 0) || ($isPenjagaSekolah && isset($openPresensi))): ?>
-    <div class="status-card success">
-        <div class="d-flex align-items-center">
-            <div class="status-icon">
-                <i class="bx bx-check-circle"></i>
-            </div>
-            <div class="w-100">
-                <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPenjagaSekolah && isset($openPresensi)): ?>
-                    <div class="status-detail-list">
-                        <div class="status-detail-item">
-                            <small><?php echo e($openPresensi->madrasah?->name ?? 'Madrasah'); ?> • <?php echo e(\Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y')); ?></small>
-                            <p>Masuk: <strong><?php echo e($openPresensi->waktu_masuk->format('H:i')); ?></strong></p>
-                        </div>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($openPresensi->keterangan): ?>
-                        <div class="status-detail-item">
-                            <small>Keterangan</small>
-                            <p><strong><?php echo e($openPresensi->keterangan); ?></strong></p>
-                        </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-                    <p class="status-inline-note mb-0">Belum presensi keluar. Lakukan presensi keluar jika sudah selesai.</p>
-                <?php else: ?>
-                    <div class="status-detail-list">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $presensiHariIni; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                        <div class="status-detail-item">
-                            <small><?php echo e($presensi->madrasah?->name ?? 'Madrasah'); ?> • <?php echo e(\Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y')); ?></small>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_masuk): ?>
-                            <p>Masuk: <strong><?php echo e($presensi->waktu_masuk->format('H:i')); ?></strong></p>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_keluar): ?>
-                            <p>Keluar: <strong><?php echo e($presensi->waktu_keluar->format('H:i')); ?></strong></p>
-                            <?php else: ?>
-                            <p class="text-muted">Belum presensi keluar</p>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->keterangan): ?>
-                            <p class="text-muted">Keterangan: <strong><?php echo e($presensi->keterangan); ?></strong></p>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            <?php else: ?>
-                            <p>Masuk: <strong>-</strong></p>
-                            <p class="text-muted">Belum presensi masuk</p>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                    </div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()): ?>
-                    <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
-                        <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
-                    </div>
-                    <?php else: ?>
-                    <p class="status-inline-note mb-0">Lakukan presensi keluar jika sudah selesai.</p>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php
+        $recordedAttendances = $isPenjagaSekolah && isset($openPresensi)
+            ? collect([$openPresensi])
+            : $presensiHariIni;
+    ?>
+    <section class="attendance-summary" aria-labelledby="attendance-summary-title">
+        <h6 id="attendance-summary-title" class="attendance-summary-heading">Presensi tercatat</h6>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $recordedAttendances; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+        <div class="attendance-summary-record">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($recordedAttendances->count() > 1 || ($isPenjagaSekolah && isset($openPresensi))): ?>
+            <p class="attendance-summary-context"><?php echo e($presensi->madrasah?->name ?? 'Madrasah'); ?> · <?php echo e(\Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y')); ?></p>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <div class="attendance-summary-grid">
+                <div class="attendance-summary-cell">
+                    <span class="attendance-summary-label"><i class="bx bx-log-in-circle" aria-hidden="true"></i>Masuk</span>
+                    <strong class="attendance-summary-time <?php echo e($presensi->waktu_masuk ? '' : 'attendance-summary-empty'); ?>" aria-label="<?php echo e($presensi->waktu_masuk ? 'Waktu masuk' : 'Belum presensi masuk'); ?>"><?php echo e($presensi->waktu_masuk?->format('H:i') ?? '—'); ?></strong>
+                </div>
+                <div class="attendance-summary-cell">
+                    <span class="attendance-summary-label"><i class="bx bx-log-out-circle" aria-hidden="true"></i>Keluar</span>
+                    <strong class="attendance-summary-time <?php echo e($presensi->waktu_keluar ? '' : 'attendance-summary-empty'); ?>" aria-label="<?php echo e($presensi->waktu_keluar ? 'Waktu keluar' : 'Belum presensi keluar'); ?>"><?php echo e($presensi->waktu_keluar?->format('H:i') ?? '—'); ?></strong>
+                </div>
             </div>
         </div>
-    </div>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+    </section>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Presensi Form -->
@@ -1952,19 +2029,8 @@
                 <div class="status-icon">
                     <i class="bx bx-<?php echo e($presensiHariIni ? 'log-out-circle' : 'log-in-circle'); ?>"></i>
                 </div>
-        <?php
-            $showKeluar = false;
-            if ($isPenjagaSekolah && isset($openPresensi)) {
-                $showKeluar = true;
-            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
-                $showKeluar = $presensiHariIni->where('waktu_keluar', null)->count() > 0;
-            }
-        ?>
+
                 <h6 class="section-title mb-0"><?php echo e($showKeluar ? 'Presensi Keluar' : 'Presensi Masuk'); ?></h6>
-            </div>
-            <div id="location-info" class="location-info location-badge info">
-                <span class="badge-icon"><i class="bx bx-loader-alt bx-spin"></i></span>
-                <span class="badge-title">GPS aktif</span>
             </div>
         </div>
 
@@ -1979,41 +2045,7 @@
             </div>
         </div>
 
-        <!-- Presensi Button -->
-        <?php
-            $isDisabled = false;
-            $buttonText = 'Presensi Sekarang';
-            $buttonIcon = 'check-circle';
-            $verificationMode = $faceVerificationState['mode'] ?? 'selfie';
-            $verificationLabel = $faceVerificationState['label'] ?? 'Selfie';
-            $faceEnrollmentRequired = $faceVerificationState['requires_face_scan'] ?? false;
-            $faceEnrollmentReady = $faceVerificationState['enrolled'] ?? false;
-            $pythonVerificationUrl = route('mobile.presensi.python', [
-                'mode' => $showKeluar ? 'keluar' : 'masuk',
-            ]);
 
-            if ($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment) {
-                $isDisabled = true;
-                $buttonText = 'Daftarkan Wajah Terlebih Dahulu';
-                $buttonIcon = 'scan';
-            } elseif ($isPenjagaSekolah) {
-                // For penjaga sekolah, always allow presensi
-                $isDisabled = false;
-                $buttonText = 'Presensi Sekarang';
-            } elseif ($isHoliday && !$hasApprovedPicketToday) {
-                $isDisabled = true;
-                $buttonText = 'Hari Libur - Presensi Ditutup';
-                $buttonIcon = 'calendar-x';
-            } elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0)) {
-                $isDisabled = true;
-                $buttonText = 'Izin Disetujui';
-                $buttonIcon = 'file';
-            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
-                $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
-                $isDisabled = $allComplete;
-                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
-            }
-        ?>
 
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($faceEnrollmentRequired && !$faceEnrollmentReady && !$hasKiosk2Enrollment): ?>
         <div class="alert-custom warning">
@@ -2029,17 +2061,7 @@
 
         
 
-        <div class="form-section">
-            <button type="button" id="btn-presensi"
-                    class="presensi-btn"
-                    data-python-url="<?php echo e($hasKiosk2Enrollment ? $pythonVerificationUrl : ''); ?>"
-                    disabled
-                    <?php echo e($isDisabled ? 'disabled' : ''); ?>>
-                <i class="bx bx-<?php echo e($buttonIcon); ?> me-1"></i>
-                <?php echo e($buttonText); ?>
 
-            </button>
-        </div>
 
         <!-- Selfie Section -->
         
@@ -4449,6 +4471,20 @@ window.addEventListener('load', function() {
 
             const pythonUrl = this.dataset.pythonUrl;
             if (pythonUrl) {
+                const locationState = syncLatestLocationState();
+                const reading = locationState.lastReading;
+                if (!reading || !Number.isFinite(Number(reading.latitude))
+                    || !Number.isFinite(Number(reading.longitude))
+                    || Date.now() - Number(reading.timestamp) > 120000) {
+                    showFormalErrorAlert('Lokasi Belum Siap', 'Tunggu pembacaan lokasi terbaru di halaman presensi sebelum melanjutkan.');
+                    return;
+                }
+                sessionStorage.setItem('python-presensi-location', JSON.stringify({
+                    userId: <?php echo json_encode(auth()->id(), 15, 512) ?>,
+                    reading,
+                    lokasi: locationState.lokasi || '',
+                    readings: locationReadings,
+                }));
                 window.location.assign(pythonUrl);
                 return;
             }

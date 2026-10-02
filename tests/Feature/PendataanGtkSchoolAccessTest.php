@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Exports\PendataanGtkExport;
 use App\Http\Controllers\AdminYayasan\PendataanGtkController;
+use App\Http\Controllers\TenagaPendidikController;
 use App\Models\Madrasah;
 use App\Models\User;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
@@ -106,5 +108,29 @@ class PendataanGtkSchoolAccessTest extends TestCase
         $this->actingAs(new User(['role' => 'admin', 'madrasah_id' => 1]));
         $this->expectException(HttpException::class);
         (new PendataanGtkController)->update(new \Illuminate\Http\Request, User::findOrFail(11));
+    }
+
+    public function test_masterdata_export_uses_only_the_selected_school_gtk_data(): void
+    {
+        $this->actingAs(new User(['role' => 'super_admin']));
+        Excel::shouldReceive('download')->once()->withArgs(function (PendataanGtkExport $export, string $filename) {
+            return $export->collection()->pluck(3)->all() === ['Guru Dua']
+                && str_contains($filename, 'data-gtk-sekolah-dua-');
+        })->andReturn(response('xlsx'));
+
+        $request = Request::create('/masterdata/tenaga-pendidik/export-by-school', 'GET', ['madrasah_id' => 2]);
+
+        (new TenagaPendidikController)->exportBySchool($request);
+    }
+
+    public function test_school_admin_cannot_export_another_school_from_masterdata(): void
+    {
+        $this->actingAs(new User(['role' => 'admin', 'madrasah_id' => 1]));
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Unauthorized access');
+
+        $request = Request::create('/masterdata/tenaga-pendidik/export-by-school', 'GET', ['madrasah_id' => 2]);
+
+        (new TenagaPendidikController)->exportBySchool($request);
     }
 }

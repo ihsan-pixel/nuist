@@ -179,6 +179,12 @@
                 <div class="service-icon"><i class="bx bx-calendar"></i></div>
                 <div class="service-label">Jadwal Mengajar</div>
             </a>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()?->bpppmnuMember?->is_active): ?>
+            <a href="<?php echo e(route('mobile.bpppmnu.presensi')); ?>" class="service-card">
+                <div class="service-icon"><i class="bx bx-calendar-event"></i></div>
+                <div class="service-label">Agenda BPPPMNU</div>
+            </a>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <a href="<?php echo e(route('mobile.menu-layanan')); ?>" class="service-card" data-no-loader="true">
                 <div class="service-icon"><i class="bx bx-grid-alt"></i></div>
                 <div class="service-label">Semua Menu</div>
@@ -212,7 +218,7 @@
                 <div class="service-icon"><i class="bx bx-briefcase"></i></div>
                 <div class="service-label">Dinas Luar</div>
             </a>
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()?->pemenuhan_beban_kerja_lain): ?>
+            <?php if(auth()->user()?->pemenuhan_beban_kerja_lain): ?>
             <a href="<?php echo e(route('mobile.izin', ['type' => 'mengajar_sekolah_lain'])); ?>" class="service-card">
                 <div class="service-icon"><i class="bx bx-buildings"></i></div>
                 <div class="service-label">Sekolah Lain</div>

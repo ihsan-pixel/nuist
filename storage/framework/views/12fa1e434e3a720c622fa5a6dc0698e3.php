@@ -32,6 +32,7 @@
                 
             </div>
             <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportBniVaModal" <?php echo e(!$hasActiveBniVaSetting ? 'disabled' : ''); ?>><i class="bx bx-credit-card me-1"></i>CSV BNI VA</button>
                 <a class="btn btn-outline-secondary" href="<?php echo e(route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>"><i class="bx bx-download me-1"></i>Template Import</a>
                 <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#importTagihanModal" <?php echo e($userRole === 'admin_spp' && !$hasActiveBniVaSetting ? 'disabled' : ''); ?>><i class="bx bx-upload me-1"></i>Import Tagihan</button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal" <?php echo e($userRole === 'admin_spp' && !$hasActiveBniVaSetting ? 'disabled' : ''); ?>><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
@@ -96,6 +97,7 @@
                 <tbody>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $bills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $bill): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                     <?php ($latestVa = $bill->transactions->firstWhere('payment_channel', 'bni_va')); ?>
+                    <?php ($studentVa = $studentVirtualAccounts->get($bill->siswa_id)); ?>
                     <tr>
                         <td><?php echo e($bills->firstItem() + $index); ?></td>
                         <td><?php echo e($bill->nomor_tagihan); ?></td>
@@ -110,11 +112,15 @@
                         <td><span class="badge bg-<?php echo e($bill->status === 'lunas' ? 'success' : ($bill->status === 'sebagian' ? 'warning' : 'danger')); ?>"><?php echo e(ucfirst(str_replace('_', ' ', $bill->status))); ?></span></td>
                         <td>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($bill->setting->payment_provider ?? 'manual') === 'bni_va' && $bill->status !== 'lunas'): ?>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestVa && $latestVa->va_number): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($studentVa): ?>
+                                    <div class="fw-semibold"><?php echo e($studentVa->virtual_account); ?></div>
+                                    <small class="text-muted d-block"><?php echo e($studentVa->tahun_ajaran); ?> · <?php echo e($studentVa->expired_at->format('d M Y H:i')); ?></small>
+                                    <span class="badge bg-<?php echo e($studentVa->status === 'active' ? 'success' : 'info'); ?>-subtle text-<?php echo e($studentVa->status === 'active' ? 'success' : 'info'); ?>"><?php echo e(ucfirst($studentVa->status)); ?></span>
+                                <?php elseif($latestVa && $latestVa->va_number): ?>
                                     <div class="fw-semibold"><?php echo e($latestVa->va_number); ?></div>
-                                    <small class="text-muted d-block"><?php echo e(optional($latestVa->va_expired_at)->format('d M Y H:i') ?? 'Belum ada expiry'); ?></small>
+                                    <small class="text-muted d-block">VA tagihan lama · <?php echo e(optional($latestVa->va_expired_at)->format('d M Y H:i') ?? 'Belum ada expiry'); ?></small>
                                 <?php else: ?>
-                                    <small class="text-muted d-block">VA akan diterbitkan saat siswa mencetak billing.</small>
+                                    <small class="text-muted d-block">Belum dibuat pada CSV BNI.</small>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             <?php else: ?>
                                 <span class="text-muted">Manual</span>
@@ -136,6 +142,62 @@
         </div>
         <?php echo e($bills->links()); ?>
 
+    </div>
+</div>
+
+<div class="modal fade" id="exportBniVaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="<?php echo e(route('spp-siswa.bni-va.export')); ?>">
+                <?php echo csrf_field(); ?>
+                <div class="modal-header">
+                    <h5 class="modal-title">Buat dan Unduh CSV BNI Virtual Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        Satu VA dibuat untuk setiap siswa per tahun ajaran. Ekspor ulang akan memakai nomor VA yang sama. Nominal dikirim sebagai <strong>0 (open amount)</strong>.
+                    </div>
+                    <div class="row g-3">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
+                            <div class="col-md-6">
+                                <label class="form-label">Madrasah</label>
+                                <select name="madrasah_id" class="form-select" required>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($madrasah->id); ?>" <?php if((string) $selectedMadrasahId === (string) $madrasah->id): echo 'selected'; endif; ?>><?php echo e($madrasah->name); ?></option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </select>
+                            </div>
+                        <?php else: ?>
+                            <input type="hidden" name="madrasah_id" value="<?php echo e($selectedMadrasahId); ?>">
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <div class="col-md-6">
+                            <label class="form-label">Pengaturan Tahun Ajaran</label>
+                            <select name="setting_id" class="form-select" required>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $settings->where('payment_provider', 'bni_va'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $setting): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <option value="<?php echo e($setting->id); ?>"><?php echo e($setting->tahun_ajaran); ?> - BNI VA</option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Jurusan</label>
+                            <select name="jurusan" class="form-select"><option value="">Semua</option><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $jurusanOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?><option value="<?php echo e($jurusan); ?>"><?php echo e($jurusan); ?></option><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Kelas</label>
+                            <select name="kelas" class="form-select"><option value="">Semua</option><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $kelasOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kelas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?><option value="<?php echo e($kelas); ?>"><?php echo e($kelas); ?></option><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?></select>
+                        </div>
+                        <div class="col-md-4"><label class="form-label">Prefix VA BNI (8 digit)</label><input type="text" name="va_prefix" class="form-control" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" value="<?php echo e(old('va_prefix', '98879105')); ?>" required><div class="form-text">Pastikan sesuai Virtual Code resmi dari BNI.</div></div>
+                        <div class="col-md-4"><label class="form-label">Berlaku Sampai</label><input type="date" name="expired_date" class="form-control" value="<?php echo e(old('expired_date', now()->month >= 7 ? now()->addYear()->format('Y-06-30') : now()->format('Y-06-30'))); ?>" required></div>
+                        <div class="col-md-4"><label class="form-label">Jam Kedaluwarsa</label><input type="time" name="expired_time" class="form-control" value="<?php echo e(old('expired_time', '20:00')); ?>" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary"><i class="bx bx-download me-1"></i>Buat & Unduh CSV</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -206,7 +268,6 @@
                             <input type="text" class="form-control" value="SPP" readonly>
                         </div>
                         <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" id="bulkTagihanPeriode" class="form-control" value="<?php echo e(old('periode')); ?>" required></div>
-                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" id="bulkTagihanJatuhTempo" class="form-control" value="<?php echo e(old('jatuh_tempo')); ?>"></div>
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" value="<?php echo e(old('nominal')); ?>" placeholder="Isi nominal tagihan" required></div>
                         <div class="col-md-12"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control" value="<?php echo e(old('catatan')); ?>"></div>
                     </div>
