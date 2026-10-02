@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Exports\PendataanGtkExport;
 use App\Models\GtkPendataan;
 use App\Models\Madrasah;
+use App\Models\StatusKepegawaian;
 use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -25,16 +26,17 @@ class PendataanGtkExportTest extends TestCase
             'nik' => '0012345678901234', 'gaji_satpen' => 1500000.50,
             'gaji_sertifikasi' => 0, 'nama_mgmp' => 'Matematika',
         ]));
+        $user->setRelation('statusKepegawaian', new StatusKepegawaian(['name' => 'GTY Sertifikasi']));
         $user->setRelation('mgmpMemberships', collect());
 
         $sheet = $this->workbookSheet(new PendataanGtkExport(collect([$user])));
 
-        $this->assertSame('W', $sheet->getHighestColumn());
+        $this->assertSame('U', $sheet->getHighestColumn());
         $this->assertContains('F1:J1', $sheet->getMergeCells());
-        $this->assertContains('K1:T1', $sheet->getMergeCells());
-        $this->assertContains('U1:W1', $sheet->getMergeCells());
+        $this->assertContains('K1:U1', $sheet->getMergeCells());
         $this->assertSame('NIK', $sheet->getCell('F2')->getValue());
-        $this->assertSame('Produk kerja kolaboratif', $sheet->getCell('W2')->getValue());
+        $this->assertSame('Status Kepegawaian', $sheet->getCell('K2')->getValue());
+        $this->assertSame('Tunjangan rerata per bulan (Rp)', $sheet->getCell('U2')->getValue());
         $this->assertSame('001', $sheet->getCell('B3')->getValue());
         $this->assertSame('000123', $sheet->getCell('C3')->getValue());
         $this->assertSame(DataType::TYPE_STRING, $sheet->getCell('D3')->getDataType());
@@ -42,13 +44,12 @@ class PendataanGtkExportTest extends TestCase
         $this->assertSame('0012345678901234', $sheet->getCell('F3')->getValue());
         $this->assertSame('081234567890', $sheet->getCell('I3')->getValue());
         $this->assertSame('guru@example.test', $sheet->getCell('J3')->getValue());
-        $this->assertSame('02-01-2020', $sheet->getCell('L3')->getValue());
-        $this->assertSame(1500000.5, $sheet->getCell('Q3')->getValue());
-        $this->assertEquals(0, $sheet->getCell('S3')->getValue());
-        $this->assertSame(DataType::TYPE_NUMERIC, $sheet->getCell('S3')->getDataType());
-        $this->assertNull($sheet->getCell('T3')->getValue());
-        $this->assertSame('Matematika', $sheet->getCell('U3')->getValue());
-        $this->assertSame('Tidak Aktif', $sheet->getCell('V3')->getValue());
+        $this->assertSame('GTY Sertifikasi', $sheet->getCell('K3')->getValue());
+        $this->assertSame('02-01-2020', $sheet->getCell('M3')->getValue());
+        $this->assertSame(1500000.5, $sheet->getCell('R3')->getValue());
+        $this->assertEquals(0, $sheet->getCell('T3')->getValue());
+        $this->assertSame(DataType::TYPE_NUMERIC, $sheet->getCell('T3')->getDataType());
+        $this->assertNull($sheet->getCell('U3')->getValue());
     }
 
     public function test_empty_export_still_has_headers(): void
@@ -64,6 +65,7 @@ class PendataanGtkExportTest extends TestCase
         $user = new User(['name' => 'Ahmad, S.Pd.', 'gelar' => 'S.Pd.']);
         $user->setRelation('madrasah', new Madrasah());
         $user->setRelation('gtkPendataan', null);
+        $user->setRelation('statusKepegawaian', null);
         $user->setRelation('mgmpMemberships', collect());
 
         $sheet = $this->workbookSheet(new PendataanGtkExport(collect([$user])));

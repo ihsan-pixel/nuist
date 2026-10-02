@@ -29,9 +29,14 @@ class PendataanGtkSchoolAccessTest extends TestCase
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('madrasah_id')->nullable();
+            $table->unsignedBigInteger('status_kepegawaian_id')->nullable();
             $table->string('role');
             $table->string('name');
             $table->string('ketugasan')->nullable();
+        });
+        Schema::create('status_kepegawaian', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
         });
         foreach (['gtk_pendataan', 'mgmp_members'] as $name) {
             Schema::create($name, function (Blueprint $table) {

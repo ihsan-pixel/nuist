@@ -178,7 +178,7 @@ class TenagaPendidikController extends Controller
         $gtk = User::query()
             ->where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $madrasah->id)
-            ->with(['madrasah', 'gtkPendataan', 'mgmpMemberships.mgmpGroup'])
+            ->with(['madrasah', 'statusKepegawaian', 'gtkPendataan'])
             ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
             ->orderBy('name')
             ->get();
