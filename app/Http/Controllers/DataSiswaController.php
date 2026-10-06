@@ -10,6 +10,7 @@ use App\Models\Madrasah;
 use App\Models\Siswa;
 use App\Services\StudentDefaultPasswordService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -333,6 +334,14 @@ class DataSiswaController extends Controller
             return back()
                 ->withInput(Arr::except($request->all(), ['file']))
                 ->withErrors(['file' => $exception->getMessage()]);
+        } catch (UniqueConstraintViolationException $exception) {
+            report($exception);
+
+            return back()
+                ->withInput(Arr::except($request->all(), ['file']))
+                ->withErrors([
+                    'file' => 'Import dibatalkan karena ada NIS, NISN, atau identifier lain yang sudah digunakan oleh data siswa berbeda. Tidak ada perubahan yang disimpan. Periksa data duplikat lalu coba kembali.',
+                ]);
         }
 
         $message = $replaceMadrasah

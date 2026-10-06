@@ -86,7 +86,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 'is_active' => true,
             ];
 
-            $existing = $this->findExistingStudent($madrasah->id, $nis, $nisn, $nik);
+            $existing = $this->findExistingStudent($madrasah->id, $nis, $nisn, $nik, $line);
 
             if ($existing) {
                 // Do not invalidate a password already selected by a student.
@@ -162,33 +162,67 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         return $madrasah;
     }
 
-    private function findExistingStudent(int $madrasahId, ?string $nis, ?string $nisn, ?string $nik): ?Siswa
+    private function findExistingStudent(
+        int $madrasahId,
+        ?string $nis,
+        ?string $nisn,
+        ?string $nik,
+        int $line
+    ): ?Siswa
     {
         if (!$nis && !$nisn && !$nik) {
             return null;
         }
 
-        $query = Siswa::query();
-        $hasCondition = false;
+        $matches = collect([
+            'NIS' => $nis
+                ? Siswa::query()->where('madrasah_id', $madrasahId)->where('nis', $nis)->first()
+                : null,
+            'NISN' => $nisn
+                ? Siswa::query()->where('nisn', $nisn)->first()
+                : null,
+            'NIK' => $nik
+                ? Siswa::query()->where('nik', $nik)->first()
+                : null,
+        ])->filter();
 
-        if ($nis) {
-            $query->where(function ($scopedQuery) use ($madrasahId, $nis) {
-                $scopedQuery->where('madrasah_id', $madrasahId)
-                    ->where('nis', $nis);
-            });
-            $hasCondition = true;
+        $matchedStudentIds = $matches->pluck('id')->unique()->values();
+
+        if ($matchedStudentIds->count() > 1) {
+            $details = $matches
+                ->map(fn (Siswa $student, string $identifier) => "{$identifier} cocok ke ID {$student->id}")
+                ->implode(', ');
+
+            throw new \InvalidArgumentException(
+                "Baris {$line}: identifier siswa saling bertentangan ({$details}). " .
+                'Periksa data duplikat di aplikasi sebelum import dilanjutkan.'
+            );
         }
 
-        if ($nisn) {
-            ($hasCondition ? $query->orWhere('nisn', $nisn) : $query->where('nisn', $nisn));
-            $hasCondition = true;
+        $existing = $matches->first();
+
+        if (!$existing) {
+            return null;
         }
 
-        if ($nik) {
-            ($hasCondition ? $query->orWhere('nik', $nik) : $query->where('nik', $nik));
+        // Guard against a target value owned by another row even if the initial
+        // identity match was found through NISN or NIK.
+        $nisOwner = $nis
+            ? Siswa::query()
+                ->where('madrasah_id', $madrasahId)
+                ->where('nis', $nis)
+                ->where('id', '!=', $existing->id)
+                ->first()
+            : null;
+
+        if ($nisOwner) {
+            throw new \InvalidArgumentException(
+                "Baris {$line}: NIS {$nis} sudah digunakan oleh siswa ID {$nisOwner->id} pada madrasah yang sama. " .
+                'Periksa data duplikat di aplikasi sebelum import dilanjutkan.'
+            );
         }
 
-        return $query->first();
+        return $existing;
     }
 
     private function getRowValue($row, string $field): mixed
