@@ -27,6 +27,8 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
     public function collection(Collection $rows): void
     {
+        $this->prepareNisReassignments($rows);
+
         foreach ($rows as $index => $row) {
             $line = $index + 2;
 
@@ -103,6 +105,108 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             app(StudentDefaultPasswordService::class)->ensurePassword($created);
             $this->processedStudentIds[] = (int) $created->id;
             $this->created++;
+        }
+    }
+
+    /**
+     * Release NIS values that are being reassigned between students in the same
+     * import batch. The controller wraps the import in a transaction, so these
+     * temporary nulls are rolled back if any row later fails validation.
+     */
+    private function prepareNisReassignments(Collection $rows): void
+    {
+        $plans = collect();
+        $targetRows = collect();
+
+        foreach ($rows as $index => $row) {
+            $line = $index + 2;
+            $madrasah = $this->resolveMadrasahForRow($row, $line);
+            $nis = $this->nullableString($this->getRowValue($row, 'nis'));
+            $nisn = $this->nullableString($this->getRowValue($row, 'nisn'));
+            $nik = $this->nullableString($this->getRowValue($row, 'nik'));
+
+            if (!$nis || (!$nisn && !$nik)) {
+                continue;
+            }
+
+            $identityMatches = collect([
+                'NISN' => $nisn ? Siswa::query()->where('nisn', $nisn)->first() : null,
+                'NIK' => $nik ? Siswa::query()->where('nik', $nik)->first() : null,
+            ])->filter();
+
+            $identityIds = $identityMatches->pluck('id')->unique()->values();
+            if ($identityIds->count() > 1) {
+                $details = $identityMatches
+                    ->map(fn (Siswa $student, string $identifier) => "{$identifier} cocok ke ID {$student->id}")
+                    ->implode(', ');
+
+                throw new \InvalidArgumentException(
+                    "Baris {$line}: identifier siswa saling bertentangan ({$details})."
+                );
+            }
+
+            $target = $identityMatches->first();
+            if (!$target) {
+                continue;
+            }
+
+            if ($targetRows->has((int) $target->id)) {
+                throw new \InvalidArgumentException(
+                    "Baris {$line}: siswa ID {$target->id} sudah muncul pada baris {$targetRows->get((int) $target->id)} dalam file import."
+                );
+            }
+            $targetRows->put((int) $target->id, $line);
+
+            if ((int) $target->madrasah_id !== (int) $madrasah->id) {
+                throw new \InvalidArgumentException(
+                    "Baris {$line}: NISN/NIK cocok dengan siswa ID {$target->id} di madrasah lain."
+                );
+            }
+
+            $planKey = $madrasah->id.'|'.$nis;
+            if ($plans->has($planKey) && (int) $plans->get($planKey)['target_id'] !== (int) $target->id) {
+                throw new \InvalidArgumentException(
+                    "Baris {$line}: NIS {$nis} digunakan lebih dari sekali untuk siswa berbeda dalam file import."
+                );
+            }
+
+            $plans->put($planKey, [
+                'line' => $line,
+                'madrasah_id' => (int) $madrasah->id,
+                'desired_nis' => $nis,
+                'target_id' => (int) $target->id,
+                'current_nis' => $this->nullableString($target->nis),
+            ]);
+        }
+
+        if ($plans->isEmpty()) {
+            return;
+        }
+
+        $plannedTargetIds = $plans->pluck('target_id')->unique();
+
+        foreach ($plans as $plan) {
+            $owner = Siswa::query()
+                ->where('madrasah_id', $plan['madrasah_id'])
+                ->where('nis', $plan['desired_nis'])
+                ->first();
+
+            if ($owner && (int) $owner->id !== $plan['target_id'] && !$plannedTargetIds->contains((int) $owner->id)) {
+                throw new \InvalidArgumentException(
+                    "Baris {$plan['line']}: NIS {$plan['desired_nis']} masih digunakan oleh siswa ID {$owner->id} " .
+                    'yang tidak ikut diperbarui dalam file ini.'
+                );
+            }
+        }
+
+        $idsToRelease = $plans
+            ->filter(fn (array $plan) => $plan['current_nis'] !== $plan['desired_nis'])
+            ->pluck('target_id')
+            ->unique()
+            ->values();
+
+        if ($idsToRelease->isNotEmpty()) {
+            Siswa::query()->whereIn('id', $idsToRelease)->update(['nis' => null]);
         }
     }
 
