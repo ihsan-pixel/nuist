@@ -373,6 +373,11 @@
                 </div>
                 @if($userRole !== 'admin_spp')
                     <div class="d-flex flex-wrap gap-2">
+                        @if(in_array($userRole, ['super_admin', 'admin']))
+                            <a href="{{ route('data-sekolah.data-siswa.academic-history.preview', array_filter(['madrasah_id' => $selectedMadrasahId])) }}" class="btn btn-light">
+                                <i class="bx bx-layer-plus me-1"></i>Inisialisasi Jenjang
+                            </a>
+                        @endif
                         <a href="{{ route('data-sekolah.data-siswa.template') }}" class="btn btn-light">
                             <i class="bx bx-download me-1"></i>Template
                         </a>

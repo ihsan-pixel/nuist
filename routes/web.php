@@ -2219,6 +2219,12 @@ Route::middleware(['auth', 'role:super_admin,admin,admin_spp,pengurus'])->prefix
     Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy'])->name('data-siswa.destroy');
     Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import'])->name('data-siswa.import');
     Route::get('/data-siswa/template', [App\Http\Controllers\DataSiswaController::class, 'template'])->name('data-siswa.template');
+    Route::get('/data-siswa/riwayat-akademik/preview', [App\Http\Controllers\StudentAcademicHistoryController::class, 'preview'])
+        ->middleware('role:super_admin,admin')
+        ->name('data-siswa.academic-history.preview');
+    Route::post('/data-siswa/riwayat-akademik', [App\Http\Controllers\StudentAcademicHistoryController::class, 'store'])
+        ->middleware('role:super_admin')
+        ->name('data-siswa.academic-history.store');
 });
 
 // Check tagihan route outside middleware group to avoid authentication issues

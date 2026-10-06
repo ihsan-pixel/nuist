@@ -104,6 +104,16 @@ class Siswa extends Authenticatable
         return $this->hasMany(SppSiswaVirtualAccount::class);
     }
 
+    public function riwayatAkademik()
+    {
+        return $this->hasMany(SiswaRiwayatAkademik::class);
+    }
+
+    public function riwayatAkademikAktif()
+    {
+        return $this->hasOne(SiswaRiwayatAkademik::class)->where('is_current', true)->latestOfMany();
+    }
+
     public function setNamaLengkapAttribute($value): void
     {
         $normalized = $this->normalizeNullableString($value);
