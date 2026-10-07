@@ -346,7 +346,7 @@ class DataSiswaController extends Controller
 
         $message = $replaceMadrasah
             ? "Update file siswa untuk {$replaceMadrasah->name} selesai. {$import->created} data baru ditambahkan, {$import->updated} data diperbarui, dan {$deletedCount} data lama yang tidak ada di file baru dihapus."
-            : "Import selesai. {$import->created} data baru ditambahkan, {$import->updated} data diperbarui. Data siswa hanya disimpan sebagai data administrasi tanpa akun login.";
+            : "Import selesai. {$import->created} data baru ditambahkan dan {$import->updated} data diperbarui. Siswa yang memiliki NISN dan tanggal lahir memperoleh akses login; akun pengguna aplikasi disinkronkan saat siswa pertama kali login.";
 
         return back()->with('success', $message);
     }
