@@ -193,6 +193,48 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $this->assertStringContainsString('Foto bebas✓ Sudah', $text);
     }
 
+    public function test_gtk_pdf_displays_the_first_page_of_an_uploaded_ktp_pdf(): void
+    {
+        Storage::fake('local');
+        $this->actingAs(new User(['role' => 'admin_yayasan']));
+        $this->app['events']->forget('composing: *');
+
+        $ktp = new FPDF('L', 'mm', [85.6, 53.98]);
+        $ktp->AddPage();
+        $ktp->SetFillColor(230, 245, 235);
+        $ktp->Rect(0, 0, 85.6, 53.98, 'F');
+        $ktp->SetFont('Arial', 'B', 14);
+        $ktp->SetXY(8, 20);
+        $ktp->Cell(70, 8, 'PRATINJAU KTP', 0, 0, 'C');
+        Storage::disk('local')->put('gtk-documents/ktp-uji.pdf', $ktp->Output('S'));
+
+        $user = User::findOrFail(7);
+        $user->setRelation('madrasah', Madrasah::findOrFail(19));
+        $user->setRelation('statusKepegawaian', null);
+        $user->setRelation('gtkPendataan', null);
+        $user->setRelation('simfoni', null);
+        $user->setRelation('mgmpMemberships', new Collection);
+        $user->setRelation('gtkDocuments', new Collection([
+            new GtkDocument([
+                'type' => 'ktp',
+                'disk' => 'local',
+                'path' => 'gtk-documents/ktp-uji.pdf',
+            ]),
+        ]));
+
+        $response = (new PendataanGtkController)->exportPdf($user);
+        $pdfPath = tempnam(sys_get_temp_dir(), 'gtk-ktp-preview-');
+        file_put_contents($pdfPath, $response->getContent());
+
+        try {
+            $exportedPdf = new Fpdi;
+            $this->assertSame(3, $exportedPdf->setSourceFile($pdfPath));
+            $this->assertGreaterThan(20_000, strlen($response->getContent()));
+        } finally {
+            @unlink($pdfPath);
+        }
+    }
+
     public function test_school_pdf_export_contains_one_pdf_per_teacher(): void
     {
         $this->actingAs(new User(['role' => 'admin_yayasan']));

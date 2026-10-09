@@ -62,12 +62,13 @@ class PendataanGtkController extends Controller
 
         $safeName = Str::slug($user->nama_dengan_gelar) ?: 'gtk-'.$user->id;
 
-        $response = $this->makeGtkPdf($user)->stream("form-kelengkapan-dokumen-gtk-{$safeName}.pdf");
-        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-        $response->headers->set('Pragma', 'no-cache');
-        $response->headers->set('Expires', '0');
-
-        return $response;
+        return response($this->makeGtkPdf($user), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "inline; filename=\"form-kelengkapan-dokumen-gtk-{$safeName}.pdf\"",
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 
     public function exportSchoolPdfs(Madrasah $madrasah)
@@ -100,7 +101,7 @@ class PendataanGtkController extends Controller
                 $safeName = Str::slug($user->nama_dengan_gelar) ?: 'gtk-'.$user->id;
                 $identifier = Str::slug((string) $user->nuist_id) ?: (string) $user->id;
                 $filename = "form-gtk-{$identifier}-{$user->id}-{$safeName}.pdf";
-                if (! $zip->addFromString($filename, $this->makeGtkPdf($user)->output())) {
+                if (! $zip->addFromString($filename, $this->makeGtkPdf($user))) {
                     throw new \RuntimeException("Gagal menambahkan PDF {$user->name} ke arsip.");
                 }
             }
@@ -687,7 +688,7 @@ class PendataanGtkController extends Controller
         $font = $pdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
         $pdf->getCanvas()->page_text(520, 806, 'Halaman {PAGE_NUM}', $font, 8, [0.4, 0.4, 0.4]);
 
-        return $pdf;
+        return $this->overlayKtpPdfPreview($pdf->output(), data_get($attachments, 'ktp.pdf_path'));
     }
 
     private function makeGtkPdfAttachments(User $user): array
@@ -745,11 +746,87 @@ class PendataanGtkController extends Controller
         $disk = $document?->disk ?: $legacyDisk;
         $path = $document?->path ?: $legacyPath;
         $image = $this->attachmentImageDataUri($disk, $path);
+        $pdfPath = $image ? null : $this->attachmentPdfPath($disk, $path);
 
         return [
             'image' => $image,
-            'note' => $image ? null : (filled($path) ? 'Berkas tersedia, tetapi tidak dapat ditampilkan sebagai gambar.' : 'Belum tersedia'),
+            'pdf_path' => $pdfPath,
+            'note' => ($image || $pdfPath) ? null : (filled($path) ? 'Berkas tidak dapat ditampilkan.' : 'Belum tersedia'),
         ];
+    }
+
+    private function attachmentPdfPath(string $disk, ?string $path): ?string
+    {
+        if (! filled($path) || filter_var($path, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        $path = ltrim($path, '/');
+
+        try {
+            if (! Storage::disk($disk)->exists($path)
+                || Storage::disk($disk)->mimeType($path) !== 'application/pdf') {
+                return null;
+            }
+
+            return Storage::disk($disk)->path($path);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function overlayKtpPdfPreview(string $basePdf, ?string $ktpPdfPath): string
+    {
+        if (! filled($ktpPdfPath) || ! is_file($ktpPdfPath)) {
+            return $basePdf;
+        }
+
+        $basePath = tempnam(sys_get_temp_dir(), 'gtk-base-pdf-');
+        if ($basePath === false) {
+            return $basePdf;
+        }
+
+        file_put_contents($basePath, $basePdf);
+
+        try {
+            $result = new Fpdi;
+            $pageCount = $result->setSourceFile($basePath);
+            $basePages = [];
+            for ($page = 1; $page <= $pageCount; $page++) {
+                $template = $result->importPage($page);
+                $basePages[] = [$template, $result->getTemplateSize($template)];
+            }
+
+            $result->setSourceFile($ktpPdfPath);
+            $ktpTemplate = $result->importPage(1);
+            $ktpSize = $result->getTemplateSize($ktpTemplate);
+
+            foreach ($basePages as $index => [$template, $size]) {
+                $result->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $result->useTemplate($template);
+
+                if ($index !== 2) {
+                    continue;
+                }
+
+                $targetX = 15.0;
+                $targetY = 69.5;
+                $targetWidth = 180.0;
+                $targetHeight = 46.0;
+                $scale = min($targetWidth / $ktpSize['width'], $targetHeight / $ktpSize['height']);
+                $width = $ktpSize['width'] * $scale;
+                $height = $ktpSize['height'] * $scale;
+                $x = $targetX + (($targetWidth - $width) / 2);
+                $y = $targetY + (($targetHeight - $height) / 2);
+                $result->useTemplate($ktpTemplate, $x, $y, $width, $height);
+            }
+
+            return $result->Output('S');
+        } catch (\Throwable) {
+            return $basePdf;
+        } finally {
+            @unlink($basePath);
+        }
     }
 
     private function attachmentImageDataUri(string $disk, ?string $path): ?string
