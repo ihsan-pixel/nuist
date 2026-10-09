@@ -147,7 +147,6 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
 
         $response = (new PendataanGtkController)->exportPdf($user);
 
-
         $this->assertSame('application/pdf', $response->headers->get('content-type'));
         $this->assertStringStartsWith('%PDF-', $response->getContent());
         $this->assertStringContainsString('no-store', $response->headers->get('cache-control'));

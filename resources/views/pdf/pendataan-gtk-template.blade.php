@@ -23,7 +23,6 @@
         .check { font-family: DejaVu Sans, sans-serif; white-space: nowrap; }
         .page-break { page-break-before: always; height: 1px; }
         .footer { position: fixed; bottom: -6mm; left: 0; color: #666; font-size: 8pt; }
-        .note { color: #444; font-size: 8pt; }
         .wrap { white-space: normal; }
     </style>
 </head>
@@ -48,7 +47,7 @@
     $hasCasualPhoto = $hasUploadedDocument('foto_bebas', $data?->foto_bebas_path);
 @endphp
 
-<div class="footer">LP Ma'arif NU PWNU DIY | Kebutuhan Data GTK</div>
+<div class="footer">LP Ma'arif NU PWNU DIY | Pendataan GTK 2026</div>
 @for($page = 1; $page <= 2; $page++)
     <div class="header">@if($letterheadDataUri)<img src="{{ $letterheadDataUri }}" alt="Kop LP Ma'arif NU PWNU DIY">@endif</div>
 
@@ -111,7 +110,6 @@
             <tr><td class="number">2</td><td>Status keaktifan</td><td>{{ filled($mgmpNames) ? 'Aktif' : '-' }}</td></tr>
             <tr><td class="number">3</td><td>Produk kerja kolaboratif</td><td class="wrap">{{ $value($data?->produk_kerja_kolaboratif) }}</td></tr>
         </table>
-        <p class="note" style="margin-top:14px">Dokumen ini dibuat otomatis dari data Pendataan GTK NUIST.</p>
     @endif
 @endfor
 </body>
