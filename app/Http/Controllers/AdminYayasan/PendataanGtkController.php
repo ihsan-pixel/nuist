@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AdminYayasan;
 use App\Exports\PendataanGtkExport;
 use App\Http\Controllers\Controller;
 use App\Models\Madrasah;
+use App\Models\GtkDocument;
 use App\Models\StatusKepegawaian;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -264,7 +265,7 @@ class PendataanGtkController extends Controller
         $gtk = User::query()
             ->where('madrasah_id', $madrasah->id)
             ->where('role', 'tenaga_pendidik')
-            ->with('gtkPendataan')
+            ->with(['gtkPendataan', 'gtkDocuments'])
             ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
             ->orderBy('name')
             ->get();
@@ -279,11 +280,16 @@ class PendataanGtkController extends Controller
         $request->validate([
             'documents' => 'required|array|max:200',
             'documents.*' => 'array',
-            'documents.*.ktp' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
-            'documents.*.sk_awal' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
-            'documents.*.sk_akhir' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
-            'documents.*.foto_resmi' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'documents.*.foto_bebas' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'documents.*.ktp' => 'nullable|array|max:20',
+            'documents.*.ktp.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+            'documents.*.sk_awal' => 'nullable|array|max:20',
+            'documents.*.sk_awal.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'documents.*.sk_akhir' => 'nullable|array|max:20',
+            'documents.*.sk_akhir.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'documents.*.foto_resmi' => 'nullable|array|max:20',
+            'documents.*.foto_resmi.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+            'documents.*.foto_bebas' => 'nullable|array|max:20',
+            'documents.*.foto_bebas.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
 
         $uploaded = $request->file('documents', []);
@@ -303,41 +309,35 @@ class PendataanGtkController extends Controller
         abort_if($users->count() !== $userIds->count(), 422, 'Terdapat GTK yang tidak valid untuk madrasah ini.');
 
         $newFiles = [];
-        $oldFiles = [];
         $storedAssignments = [];
 
         try {
             foreach ($uploaded as $userId => $files) {
                 $user = $users->get((int) $userId);
-                foreach ($files as $type => $file) {
-                    if (! $file) {
-                        continue;
-                    }
+                foreach ($files as $type => $typeFiles) {
+                    foreach ((array) $typeFiles as $file) {
+                        if (! $file) {
+                            continue;
+                        }
 
-                    $disk = $type === 'foto_resmi' ? 'public' : 'local';
-                    $path = $this->storeGtkDocument($file, $user, $type, $disk);
-                    $newFiles[] = [$disk, $path];
-                    $storedAssignments[] = compact('user', 'type', 'path');
-
-                    $oldPath = $type === 'foto_resmi'
-                        ? $user->avatar
-                        : $user->gtkPendataan?->{$type.'_path'};
-                    if ($oldPath) {
-                        $oldFiles[] = [$disk, $oldPath];
+                        $disk = $type === 'foto_resmi' ? 'public' : 'local';
+                        $path = $this->storeGtkDocument($file, $user, $type, $disk);
+                        $newFiles[] = [$disk, $path];
+                        $originalName = $file->getClientOriginalName();
+                        $storedAssignments[] = compact('user', 'type', 'disk', 'path', 'originalName');
                     }
                 }
             }
 
             DB::transaction(function () use ($storedAssignments) {
                 foreach ($storedAssignments as $assignment) {
-                    if ($assignment['type'] === 'foto_resmi') {
-                        $assignment['user']->update(['avatar' => $assignment['path']]);
-                    } else {
-                        $assignment['user']->gtkPendataan()->updateOrCreate(
-                            ['user_id' => $assignment['user']->id],
-                            [$assignment['type'].'_path' => $assignment['path']]
-                        );
-                    }
+                    GtkDocument::create([
+                        'user_id' => $assignment['user']->id,
+                        'type' => $assignment['type'],
+                        'disk' => $assignment['disk'],
+                        'path' => $assignment['path'],
+                        'original_name' => $assignment['originalName'],
+                    ]);
                 }
             });
         } catch (\Throwable $exception) {
@@ -347,17 +347,38 @@ class PendataanGtkController extends Controller
             throw $exception;
         }
 
-        foreach ($oldFiles as [$disk, $path]) {
-            Storage::disk($disk)->delete($path);
-        }
-
-        $message = count($storedAssignments).' berkas GTK berhasil disimpan atau diperbarui.';
+        $message = count($storedAssignments).' berkas GTK berhasil ditambahkan.';
 
         return $request->expectsJson()
             ? response()->json(['message' => $message, 'uploaded' => count($storedAssignments)])
             : redirect()
                 ->route('pendataan-gtk.documents.manage', $madrasah)
                 ->with('success', $message);
+    }
+
+    public function viewManagedDocument(Madrasah $madrasah, GtkDocument $gtkDocument)
+    {
+        $this->authorizeAccess();
+        $this->authorizeManagedDocument($madrasah, $gtkDocument);
+        abort_unless(Storage::disk($gtkDocument->disk)->exists($gtkDocument->path), 404);
+
+        return Storage::disk($gtkDocument->disk)->response($gtkDocument->path, $gtkDocument->original_name ?: basename($gtkDocument->path), [
+            'Content-Disposition' => 'inline; filename="'.($gtkDocument->original_name ?: basename($gtkDocument->path)).'"',
+        ]);
+    }
+
+    public function destroyManagedDocumentFile(Request $request, Madrasah $madrasah, GtkDocument $gtkDocument)
+    {
+        $this->authorizeAccess();
+        $this->authorizeManagedDocument($madrasah, $gtkDocument);
+
+        Storage::disk($gtkDocument->disk)->delete($gtkDocument->path);
+        $label = str_replace('_', ' ', $gtkDocument->type);
+        $gtkDocument->delete();
+
+        $message = 'Berkas '.$label.' berhasil dihapus.';
+
+        return $request->expectsJson() ? response()->json(['message' => $message]) : back()->with('success', $message);
     }
 
     public function destroyManagedDocument(Request $request, Madrasah $madrasah, User $user, string $type)
@@ -571,6 +592,11 @@ class PendataanGtkController extends Controller
     private function normalizeDocumentIdentifier(string $value): string
     {
         return preg_replace('/[^a-z0-9]+/', '', Str::lower(Str::ascii(trim($value)))) ?? '';
+    }
+
+    private function authorizeManagedDocument(Madrasah $madrasah, GtkDocument $gtkDocument): void
+    {
+        abort_unless((int) $gtkDocument->user?->madrasah_id === (int) $madrasah->id, 404);
     }
 
     private function storeGtkDocument($file, User $user, string $type, string $disk): string

@@ -8,7 +8,7 @@
     .upload-table td { vertical-align: middle; }
     .teacher-cell { min-width: 230px; position: sticky; left: 0; z-index: 2; background: #fff; }
     thead .teacher-cell { z-index: 3; background: #f8fafc; }
-    .drop-zone { min-width: 155px; min-height: 88px; border: 2px dashed #cbd5e1; border-radius: .75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: .6rem; text-align: center; cursor: pointer; transition: .15s ease; background: #f8fafc; }
+    .drop-zone { min-width: 175px; min-height: 110px; border: 2px dashed #cbd5e1; border-radius: .75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: .6rem; text-align: center; cursor: pointer; transition: .15s ease; background: #f8fafc; }
     .drop-zone { position: relative; }
     .drop-zone:hover, .drop-zone.dragging { border-color: #0d6efd; background: #eff6ff; }
     .drop-zone.has-file, .drop-zone.has-stored-file { border-color: #22c55e; background: #f0fdf4; }
@@ -18,7 +18,9 @@
     .drop-zone .stored-file-name { color: #64748b; }
     .existing { font-size: .7rem; color: #15803d; }
     .document-preview { font-size: .7rem; font-weight: 600; text-decoration: none; }
-    .remove-document { position: absolute; top: .3rem; right: .3rem; width: 25px; height: 25px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .stored-files { width: 100%; margin-top: .4rem; display: grid; gap: .3rem; }
+    .stored-file { display: flex; align-items: center; gap: .25rem; padding: .25rem .35rem; border-radius: .4rem; background: rgba(255,255,255,.8); }
+    .stored-file .document-preview { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
     #uploadProgressBar { background-color: #198754 !important; }
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
@@ -37,7 +39,7 @@
             <h4 class="mb-1">Upload Berkas per Guru</h4>
             <div class="text-muted"><?php echo e($madrasah->name); ?></div>
             <div class="alert alert-info mt-3 mb-0 py-2">
-                Jatuhkan file ke kotak guru dan jenis berkas yang sesuai. Nama file bebas; sistem menggunakan posisi kotak untuk menentukan pemilik berkas.
+                Jatuhkan atau pilih beberapa file sekaligus pada kotak yang sama. File lama tidak akan tertimpa dan dapat dihapus satu per satu.
             </div>
         </div>
         <div class="d-flex align-items-start gap-2">
@@ -67,50 +69,55 @@
                 </thead>
                 <tbody>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $gtk; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                        <?php ($data = $user->gtkPendataan); ?>
-                        <tr data-teacher-name="<?php echo e(strtolower($user->name.' '.$user->nuist_id)); ?>">
+                        <?php($data = $user->gtkPendataan)
+                        <tr data-teacher-name="{{ strtolower($user->name.' '.$user->nuist_id) }}">
                             <td class="teacher-cell">
                                 <div class="d-flex align-items-center gap-2">
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user->avatar): ?>
-                                        <img class="teacher-avatar" src="<?php echo e(asset('storage/'.ltrim($user->avatar, '/'))); ?>" alt="Foto <?php echo e($user->name); ?>">
-                                    <?php else: ?>
-                                        <div class="teacher-avatar"><?php echo e(strtoupper(substr($user->name, 0, 1))); ?></div>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    <div><div class="fw-semibold"><?php echo e($user->name); ?></div><small class="text-muted"><?php echo e($user->nuist_id ?: 'Tanpa NUIST ID'); ?></small></div>
+                                    @if($user->avatar)
+                                        <img class="teacher-avatar" src="{{ asset('storage/'.ltrim($user->avatar, '/')) }}" alt="Foto {{ $user->name }}">
+                                    @else
+                                        <div class="teacher-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                                    @endif
+                                    <div><div class="fw-semibold">{{ $user->name }}</div><small class="text-muted">{{ $user->nuist_id ?: 'Tanpa NUIST ID' }}</small></div>
                                 </div>
                             </td>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [
+                            @foreach([
                                 'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
                                 'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
                                 'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
                                 'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
                                 'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
-                            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type => [$hint, $accept, $storedPath]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            ] as $type => [$hint, $accept, $storedPath])
+                                @php
+                                    $storedFiles = $user->gtkDocuments->where('type', $type)->map(fn ($document) => [
+                                        'name' => $document->original_name ?: basename($document->path),
+                                        'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
+                                        'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
+                                    ])->values();
+                                    if ($storedPath) {
+                                        $storedFiles->prepend([
+                                            'name' => basename($storedPath),
+                                            'view_url' => route('pendataan-gtk.documents.view', [$user, str_replace('_', '-', $type)]),
+                                            'delete_url' => route('pendataan-gtk.documents.manage.destroy', [$madrasah, $user, $type]),
+                                        ]);
+                                    }
+                                ?>
                                 <td>
-                                    <label class="drop-zone <?php echo e($storedPath ? 'has-stored-file' : ''); ?>" tabindex="0">
-                                        <input type="file" name="documents[<?php echo e($user->id); ?>][<?php echo e($type); ?>]" accept="<?php echo e($accept); ?>">
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($storedPath): ?>
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm btn-danger remove-document"
-                                                title="Hapus berkas"
-                                                aria-label="Hapus <?php echo e(str_replace('_', ' ', $type)); ?> <?php echo e($user->name); ?>"
-                                                data-delete-url="<?php echo e(route('pendataan-gtk.documents.manage.destroy', [$madrasah, $user, $type])); ?>"
-                                                data-document-label="<?php echo e(str_replace('_', ' ', $type)); ?> - <?php echo e($user->name); ?>"
-                                            ><i class="bx bx-trash"></i></button>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <label class="drop-zone <?php echo e($storedFiles->isNotEmpty() ? 'has-stored-file' : ''); ?>" tabindex="0">
+                                        <input type="file" name="documents[<?php echo e($user->id); ?>][<?php echo e($type); ?>][]" accept="<?php echo e($accept); ?>" multiple>
                                         <i class="bx bx-cloud-upload fs-4 text-primary"></i>
-                                        <span class="small">Drop atau pilih</span>
+                                        <span class="small">Drop atau pilih beberapa</span>
                                         <span class="text-muted" style="font-size:.68rem"><?php echo e($hint); ?></span>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($storedPath): ?>
-                                            <span class="existing"><i class="bx bx-check-circle"></i> Tersimpan</span>
-                                            <span class="stored-file-name" title="<?php echo e(basename($storedPath)); ?>"><?php echo e(basename($storedPath)); ?></span>
-                                            <a
-                                                href="<?php echo e(route('pendataan-gtk.documents.view', [$user, str_replace('_', '-', $type)])); ?>"
-                                                target="_blank"
-                                                rel="noopener"
-                                                class="document-preview view-stored-file"
-                                            ><i class="bx bx-show me-1"></i>Lihat file</a>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($storedFiles->isNotEmpty()): ?>
+                                            <span class="existing"><i class="bx bx-check-circle"></i> <?php echo e($storedFiles->count()); ?> file tersimpan</span>
+                                            <span class="stored-files">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $storedFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $storedFile): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                    <span class="stored-file">
+                                                        <a href="<?php echo e($storedFile['view_url']); ?>" target="_blank" rel="noopener" class="document-preview view-stored-file" title="<?php echo e($storedFile['name']); ?>"><i class="bx bx-show me-1"></i><?php echo e($storedFile['name']); ?></a>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger remove-document" title="Hapus berkas" data-delete-url="<?php echo e($storedFile['delete_url']); ?>" data-document-label="<?php echo e($storedFile['name']); ?>"><i class="bx bx-trash"></i></button>
+                                                    </span>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                            </span>
                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <span class="file-name d-none"></span>
                                         <a href="#" target="_blank" rel="noopener" class="document-preview preview-selected d-none"><i class="bx bx-show me-1"></i>Preview file baru</a>
@@ -161,17 +168,18 @@
         zone.classList.toggle('has-file', hasFile);
         name.classList.toggle('d-none', !hasFile);
         storedName?.classList.toggle('d-none', hasFile);
-        name.textContent = hasFile ? input.files[0].name : '';
+        name.textContent = hasFile ? `${input.files.length} file: ${[...input.files].map(file => file.name).join(', ')}` : '';
         if (preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
         preview.classList.toggle('d-none', !hasFile);
         if (hasFile) {
             preview.dataset.objectUrl = URL.createObjectURL(input.files[0]);
             preview.href = preview.dataset.objectUrl;
+            preview.innerHTML = '<i class="bx bx-show me-1"></i>Preview file pertama';
         } else {
             preview.removeAttribute('href');
             delete preview.dataset.objectUrl;
         }
-        const total = inputs.filter(item => item.files.length).length;
+        const total = inputs.reduce((sum, item) => sum + item.files.length, 0);
         count.textContent = total;
         save.disabled = total === 0;
     }
@@ -184,7 +192,7 @@
         zone.addEventListener('drop', e => {
             if (!e.dataTransfer.files.length) return;
             const transfer = new DataTransfer();
-            transfer.items.add(e.dataTransfer.files[0]);
+            [...input.files, ...e.dataTransfer.files].forEach(file => transfer.items.add(file));
             input.files = transfer.files;
             refresh(input);
         });
@@ -225,11 +233,11 @@
                 if (!response.ok) throw new Error(result.message || 'Berkas gagal dihapus.');
 
                 const zone = button.closest('.drop-zone');
-                zone.classList.remove('has-stored-file');
-                zone.querySelector('.existing')?.remove();
-                zone.querySelector('.stored-file-name')?.remove();
-                zone.querySelector('.view-stored-file')?.remove();
-                button.remove();
+                button.closest('.stored-file')?.remove();
+                const remaining = zone.querySelectorAll('.stored-file').length;
+                const existing = zone.querySelector('.existing');
+                if (remaining) existing.innerHTML = `<i class="bx bx-check-circle"></i> ${remaining} file tersimpan`;
+                else { existing?.remove(); zone.querySelector('.stored-files')?.remove(); zone.classList.remove('has-stored-file'); }
                 Swal.fire({icon:'success', title:'Berhasil dihapus', text:result.message, timer:2200, showConfirmButton:false});
             } catch (error) {
                 button.disabled = false;
@@ -267,7 +275,7 @@
                 const progressStatus = document.getElementById('uploadProgressStatus');
                 const selectedFiles = inputs
                     .filter(input => input.files.length)
-                    .map(input => ({name: input.name, file: input.files[0]}));
+                    .flatMap(input => [...input.files].map(file => ({name: input.name, file})));
                 const totalBytes = selectedFiles.reduce((sum, item) => sum + item.file.size, 0);
                 let confirmedBytes = 0;
                 let confirmedFiles = 0;

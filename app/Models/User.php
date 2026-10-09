@@ -124,6 +124,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(GtkPendataan::class, 'user_id');
     }
 
+    public function gtkDocuments()
+    {
+        return $this->hasMany(GtkDocument::class, 'user_id');
+    }
+
     public function mgmpMemberships()
     {
         return $this->hasMany(MgmpMember::class, 'user_id');

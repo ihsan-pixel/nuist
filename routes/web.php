@@ -240,6 +240,10 @@ Route::middleware(['auth', 'role:admin_yayasan'])
         Route::put('/users/{user}/documents', [PendataanGtkController::class, 'updateDocuments'])->name('documents.update');
         Route::get('/{madrasah}/documents/manage', [PendataanGtkController::class, 'manageDocuments'])->name('documents.manage');
         Route::post('/{madrasah}/documents/manage', [PendataanGtkController::class, 'storeManagedDocuments'])->name('documents.manage.store');
+        Route::get('/{madrasah}/documents/files/{gtkDocument}/view', [PendataanGtkController::class, 'viewManagedDocument'])
+            ->name('documents.manage.view');
+        Route::delete('/{madrasah}/documents/files/{gtkDocument}', [PendataanGtkController::class, 'destroyManagedDocumentFile'])
+            ->name('documents.manage.file.destroy');
         Route::delete('/{madrasah}/documents/{user}/{type}', [PendataanGtkController::class, 'destroyManagedDocument'])
             ->where('type', 'ktp|sk_awal|sk_akhir|foto_resmi|foto_bebas')
             ->name('documents.manage.destroy');

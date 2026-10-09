@@ -372,6 +372,11 @@
                 </div>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
                     <div class="d-flex flex-wrap gap-2">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'admin'])): ?>
+                            <a href="<?php echo e(route('data-sekolah.data-siswa.academic-history.preview', array_filter(['madrasah_id' => $selectedMadrasahId]))); ?>" class="btn btn-light">
+                                <i class="bx bx-layer-plus me-1"></i>Inisialisasi Jenjang
+                            </a>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <a href="<?php echo e(route('data-sekolah.data-siswa.template')); ?>" class="btn btn-light">
                             <i class="bx bx-download me-1"></i>Template
                         </a>
