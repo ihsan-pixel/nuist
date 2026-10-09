@@ -63,7 +63,7 @@ class PendataanGtkExportTest extends TestCase
     public function test_name_does_not_repeat_an_existing_degree(): void
     {
         $user = new User(['name' => 'Ahmad, S.Pd.', 'gelar' => 'S.Pd.']);
-        $user->setRelation('madrasah', new Madrasah());
+        $user->setRelation('madrasah', new Madrasah);
         $user->setRelation('gtkPendataan', null);
         $user->setRelation('statusKepegawaian', null);
         $user->setRelation('mgmpMemberships', collect());
@@ -71,6 +71,13 @@ class PendataanGtkExportTest extends TestCase
         $sheet = $this->workbookSheet(new PendataanGtkExport(collect([$user])));
 
         $this->assertSame('Ahmad, S.Pd.', $sheet->getCell('D3')->getValue());
+    }
+
+    public function test_name_does_not_repeat_degree_with_different_case_or_punctuation(): void
+    {
+        $user = new User(['name' => 'GALIH SEPTYAN, S.Pd.T', 'gelar' => 'S.P.d.T.']);
+
+        $this->assertSame('GALIH SEPTYAN, S.Pd.T', $user->nama_dengan_gelar);
     }
 
     private function workbookSheet(PendataanGtkExport $export)

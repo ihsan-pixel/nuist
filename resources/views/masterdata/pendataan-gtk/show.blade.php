@@ -184,7 +184,7 @@
                                             <div class="gtk-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
                                         @endif
                                         <div>
-                                            <div class="fw-semibold">{{ $user->name }} {{ $user->gelar ? ', ' . $user->gelar : '' }}</div>
+                                            <div class="fw-semibold">{{ $user->nama_dengan_gelar }}</div>
                                             <div class="gtk-meta">{{ $user->jabatan ?: ($user->ketugasan ?: 'Tenaga pendidik') }}</div>
                                         </div>
                                     </div>

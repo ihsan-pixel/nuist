@@ -6,12 +6,9 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use App\Models\StatusKepegawaian;
-use App\Models\Madrasah;
-use App\Models\PushDeviceToken;
 use Illuminate\Support\Facades\Crypt;
-use App\Models\BiometricProfile;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -95,11 +92,22 @@ class User extends Authenticatable implements MustVerifyEmail
         $name = trim((string) $this->name);
         $gelar = trim((string) $this->gelar);
 
-        if ($gelar === '' || preg_match('/(?:,\s*)?' . preg_quote($gelar, '/') . '$/iu', $name)) {
+        if ($gelar === '') {
             return $name;
         }
 
-        return $name === '' ? $gelar : $name . ', ' . $gelar;
+        $normalizedDegree = preg_replace('/[^a-z0-9]+/', '', Str::lower(Str::ascii($gelar))) ?? '';
+        $degreePattern = implode('[^a-z0-9]*', array_map(
+            fn (string $character) => preg_quote($character, '/'),
+            str_split($normalizedDegree)
+        ));
+        $asciiName = Str::lower(Str::ascii($name));
+
+        if ($normalizedDegree !== '' && preg_match('/(?:^|[\s,])'.$degreePattern.'[^a-z0-9]*$/i', $asciiName)) {
+            return $name;
+        }
+
+        return $name === '' ? $gelar : $name.', '.$gelar;
     }
 
     // Existing code...
@@ -206,7 +214,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return $rawValue;
         }
 
-        if (!is_string($rawValue)) {
+        if (! is_string($rawValue)) {
             return $this->face_data;
         }
 
@@ -224,7 +232,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasFaceEnrollment(): bool
     {
-        return !empty($this->face_registered_at) && !empty($this->decodedFaceData());
+        return ! empty($this->face_registered_at) && ! empty($this->decodedFaceData());
     }
 
     public function skYayasanRequestsAsEmployee()
