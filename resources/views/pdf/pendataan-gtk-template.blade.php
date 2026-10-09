@@ -82,16 +82,16 @@
             <tr><td class="number">4</td><td>TMT</td><td>{{ $date($user->tmt) }}</td></tr>
             <tr><td class="number">5</td><td>Pendidikan Terakhir</td><td>{{ $value($user->pendidikan_terakhir ?: $simfoni?->strata_pendidikan) }}</td></tr>
             <tr><td class="number">6</td><td>Tahun Lulus</td><td>{{ $value($user->tahun_lulus ?: $simfoni?->tahun_lulus) }}</td></tr>
-        </table>
-        <div class="page-break"></div>
-    @elseif($page === 2)
-        <table class="data">
-            <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">7</td><td>Program Studi</td><td>{{ $value($user->program_studi ?: $simfoni?->program_studi) }}</td></tr>
             <tr><td class="number">8</td><td>SCOD</td><td>{{ $value($user->madrasah?->scod) }}</td></tr>
             <tr><td class="number">9</td><td>NUIST ID</td><td>{{ $value($user->nuist_id) }}</td></tr>
             <tr><td class="number">10</td><td>TMT SK I</td><td>{{ $date($firstSkDate) }}</td></tr>
             <tr><td class="number">11</td><td>Nomor SK Pertama</td><td>{{ $value($data?->nomor_sk_pertama ?: $simfoni?->nomor_sk_pertama) }}</td></tr>
+        </table>
+        <div class="page-break"></div>
+    @elseif($page === 2)
+        <table class="data">
+            <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">12</td><td>Masa Kerja</td><td>{{ $value($user->masa_kerja ?: $simfoni?->masa_kerja) }}</td></tr>
             <tr><td class="number">13</td><td>Gaji dari Satpen (Rp)</td><td>{{ $money($data?->gaji_satpen ?: $simfoni?->gaji_pokok) }}</td></tr>
             <tr><td class="number">14</td><td>No. Sertifikasi Pendidik</td><td>{{ $value($data?->nomor_sertifikasi_pendidik ?: $simfoni?->nomor_sertifikasi_pendidik) }}</td></tr>
