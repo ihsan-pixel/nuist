@@ -37,7 +37,7 @@
     $value = fn ($item) => filled($item) ? $item : '-';
     $date = fn ($item) => $item ? $item->translatedFormat('d F Y') : '-';
     $money = fn ($item) => filled($item) ? 'Rp '.number_format((float) $item, 0, ',', '.') : '-';
-    $yesNo = fn ($condition, $yes = 'Sudah', $no = 'Belum') => ($condition ? '[x] '.$yes.'    [ ] '.$no : '[ ] '.$yes.'    [x] '.$no);
+    $yesNo = fn ($condition, $yes = 'Sudah', $no = 'Belum') => ($condition ? '✓ '.$yes : '□ '.$no);
     $firstSkDate = $data?->tmt_sk_pertama ?: $user->tmt;
 @endphp
 
@@ -86,9 +86,9 @@
             <tr><td class="number">15</td><td>Sertifikasi (Rp)</td><td>{{ $money($data?->gaji_sertifikasi ?: $simfoni?->gaji_sertifikasi) }}</td></tr>
             <tr><td class="number">16</td><td>Tunjangan rerata per bulan (Rp)</td><td>{{ $money($data?->tunjangan_rerata_bulanan) }}</td></tr>
         </table>
-        <h2>3. Proses Verifikasi Oleh Petugas</h2>
+        <h2>3. Proses Verifikasi</h2>
         <table class="data">
-            <tr><th class="number">No.</th><th class="verification-label">Pemeriksaan</th><th class="verification-result">Hasil</th></tr>
+            <tr><th class="number">No.</th><th class="verification-label">Pengambilan Data</th><th class="verification-result">Hasil</th></tr>
             <tr><td class="number">1</td><td>KTP asli telah di-scan</td><td class="check">{{ $yesNo(filled($data?->ktp_path)) }}</td></tr>
             <tr><td class="number">2</td><td>Scan wajah telah dilakukan</td><td class="check">{{ $yesNo($user->hasFaceEnrollment()) }}</td></tr>
             <tr><td class="number">3</td><td>SK Pertama telah di-scan</td><td class="check">{{ $yesNo(filled($data?->sk_awal_path)) }}</td></tr>
