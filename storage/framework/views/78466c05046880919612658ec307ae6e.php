@@ -69,31 +69,40 @@
                 </thead>
                 <tbody>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $gtk; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                        <?php($data = $user->gtkPendataan)
-                        <tr data-teacher-name="{{ strtolower($user->name.' '.$user->nuist_id) }}">
+                        <?php
+                            $data = $user->gtkPendataan;
+                        ?>
+                        <tr data-teacher-name="<?php echo e(strtolower($user->name.' '.$user->nuist_id)); ?>">
                             <td class="teacher-cell">
                                 <div class="d-flex align-items-center gap-2">
-                                    @if($user->avatar)
-                                        <img class="teacher-avatar" src="{{ asset('storage/'.ltrim($user->avatar, '/')) }}" alt="Foto {{ $user->name }}">
-                                    @else
-                                        <div class="teacher-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
-                                    @endif
-                                    <div><div class="fw-semibold">{{ $user->name }}</div><small class="text-muted">{{ $user->nuist_id ?: 'Tanpa NUIST ID' }}</small></div>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user->avatar): ?>
+                                        <img class="teacher-avatar" src="<?php echo e(asset('storage/'.ltrim($user->avatar, '/'))); ?>" alt="Foto <?php echo e($user->name); ?>">
+                                    <?php else: ?>
+                                        <div class="teacher-avatar"><?php echo e(strtoupper(substr($user->name, 0, 1))); ?></div>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <div><div class="fw-semibold"><?php echo e($user->name); ?></div><small class="text-muted"><?php echo e($user->nuist_id ?: 'Tanpa NUIST ID'); ?></small></div>
                                 </div>
                             </td>
-                            @foreach([
-                                'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
-                                'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
-                                'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
-                                'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
-                                'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
-                            ] as $type => [$hint, $accept, $storedPath])
-                                @php
-                                    $storedFiles = $user->gtkDocuments->where('type', $type)->map(fn ($document) => [
-                                        'name' => $document->original_name ?: basename($document->path),
-                                        'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
-                                        'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
-                                    ])->values();
+                            <?php
+                                $documentTypes = [
+                                    'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
+                                    'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
+                                    'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
+                                    'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
+                                    'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
+                                ];
+                            ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $documentTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type => $documentType): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php
+                                    [$hint, $accept, $storedPath] = $documentType;
+                                    $storedFiles = collect();
+                                    foreach ($user->gtkDocuments->where('type', $type) as $document) {
+                                        $storedFiles->push([
+                                            'name' => $document->original_name ?: basename($document->path),
+                                            'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
+                                            'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
+                                        ]);
+                                    }
                                     if ($storedPath) {
                                         $storedFiles->prepend([
                                             'name' => basename($storedPath),

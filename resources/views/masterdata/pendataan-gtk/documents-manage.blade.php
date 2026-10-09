@@ -71,7 +71,9 @@
                 </thead>
                 <tbody>
                     @forelse($gtk as $user)
-                        @php($data = $user->gtkPendataan)
+                        @php
+                            $data = $user->gtkPendataan;
+                        @endphp
                         <tr data-teacher-name="{{ strtolower($user->name.' '.$user->nuist_id) }}">
                             <td class="teacher-cell">
                                 <div class="d-flex align-items-center gap-2">
@@ -83,19 +85,26 @@
                                     <div><div class="fw-semibold">{{ $user->name }}</div><small class="text-muted">{{ $user->nuist_id ?: 'Tanpa NUIST ID' }}</small></div>
                                 </div>
                             </td>
-                            @foreach([
-                                'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
-                                'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
-                                'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
-                                'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
-                                'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
-                            ] as $type => [$hint, $accept, $storedPath])
+                            @php
+                                $documentTypes = [
+                                    'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
+                                    'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
+                                    'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
+                                    'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
+                                    'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
+                                ];
+                            @endphp
+                            @foreach($documentTypes as $type => $documentType)
                                 @php
-                                    $storedFiles = $user->gtkDocuments->where('type', $type)->map(fn ($document) => [
-                                        'name' => $document->original_name ?: basename($document->path),
-                                        'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
-                                        'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
-                                    ])->values();
+                                    [$hint, $accept, $storedPath] = $documentType;
+                                    $storedFiles = collect();
+                                    foreach ($user->gtkDocuments->where('type', $type) as $document) {
+                                        $storedFiles->push([
+                                            'name' => $document->original_name ?: basename($document->path),
+                                            'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
+                                            'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
+                                        ]);
+                                    }
                                     if ($storedPath) {
                                         $storedFiles->prepend([
                                             'name' => basename($storedPath),
