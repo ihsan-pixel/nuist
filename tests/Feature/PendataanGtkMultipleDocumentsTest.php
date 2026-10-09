@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\AdminYayasan\PendataanGtkController;
+use App\Models\GtkDocument;
 use App\Models\Madrasah;
 use App\Models\User;
 use FPDF;
@@ -151,6 +152,32 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $this->assertStringContainsString('no-store', $response->headers->get('cache-control'));
         $this->assertStringContainsString('inline', $response->headers->get('content-disposition'));
         $this->assertStringContainsString('form-kelengkapan-dokumen-gtk-guru-uji.pdf', $response->headers->get('content-disposition'));
+    }
+
+    public function test_gtk_pdf_marks_uploaded_identity_and_employment_documents_as_complete(): void
+    {
+        $this->app['events']->forget('composing: *');
+        $user = User::findOrFail(7);
+        $user->setRelation('madrasah', Madrasah::findOrFail(19));
+        $user->setRelation('statusKepegawaian', null);
+        $user->setRelation('gtkPendataan', null);
+        $user->setRelation('simfoni', null);
+        $user->setRelation('mgmpMemberships', new Collection);
+        $user->setRelation('gtkDocuments', new Collection([
+            new GtkDocument(['type' => 'ktp']),
+            new GtkDocument(['type' => 'sk_awal']),
+            new GtkDocument(['type' => 'sk_akhir']),
+        ]));
+
+        $html = view('pdf.pendataan-gtk-template', [
+            'user' => $user,
+            'letterheadDataUri' => null,
+        ])->render();
+        $text = preg_replace('/\s+/', ' ', strip_tags($html));
+
+        $this->assertStringContainsString('KTP asli telah di-scan✓ Sudah', $text);
+        $this->assertStringContainsString('SK Pertama telah di-scan✓ Sudah', $text);
+        $this->assertStringContainsString('SK Terakhir telah di-scan✓ Sudah', $text);
     }
 
     public function test_school_pdf_export_contains_one_pdf_per_teacher(): void

@@ -39,6 +39,11 @@
     $money = fn ($item) => filled($item) ? 'Rp '.number_format((float) $item, 0, ',', '.') : '-';
     $yesNo = fn ($condition, $yes = 'Sudah', $no = 'Belum') => ($condition ? '✓ '.$yes : '□ '.$no);
     $firstSkDate = $data?->tmt_sk_pertama ?: $user->tmt;
+    $hasUploadedDocument = fn (string $type, ?string $legacyPath = null) => filled($legacyPath)
+        || $user->gtkDocuments->contains('type', $type);
+    $hasKtp = $hasUploadedDocument('ktp', $data?->ktp_path);
+    $hasFirstSk = $hasUploadedDocument('sk_awal', $data?->sk_awal_path);
+    $hasLastSk = $hasUploadedDocument('sk_akhir', $data?->sk_akhir_path);
 @endphp
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Kebutuhan Data GTK</div>
@@ -89,10 +94,10 @@
         <h2>3. Proses Verifikasi</h2>
         <table class="data">
             <tr><th class="number">No.</th><th class="verification-label">Pengambilan Data</th><th class="verification-result">Hasil</th></tr>
-            <tr><td class="number">1</td><td>KTP asli telah di-scan</td><td class="check">{{ $yesNo(filled($data?->ktp_path)) }}</td></tr>
+            <tr><td class="number">1</td><td>KTP asli telah di-scan</td><td class="check">{{ $yesNo($hasKtp) }}</td></tr>
             <tr><td class="number">2</td><td>Scan wajah telah dilakukan</td><td class="check">{{ $yesNo($user->hasFaceEnrollment()) }}</td></tr>
-            <tr><td class="number">3</td><td>SK Pertama telah di-scan</td><td class="check">{{ $yesNo(filled($data?->sk_awal_path)) }}</td></tr>
-            <tr><td class="number">4</td><td>SK Terakhir telah di-scan</td><td class="check">{{ $yesNo(filled($data?->sk_akhir_path)) }}</td></tr>
+            <tr><td class="number">3</td><td>SK Pertama telah di-scan</td><td class="check">{{ $yesNo($hasFirstSk) }}</td></tr>
+            <tr><td class="number">4</td><td>SK Terakhir telah di-scan</td><td class="check">{{ $yesNo($hasLastSk) }}</td></tr>
             <tr><td class="number">5</td><td>SK Pertama dan SK Terakhir telah sesuai</td><td class="check">[ ] Sesuai &nbsp;&nbsp; [ ] Tidak Sesuai</td></tr>
             <tr><td class="number">6</td><td>Foto formal terbaru</td><td class="check">{{ $yesNo(filled($user->avatar)) }}</td></tr>
         </table>

@@ -670,6 +670,7 @@ class PendataanGtkController extends Controller
             'madrasah',
             'statusKepegawaian',
             'gtkPendataan',
+            'gtkDocuments',
             'simfoni',
             'mgmpMemberships.mgmpGroup',
         ]);
