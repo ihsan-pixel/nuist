@@ -148,6 +148,7 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
 
         $this->assertSame('application/pdf', $response->headers->get('content-type'));
         $this->assertStringStartsWith('%PDF-', $response->getContent());
+        $this->assertStringContainsString('no-store', $response->headers->get('cache-control'));
         $this->assertStringContainsString('inline', $response->headers->get('content-disposition'));
         $this->assertStringContainsString('form-kelengkapan-dokumen-gtk-guru-uji.pdf', $response->headers->get('content-disposition'));
     }

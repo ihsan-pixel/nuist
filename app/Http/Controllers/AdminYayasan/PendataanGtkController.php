@@ -61,7 +61,12 @@ class PendataanGtkController extends Controller
 
         $safeName = Str::slug($user->nama_dengan_gelar) ?: 'gtk-'.$user->id;
 
-        return $this->makeGtkPdf($user)->stream("form-kelengkapan-dokumen-gtk-{$safeName}.pdf");
+        $response = $this->makeGtkPdf($user)->stream("form-kelengkapan-dokumen-gtk-{$safeName}.pdf");
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
+        return $response;
     }
 
     public function exportSchoolPdfs(Madrasah $madrasah)

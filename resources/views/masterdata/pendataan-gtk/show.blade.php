@@ -202,7 +202,7 @@
                                 </td>
                                 <td class="text-end">
                                     <a
-                                        href="{{ route('pendataan-gtk.export-pdf', $user) }}"
+                                        href="{{ route('pendataan-gtk.export-pdf', ['user' => $user, 'v' => filemtime(public_path('images/kop-lpmnu-pwnu-diy.png'))]) }}"
                                         class="btn btn-sm btn-outline-danger"
                                         target="_blank"
                                         rel="noopener"
