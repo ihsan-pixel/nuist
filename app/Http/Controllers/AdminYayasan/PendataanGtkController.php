@@ -669,11 +669,11 @@ class PendataanGtkController extends Controller
             'mgmpMemberships.mgmpGroup',
         ]);
 
-        $logoPath = public_path('images/logo-maarif-nu.png');
-        $logoDataUri = is_file($logoPath)
-            ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($logoPath))
+        $letterheadPath = public_path('images/kop-lpmnu-pwnu-diy.png');
+        $letterheadDataUri = is_file($letterheadPath)
+            ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($letterheadPath))
             : null;
-        $pdf = Pdf::loadView('pdf.pendataan-gtk-template', compact('user', 'logoDataUri'))
+        $pdf = Pdf::loadView('pdf.pendataan-gtk-template', compact('user', 'letterheadDataUri'))
             ->setPaper('a4', 'portrait');
         $pdf->render();
         $font = $pdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');

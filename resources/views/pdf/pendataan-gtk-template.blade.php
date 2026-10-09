@@ -7,14 +7,8 @@
         @page { size: A4 portrait; margin: 12mm 14mm 13mm; }
         * { box-sizing: border-box; }
         body { margin: 0; color: #111; font-family: DejaVu Sans, sans-serif; font-size: 8.2pt; line-height: 1.2; }
-        .header { width: 100%; border-bottom: 3px double #087235; padding: 0 0 4px; margin-bottom: 10px; }
-        .header td { border: 0; padding: 0; vertical-align: middle; }
-        .header-logo { width: 27%; text-align: center; }
-        .header-logo img { width: 86px; max-height: 62px; object-fit: contain; }
-        .header-copy { width: 73%; text-align: center; color: #087235; }
-        .header-copy .organization { font-family: DejaVu Serif, serif; font-size: 12.5pt; }
-        .header-copy .institution { font-size: 14pt; font-weight: 700; }
-        .header-copy .address { font-family: DejaVu Serif, serif; font-size: 7.7pt; margin-top: 2px; }
+        .header { width: 100%; margin: -2mm 0 10px; }
+        .header img { display: block; width: 100%; height: auto; }
         .title { margin: 4px 0 11px; text-align: center; font-size: 14pt; line-height: 1.4; font-weight: 700; }
         h2 { margin: 8px 0 6px; font-size: 11.5pt; }
         .intro { margin: 0 0 5px; }
@@ -55,16 +49,7 @@
 <div class="footer">LP Ma'arif NU PWNU DIY | Kebutuhan Data GTK</div>
 @for($page = 1; $page <= 3; $page++)
     @if($page < 3)
-        <table class="header">
-            <tr>
-                <td class="header-logo">@if($logoDataUri)<img src="{{ $logoDataUri }}" alt="Logo LP Ma'arif NU">@endif</td>
-                <td class="header-copy">
-                    <div class="organization">PENGURUS WILAYAH NAHDLATUL ULAMA DIY</div>
-                    <div class="institution">LEMBAGA PENDIDIKAN MA'ARIF NU</div>
-                    <div class="address">Jln. Ibu Ruswo No. 60 Prawirodirjan, Gondomanan, Yogyakarta 55121<br>sekretariat@lpmnudiy.id &nbsp; | &nbsp; https://www.lpmnudiy.id</div>
-                </td>
-            </tr>
-        </table>
+        <div class="header">@if($letterheadDataUri)<img src="{{ $letterheadDataUri }}" alt="Kop LP Ma'arif NU PWNU DIY">@endif</div>
     @else
         <div style="border-top:3px double #087235;margin-bottom:17px"></div>
     @endif
