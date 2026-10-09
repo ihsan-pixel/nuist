@@ -162,8 +162,8 @@
 <?php $__env->startSection('script'); ?>
 <script src="<?php echo e(asset('build/libs/sweetalert2/sweetalert2.all.min.js')); ?>"></script>
 <script type="module">
-window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.min.mjs'), 15, 512) ?>).then(pdfjs => {
-    pdfjs.GlobalWorkerOptions.workerSrc = <?php echo json_encode(asset('build/libs/pdfjs/pdf.worker.min.mjs'), 15, 512) ?>;
+window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.min.js'), 15, 512) ?>).then(pdfjs => {
+    pdfjs.GlobalWorkerOptions.workerSrc = <?php echo json_encode(asset('build/libs/pdfjs/pdf.worker.min.js'), 15, 512) ?>;
     return pdfjs;
 });
 </script>

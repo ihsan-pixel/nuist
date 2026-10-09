@@ -164,8 +164,8 @@
 @section('script')
 <script src="{{ asset('build/libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
 <script type="module">
-window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.mjs'))).then(pdfjs => {
-    pdfjs.GlobalWorkerOptions.workerSrc = @json(asset('build/libs/pdfjs/pdf.worker.min.mjs'));
+window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdfjs => {
+    pdfjs.GlobalWorkerOptions.workerSrc = @json(asset('build/libs/pdfjs/pdf.worker.min.js'));
     return pdfjs;
 });
 </script>
