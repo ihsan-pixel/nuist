@@ -59,27 +59,58 @@ class PendataanGtkController extends Controller
         $this->authorizeAccess();
         $this->authorizeUserBelongsToCurrentSchool($user);
 
-        $user->loadMissing([
-            'madrasah',
-            'statusKepegawaian',
-            'gtkPendataan',
-            'simfoni',
-            'mgmpMemberships.mgmpGroup',
-        ]);
-
-        $logoPath = public_path('images/logo-maarif-nu.png');
-        $logoDataUri = is_file($logoPath)
-            ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($logoPath))
-            : null;
         $safeName = Str::slug($user->nama_dengan_gelar) ?: 'gtk-'.$user->id;
 
-        $pdf = Pdf::loadView('pdf.pendataan-gtk-template', compact('user', 'logoDataUri'))
-            ->setPaper('a4', 'portrait');
-        $pdf->render();
-        $font = $pdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
-        $pdf->getCanvas()->page_text(520, 806, 'Halaman {PAGE_NUM}', $font, 8, [0.4, 0.4, 0.4]);
+        return $this->makeGtkPdf($user)->stream("form-kelengkapan-dokumen-gtk-{$safeName}.pdf");
+    }
 
-        return $pdf->download("form-kelengkapan-dokumen-gtk-{$safeName}.pdf");
+    public function exportSchoolPdfs(Madrasah $madrasah)
+    {
+        $this->authorizeAccess();
+
+        $gtk = User::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where('role', 'tenaga_pendidik')
+            ->with(['madrasah', 'statusKepegawaian', 'gtkPendataan', 'simfoni', 'mgmpMemberships.mgmpGroup'])
+            ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
+            ->orderBy('name')
+            ->get();
+
+        if ($gtk->isEmpty()) {
+            return back()->withErrors(['pdf' => 'Belum ada GTK yang dapat diekspor pada sekolah ini.']);
+        }
+
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'pendataan-gtk-');
+        abort_if($temporaryPath === false, 500, 'Gagal menyiapkan arsip PDF.');
+
+        $zip = new \ZipArchive;
+        if ($zip->open($temporaryPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            @unlink($temporaryPath);
+            abort(500, 'Gagal membuat arsip PDF.');
+        }
+
+        try {
+            foreach ($gtk as $user) {
+                $safeName = Str::slug($user->nama_dengan_gelar) ?: 'gtk-'.$user->id;
+                $identifier = Str::slug((string) $user->nuist_id) ?: (string) $user->id;
+                $filename = "form-gtk-{$identifier}-{$user->id}-{$safeName}.pdf";
+                if (! $zip->addFromString($filename, $this->makeGtkPdf($user)->output())) {
+                    throw new \RuntimeException("Gagal menambahkan PDF {$user->name} ke arsip.");
+                }
+            }
+        } catch (\Throwable $exception) {
+            $zip->close();
+            @unlink($temporaryPath);
+
+            throw $exception;
+        }
+        $zip->close();
+
+        $schoolName = Str::slug($madrasah->name) ?: 'sekolah-'.$madrasah->id;
+
+        return response()
+            ->download($temporaryPath, "pdf-gtk-{$schoolName}.zip", ['Content-Type' => 'application/zip'])
+            ->deleteFileAfterSend(true);
     }
 
     public function show(Madrasah $madrasah)
@@ -626,6 +657,29 @@ class PendataanGtkController extends Controller
     private function normalizeDocumentIdentifier(string $value): string
     {
         return preg_replace('/[^a-z0-9]+/', '', Str::lower(Str::ascii(trim($value)))) ?? '';
+    }
+
+    private function makeGtkPdf(User $user)
+    {
+        $user->loadMissing([
+            'madrasah',
+            'statusKepegawaian',
+            'gtkPendataan',
+            'simfoni',
+            'mgmpMemberships.mgmpGroup',
+        ]);
+
+        $logoPath = public_path('images/logo-maarif-nu.png');
+        $logoDataUri = is_file($logoPath)
+            ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($logoPath))
+            : null;
+        $pdf = Pdf::loadView('pdf.pendataan-gtk-template', compact('user', 'logoDataUri'))
+            ->setPaper('a4', 'portrait');
+        $pdf->render();
+        $font = $pdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
+        $pdf->getCanvas()->page_text(520, 806, 'Halaman {PAGE_NUM}', $font, 8, [0.4, 0.4, 0.4]);
+
+        return $pdf;
     }
 
     private function authorizeManagedDocument(Madrasah $madrasah, GtkDocument $gtkDocument): void

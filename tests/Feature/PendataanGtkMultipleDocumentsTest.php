@@ -33,6 +33,7 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
             $table->string('name');
             $table->string('nuist_id')->nullable();
             $table->string('avatar')->nullable();
+            $table->string('ketugasan')->nullable();
             $table->timestamps();
         });
         Schema::create('gtk_pendataan', function (Blueprint $table) {
@@ -48,6 +49,22 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
             $table->string('disk');
             $table->string('path');
             $table->string('original_name')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('simfoni', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->timestamps();
+        });
+        Schema::create('mgmp_groups', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+        Schema::create('mgmp_members', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('mgmp_group_id')->nullable();
             $table->timestamps();
         });
 
@@ -131,6 +148,34 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
 
         $this->assertSame('application/pdf', $response->headers->get('content-type'));
         $this->assertStringStartsWith('%PDF-', $response->getContent());
+        $this->assertStringContainsString('inline', $response->headers->get('content-disposition'));
         $this->assertStringContainsString('form-kelengkapan-dokumen-gtk-guru-uji.pdf', $response->headers->get('content-disposition'));
+    }
+
+    public function test_school_pdf_export_contains_one_pdf_per_teacher(): void
+    {
+        $this->actingAs(new User(['role' => 'admin_yayasan']));
+        $this->app['events']->forget('composing: *');
+        DB::table('users')->insert([
+            'id' => 8,
+            'madrasah_id' => 19,
+            'role' => 'tenaga_pendidik',
+            'name' => 'Guru Kedua',
+            'nuist_id' => 'GTK-8',
+        ]);
+
+        $response = (new PendataanGtkController)->exportSchoolPdfs(Madrasah::findOrFail(19));
+        $archivePath = $response->getFile()->getPathname();
+        $zip = new \ZipArchive;
+
+        try {
+            $this->assertTrue($zip->open($archivePath));
+            $this->assertSame(2, $zip->numFiles);
+            $this->assertStringEndsWith('.pdf', $zip->getNameIndex(0));
+            $this->assertStringStartsWith('%PDF-', $zip->getFromIndex(0));
+        } finally {
+            $zip->close();
+            @unlink($archivePath);
+        }
     }
 }

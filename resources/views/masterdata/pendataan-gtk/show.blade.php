@@ -204,9 +204,11 @@
                                     <a
                                         href="{{ route('pendataan-gtk.export-pdf', $user) }}"
                                         class="btn btn-sm btn-outline-danger"
-                                        aria-label="Export PDF {{ $user->name }}"
+                                        target="_blank"
+                                        rel="noopener"
+                                        aria-label="Lihat PDF {{ $user->name }}"
                                     >
-                                        <i class="bx bxs-file-pdf me-1"></i> PDF
+                                        <i class="bx bxs-file-pdf me-1"></i> Lihat PDF
                                     </a>
                                     <button
                                         type="button"

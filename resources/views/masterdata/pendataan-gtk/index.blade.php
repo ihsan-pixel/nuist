@@ -64,6 +64,9 @@
                                     <a href="{{ route('pendataan-gtk.export-school', $madrasah->id) }}" class="btn btn-success btn-sm" aria-label="Export Excel {{ $madrasah->name }}">
                                         <i class="bx bx-download me-1"></i> Export Excel
                                     </a>
+                                    <a href="{{ route('pendataan-gtk.export-school-pdfs', $madrasah) }}" class="btn btn-danger btn-sm" aria-label="Download semua PDF GTK {{ $madrasah->name }}">
+                                        <i class="bx bxs-file-archive me-1"></i> Semua PDF
+                                    </a>
                                 </div>
                             </td>
                         </tr>
