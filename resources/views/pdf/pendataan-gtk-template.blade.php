@@ -53,7 +53,6 @@
     @if($page === 1)
         <div class="title">FORM KELENGKAPAN DOKUMEN GTK<br>LP MA'ARIF NU PWNU DIY</div>
         <h2>1. Data Identitas GTK</h2>
-        <p class="intro">GTK diminta memberikan atau mengonfirmasi data berikut.</p>
         <table class="data">
             <tr><th class="number">No.</th><th class="label">Data GTK</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">1</td><td>Nama dan Gelar</td><td>{{ $value($user->nama_dengan_gelar) }}</td></tr>
@@ -63,11 +62,9 @@
             <tr><td class="number">5</td><td>Status Kepegawaian</td><td>{{ $value($user->statusKepegawaian?->name ?: $simfoni?->status_kerja) }}</td></tr>
             <tr><td class="number">6</td><td>Tempat, Tanggal Lahir</td><td>{{ $value(collect([$user->tempat_lahir ?: $simfoni?->tempat_lahir, $date($user->tanggal_lahir)])->filter(fn ($part) => filled($part) && $part !== '-')->implode(', ')) }}</td></tr>
             <tr><td class="number">7</td><td>Status perkawinan</td><td>{{ $value($simfoni?->status_pernikahan) }}</td></tr>
-            <tr><td class="number">8</td><td>Agama</td><td>-</td></tr>
-            <tr><td class="number">9</td><td>Kewarganegaraan</td><td>-</td></tr>
-            <tr><td class="number">10</td><td>Golongan darah</td><td>{{ $value($data?->gol_darah) }}</td></tr>
-            <tr><td class="number">11</td><td>No. HP</td><td>{{ $value($user->no_hp ?: $simfoni?->no_hp) }}</td></tr>
-            <tr><td class="number">12</td><td>E-mail aktif</td><td>{{ $value($data?->email_aktif ?: $user->email ?: $simfoni?->email) }}</td></tr>
+            <tr><td class="number">8</td><td>Golongan darah</td><td>{{ $value($data?->gol_darah) }}</td></tr>
+            <tr><td class="number">9</td><td>No. HP</td><td>{{ $value($user->no_hp ?: $simfoni?->no_hp) }}</td></tr>
+            <tr><td class="number">10</td><td>E-mail aktif</td><td>{{ $value($data?->email_aktif ?: $user->email ?: $simfoni?->email) }}</td></tr>
         </table>
         <h2>2. Data Kepegawaian</h2>
         <table class="data">
@@ -83,16 +80,18 @@
             <tr><td class="number">9</td><td>NUIST ID</td><td>{{ $value($user->nuist_id) }}</td></tr>
             <tr><td class="number">10</td><td>TMT SK I</td><td>{{ $date($firstSkDate) }}</td></tr>
             <tr><td class="number">11</td><td>Nomor SK Pertama</td><td>{{ $value($data?->nomor_sk_pertama ?: $simfoni?->nomor_sk_pertama) }}</td></tr>
-            <tr><td class="number">12</td><td>Masa Kerja</td><td>{{ $value($user->masa_kerja ?: $simfoni?->masa_kerja) }}</td></tr>
-            <tr><td class="number">13</td><td>Gaji dari Satpen (Rp)</td><td>{{ $money($data?->gaji_satpen ?: $simfoni?->gaji_pokok) }}</td></tr>
+            <tr><td class="number">12</td><td>Agama</td><td>-</td></tr>
+            <tr><td class="number">13</td><td>Kewarganegaraan</td><td>-</td></tr>
         </table>
         <div class="page-break"></div>
     @else
         <table class="data">
             <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
-            <tr><td class="number">14</td><td>No. Sertifikasi Pendidik</td><td>{{ $value($data?->nomor_sertifikasi_pendidik ?: $simfoni?->nomor_sertifikasi_pendidik) }}</td></tr>
-            <tr><td class="number">15</td><td>Sertifikasi (Rp)</td><td>{{ $money($data?->gaji_sertifikasi ?: $simfoni?->gaji_sertifikasi) }}</td></tr>
-            <tr><td class="number">16</td><td>Tunjangan rerata per bulan (Rp)</td><td>{{ $money($data?->tunjangan_rerata_bulanan) }}</td></tr>
+            <tr><td class="number">14</td><td>Masa Kerja</td><td>{{ $value($user->masa_kerja ?: $simfoni?->masa_kerja) }}</td></tr>
+            <tr><td class="number">15</td><td>Gaji dari Satpen (Rp)</td><td>{{ $money($data?->gaji_satpen ?: $simfoni?->gaji_pokok) }}</td></tr>
+            <tr><td class="number">16</td><td>No. Sertifikasi Pendidik</td><td>{{ $value($data?->nomor_sertifikasi_pendidik ?: $simfoni?->nomor_sertifikasi_pendidik) }}</td></tr>
+            <tr><td class="number">17</td><td>Sertifikasi (Rp)</td><td>{{ $money($data?->gaji_sertifikasi ?: $simfoni?->gaji_sertifikasi) }}</td></tr>
+            <tr><td class="number">18</td><td>Tunjangan rerata per bulan (Rp)</td><td>{{ $money($data?->tunjangan_rerata_bulanan) }}</td></tr>
         </table>
         <h2>3. Proses Verifikasi Oleh Petugas</h2>
         <table class="data">
