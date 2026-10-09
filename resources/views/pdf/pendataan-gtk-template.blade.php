@@ -39,11 +39,6 @@
     $money = fn ($item) => filled($item) ? 'Rp '.number_format((float) $item, 0, ',', '.') : '-';
     $yesNo = fn ($condition, $yes = 'Sudah', $no = 'Belum') => ($condition ? '[x] '.$yes.'    [ ] '.$no : '[ ] '.$yes.'    [x] '.$no);
     $firstSkDate = $data?->tmt_sk_pertama ?: $user->tmt;
-    $hasIdentity = filled($user->name) && filled($data?->nik) && filled($user->alamat)
-        && filled($user->tempat_lahir) && filled($user->tanggal_lahir);
-    $hasDocuments = filled($data?->ktp_path) && filled($data?->sk_awal_path) && filled($data?->sk_akhir_path);
-    $hasEmployment = filled($user->nuptk) && filled($user->kartanu) && filled($firstSkDate)
-        && filled($user->pendidikan_terakhir) && filled($user->program_studi);
 @endphp
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Kebutuhan Data GTK</div>
@@ -101,16 +96,7 @@
             <tr><td class="number">5</td><td>SK Pertama dan SK Terakhir telah sesuai</td><td class="check">[ ] Sesuai &nbsp;&nbsp; [ ] Tidak Sesuai</td></tr>
             <tr><td class="number">6</td><td>Foto formal terbaru</td><td class="check">{{ $yesNo(filled($user->avatar)) }}</td></tr>
         </table>
-        <h2>4. Checklist Persiapan GTK</h2>
-        <table class="data">
-            <tr><th class="number">Cek</th><th class="verification-label">Pemeriksaan</th><th class="verification-result">Hasil</th></tr>
-            <tr><td class="number">{{ $hasIdentity ? '[x]' : '[ ]' }}</td><td>Memastikan nama, gelar, tempat/tanggal lahir, dan identitas sudah benar.</td><td></td></tr>
-            <tr><td class="number">{{ $hasDocuments ? '[x]' : '[ ]' }}</td><td>Menyiapkan KTP asli, SK Pertama, dan SK Terakhir.</td><td></td></tr>
-            <tr><td class="number">{{ $hasEmployment ? '[x]' : '[ ]' }}</td><td>Memastikan NUPTK, NIPM, Kartanu, TMT, pendidikan, dan program studi sesuai dokumen.</td><td></td></tr>
-            <tr><td class="number">{{ $user->hasFaceEnrollment() ? '[x]' : '[ ]' }}</td><td>Hadir langsung untuk pemindaian wajah di hadapan petugas.</td><td></td></tr>
-            <tr><td class="number">[ ]</td><td>Mengoreksi data yang tidak sesuai sebelum proses verifikasi dinyatakan selesai.</td><td></td></tr>
-        </table>
-        <h2>5. Keaktifan MGMP</h2>
+        <h2>4. Keaktifan MGMP</h2>
         <table class="data">
             <tr><th class="number">No.</th><th class="verification-label">Keaktifan MGMP</th><th class="verification-result">Keterangan Pengisian</th></tr>
             <tr><td class="number">1</td><td>Nama MGMP</td><td>{{ $value($mgmpNames) }}</td></tr>
