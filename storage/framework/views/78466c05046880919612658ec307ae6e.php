@@ -161,6 +161,7 @@
 
 <?php $__env->startSection('script'); ?>
 <script src="<?php echo e(asset('build/libs/sweetalert2/sweetalert2.all.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/pdfjs/pdf-lib.min.js')); ?>"></script>
 <script type="module">
 window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.min.js'), 15, 512) ?>).then(pdfjs => {
     pdfjs.GlobalWorkerOptions.workerSrc = <?php echo json_encode(asset('build/libs/pdfjs/pdf.worker.min.js'), 15, 512) ?>;
@@ -180,6 +181,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
     const count = document.getElementById('selectedCount');
     const save = document.getElementById('saveButton');
     const pdfPageSelections = new WeakMap();
+    const processedPdfFiles = new WeakMap();
 
     async function selectPdfPages(file) {
         const pdfjs = await window.pdfJsReady;
@@ -225,6 +227,16 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
 
         if (!result.isConfirmed) return false;
         pdfPageSelections.set(file, result.value);
+        const selectedPageIndexes = result.value.split(',').map(page => Number(page) - 1);
+        const sourcePdf = await PDFLib.PDFDocument.load(await file.arrayBuffer());
+        const outputPdf = await PDFLib.PDFDocument.create();
+        const copiedPages = await outputPdf.copyPages(sourcePdf, selectedPageIndexes);
+        copiedPages.forEach(page => outputPdf.addPage(page));
+        const outputBytes = await outputPdf.save({useObjectStreams: false});
+        processedPdfFiles.set(file, new File([outputBytes], file.name, {
+            type: 'application/pdf',
+            lastModified: file.lastModified,
+        }));
         return true;
     }
 
@@ -369,14 +381,18 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                 const progressStatus = document.getElementById('uploadProgressStatus');
                 const selectedFiles = inputs
                     .filter(input => input.files.length)
-                    .flatMap(input => [...input.files].map(file => ({name: input.name, file})));
-                const totalBytes = selectedFiles.reduce((sum, item) => sum + item.file.size, 0);
-                let confirmedBytes = 0;
+                    .flatMap(input => [...input.files].map(file => ({
+                        name: input.name,
+                        file,
+                        uploadFile: processedPdfFiles.get(file) || file,
+                    })));
+                const totalBytes = selectedFiles.reduce((sum, item) => sum + item.uploadFile.size, 0);
+                let completedBytes = 0;
                 let confirmedFiles = 0;
 
                 const setProgress = (loadedBytes, fileIndex) => {
                     // Tahan pada 99% sampai semua respons server sudah mengonfirmasi penyimpanan.
-                    const percentage = Math.min(99, Math.round(((confirmedBytes + loadedBytes) / totalBytes) * 100));
+                    const percentage = Math.min(99, Math.round(((completedBytes + loadedBytes) / totalBytes) * 100));
                     progressBar.style.width = percentage + '%';
                     progressBar.setAttribute('aria-valuenow', percentage);
                     progressStatus.textContent = `Mengunggah file ${fileIndex + 1} dari ${selectedFiles.length}... ${percentage}%`;
@@ -386,15 +402,13 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                     const xhr = new XMLHttpRequest();
                     const payload = new FormData();
                     payload.append('_token', <?php echo json_encode(csrf_token(), 15, 512) ?>);
-                    payload.append(item.name, item.file, item.file.name);
-                    const selectedPages = pdfPageSelections.get(item.file);
-                    if (selectedPages) payload.append('selected_pages', selectedPages);
+                    payload.append(item.name, item.uploadFile, item.file.name);
 
                     xhr.open('POST', form.action);
                     xhr.setRequestHeader('Accept', 'application/json');
                     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                     xhr.upload.addEventListener('progress', uploadEvent => {
-                        if (uploadEvent.lengthComputable) setProgress(Math.min(uploadEvent.loaded, item.file.size), index);
+                        if (uploadEvent.lengthComputable) setProgress(Math.min(uploadEvent.loaded, item.uploadFile.size), index);
                     });
                     xhr.addEventListener('load', () => {
                         let result = {};
@@ -413,18 +427,24 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                 });
 
                 (async () => {
-                    try {
-                        for (let index = 0; index < selectedFiles.length; index++) {
-                            const item = selectedFiles[index];
+                    const failures = [];
+                    for (let index = 0; index < selectedFiles.length; index++) {
+                        const item = selectedFiles[index];
+                        try {
                             await uploadOne(item, index);
-                            confirmedBytes += item.file.size;
                             confirmedFiles++;
                             progressStatus.textContent = `${confirmedFiles} dari ${selectedFiles.length} file berhasil disimpan.`;
+                        } catch (error) {
+                            failures.push(`${item.file.name}: ${error.message}`);
+                        } finally {
+                            completedBytes += item.uploadFile.size;
                         }
+                    }
 
-                        progressBar.style.width = '100%';
-                        progressBar.setAttribute('aria-valuenow', '100');
-                        progressBar.classList.remove('progress-bar-animated');
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', '100');
+                    progressBar.classList.remove('progress-bar-animated');
+                    if (failures.length === 0) {
                         progressStatus.textContent = `100% - semua ${confirmedFiles} file berhasil disimpan.`;
                         await Swal.fire({
                             icon: 'success',
@@ -433,18 +453,17 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                             confirmButtonText: 'Selesai',
                             confirmButtonColor: '#198754',
                         });
-                        window.location.reload();
-                    } catch (error) {
-                        progressBar.classList.remove('progress-bar-animated');
+                    } else {
+                        progressStatus.textContent = `${confirmedFiles} file berhasil, ${failures.length} file gagal.`;
                         await Swal.fire({
-                            icon: 'error',
+                            icon: confirmedFiles ? 'warning' : 'error',
                             title: 'Upload belum lengkap',
-                            text: `${confirmedFiles} dari ${selectedFiles.length} file tersimpan. ${error.message}`,
+                            text: `${confirmedFiles} dari ${selectedFiles.length} file tersimpan. ${failures.join(' | ')}`,
                             confirmButtonText: 'Muat ulang dan periksa',
                             confirmButtonColor: '#dc3545',
                         });
-                        window.location.reload();
                     }
+                    window.location.reload();
                 })();
             },
         });
