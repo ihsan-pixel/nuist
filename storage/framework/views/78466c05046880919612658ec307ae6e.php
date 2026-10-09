@@ -232,7 +232,8 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
         const outputPdf = await PDFLib.PDFDocument.create();
         const copiedPages = await outputPdf.copyPages(sourcePdf, selectedPageIndexes);
         copiedPages.forEach(page => outputPdf.addPage(page));
-        const outputBytes = await outputPdf.save({useObjectStreams: false});
+        // Gunakan object streams bawaan agar PDF hasil pilihan tetap kecil saat diunggah.
+        const outputBytes = await outputPdf.save();
         processedPdfFiles.set(file, new File([outputBytes], file.name, {
             type: 'application/pdf',
             lastModified: file.lastModified,
@@ -387,15 +388,17 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                         uploadFile: processedPdfFiles.get(file) || file,
                     })));
                 const totalBytes = selectedFiles.reduce((sum, item) => sum + item.uploadFile.size, 0);
-                let completedBytes = 0;
                 let confirmedFiles = 0;
+                const uploadedBytes = selectedFiles.map(() => 0);
 
                 const setProgress = (loadedBytes, fileIndex) => {
                     // Tahan pada 99% sampai semua respons server sudah mengonfirmasi penyimpanan.
-                    const percentage = Math.min(99, Math.round(((completedBytes + loadedBytes) / totalBytes) * 100));
+                    uploadedBytes[fileIndex] = loadedBytes;
+                    const loadedTotal = uploadedBytes.reduce((sum, bytes) => sum + bytes, 0);
+                    const percentage = Math.min(99, Math.round((loadedTotal / totalBytes) * 100));
                     progressBar.style.width = percentage + '%';
                     progressBar.setAttribute('aria-valuenow', percentage);
-                    progressStatus.textContent = `Mengunggah file ${fileIndex + 1} dari ${selectedFiles.length}... ${percentage}%`;
+                    progressStatus.textContent = `Mengunggah hingga 3 file bersamaan... ${percentage}%`;
                 };
 
                 const uploadOne = (item, index) => new Promise((resolve, reject) => {
@@ -428,18 +431,25 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
 
                 (async () => {
                     const failures = [];
-                    for (let index = 0; index < selectedFiles.length; index++) {
-                        const item = selectedFiles[index];
-                        try {
-                            await uploadOne(item, index);
-                            confirmedFiles++;
-                            progressStatus.textContent = `${confirmedFiles} dari ${selectedFiles.length} file berhasil disimpan.`;
-                        } catch (error) {
-                            failures.push(`${item.file.name}: ${error.message}`);
-                        } finally {
-                            completedBytes += item.uploadFile.size;
+                    let nextIndex = 0;
+                    const uploadWorker = async () => {
+                        while (nextIndex < selectedFiles.length) {
+                            const index = nextIndex++;
+                            const item = selectedFiles[index];
+                            try {
+                                await uploadOne(item, index);
+                                confirmedFiles++;
+                            } catch (error) {
+                                failures.push(`${item.file.name}: ${error.message}`);
+                            } finally {
+                                setProgress(item.uploadFile.size, index);
+                                progressStatus.textContent = `${confirmedFiles} berhasil, ${failures.length} gagal, ${selectedFiles.length - confirmedFiles - failures.length} masih diproses.`;
+                            }
                         }
-                    }
+                    };
+
+                    const concurrency = Math.min(3, selectedFiles.length);
+                    await Promise.all(Array.from({length: concurrency}, () => uploadWorker()));
 
                     progressBar.style.width = '100%';
                     progressBar.setAttribute('aria-valuenow', '100');
