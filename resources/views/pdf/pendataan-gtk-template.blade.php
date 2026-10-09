@@ -47,12 +47,8 @@
 @endphp
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Kebutuhan Data GTK</div>
-@for($page = 1; $page <= 3; $page++)
-    @if($page < 3)
-        <div class="header">@if($letterheadDataUri)<img src="{{ $letterheadDataUri }}" alt="Kop LP Ma'arif NU PWNU DIY">@endif</div>
-    @else
-        <div style="border-top:3px double #087235;margin-bottom:17px"></div>
-    @endif
+@for($page = 1; $page <= 2; $page++)
+    <div class="header">@if($letterheadDataUri)<img src="{{ $letterheadDataUri }}" alt="Kop LP Ma'arif NU PWNU DIY">@endif</div>
 
     @if($page === 1)
         <div class="title">FORM KELENGKAPAN DOKUMEN GTK<br>LP MA'ARIF NU PWNU DIY</div>
@@ -87,13 +83,13 @@
             <tr><td class="number">9</td><td>NUIST ID</td><td>{{ $value($user->nuist_id) }}</td></tr>
             <tr><td class="number">10</td><td>TMT SK I</td><td>{{ $date($firstSkDate) }}</td></tr>
             <tr><td class="number">11</td><td>Nomor SK Pertama</td><td>{{ $value($data?->nomor_sk_pertama ?: $simfoni?->nomor_sk_pertama) }}</td></tr>
-        </table>
-        <div class="page-break"></div>
-    @elseif($page === 2)
-        <table class="data">
-            <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">12</td><td>Masa Kerja</td><td>{{ $value($user->masa_kerja ?: $simfoni?->masa_kerja) }}</td></tr>
             <tr><td class="number">13</td><td>Gaji dari Satpen (Rp)</td><td>{{ $money($data?->gaji_satpen ?: $simfoni?->gaji_pokok) }}</td></tr>
+        </table>
+        <div class="page-break"></div>
+    @else
+        <table class="data">
+            <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">14</td><td>No. Sertifikasi Pendidik</td><td>{{ $value($data?->nomor_sertifikasi_pendidik ?: $simfoni?->nomor_sertifikasi_pendidik) }}</td></tr>
             <tr><td class="number">15</td><td>Sertifikasi (Rp)</td><td>{{ $money($data?->gaji_sertifikasi ?: $simfoni?->gaji_sertifikasi) }}</td></tr>
             <tr><td class="number">16</td><td>Tunjangan rerata per bulan (Rp)</td><td>{{ $money($data?->tunjangan_rerata_bulanan) }}</td></tr>
@@ -117,8 +113,6 @@
             <tr><td class="number">{{ $user->hasFaceEnrollment() ? '[x]' : '[ ]' }}</td><td>Hadir langsung untuk pemindaian wajah di hadapan petugas.</td><td></td></tr>
             <tr><td class="number">[ ]</td><td>Mengoreksi data yang tidak sesuai sebelum proses verifikasi dinyatakan selesai.</td><td></td></tr>
         </table>
-        <div class="page-break"></div>
-    @else
         <h2>5. Keaktifan MGMP</h2>
         <table class="data">
             <tr><th class="number">No.</th><th class="verification-label">Keaktifan MGMP</th><th class="verification-result">Keterangan Pengisian</th></tr>
