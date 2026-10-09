@@ -134,6 +134,27 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $this->assertSame(1, $storedPdf->setSourceFile(Storage::disk('local')->path($document->path)));
     }
 
+    public function test_official_and_casual_photos_larger_than_four_megabytes_can_be_uploaded(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        $this->actingAs(new User(['role' => 'admin_yayasan']));
+
+        $request = Request::create('/pendataan-gtk/19/documents/manage', 'POST', [], [], [
+            'documents' => [
+                7 => [
+                    'foto_resmi' => [UploadedFile::fake()->image('foto-resmi.jpg')->size(5000)],
+                    'foto_bebas' => [UploadedFile::fake()->image('foto-bebas.jpg')->size(5000)],
+                ],
+            ],
+        ]);
+
+        (new PendataanGtkController)->storeManagedDocuments($request, Madrasah::findOrFail(19));
+
+        $this->assertDatabaseHas('gtk_documents', ['user_id' => 7, 'type' => 'foto_resmi']);
+        $this->assertDatabaseHas('gtk_documents', ['user_id' => 7, 'type' => 'foto_bebas']);
+    }
+
     public function test_gtk_pdf_export_uses_the_official_form_template(): void
     {
         $this->actingAs(new User(['role' => 'admin_yayasan']));

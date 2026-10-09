@@ -267,8 +267,8 @@ class PendataanGtkController extends Controller
             'sk_awal' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'sk_akhir' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'ktp' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
-            'foto_guru' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'foto_bebas' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'foto_guru' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'foto_bebas' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
 
         if (! collect(['sk_awal', 'sk_akhir', 'ktp', 'foto_guru', 'foto_bebas'])->contains(fn ($field) => $request->hasFile($field))) {
@@ -355,9 +355,9 @@ class PendataanGtkController extends Controller
             'documents.*.sk_akhir' => 'nullable|array|max:20',
             'documents.*.sk_akhir.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'documents.*.foto_resmi' => 'nullable|array|max:20',
-            'documents.*.foto_resmi.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+            'documents.*.foto_resmi.*' => 'image|mimes:jpg,jpeg,png,webp|max:10240',
             'documents.*.foto_bebas' => 'nullable|array|max:20',
-            'documents.*.foto_bebas.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+            'documents.*.foto_bebas.*' => 'image|mimes:jpg,jpeg,png,webp|max:10240',
             'selected_pages' => ['nullable', 'string', 'max:500', 'regex:/^\d+(,\d+)*$/'],
         ]);
 
@@ -505,9 +505,9 @@ class PendataanGtkController extends Controller
             'sk_akhir_files' => 'nullable|array|max:200',
             'sk_akhir_files.*' => 'file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
             'foto_resmi_files' => 'nullable|array|max:200',
-            'foto_resmi_files.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+            'foto_resmi_files.*' => 'image|mimes:jpg,jpeg,png,webp|max:10240',
             'foto_bebas_files' => 'nullable|array|max:200',
-            'foto_bebas_files.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+            'foto_bebas_files.*' => 'image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
 
         $fileGroups = [

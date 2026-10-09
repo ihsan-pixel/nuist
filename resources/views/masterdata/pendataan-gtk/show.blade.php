@@ -386,12 +386,12 @@
                     <div class="col-md-6">
                         <label class="form-label">Foto Guru</label>
                         <input type="file" class="form-control" name="foto_guru" accept="image/jpeg,image/png,image/webp">
-                        <div class="form-text">Foto resmi, JPG/PNG/WebP maksimal 4 MB. <a data-current-file="foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
+                        <div class="form-text">Foto resmi, JPG/PNG/WebP maksimal 10 MB. <a data-current-file="foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Foto Bebas</label>
                         <input type="file" class="form-control" name="foto_bebas" accept="image/jpeg,image/png,image/webp">
-                        <div class="form-text">JPG, PNG, atau WebP maksimal 4 MB. <a data-current-file="foto_bebas" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
+                        <div class="form-text">JPG, PNG, atau WebP maksimal 10 MB. <a data-current-file="foto_bebas" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">KTP</label>
