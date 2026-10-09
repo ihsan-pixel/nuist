@@ -11,6 +11,7 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -679,13 +680,110 @@ class PendataanGtkController extends Controller
         $letterheadDataUri = is_file($letterheadPath)
             ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($letterheadPath))
             : null;
-        $pdf = Pdf::loadView('pdf.pendataan-gtk-template', compact('user', 'letterheadDataUri'))
+        $attachments = $this->makeGtkPdfAttachments($user);
+        $pdf = Pdf::loadView('pdf.pendataan-gtk-template', compact('user', 'letterheadDataUri', 'attachments'))
             ->setPaper('a4', 'portrait');
         $pdf->render();
         $font = $pdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
         $pdf->getCanvas()->page_text(520, 806, 'Halaman {PAGE_NUM}', $font, 8, [0.4, 0.4, 0.4]);
 
         return $pdf;
+    }
+
+    private function makeGtkPdfAttachments(User $user): array
+    {
+        $data = $user->gtkPendataan;
+
+        $attachments = [
+            'ktp' => $this->resolveGtkAttachment($user, 'ktp', 'local', $data?->ktp_path),
+            'foto_resmi' => $this->resolveGtkAttachment($user, 'foto_resmi', 'public', $user->avatar),
+            'foto_bebas' => $this->resolveGtkAttachment($user, 'foto_bebas', 'local', $data?->foto_bebas_path),
+            'face_poses' => collect([
+                'front' => 'Depan',
+                'front_2' => 'Depan 2',
+                'left' => 'Kiri',
+                'right' => 'Kanan',
+                'up' => 'Atas',
+                'down' => 'Bawah',
+            ])->map(fn (string $label) => [
+                'label' => $label,
+                'image' => null,
+                'note' => 'Belum tersedia',
+            ])->all(),
+        ];
+
+        if (! $user->exists || ! Schema::hasTable('face_enrollment_sessions')) {
+            return $attachments;
+        }
+
+        $session = $user->faceEnrollmentSessions()
+            ->where('status', 'completed')
+            ->with(['captures' => fn ($query) => $query->orderBy('capture_index')])
+            ->latest('completed_at')
+            ->latest('id')
+            ->first();
+
+        foreach ($session?->captures ?? [] as $capture) {
+            if (! isset($attachments['face_poses'][$capture->phase_key])) {
+                continue;
+            }
+
+            $image = $this->attachmentImageDataUri('public', $capture->captured_image);
+            $attachments['face_poses'][$capture->phase_key]['image'] = $image;
+            $attachments['face_poses'][$capture->phase_key]['note'] = $image ? null : 'Gambar tidak tersedia';
+        }
+
+        return $attachments;
+    }
+
+    private function resolveGtkAttachment(User $user, string $type, string $legacyDisk, ?string $legacyPath): array
+    {
+        $document = $user->gtkDocuments
+            ->where('type', $type)
+            ->sortByDesc('id')
+            ->first();
+        $disk = $document?->disk ?: $legacyDisk;
+        $path = $document?->path ?: $legacyPath;
+        $image = $this->attachmentImageDataUri($disk, $path);
+
+        return [
+            'image' => $image,
+            'note' => $image ? null : (filled($path) ? 'Berkas tersedia, tetapi tidak dapat ditampilkan sebagai gambar.' : 'Belum tersedia'),
+        ];
+    }
+
+    private function attachmentImageDataUri(string $disk, ?string $path): ?string
+    {
+        if (! filled($path)) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'data:image/')) {
+            return $path;
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            $urlPath = (string) parse_url($path, PHP_URL_PATH);
+            $path = Str::after($urlPath, '/storage/');
+            $disk = 'public';
+        }
+
+        $path = ltrim($path, '/');
+
+        try {
+            if (! Storage::disk($disk)->exists($path)) {
+                return null;
+            }
+
+            $mime = (string) Storage::disk($disk)->mimeType($path);
+            if (! str_starts_with($mime, 'image/')) {
+                return null;
+            }
+
+            return 'data:'.$mime.';base64,'.base64_encode(Storage::disk($disk)->get($path));
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function authorizeManagedDocument(Madrasah $madrasah, GtkDocument $gtkDocument): void

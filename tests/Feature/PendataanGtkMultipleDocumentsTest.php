@@ -152,6 +152,15 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $this->assertStringContainsString('no-store', $response->headers->get('cache-control'));
         $this->assertStringContainsString('inline', $response->headers->get('content-disposition'));
         $this->assertStringContainsString('form-kelengkapan-dokumen-gtk-guru-uji.pdf', $response->headers->get('content-disposition'));
+
+        $pdfPath = tempnam(sys_get_temp_dir(), 'gtk-export-');
+        file_put_contents($pdfPath, $response->getContent());
+        try {
+            $exportedPdf = new Fpdi;
+            $this->assertSame(3, $exportedPdf->setSourceFile($pdfPath));
+        } finally {
+            @unlink($pdfPath);
+        }
     }
 
     public function test_gtk_pdf_marks_uploaded_identity_and_employment_documents_as_complete(): void

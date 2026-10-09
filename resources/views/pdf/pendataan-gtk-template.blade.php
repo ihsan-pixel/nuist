@@ -24,6 +24,15 @@
         .page-break { page-break-before: always; height: 1px; }
         .footer { position: fixed; bottom: -6mm; left: 0; color: #666; font-size: 8pt; }
         .wrap { white-space: normal; }
+        .attachment-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .attachment-table td { border: .65px solid #222; padding: 5px; text-align: center; vertical-align: middle; }
+        .attachment-label { margin-bottom: 4px; font-weight: 700; }
+        .attachment-frame { width: 100%; text-align: center; overflow: hidden; }
+        .attachment-frame img { max-width: 100%; max-height: 100%; }
+        .ktp-frame { height: 46mm; }
+        .face-frame { height: 29mm; }
+        .photo-frame { height: 57mm; }
+        .attachment-empty { color: #777; font-size: 7.5pt; line-height: 1.3; }
     </style>
 </head>
 <body>
@@ -45,10 +54,16 @@
     $hasLastSk = $hasUploadedDocument('sk_akhir', $data?->sk_akhir_path);
     $hasOfficialPhoto = filled($user->avatar) || $user->gtkDocuments->contains('type', 'foto_resmi');
     $hasCasualPhoto = $hasUploadedDocument('foto_bebas', $data?->foto_bebas_path);
+    $attachments = $attachments ?? [
+        'ktp' => ['image' => null, 'note' => 'Belum tersedia'],
+        'face_poses' => [],
+        'foto_resmi' => ['image' => null, 'note' => 'Belum tersedia'],
+        'foto_bebas' => ['image' => null, 'note' => 'Belum tersedia'],
+    ];
 @endphp
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Pendataan GTK 2026</div>
-@for($page = 1; $page <= 2; $page++)
+@for($page = 1; $page <= 3; $page++)
     <div class="header">@if($letterheadDataUri)<img src="{{ $letterheadDataUri }}" alt="Kop LP Ma'arif NU PWNU DIY">@endif</div>
 
     @if($page === 1)
@@ -85,7 +100,7 @@
             <tr><td class="number">13</td><td>No. Sertifikasi Pendidik</td><td>{{ $value($data?->nomor_sertifikasi_pendidik ?: $simfoni?->nomor_sertifikasi_pendidik) }}</td></tr>
         </table>
         <div class="page-break"></div>
-    @else
+    @elseif($page === 2)
         <table class="data">
             <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">14</td><td>Gaji dari Satpen (Rp)</td><td>{{ $money($data?->gaji_satpen ?: $simfoni?->gaji_pokok) }}</td></tr>
@@ -109,6 +124,58 @@
             <tr><td class="number">1</td><td>Nama MGMP</td><td>{{ $value($mgmpNames) }}</td></tr>
             <tr><td class="number">2</td><td>Status keaktifan</td><td>{{ filled($mgmpNames) ? 'Aktif' : '-' }}</td></tr>
             <tr><td class="number">3</td><td>Produk kerja kolaboratif</td><td class="wrap">{{ $value($data?->produk_kerja_kolaboratif) }}</td></tr>
+        </table>
+        <div class="page-break"></div>
+    @else
+        <div class="title">LAMPIRAN BERKAS GTK</div>
+
+        <h2>1. Scan KTP</h2>
+        <table class="attachment-table">
+            <tr><td>
+                <div class="attachment-frame ktp-frame">
+                    @if(data_get($attachments, 'ktp.image'))
+                        <img src="{{ data_get($attachments, 'ktp.image') }}" alt="Scan KTP">
+                    @else
+                        <div class="attachment-empty">{{ data_get($attachments, 'ktp.note', 'Belum tersedia') }}</div>
+                    @endif
+                </div>
+            </td></tr>
+        </table>
+
+        <h2>2. Data Scan Wajah - 6 Pose</h2>
+        <table class="attachment-table">
+            <tr>
+                @foreach($attachments['face_poses'] as $pose)
+                    <td>
+                        <div class="attachment-label">{{ $pose['label'] }}</div>
+                        <div class="attachment-frame face-frame">
+                            @if($pose['image'])
+                                <img src="{{ $pose['image'] }}" alt="Pose {{ $pose['label'] }}">
+                            @else
+                                <div class="attachment-empty">{{ $pose['note'] }}</div>
+                            @endif
+                        </div>
+                    </td>
+                @endforeach
+            </tr>
+        </table>
+
+        <h2>3. Foto Resmi dan Foto Bebas</h2>
+        <table class="attachment-table">
+            <tr>
+                @foreach(['foto_resmi' => 'Foto Resmi', 'foto_bebas' => 'Foto Bebas'] as $key => $label)
+                    <td>
+                        <div class="attachment-label">{{ $label }}</div>
+                        <div class="attachment-frame photo-frame">
+                            @if(data_get($attachments, $key.'.image'))
+                                <img src="{{ data_get($attachments, $key.'.image') }}" alt="{{ $label }}">
+                            @else
+                                <div class="attachment-empty">{{ data_get($attachments, $key.'.note', 'Belum tersedia') }}</div>
+                            @endif
+                        </div>
+                    </td>
+                @endforeach
+            </tr>
         </table>
     @endif
 @endfor
