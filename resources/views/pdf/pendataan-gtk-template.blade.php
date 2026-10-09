@@ -100,6 +100,7 @@
             <tr><td class="number">4</td><td>SK Terakhir telah di-scan</td><td class="check">{{ $yesNo($hasLastSk) }}</td></tr>
             <tr><td class="number">5</td><td>SK Pertama dan SK Terakhir telah sesuai</td><td class="check">[ ] Sesuai &nbsp;&nbsp; [ ] Tidak Sesuai</td></tr>
             <tr><td class="number">6</td><td>Foto formal terbaru</td><td class="check">{{ $yesNo(filled($user->avatar)) }}</td></tr>
+            <tr><td class="number">7</td><td>Catatan Dokumen SK</td><td class="wrap">{{ $value($data?->keterangan_sk) }}</td></tr>
         </table>
         <h2>4. Keaktifan MGMP</h2>
         <table class="data">
