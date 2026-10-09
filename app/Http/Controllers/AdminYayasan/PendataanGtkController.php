@@ -4,8 +4,8 @@ namespace App\Http\Controllers\AdminYayasan;
 
 use App\Exports\PendataanGtkExport;
 use App\Http\Controllers\Controller;
-use App\Models\Madrasah;
 use App\Models\GtkDocument;
+use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -52,6 +52,34 @@ class PendataanGtkController extends Controller
             ->get();
 
         return view('masterdata.pendataan-gtk.index', compact('madrasahs'));
+    }
+
+    public function exportPdf(User $user)
+    {
+        $this->authorizeAccess();
+        $this->authorizeUserBelongsToCurrentSchool($user);
+
+        $user->loadMissing([
+            'madrasah',
+            'statusKepegawaian',
+            'gtkPendataan',
+            'simfoni',
+            'mgmpMemberships.mgmpGroup',
+        ]);
+
+        $logoPath = public_path('images/logo-maarif-nu.png');
+        $logoDataUri = is_file($logoPath)
+            ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($logoPath))
+            : null;
+        $safeName = Str::slug($user->nama_dengan_gelar) ?: 'gtk-'.$user->id;
+
+        $pdf = Pdf::loadView('pdf.pendataan-gtk-template', compact('user', 'logoDataUri'))
+            ->setPaper('a4', 'portrait');
+        $pdf->render();
+        $font = $pdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
+        $pdf->getCanvas()->page_text(520, 806, 'Halaman {PAGE_NUM}', $font, 8, [0.4, 0.4, 0.4]);
+
+        return $pdf->download("form-kelengkapan-dokumen-gtk-{$safeName}.pdf");
     }
 
     public function show(Madrasah $madrasah)

@@ -201,6 +201,13 @@
                                     <div class="progress"><div class="progress-bar {{ $completion === 100 ? 'bg-success' : 'bg-primary' }}" style="width:{{ $completion }}%"></div></div>
                                 </td>
                                 <td class="text-end">
+                                    <a
+                                        href="{{ route('pendataan-gtk.export-pdf', $user) }}"
+                                        class="btn btn-sm btn-outline-danger"
+                                        aria-label="Export PDF {{ $user->name }}"
+                                    >
+                                        <i class="bx bxs-file-pdf me-1"></i> PDF
+                                    </a>
                                     <button
                                         type="button"
                                         class="btn btn-sm btn-outline-success open-gtk-documents"

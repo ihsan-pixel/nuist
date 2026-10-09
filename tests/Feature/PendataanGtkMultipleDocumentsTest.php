@@ -5,13 +5,14 @@ namespace Tests\Feature;
 use App\Http\Controllers\AdminYayasan\PendataanGtkController;
 use App\Models\Madrasah;
 use App\Models\User;
+use FPDF;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use FPDF;
 use setasign\Fpdi\Fpdi;
 use Tests\TestCase;
 
@@ -113,5 +114,23 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $document = DB::table('gtk_documents')->where('user_id', 7)->first();
         $storedPdf = new Fpdi;
         $this->assertSame(1, $storedPdf->setSourceFile(Storage::disk('local')->path($document->path)));
+    }
+
+    public function test_gtk_pdf_export_uses_the_official_form_template(): void
+    {
+        $this->actingAs(new User(['role' => 'admin_yayasan']));
+        $this->app['events']->forget('composing: *');
+        $user = User::findOrFail(7);
+        $user->setRelation('madrasah', Madrasah::findOrFail(19));
+        $user->setRelation('statusKepegawaian', null);
+        $user->setRelation('gtkPendataan', null);
+        $user->setRelation('simfoni', null);
+        $user->setRelation('mgmpMemberships', new Collection);
+
+        $response = (new PendataanGtkController)->exportPdf($user);
+
+        $this->assertSame('application/pdf', $response->headers->get('content-type'));
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+        $this->assertStringContainsString('form-kelengkapan-dokumen-gtk-guru-uji.pdf', $response->headers->get('content-disposition'));
     }
 }

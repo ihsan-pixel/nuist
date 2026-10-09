@@ -231,6 +231,7 @@ Route::middleware(['auth', 'role:admin_yayasan'])
     ->group(function () {
         Route::get('/', [PendataanGtkController::class, 'index'])->name('index');
         Route::get('/export', [PendataanGtkController::class, 'export'])->name('export');
+        Route::get('/users/{user}/export-pdf', [PendataanGtkController::class, 'exportPdf'])->name('export-pdf');
         Route::get('/users/{user}/documents/{document}', [PendataanGtkController::class, 'downloadDocument'])
             ->where('document', 'sk-awal|sk-akhir|ktp|foto-bebas')
             ->name('documents.download');
