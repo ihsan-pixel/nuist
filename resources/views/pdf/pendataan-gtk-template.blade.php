@@ -44,6 +44,8 @@
     $hasKtp = $hasUploadedDocument('ktp', $data?->ktp_path);
     $hasFirstSk = $hasUploadedDocument('sk_awal', $data?->sk_awal_path);
     $hasLastSk = $hasUploadedDocument('sk_akhir', $data?->sk_akhir_path);
+    $hasOfficialPhoto = filled($user->avatar) || $user->gtkDocuments->contains('type', 'foto_resmi');
+    $hasCasualPhoto = $hasUploadedDocument('foto_bebas', $data?->foto_bebas_path);
 @endphp
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Kebutuhan Data GTK</div>
@@ -99,8 +101,8 @@
             <tr><td class="number">3</td><td>SK Pertama telah di-scan</td><td class="check">{{ $yesNo($hasFirstSk) }}</td></tr>
             <tr><td class="number">4</td><td>SK Terakhir telah di-scan</td><td class="check">{{ $yesNo($hasLastSk) }}</td></tr>
             <tr><td class="number">5</td><td>SK Pertama dan SK Terakhir telah sesuai</td><td class="check">[ ] Sesuai &nbsp;&nbsp; [ ] Tidak Sesuai</td></tr>
-            <tr><td class="number">6</td><td>Foto formal terbaru</td><td class="check">{{ $yesNo(filled($user->avatar)) }}</td></tr>
-            <tr><td class="number">7</td><td>Catatan Dokumen SK</td><td class="wrap">{{ $value($data?->keterangan_sk) }}</td></tr>
+            <tr><td class="number">6</td><td>Foto resmi</td><td class="check">{{ $yesNo($hasOfficialPhoto) }}</td></tr>
+            <tr><td class="number">7</td><td>Foto bebas</td><td class="check">{{ $yesNo($hasCasualPhoto) }}</td></tr>
         </table>
         <h2>4. Keaktifan MGMP</h2>
         <table class="data">

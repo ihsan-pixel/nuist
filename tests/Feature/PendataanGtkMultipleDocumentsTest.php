@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\AdminYayasan\PendataanGtkController;
 use App\Models\GtkDocument;
-use App\Models\GtkPendataan;
 use App\Models\Madrasah;
 use App\Models\User;
 use FPDF;
@@ -148,6 +147,7 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
 
         $response = (new PendataanGtkController)->exportPdf($user);
 
+
         $this->assertSame('application/pdf', $response->headers->get('content-type'));
         $this->assertStringStartsWith('%PDF-', $response->getContent());
         $this->assertStringContainsString('no-store', $response->headers->get('cache-control'));
@@ -161,15 +161,15 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $user = User::findOrFail(7);
         $user->setRelation('madrasah', Madrasah::findOrFail(19));
         $user->setRelation('statusKepegawaian', null);
-        $user->setRelation('gtkPendataan', new GtkPendataan([
-            'keterangan_sk' => 'SK telah diperiksa dan sesuai.',
-        ]));
+        $user->setRelation('gtkPendataan', null);
         $user->setRelation('simfoni', null);
         $user->setRelation('mgmpMemberships', new Collection);
         $user->setRelation('gtkDocuments', new Collection([
             new GtkDocument(['type' => 'ktp']),
             new GtkDocument(['type' => 'sk_awal']),
             new GtkDocument(['type' => 'sk_akhir']),
+            new GtkDocument(['type' => 'foto_resmi']),
+            new GtkDocument(['type' => 'foto_bebas']),
         ]));
 
         $html = view('pdf.pendataan-gtk-template', [
@@ -181,7 +181,8 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $this->assertStringContainsString('KTP asli telah di-scan✓ Sudah', $text);
         $this->assertStringContainsString('SK Pertama telah di-scan✓ Sudah', $text);
         $this->assertStringContainsString('SK Terakhir telah di-scan✓ Sudah', $text);
-        $this->assertStringContainsString('Catatan Dokumen SKSK telah diperiksa dan sesuai.', $text);
+        $this->assertStringContainsString('Foto resmi✓ Sudah', $text);
+        $this->assertStringContainsString('Foto bebas✓ Sudah', $text);
     }
 
     public function test_school_pdf_export_contains_one_pdf_per_teacher(): void
