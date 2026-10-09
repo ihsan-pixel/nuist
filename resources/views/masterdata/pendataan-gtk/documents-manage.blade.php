@@ -26,6 +26,12 @@
     #uploadProgressBar { background-color: #198754 !important; }
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
+    .pdf-page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: .75rem; max-height: 60vh; overflow-y: auto; padding: .25rem; }
+    .pdf-page-option { position: relative; display: block; padding: .45rem; border: 2px solid #dbe3ec; border-radius: .7rem; cursor: pointer; background: #fff; }
+    .pdf-page-option:has(input:checked) { border-color: #198754; background: #f0fdf4; }
+    .pdf-page-option canvas { display: block; width: 100%; height: auto; border-radius: .35rem; box-shadow: 0 1px 5px rgba(15, 23, 42, .15); }
+    .pdf-page-option input { position: absolute; top: .65rem; right: .65rem; width: 20px; height: 20px; }
+    .pdf-page-number { display: block; margin-top: .4rem; font-size: .75rem; font-weight: 600; text-align: center; }
 </style>
 @endsection
 
@@ -157,6 +163,12 @@
 
 @section('script')
 <script src="{{ asset('build/libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
+<script type="module">
+window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.mjs'))).then(pdfjs => {
+    pdfjs.GlobalWorkerOptions.workerSrc = @json(asset('build/libs/pdfjs/pdf.worker.min.mjs'));
+    return pdfjs;
+});
+</script>
 @if(session('success'))
 <script>document.addEventListener('DOMContentLoaded', () => Swal.fire({icon:'success', title:'Berhasil', text:@json(session('success')), confirmButtonColor:'#0d6efd'}));</script>
 @endif
@@ -169,6 +181,75 @@
     const inputs = [...form.querySelectorAll('input[type="file"]')];
     const count = document.getElementById('selectedCount');
     const save = document.getElementById('saveButton');
+    const pdfPageSelections = new WeakMap();
+
+    async function selectPdfPages(file) {
+        const pdfjs = await window.pdfJsReady;
+        const pdf = await pdfjs.getDocument({data: await file.arrayBuffer()}).promise;
+        if (pdf.numPages === 1) {
+            pdfPageSelections.set(file, '1');
+            return true;
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'pdf-page-grid';
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+            const page = await pdf.getPage(pageNumber);
+            const viewport = page.getViewport({scale: 0.32});
+            const option = document.createElement('label');
+            option.className = 'pdf-page-option';
+            option.innerHTML = `<input type="checkbox" value="${pageNumber}" checked><canvas></canvas><span class="pdf-page-number">Halaman ${pageNumber}</span>`;
+            const canvas = option.querySelector('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            grid.appendChild(option);
+            await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
+        }
+
+        const result = await Swal.fire({
+            title: 'Pilih halaman PDF',
+            html: `<div class="text-muted small mb-3">${file.name} — centang halaman yang ingin disimpan.</div>`,
+            width: 960,
+            showCancelButton: true,
+            confirmButtonText: 'Gunakan halaman terpilih',
+            cancelButtonText: 'Batalkan file',
+            confirmButtonColor: '#198754',
+            didOpen: () => Swal.getHtmlContainer().appendChild(grid),
+            preConfirm: () => {
+                const pages = [...grid.querySelectorAll('input:checked')].map(item => item.value);
+                if (!pages.length) {
+                    Swal.showValidationMessage('Pilih minimal satu halaman.');
+                    return false;
+                }
+                return pages.join(',');
+            },
+        });
+
+        if (!result.isConfirmed) return false;
+        pdfPageSelections.set(file, result.value);
+        return true;
+    }
+
+    async function preparePdfSelections(input) {
+        const accepted = [];
+        for (const file of input.files) {
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                accepted.push(file);
+                continue;
+            }
+            try {
+                if (pdfPageSelections.has(file) || await selectPdfPages(file)) accepted.push(file);
+            } catch (error) {
+                await Swal.fire({icon:'error', title:'PDF tidak dapat dibuka', text:`${file.name}: ${error.message}`, confirmButtonColor:'#dc3545'});
+            }
+        }
+
+        if (accepted.length !== input.files.length) {
+            const transfer = new DataTransfer();
+            accepted.forEach(file => transfer.items.add(file));
+            input.files = transfer.files;
+        }
+    }
 
     function refresh(input) {
         const zone = input.closest('.drop-zone');
@@ -197,14 +278,18 @@
 
     inputs.forEach(input => {
         const zone = input.closest('.drop-zone');
-        input.addEventListener('change', () => refresh(input));
+        input.addEventListener('change', async () => {
+            await preparePdfSelections(input);
+            refresh(input);
+        });
         ['dragenter', 'dragover'].forEach(event => zone.addEventListener(event, e => { e.preventDefault(); zone.classList.add('dragging'); }));
         ['dragleave', 'drop'].forEach(event => zone.addEventListener(event, e => { e.preventDefault(); zone.classList.remove('dragging'); }));
-        zone.addEventListener('drop', e => {
+        zone.addEventListener('drop', async e => {
             if (!e.dataTransfer.files.length) return;
             const transfer = new DataTransfer();
             [...input.files, ...e.dataTransfer.files].forEach(file => transfer.items.add(file));
             input.files = transfer.files;
+            await preparePdfSelections(input);
             refresh(input);
         });
         zone.addEventListener('keydown', e => {
@@ -304,6 +389,8 @@
                     const payload = new FormData();
                     payload.append('_token', @json(csrf_token()));
                     payload.append(item.name, item.file, item.file.name);
+                    const selectedPages = pdfPageSelections.get(item.file);
+                    if (selectedPages) payload.append('selected_pages', selectedPages);
 
                     xhr.open('POST', form.action);
                     xhr.setRequestHeader('Accept', 'application/json');

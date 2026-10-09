@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use setasign\Fpdi\Fpdi;
 
 class PendataanGtkController extends Controller
 {
@@ -290,6 +292,7 @@ class PendataanGtkController extends Controller
             'documents.*.foto_resmi.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
             'documents.*.foto_bebas' => 'nullable|array|max:20',
             'documents.*.foto_bebas.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+            'selected_pages' => ['nullable', 'string', 'max:500', 'regex:/^\d+(,\d+)*$/'],
         ]);
 
         $uploaded = $request->file('documents', []);
@@ -321,7 +324,10 @@ class PendataanGtkController extends Controller
                         }
 
                         $disk = $type === 'foto_resmi' ? 'public' : 'local';
-                        $path = $this->storeGtkDocument($file, $user, $type, $disk);
+                        $selectedPages = strtolower($file->getClientOriginalExtension()) === 'pdf'
+                            ? $this->parseSelectedPdfPages($request->input('selected_pages'))
+                            : null;
+                        $path = $this->storeGtkDocument($file, $user, $type, $disk, $selectedPages);
                         $newFiles[] = [$disk, $path];
                         $originalName = $file->getClientOriginalName();
                         $storedAssignments[] = compact('user', 'type', 'disk', 'path', 'originalName');
@@ -599,7 +605,22 @@ class PendataanGtkController extends Controller
         abort_unless((int) $gtkDocument->user?->madrasah_id === (int) $madrasah->id, 404);
     }
 
-    private function storeGtkDocument($file, User $user, string $type, string $disk): string
+    private function parseSelectedPdfPages(?string $pages): ?array
+    {
+        if (! $pages) {
+            return null;
+        }
+
+        return collect(explode(',', $pages))
+            ->map(fn ($page) => (int) $page)
+            ->filter(fn ($page) => $page > 0)
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
+    private function storeGtkDocument($file, User $user, string $type, string $disk, ?array $selectedPages = null): string
     {
         $directory = $type === 'foto_resmi'
             ? "tenaga_pendidik/{$user->id}"
@@ -614,6 +635,38 @@ class PendataanGtkController extends Controller
         }
         $timestamp = now()->format('Ymd-His-v');
         $filename = implode('-', array_filter([$typeName, $identifier, $teacherName, $timestamp])).'.'.$extension;
+
+        if ($extension === 'pdf' && $selectedPages !== null) {
+            try {
+                $pdf = new Fpdi;
+                $pageCount = $pdf->setSourceFile($file->getRealPath());
+                foreach ($selectedPages as $pageNumber) {
+                    if ($pageNumber > $pageCount) {
+                        throw ValidationException::withMessages([
+                            'selected_pages' => "Halaman {$pageNumber} tidak tersedia. PDF hanya memiliki {$pageCount} halaman.",
+                        ]);
+                    }
+
+                    $template = $pdf->importPage($pageNumber);
+                    $size = $pdf->getTemplateSize($template);
+                    $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                    $pdf->useTemplate($template);
+                }
+
+                $path = $directory.'/'.$filename;
+                if (! Storage::disk($disk)->put($path, $pdf->Output('S'))) {
+                    throw new \RuntimeException('Gagal menyimpan halaman PDF yang dipilih.');
+                }
+
+                return $path;
+            } catch (ValidationException $exception) {
+                throw $exception;
+            } catch (\Throwable $exception) {
+                throw ValidationException::withMessages([
+                    'selected_pages' => 'PDF tidak dapat diproses. Coba simpan ulang PDF atau unggah seluruh halamannya.',
+                ]);
+            }
+        }
 
         if ($convertToPdf) {
             $imageData = base64_encode(file_get_contents($file->getRealPath()));

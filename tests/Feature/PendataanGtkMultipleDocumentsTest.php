@@ -11,6 +11,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use FPDF;
+use setasign\Fpdi\Fpdi;
 use Tests\TestCase;
 
 class PendataanGtkMultipleDocumentsTest extends TestCase
@@ -82,5 +84,34 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         foreach ($documents as $document) {
             Storage::disk('local')->assertExists($document->path);
         }
+    }
+
+    public function test_only_selected_pdf_pages_are_stored(): void
+    {
+        Storage::fake('local');
+        $this->actingAs(new User(['role' => 'admin_yayasan']));
+
+        $sourcePath = tempnam(sys_get_temp_dir(), 'gtk-pdf-');
+        $source = new FPDF;
+        foreach (['Halaman satu', 'Halaman dua', 'Halaman tiga'] as $text) {
+            $source->AddPage();
+            $source->SetFont('Arial', '', 16);
+            $source->Cell(0, 10, $text);
+        }
+        $source->Output('F', $sourcePath);
+
+        $request = Request::create('/pendataan-gtk/19/documents/manage', 'POST', [
+            'selected_pages' => '2',
+        ], [], [
+            'documents' => [
+                7 => ['sk_awal' => [new UploadedFile($sourcePath, 'sk-lengkap.pdf', 'application/pdf', null, true)]],
+            ],
+        ]);
+
+        (new PendataanGtkController)->storeManagedDocuments($request, Madrasah::findOrFail(19));
+
+        $document = DB::table('gtk_documents')->where('user_id', 7)->first();
+        $storedPdf = new Fpdi;
+        $this->assertSame(1, $storedPdf->setSourceFile(Storage::disk('local')->path($document->path)));
     }
 }
