@@ -262,9 +262,22 @@ class BpppmnuEventController extends Controller
     {
         $token = $service->issue($event);
         $publicUrl = route('public.bpppmnu.show', ['token' => $token]);
-        $svg = (new Writer(new ImageRenderer(new RendererStyle(360), new SvgImageBackEnd)))->writeString($publicUrl, 'UTF-8', ErrorCorrectionLevel::H());
+        $svg = $this->qrSvg($publicUrl);
+        $version = (string) $event->qrTokens()->where('token_hash', hash('sha256', $token))->value('id');
 
-        return response()->view('admin.bpppmnu.qr', compact('event', 'svg', 'publicUrl'))->header('Cache-Control', 'private, no-store');
+        return response()->view('admin.bpppmnu.qr', compact('event', 'svg', 'publicUrl', 'version'))->header('Cache-Control', 'private, no-store');
+    }
+
+    public function qrStatus(BpppmnuEvent $event, BpppmnuAttendanceService $service)
+    {
+        $current = $service->activeToken($event);
+        $publicUrl = route('public.bpppmnu.show', ['token' => $current['token']]);
+
+        return response()->json([
+            'version' => $current['version'],
+            'url' => $publicUrl,
+            'svg' => $this->qrSvg($publicUrl),
+        ])->header('Cache-Control', 'private, no-store');
     }
 
     public function revoke(BpppmnuEvent $event)
@@ -287,5 +300,11 @@ class BpppmnuEventController extends Controller
     public function export(BpppmnuEvent $event, BpppmnuReportService $reports)
     {
         return Excel::download(new BpppmnuAttendanceExport($reports->recap($event)['rows']), 'presensi-agenda-'.$event->id.'.xlsx');
+    }
+
+    private function qrSvg(string $value): string
+    {
+        return (new Writer(new ImageRenderer(new RendererStyle(360), new SvgImageBackEnd)))
+            ->writeString($value, 'UTF-8', ErrorCorrectionLevel::H());
     }
 }

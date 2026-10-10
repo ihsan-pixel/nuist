@@ -22,11 +22,58 @@ class BpppmnuAttendanceService
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
             $this->check($event->status === 'published' && now()->lte($event->attendance_close_at), 'QR hanya tersedia untuk kegiatan terbit yang belum ditutup.');
             $event->qrTokens()->whereNull('revoked_at')->update(['revoked_at' => now()]);
-            $raw = bin2hex(random_bytes(32));
-            $event->qrTokens()->create(['token_hash' => hash('sha256', $raw), 'expires_at' => $event->attendance_close_at]);
-
-            return $raw;
+            return $this->createToken($event);
         });
+    }
+
+    public function activeToken(BpppmnuEvent $event): array
+    {
+        return DB::transaction(function () use ($event) {
+            $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
+            $this->check($event->status === 'published' && now()->lte($event->attendance_close_at), 'QR hanya tersedia untuk kegiatan terbit yang belum ditutup.');
+
+            $qr = $event->qrTokens()->whereNull('claimed_at')->whereNull('revoked_at')
+                ->where('expires_at', '>=', now())->latest('id')->first();
+
+            if (! $qr || ! $qr->raw_token) {
+                $event->qrTokens()->whereNull('claimed_at')->whereNull('revoked_at')->update(['revoked_at' => now()]);
+                $raw = $this->createToken($event);
+                $qr = $event->qrTokens()->where('token_hash', hash('sha256', $raw))->firstOrFail();
+            }
+
+            return ['token' => $qr->raw_token, 'version' => (string) $qr->id];
+        }, 3);
+    }
+
+    public function claimPublicToken(string $token): ?BpppmnuEvent
+    {
+        if (! preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return null;
+        }
+
+        $tokenHash = hash('sha256', $token);
+        $eventId = \App\Models\BpppmnuEventQrToken::where('token_hash', $tokenHash)->value('event_id');
+        if (! $eventId) {
+            return null;
+        }
+
+        return DB::transaction(function () use ($eventId, $tokenHash) {
+            // Keep the same lock order as issue(), revoke(), and attendance writes.
+            $event = BpppmnuEvent::whereKey($eventId)->lockForUpdate()->first();
+            $qr = \App\Models\BpppmnuEventQrToken::where('token_hash', $tokenHash)->lockForUpdate()->first();
+            if (! $qr || $qr->revoked_at || $qr->claimed_at || now()->gt($qr->expires_at)) {
+                return null;
+            }
+
+            if (! $event || $event->status !== 'published' || now()->lt($event->attendance_open_at) || now()->gt($event->attendance_close_at)) {
+                return null;
+            }
+
+            $qr->update(['claimed_at' => now()]);
+            $this->createToken($event);
+
+            return $event;
+        }, 3);
     }
 
     public function record(User $user, BpppmnuEvent $event, string $token, ?float $latitude = null, ?float $longitude = null): array
@@ -89,7 +136,21 @@ class BpppmnuAttendanceService
 
         return BpppmnuEvent::whereHas('qrTokens', function ($query) use ($token) {
             $query->where('token_hash', hash('sha256', $token))
+                ->whereNull('claimed_at')
                 ->whereNull('revoked_at');
+        })->first();
+    }
+
+    public function eventForClaimedPublicToken(string $token): ?BpppmnuEvent
+    {
+        if (! preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return null;
+        }
+
+        return BpppmnuEvent::whereHas('qrTokens', function ($query) use ($token) {
+            $query->where('token_hash', hash('sha256', $token))
+                ->whereNotNull('claimed_at')->whereNull('revoked_at')
+                ->where('expires_at', '>=', now());
         })->first();
     }
 
@@ -178,6 +239,18 @@ class BpppmnuAttendanceService
         $this->check($distance <= $event->location_radius_meters, 'Presensi ditolak. Anda berada '.round($distance).' meter dari lokasi kegiatan (batas '.$event->location_radius_meters.' meter).');
 
         return (int) round($distance);
+    }
+
+    private function createToken(BpppmnuEvent $event): string
+    {
+        $raw = bin2hex(random_bytes(32));
+        $event->qrTokens()->create([
+            'token_hash' => hash('sha256', $raw),
+            'raw_token' => $raw,
+            'expires_at' => $event->attendance_close_at,
+        ]);
+
+        return $raw;
     }
 
     private function check(bool $condition, string $message): void

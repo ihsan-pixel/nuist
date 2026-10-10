@@ -15,7 +15,15 @@ class PublicBpppmnuAttendanceController extends Controller
 {
     public function show(Request $request, string $token, BpppmnuAttendanceService $service)
     {
-        $event = $this->event($service, $token);
+        $event = $this->claimedEvent($request, $service, $token);
+        if (! $event) {
+            $event = $service->claimPublicToken($token);
+            abort_unless($event, 404, BpppmnuAttendanceService::INVALID_QR);
+            $request->session()->put($this->claimKey($token), [
+                'event_id' => $event->id,
+                'expires_at' => min($event->attendance_close_at->timestamp, now()->addMinutes(30)->timestamp),
+            ]);
+        }
         $nonce = Str::random(48);
         $request->session()->put($this->nonceKey($token), $nonce);
 
@@ -25,7 +33,7 @@ class PublicBpppmnuAttendanceController extends Controller
 
     public function participants(Request $request, string $token, BpppmnuAttendanceService $service)
     {
-        $event = $this->event($service, $token);
+        $event = $this->event($request, $service, $token);
         $data = $request->validate(['q' => 'required|string|min:2|max:100']);
         $needle = trim($data['q']);
 
@@ -61,7 +69,7 @@ class PublicBpppmnuAttendanceController extends Controller
 
     public function store(Request $request, string $token, BpppmnuAttendanceService $service)
     {
-        $event = $this->event($service, $token);
+        $event = $this->event($request, $service, $token);
         $data = $request->validate([
             'participant_type' => ['required', Rule::in(['registered', 'guest'])],
             'invitation_id' => 'required_if:participant_type,registered|nullable|integer',
@@ -109,7 +117,7 @@ class PublicBpppmnuAttendanceController extends Controller
 
     public function success(Request $request, string $token, string $code, BpppmnuAttendanceService $service)
     {
-        $this->event($service, $token);
+        $this->event($request, $service, $token);
         $receipt = $request->session()->get('bpppmnu_receipt_'.$code);
         abort_unless($receipt, 404);
 
@@ -117,12 +125,24 @@ class PublicBpppmnuAttendanceController extends Controller
             ->header('Cache-Control', 'no-store, private');
     }
 
-    private function event(BpppmnuAttendanceService $service, string $token)
+    private function event(Request $request, BpppmnuAttendanceService $service, string $token)
     {
-        $event = $service->eventForPublicToken($token);
+        $event = $this->claimedEvent($request, $service, $token);
         abort_unless($event, 404, BpppmnuAttendanceService::INVALID_QR);
 
         return $event;
+    }
+
+    private function claimedEvent(Request $request, BpppmnuAttendanceService $service, string $token)
+    {
+        $claim = $request->session()->get($this->claimKey($token));
+        if (! is_array($claim) || empty($claim['event_id']) || (int) ($claim['expires_at'] ?? 0) < now()->timestamp) {
+            return null;
+        }
+
+        $event = $service->eventForClaimedPublicToken($token);
+
+        return $event && $event->id === (int) $claim['event_id'] ? $event : null;
     }
 
     private function verifyParticipant($event, BpppmnuEventInvitation $invitation, string $verification): void
@@ -146,5 +166,10 @@ class PublicBpppmnuAttendanceController extends Controller
     private function nonceKey(string $token): string
     {
         return 'bpppmnu_public_nonce_'.hash('sha256', $token);
+    }
+
+    private function claimKey(string $token): string
+    {
+        return 'bpppmnu_public_claim_'.hash('sha256', $token);
     }
 }

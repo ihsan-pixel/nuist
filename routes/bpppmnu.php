@@ -12,6 +12,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan,super_admin'])->pr
     Route::get('/', [BpppmnuEventController::class, 'index'])->name('index');
     Route::get('buat', [BpppmnuEventController::class, 'create'])->name('create');
     Route::post('/', [BpppmnuEventController::class, 'store'])->name('store');
+    Route::get('{event}/qr-status', [BpppmnuEventController::class, 'qrStatus'])->middleware('throttle:120,1')->name('qr-status');
     Route::get('{event}', [BpppmnuEventController::class, 'show'])->name('show');
     Route::get('{event}/login-qr', [BpppmnuEventController::class, 'loginQr'])->name('login-qr');
     Route::post('{event}/scan-peserta', [BpppmnuEventController::class, 'scanMember'])->middleware('throttle:30,1')->name('scan-member');
@@ -36,6 +37,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan,super_admin'])->pr
     Route::get('kegiatan', [BpppmnuEventController::class, 'index'])->name('events.index');
     Route::get('kegiatan/create', [BpppmnuEventController::class, 'create'])->name('events.create');
     Route::post('kegiatan', [BpppmnuEventController::class, 'store'])->name('events.store');
+    Route::get('kegiatan/{event}/qr-status', [BpppmnuEventController::class, 'qrStatus'])->middleware('throttle:120,1')->name('events.qr-status');
     Route::get('kegiatan/{event}', [BpppmnuEventController::class, 'show'])->name('events.show');
     Route::get('kegiatan/{event}/login-qr', [BpppmnuEventController::class, 'loginQr'])->name('events.login-qr');
     Route::post('kegiatan/{event}/scan-member', [BpppmnuEventController::class, 'scanMember'])->middleware('throttle:30,1')->name('events.scan-member');

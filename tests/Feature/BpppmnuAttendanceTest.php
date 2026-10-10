@@ -65,6 +65,7 @@ class BpppmnuAttendanceTest extends TestCase
         (require database_path('migrations/2026_09_11_000007_add_location_validation_to_bpppmnu_events.php'))->up();
         (require database_path('migrations/2026_10_10_000001_add_public_attendance_to_bpppmnu_events.php'))->up();
         (require database_path('migrations/2026_10_10_000002_create_bpppmnu_event_guest_invitations.php'))->up();
+        (require database_path('migrations/2026_10_11_000001_add_single_use_fields_to_bpppmnu_event_qr_tokens.php'))->up();
         $this->member = $this->user('pengurus_bpppmnu');
         DB::table('bpppmnu_members')->insert([
             'user_id' => $this->member->id,
@@ -578,6 +579,7 @@ class BpppmnuAttendanceTest extends TestCase
         $nonce = str_repeat('g', 48);
         $nonceKey = 'bpppmnu_public_nonce_'.hash('sha256', $this->token);
 
+        $this->get('/hadir/'.$this->token)->assertOk();
         $this->getJson('/hadir/'.$this->token.'/peserta?q=Peserta')
             ->assertOk()
             ->assertJsonPath('data.0.type', 'guest')
@@ -602,6 +604,7 @@ class BpppmnuAttendanceTest extends TestCase
         $nonce = str_repeat('u', 48);
         $nonceKey = 'bpppmnu_public_nonce_'.hash('sha256', $this->token);
 
+        $this->get('/hadir/'.$this->token)->assertOk();
         $this->withSession([$nonceKey => $nonce])->post('/hadir/'.$this->token.'/konfirmasi', [
             'participant_type' => 'guest',
             'guest_name' => 'Nama Bebas',
@@ -613,6 +616,7 @@ class BpppmnuAttendanceTest extends TestCase
 
     public function test_public_qr_rejects_invalid_nonce_and_revoked_token(): void
     {
+        $this->get('/hadir/'.$this->token)->assertOk();
         $this->post('/hadir/'.$this->token.'/konfirmasi', [
             'participant_type' => 'registered',
             'invitation_id' => $this->event->invitations()->first()->id,
@@ -621,6 +625,34 @@ class BpppmnuAttendanceTest extends TestCase
 
         $this->event->qrTokens()->update(['revoked_at' => now()]);
         $this->get('/hadir/'.$this->token)->assertNotFound();
+    }
+
+    public function test_public_qr_is_claimed_once_and_creates_a_successor(): void
+    {
+        $originalId = $this->event->qrTokens()->sole()->id;
+
+        $this->get('/hadir/'.$this->token)->assertOk();
+
+        $this->assertNotNull($this->event->qrTokens()->findOrFail($originalId)->claimed_at);
+        $this->assertSame(2, $this->event->qrTokens()->count());
+        $this->assertSame(1, $this->event->qrTokens()->whereNull('claimed_at')->whereNull('revoked_at')->count());
+
+        $this->app['session']->flush();
+        $this->get('/hadir/'.$this->token)->assertNotFound();
+    }
+
+    public function test_admin_qr_status_returns_the_automatically_rotated_qr(): void
+    {
+        $oldUrl = route('public.bpppmnu.show', ['token' => $this->token]);
+        $this->get('/hadir/'.$this->token)->assertOk();
+
+        $response = $this->actingAs($this->admin)
+            ->getJson('/admin-yayasan/agenda/'.$this->event->id.'/qr-status')
+            ->assertOk()
+            ->assertJsonStructure(['version', 'url', 'svg']);
+
+        $this->assertNotSame($oldUrl, $response->json('url'));
+        $this->assertStringContainsString('<svg', $response->json('svg'));
     }
 
     public function test_export_preserves_ids_and_prevents_spreadsheet_formulas(): void
