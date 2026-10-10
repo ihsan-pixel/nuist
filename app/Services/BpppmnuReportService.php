@@ -27,6 +27,28 @@ class BpppmnuReportService
         $total = $rows->count();
         $present = $rows->whereNotNull('attended_at')->count();
 
-        return ['rows' => $rows, 'total' => $total, 'present' => $present, 'remaining' => $total - $present, 'percentage' => $total ? round($present / $total * 100, 1) : 0];
+        $guestRows = $event->guestAttendances()->orderBy('guest_name')->get()->map(function ($attendance) {
+            return (object) [
+                'name' => $attendance->guest_name,
+                'nuist_id' => null,
+                'jabatan' => $attendance->guest_organization,
+                'status' => 'Hadir',
+                'attended_at' => $attendance->attended_at,
+                'participant_type' => 'Tamu',
+            ];
+        });
+        foreach ($rows as $row) {
+            $row->participant_type = 'Terdaftar';
+        }
+
+        return [
+            'rows' => $rows->concat($guestRows),
+            'total' => $total,
+            'present' => $present,
+            'remaining' => $total - $present,
+            'percentage' => $total ? round($present / $total * 100, 1) : 0,
+            'guests' => $guestRows->count(),
+            'total_present' => $present + $guestRows->count(),
+        ];
     }
 }

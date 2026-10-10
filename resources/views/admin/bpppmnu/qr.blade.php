@@ -9,8 +9,9 @@
 #event-qr-logo{position:absolute;width:18%;height:18%;object-fit:contain;padding:5px;background:#fff;border:2px solid #0b6b3a;border-radius:8px;z-index:2}
 .bpp-qr-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.bpp-qr-actions .btn{min-width:150px}
 </style>
-<div class="card bpp-qr-card"><div class="card-body text-center"><h2 class="bpp-qr-title">{{ $event->name }}</h2><p>QR berlaku sampai {{ $event->attendance_close_at->format('d-m-Y H:i') }} WIB.</p><p class="text-muted">QR sebelumnya sudah dicabut. Simpan QR ini sebelum meninggalkan halaman.</p>
+<div class="card bpp-qr-card"><div class="card-body text-center"><h2 class="bpp-qr-title">{{ $event->name }}</h2><p>QR berlaku sampai {{ $event->attendance_close_at->format('d-m-Y H:i') }} WIB.</p><p class="text-muted">Scan dengan kamera atau Google Lens. QR sebelumnya sudah dicabut.</p>
 <div id="event-qr">{!! $svg !!}<img id="event-qr-logo" src="{{ asset('images/logo-maarif-nu.png') }}" alt="Logo LP Ma’arif NU"></div>
+<a class="d-block small text-break mb-3" href="{{ $publicUrl }}" target="_blank" rel="noopener">{{ $publicUrl }}</a>
 <div class="bpp-qr-actions"><button id="download-qr" type="button" class="btn btn-primary">Unduh QR (SVG)</button>
 <a href="{{ route('admin.bpppmnu.events.show', $event) }}" class="btn btn-outline-secondary">Kembali ke Rekap</a></div>
 </div></div>

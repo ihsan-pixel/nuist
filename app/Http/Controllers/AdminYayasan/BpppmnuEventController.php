@@ -24,7 +24,7 @@ class BpppmnuEventController extends Controller
 {
     public function index()
     {
-        $events = BpppmnuEvent::withCount(['invitations', 'attendances'])->orderByDesc('start_at')->paginate(20);
+        $events = BpppmnuEvent::withCount(['invitations', 'attendances', 'guestAttendances'])->orderByDesc('start_at')->paginate(20);
 
         return view('admin.bpppmnu.index', compact('events'));
     }
@@ -37,6 +37,7 @@ class BpppmnuEventController extends Controller
     public function edit(BpppmnuEvent $event)
     {
         abort_if($event->status === 'cancelled', 403, 'Agenda yang dibatalkan tidak dapat diedit.');
+        abort_if($event->isLocked(), 403, 'Agenda yang presensinya sudah dibuka tidak dapat diedit.');
 
         return $this->form($event);
     }
@@ -65,7 +66,7 @@ class BpppmnuEventController extends Controller
 
     public function destroy(BpppmnuEvent $event)
     {
-        abort_if($event->attendances()->exists(), 403, 'Agenda yang sudah memiliki presensi tidak dapat dihapus.');
+        abort_if($event->attendances()->exists() || $event->guestAttendances()->exists(), 403, 'Agenda yang sudah memiliki presensi tidak dapat dihapus.');
         $attachment = $event->attachment;
         DB::transaction(function () use ($event) {
             $event->qrTokens()->delete();
@@ -78,8 +79,12 @@ class BpppmnuEventController extends Controller
 
     private function save(Request $request, BpppmnuEvent $event)
     {
+        if ($event->exists && $event->isLocked()) {
+            throw ValidationException::withMessages(['event' => 'Agenda yang presensinya sudah dibuka tidak dapat diubah.']);
+        }
+
         $rules = [];
-        $rules += ['location_validation_enabled' => 'nullable|boolean', 'latitude' => 'nullable|numeric|between:-90,90', 'longitude' => 'nullable|numeric|between:-180,180', 'location_radius_meters' => 'required|integer|between:10,1000'];
+        $rules += ['location_validation_enabled' => 'nullable|boolean', 'latitude' => 'nullable|numeric|between:-90,90', 'longitude' => 'nullable|numeric|between:-180,180', 'location_radius_meters' => 'nullable|integer|between:10,1000'];
         foreach (['name', 'type', 'organizer', 'location_name'] as $field) {
             $rules[$field] = 'required|string|max:255';
         }
@@ -89,7 +94,12 @@ class BpppmnuEventController extends Controller
             'attendance_open_at' => 'required|date|before:end_at',
             'attendance_close_at' => 'required|date|after:attendance_open_at|after_or_equal:start_at',
             'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'invitees' => 'required|array|min:1|max:5000',
+            'attendance_access_mode' => 'sometimes|in:registered,hybrid,guest',
+            'public_name_verification' => 'sometimes|in:none,phone_last4,participant_code',
+            'guest_phone_required' => 'nullable|boolean',
+            'guest_organization_required' => 'nullable|boolean',
+            'capacity' => 'nullable|integer|min:1|max:100000',
+            'invitees' => 'required_unless:attendance_access_mode,guest|array|max:5000',
             'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])->where('is_active', true)],
         ];
         $data = $request->validate($rules);
@@ -100,7 +110,10 @@ class BpppmnuEventController extends Controller
         // Checkbox yang tidak dicentang tidak dikirim browser; ubah eksplisit
         // menjadi false agar status validasi lokasi benar-benar nonaktif.
         $data['location_validation_enabled'] = $request->boolean('location_validation_enabled');
-        $invitees = $data['invitees'];
+        $data['location_radius_meters'] = $data['location_radius_meters'] ?? 50;
+        $data['guest_phone_required'] = $request->boolean('guest_phone_required');
+        $data['guest_organization_required'] = $request->boolean('guest_organization_required');
+        $invitees = $data['invitees'] ?? [];
         $validMemberIds = User::whereIn('id', $invitees)->whereHas('bpppmnuMember', fn ($q) => $q->where('is_active', true))->pluck('id')->all();
         if (count($validMemberIds) !== count(array_unique($invitees))) {
             throw ValidationException::withMessages(['invitees' => 'Semua peserta undangan harus terdaftar sebagai member BPPPMNU aktif.']);
@@ -130,7 +143,7 @@ class BpppmnuEventController extends Controller
                 $event->save();
                 // Undangan yang sudah memiliki presensi tidak boleh dihapus karena
                 // menjadi parent foreign key untuk riwayat kehadiran.
-                if (! $event->attendances()->exists()) {
+                if (! $event->attendances()->exists() && ! $event->guestAttendances()->exists()) {
                     $event->invitations()->whereNotIn('user_id', $invitees)->delete();
                 }
                 foreach ($invitees as $id) {
@@ -192,7 +205,8 @@ class BpppmnuEventController extends Controller
     {
         DB::transaction(function () use ($event) {
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
-            if ($event->status !== 'draft' || $event->isFinished() || ! $event->invitations()->exists()) {
+            $needsInvitations = ($event->attendance_access_mode ?: 'registered') !== 'guest';
+            if ($event->status !== 'draft' || $event->isFinished() || ($needsInvitations && ! $event->invitations()->exists())) {
                 throw ValidationException::withMessages(['event' => 'Agenda tidak dapat diterbitkan. Periksa status, jadwal, dan undangan.']);
             }
             $event->update(['status' => 'published']);
@@ -205,7 +219,7 @@ class BpppmnuEventController extends Controller
     {
         DB::transaction(function () use ($event) {
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
-            if ($event->attendances()->exists() || $event->isFinished()) {
+            if ($event->attendances()->exists() || $event->guestAttendances()->exists() || $event->isFinished()) {
                 throw ValidationException::withMessages(['event' => 'Kegiatan dengan kehadiran atau histori selesai tidak dapat dibatalkan.']);
             }
             $event->update(['status' => 'cancelled']);
@@ -218,10 +232,10 @@ class BpppmnuEventController extends Controller
     public function qr(BpppmnuEvent $event, BpppmnuAttendanceService $service)
     {
         $token = $service->issue($event);
-        $payload = json_encode(['type' => 'bpppmnu', 'event_id' => $event->id, 'token' => $token]);
-        $svg = (new Writer(new ImageRenderer(new RendererStyle(360), new SvgImageBackEnd)))->writeString($payload, 'UTF-8', ErrorCorrectionLevel::H());
+        $publicUrl = route('public.bpppmnu.show', ['token' => $token]);
+        $svg = (new Writer(new ImageRenderer(new RendererStyle(360), new SvgImageBackEnd)))->writeString($publicUrl, 'UTF-8', ErrorCorrectionLevel::H());
 
-        return response()->view('admin.bpppmnu.qr', compact('event', 'svg'))->header('Cache-Control', 'private, no-store');
+        return response()->view('admin.bpppmnu.qr', compact('event', 'svg', 'publicUrl'))->header('Cache-Control', 'private, no-store');
     }
 
     public function revoke(BpppmnuEvent $event)

@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\BpppmnuEventGuestAttendance;
+use App\Models\BpppmnuEventInvitation;
+use App\Services\BpppmnuAttendanceService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+
+class PublicBpppmnuAttendanceController extends Controller
+{
+    public function show(Request $request, string $token, BpppmnuAttendanceService $service)
+    {
+        $event = $this->event($service, $token);
+        $nonce = Str::random(48);
+        $request->session()->put($this->nonceKey($token), $nonce);
+
+        return response()->view('public.bpppmnu-attendance.show', compact('event', 'token', 'nonce'))
+            ->header('Cache-Control', 'no-store, private');
+    }
+
+    public function participants(Request $request, string $token, BpppmnuAttendanceService $service)
+    {
+        $event = $this->event($service, $token);
+        abort_unless($event->allowsRegisteredAttendance(), 404);
+        $data = $request->validate(['q' => 'required|string|min:2|max:100']);
+        $needle = trim($data['q']);
+
+        $participants = $event->invitations()
+            ->whereHas('user', fn ($query) => $query->where('is_active', true)->where('name', 'like', '%'.$needle.'%'))
+            ->with(['user:id,name,ketugasan,no_hp', 'user.bpppmnuMember:user_id,jabatan,instansi_asal'])
+            ->limit(15)->get()->map(fn ($invitation) => [
+                'id' => $invitation->id,
+                'name' => $invitation->user->name,
+                'position' => $invitation->user->bpppmnuMember?->jabatan ?: $invitation->user->ketugasan,
+                'organization' => $invitation->user->bpppmnuMember?->instansi_asal,
+                'attended' => $event->attendances()->where('user_id', $invitation->user_id)->exists(),
+            ]);
+
+        return response()->json(['data' => $participants])->header('Cache-Control', 'no-store, private');
+    }
+
+    public function store(Request $request, string $token, BpppmnuAttendanceService $service)
+    {
+        $event = $this->event($service, $token);
+        $data = $request->validate([
+            'participant_type' => ['required', Rule::in(['registered', 'guest'])],
+            'invitation_id' => 'nullable|integer',
+            'verification' => 'nullable|string|max:50',
+            'guest_name' => 'nullable|string|min:3|max:255',
+            'guest_phone' => 'nullable|string|max:30',
+            'guest_organization' => 'nullable|string|max:255',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'nonce' => 'required|string|size:48',
+        ]);
+
+        $expectedNonce = (string) $request->session()->get($this->nonceKey($token), '');
+        if ($expectedNonce === '' || ! hash_equals($expectedNonce, $data['nonce'])) {
+            throw ValidationException::withMessages(['attendance' => 'Form presensi sudah tidak berlaku. Muat ulang halaman dan coba lagi.']);
+        }
+
+        if ($data['participant_type'] === 'registered') {
+            $invitation = BpppmnuEventInvitation::with('user')->whereKey($data['invitation_id'])->where('event_id', $event->id)->first();
+            if (! $invitation || ! $event->allowsRegisteredAttendance()) {
+                throw ValidationException::withMessages(['participant' => 'Nama peserta tidak terdaftar pada agenda ini.']);
+            }
+            $this->verifyParticipant($event, $invitation, (string) ($data['verification'] ?? ''));
+            $result = $service->recordPublicRegistered($invitation, $event, $token, $data['latitude'] ?? null, $data['longitude'] ?? null);
+            $name = $invitation->user->name;
+            $confirmationCode = Str::upper(Str::random(12));
+        } else {
+            if (empty($data['guest_name'])) {
+                throw ValidationException::withMessages(['guest_name' => 'Nama lengkap wajib diisi.']);
+            }
+            $result = $service->recordPublicGuest($event, $token, $data, $request);
+            $name = $result['attendance']->guest_name;
+            $confirmationCode = $result['attendance']->confirmation_code;
+        }
+
+        $request->session()->forget($this->nonceKey($token));
+        $request->session()->put('bpppmnu_receipt_'.$confirmationCode, [
+            'event' => $event->name,
+            'name' => $name,
+            'attended_at' => $result['attendance']->attended_at->format('d-m-Y H:i:s').' WIB',
+            'duplicate' => $result['duplicate'],
+        ]);
+
+        return redirect()->route('public.bpppmnu.success', ['token' => $token, 'code' => $confirmationCode]);
+    }
+
+    public function success(Request $request, string $token, string $code, BpppmnuAttendanceService $service)
+    {
+        $this->event($service, $token);
+        $receipt = $request->session()->get('bpppmnu_receipt_'.$code);
+        abort_unless($receipt, 404);
+
+        return response()->view('public.bpppmnu-attendance.success', compact('receipt', 'code'))
+            ->header('Cache-Control', 'no-store, private');
+    }
+
+    private function event(BpppmnuAttendanceService $service, string $token)
+    {
+        $event = $service->eventForPublicToken($token);
+        abort_unless($event, 404, BpppmnuAttendanceService::INVALID_QR);
+
+        return $event;
+    }
+
+    private function verifyParticipant($event, BpppmnuEventInvitation $invitation, string $verification): void
+    {
+        if (($event->public_name_verification ?: 'none') === 'none') {
+            return;
+        }
+        if ($event->public_name_verification === 'phone_last4') {
+            $phone = preg_replace('/\D+/', '', (string) $invitation->user->no_hp);
+            $provided = preg_replace('/\D+/', '', $verification);
+            if (strlen($phone) < 4 || ! hash_equals(substr($phone, -4), $provided)) {
+                throw ValidationException::withMessages(['verification' => '4 digit terakhir nomor HP tidak sesuai.']);
+            }
+            return;
+        }
+        if (! hash_equals((string) $invitation->user->nuist_id, trim($verification))) {
+            throw ValidationException::withMessages(['verification' => 'Kode peserta tidak sesuai.']);
+        }
+    }
+
+    private function nonceKey(string $token): string
+    {
+        return 'bpppmnu_public_nonce_'.hash('sha256', $token);
+    }
+}

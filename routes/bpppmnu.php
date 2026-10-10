@@ -4,10 +4,11 @@ use App\Http\Controllers\AdminYayasan\BpppmnuEventController;
 use App\Http\Controllers\AdminYayasan\BpppmnuMemberController;
 use App\Http\Controllers\Mobile\BpppmnuController;
 use App\Http\Controllers\Mobile\Profile\ProfileController;
+use App\Http\Controllers\PublicBpppmnuAttendanceController;
 use App\Http\Middleware\BpppmnuRole;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan'])->prefix('admin-yayasan/bpppmnu')->name('admin.bpppmnu.')->group(function () {
+Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan,super_admin'])->prefix('admin-yayasan/bpppmnu')->name('admin.bpppmnu.')->group(function () {
     Route::get('pengurus', [BpppmnuMemberController::class, 'index'])->name('members.index');
     Route::get('pengurus/export-pdf', [BpppmnuMemberController::class, 'exportPdf'])->name('members.export-pdf');
     Route::post('pengurus', [BpppmnuMemberController::class, 'store'])->name('members.store');
@@ -29,6 +30,13 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan'])->prefix('admin-
     }
     Route::get('kegiatan/{event}/attachment', [BpppmnuEventController::class, 'attachment'])->name('events.attachment');
     Route::get('kegiatan/{event}/export', [BpppmnuEventController::class, 'export'])->name('events.export');
+});
+
+Route::prefix('hadir')->name('public.bpppmnu.')->group(function () {
+    Route::get('{token}', [PublicBpppmnuAttendanceController::class, 'show'])->middleware('throttle:60,1')->name('show');
+    Route::get('{token}/peserta', [PublicBpppmnuAttendanceController::class, 'participants'])->middleware('throttle:30,1')->name('participants');
+    Route::post('{token}/konfirmasi', [PublicBpppmnuAttendanceController::class, 'store'])->middleware('throttle:10,1')->name('store');
+    Route::get('{token}/sukses/{code}', [PublicBpppmnuAttendanceController::class, 'success'])->middleware('throttle:60,1')->name('success');
 });
 
 Route::middleware(['auth', BpppmnuRole::class.':pengurus_bpppmnu'])->prefix('bpppmnu')->name('bpppmnu.')->group(function () {

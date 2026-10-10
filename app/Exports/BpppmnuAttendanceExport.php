@@ -14,11 +14,11 @@ class BpppmnuAttendanceExport extends StringValueBinder implements FromCollectio
 
     public function headings(): array
     {
-        return ['Nama', 'ID NUIST', 'Jabatan', 'Status', 'Waktu Hadir (WIB)'];
+        return ['Nama', 'Kategori', 'ID NUIST', 'Jabatan/Instansi', 'Status', 'Waktu Hadir (WIB)'];
     }
 
     public function collection(): Collection
     {
-        return $this->rows->map(fn ($row) => [$row->name, $row->nuist_id, $row->jabatan, $row->status, $row->attended_at]);
+        return $this->rows->map(fn ($row) => [$row->name, $row->participant_type ?? 'Terdaftar', $row->nuist_id, $row->jabatan, $row->status, $row->attended_at]);
     }
 }

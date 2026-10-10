@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class BpppmnuEvent extends Model
 {
-    protected $fillable = ['name', 'type', 'description', 'organizer', 'person_in_charge', 'start_at', 'end_at', 'attendance_open_at', 'attendance_close_at', 'location_name', 'address', 'meeting_url', 'rundown', 'attachment', 'status', 'created_by', 'location_validation_enabled', 'latitude', 'longitude', 'location_radius_meters'];
-    protected $casts = ['start_at' => 'datetime', 'end_at' => 'datetime', 'attendance_open_at' => 'datetime', 'attendance_close_at' => 'datetime', 'location_validation_enabled'=>'boolean','latitude'=>'float','longitude'=>'float'];
+    protected $fillable = ['name', 'type', 'description', 'organizer', 'person_in_charge', 'start_at', 'end_at', 'attendance_open_at', 'attendance_close_at', 'location_name', 'address', 'meeting_url', 'rundown', 'attachment', 'status', 'created_by', 'location_validation_enabled', 'latitude', 'longitude', 'location_radius_meters', 'attendance_access_mode', 'public_name_verification', 'guest_phone_required', 'guest_organization_required', 'capacity'];
+    protected $casts = ['start_at' => 'datetime', 'end_at' => 'datetime', 'attendance_open_at' => 'datetime', 'attendance_close_at' => 'datetime', 'location_validation_enabled'=>'boolean','latitude'=>'float','longitude'=>'float','guest_phone_required'=>'boolean','guest_organization_required'=>'boolean','capacity'=>'integer'];
 
     public function invitations()
     {
@@ -17,6 +17,21 @@ class BpppmnuEvent extends Model
     public function attendances()
     {
         return $this->hasMany(BpppmnuEventAttendance::class, 'event_id');
+    }
+
+    public function guestAttendances()
+    {
+        return $this->hasMany(BpppmnuEventGuestAttendance::class, 'event_id');
+    }
+
+    public function allowsRegisteredAttendance(): bool
+    {
+        return in_array($this->attendance_access_mode ?: 'registered', ['registered', 'hybrid'], true);
+    }
+
+    public function allowsGuestAttendance(): bool
+    {
+        return in_array($this->attendance_access_mode, ['hybrid', 'guest'], true);
     }
 
     public function qrTokens()
@@ -41,6 +56,6 @@ class BpppmnuEvent extends Model
 
     public function isLocked(): bool
     {
-        return now()->gte($this->attendance_open_at) || $this->attendances()->exists();
+        return now()->gte($this->attendance_open_at) || $this->attendances()->exists() || $this->guestAttendances()->exists();
     }
 }

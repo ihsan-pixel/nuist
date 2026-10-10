@@ -59,7 +59,20 @@ class BpppmnuAttendanceTest extends TestCase
             $table->timestamps();
         });
         (require database_path('migrations/2026_09_11_000001_create_bpppmnu_event_tables.php'))->up();
+        (require database_path('migrations/2026_09_11_000003_add_bpppmnu_member_flag_to_users_table.php'))->up();
+        (require database_path('migrations/2026_09_11_000004_add_bpppmnu_fields_to_users_table.php'))->up();
+        (require database_path('migrations/2026_09_11_000005_create_bpppmnu_members_table.php'))->up();
+        (require database_path('migrations/2026_09_11_000007_add_location_validation_to_bpppmnu_events.php'))->up();
+        (require database_path('migrations/2026_10_10_000001_add_public_attendance_to_bpppmnu_events.php'))->up();
         $this->member = $this->user('pengurus_bpppmnu');
+        DB::table('bpppmnu_members')->insert([
+            'user_id' => $this->member->id,
+            'jabatan' => 'Pengurus',
+            'instansi_asal' => 'Yayasan',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         $this->admin = $this->user('admin_yayasan');
         $this->event = BpppmnuEvent::create([
             'name' => 'Rapat BPPPMNU', 'type' => 'Rapat', 'description' => 'Evaluasi program', 'organizer' => 'Yayasan',
@@ -140,11 +153,12 @@ class BpppmnuAttendanceTest extends TestCase
 
     public function test_roles_cannot_access_module_without_permission(): void
     {
-        foreach (['tenaga_pendidik', 'pengurus', 'admin', 'super_admin', 'siswa', 'dps'] as $role) {
+        foreach (['tenaga_pendidik', 'pengurus', 'admin', 'siswa', 'dps'] as $role) {
             $user = $this->user($role);
             $this->actingAs($user)->getJson('/mobile/bpppmnu/presensi')->assertForbidden();
             $this->getJson('/admin-yayasan/bpppmnu/kegiatan')->assertForbidden();
         }
+        $this->actingAs($this->user('super_admin'))->getJson('/admin-yayasan/bpppmnu/kegiatan')->assertOk();
         $this->actingAs($this->admin)->getJson('/mobile/bpppmnu/presensi')->assertForbidden();
     }
 
@@ -427,6 +441,21 @@ class BpppmnuAttendanceTest extends TestCase
         $this->assertSame('cancelled', $event->fresh()->status);
     }
 
+    public function test_admin_can_publish_guest_only_agenda_without_invitations(): void
+    {
+        $data = $this->agendaData();
+        $data['name'] = 'Agenda Umum';
+        $data['attendance_access_mode'] = 'guest';
+        $data['public_name_verification'] = 'none';
+        unset($data['invitees']);
+
+        $this->actingAs($this->admin)->post('/admin-yayasan/bpppmnu/kegiatan', $data)->assertRedirect();
+        $event = BpppmnuEvent::where('name', 'Agenda Umum')->firstOrFail();
+        $this->assertSame(0, $event->invitations()->count());
+        $this->post('/admin-yayasan/bpppmnu/kegiatan/'.$event->id.'/publish')->assertRedirect();
+        $this->assertSame('published', $event->fresh()->status);
+    }
+
     public function test_admin_cannot_invite_other_roles_or_upload_unsafe_files(): void
     {
         $data = $this->agendaData();
@@ -482,6 +511,66 @@ class BpppmnuAttendanceTest extends TestCase
             ->postJson('/mobile/bpppmnu/kegiatan/'.$this->event->id.'/scan', ['qr_token' => $this->token], ['X-CSRF-TOKEN' => $csrf])->assertOk();
     }
 
+    public function test_public_qr_page_searches_and_records_registered_participant_without_login(): void
+    {
+        $nonce = str_repeat('n', 48);
+        $nonceKey = 'bpppmnu_public_nonce_'.hash('sha256', $this->token);
+
+        $this->get('/hadir/'.$this->token)
+            ->assertOk()
+            ->assertSee('Cari nama Anda')
+            ->assertSee($this->event->name);
+
+        $this->getJson('/hadir/'.$this->token.'/peserta?q=User')
+            ->assertOk()
+            ->assertJsonPath('data.0.name', $this->member->name)
+            ->assertJsonMissingPath('data.0.phone');
+
+        $this->withSession([$nonceKey => $nonce])->post('/hadir/'.$this->token.'/konfirmasi', [
+            'participant_type' => 'registered',
+            'invitation_id' => $this->event->invitations()->first()->id,
+            'nonce' => $nonce,
+        ])->assertRedirectContains('/hadir/'.$this->token.'/sukses/');
+
+        $this->assertDatabaseHas('bpppmnu_event_attendances', [
+            'event_id' => $this->event->id,
+            'user_id' => $this->member->id,
+            'method' => 'public_qr_registered',
+        ]);
+    }
+
+    public function test_public_qr_accepts_guest_only_when_event_allows_it(): void
+    {
+        $this->event->update(['attendance_access_mode' => 'hybrid']);
+        $nonce = str_repeat('g', 48);
+        $nonceKey = 'bpppmnu_public_nonce_'.hash('sha256', $this->token);
+
+        $this->withSession([$nonceKey => $nonce])->post('/hadir/'.$this->token.'/konfirmasi', [
+            'participant_type' => 'guest',
+            'guest_name' => 'Peserta Tamu',
+            'guest_organization' => 'MI Contoh',
+            'nonce' => $nonce,
+        ])->assertRedirectContains('/hadir/'.$this->token.'/sukses/');
+
+        $this->assertDatabaseHas('bpppmnu_event_guest_attendances', [
+            'event_id' => $this->event->id,
+            'guest_name' => 'Peserta Tamu',
+        ]);
+        $this->assertSame(1, app(BpppmnuReportService::class)->recap($this->event)['guests']);
+    }
+
+    public function test_public_qr_rejects_invalid_nonce_and_revoked_token(): void
+    {
+        $this->post('/hadir/'.$this->token.'/konfirmasi', [
+            'participant_type' => 'registered',
+            'invitation_id' => $this->event->invitations()->first()->id,
+            'nonce' => str_repeat('x', 48),
+        ])->assertSessionHasErrors('attendance');
+
+        $this->event->qrTokens()->update(['revoked_at' => now()]);
+        $this->get('/hadir/'.$this->token)->assertNotFound();
+    }
+
     public function test_export_preserves_ids_and_prevents_spreadsheet_formulas(): void
     {
         $rows = collect([(object) ['name' => '=1+1', 'nuist_id' => '000123', 'jabatan' => 'Ketua', 'status' => 'Hadir', 'attended_at' => '2026-09-11 09:00:00']]);
@@ -490,7 +579,7 @@ class BpppmnuAttendanceTest extends TestCase
         try {
             file_put_contents($file, $bytes);
             $sheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file)->getActiveSheet();
-            $this->assertSame('000123', $sheet->getCell('B2')->getValue());
+            $this->assertSame('000123', $sheet->getCell('C2')->getValue());
             $this->assertSame('s', $sheet->getCell('A2')->getDataType());
         } finally {
             unlink($file);

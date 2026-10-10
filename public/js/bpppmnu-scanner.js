@@ -25,7 +25,14 @@
     };
     async function submit(raw) {
         let data;
-        try { data = JSON.parse(raw); } catch (_) { message('QR presensi tidak valid atau sudah tidak berlaku.'); stop(); return; }
+        try { data = JSON.parse(raw); } catch (_) {
+            try {
+                const url = new URL(raw);
+                const match = url.pathname.match(/\/hadir\/([a-f0-9]{64})$/);
+                data = match ? {type: 'bpppmnu', event_id: root.dataset.eventId, token: match[1]} : null;
+            } catch (__) { data = null; }
+        }
+        if (!data) { message('QR presensi tidak valid atau sudah tidak berlaku.'); stop(); return; }
         if (data.type !== 'bpppmnu' || String(data.event_id) !== root.dataset.eventId || !/^[a-f0-9]{64}$/.test(data.token || '')) {
             message('QR tidak sesuai dengan kegiatan ini.'); stop(); return;
         }
@@ -86,7 +93,7 @@
             message(error.name === 'NotAllowedError' ? 'Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser.' : error.message);
         }
     });
-    if (window.location.hash === '#scanner') {
+    if (window.location?.hash === '#scanner') {
         root.closest('.bpp-shell')?.classList.add('bpp-scanner-only');
         window.setTimeout(() => start.click(), 120);
     }

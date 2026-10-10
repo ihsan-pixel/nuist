@@ -10,7 +10,7 @@
 @if($event->attachment)<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.bpppmnu.events.attachment', $event) }}">Unduh lampiran</a>@endif
 <div class="action-bar">
 <a class="btn btn-outline-success" href="{{ route('admin.bpppmnu.events.login-qr', $event) }}">Tampilkan QR Login NUIST Mobile</a>
-@if($event->status !== 'cancelled')<a class="btn btn-outline-primary" href="{{ route('admin.bpppmnu.events.edit', $event) }}">Edit Agenda & Undangan</a>@endif
+@if($event->status !== 'cancelled' && !$event->isLocked())<a class="btn btn-outline-primary" href="{{ route('admin.bpppmnu.events.edit', $event) }}">Edit Agenda & Undangan</a>@endif
 @if($event->status === 'draft')<form method="post" action="{{ route('admin.bpppmnu.events.publish', $event) }}">@csrf<button class="btn btn-success">Terbitkan</button></form>@endif
 @if($event->status === 'published' && now()->lte($event->attendance_close_at))
 <form method="post" action="{{ route('admin.bpppmnu.events.qr', $event) }}">@csrf<button class="btn btn-primary">Generate & Tampilkan QR Baru</button></form>
@@ -35,13 +35,13 @@
 </script>
 @endif
 <div class="row g-3 mb-3">
-@foreach(['Undangan'=>$recap['total'], 'Hadir'=>$recap['present'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran'=>$recap['percentage'].'%'] as $label=>$value)
+@foreach(['Undangan'=>$recap['total'], 'Hadir terdaftar'=>$recap['present'], 'Tamu hadir'=>$recap['guests'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran undangan'=>$recap['percentage'].'%'] as $label=>$value)
 <div class="col-6 col-lg-3"><div class="card summary-card h-100 mb-0"><div class="card-body"><div class="text-muted">{{ $label }}</div><strong>{{ $value }}</strong></div></div></div>
 @endforeach
 </div>
 <div class="card"><div class="card-body"><div class="d-flex justify-content-between mb-3"><h3 class="h5">Rekap Kehadiran</h3><a href="{{ route('admin.bpppmnu.events.export', $event) }}" class="btn btn-success btn-sm">Export Excel</a></div>
-<div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>ID NUIST</th><th>Jabatan</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody>
-@forelse($recap['rows'] as $row)<tr><td>{{ $row->name }}</td><td>{{ $row->nuist_id }}</td><td>{{ $row->jabatan ?: '—' }}</td><td>{{ $row->status }}</td><td>{{ $row->attended_at ?: '—' }}</td></tr>@empty<tr><td colspan="5">Belum ada undangan.</td></tr>@endforelse
+<div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>Kategori</th><th>ID NUIST</th><th>Jabatan/Instansi</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody>
+@forelse($recap['rows'] as $row)<tr><td>{{ $row->name }}</td><td>{{ $row->participant_type }}</td><td>{{ $row->nuist_id ?: '—' }}</td><td>{{ $row->jabatan ?: '—' }}</td><td>{{ $row->status }}</td><td>{{ $row->attended_at ?: '—' }}</td></tr>@empty<tr><td colspan="6">Belum ada peserta.</td></tr>@endforelse
 </tbody></table></div><small class="text-muted">Rekap diperbarui setelah presensi berhasil dicatat.</small></div></div>
 </div>
 @endsection
