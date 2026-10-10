@@ -31,12 +31,12 @@ class PublicBpppmnuAttendanceController extends Controller
 
         $participants = $event->invitations()
             ->whereHas('user', fn ($query) => $query->where('is_active', true)->where('name', 'like', '%'.$needle.'%'))
-            ->with(['user:id,name,ketugasan,no_hp', 'user.bpppmnuMember:user_id,jabatan,instansi_asal'])
+            ->with(['user:id,name,role,ketugasan,jabatan,instansi_asal,madrasah_id,no_hp', 'user.madrasah:id,name', 'user.bpppmnuMember:user_id,jabatan,instansi_asal'])
             ->limit(15)->get()->map(fn ($invitation) => [
                 'id' => $invitation->id,
                 'name' => $invitation->user->name,
-                'position' => $invitation->user->bpppmnuMember?->jabatan ?: $invitation->user->ketugasan,
-                'organization' => $invitation->user->bpppmnuMember?->instansi_asal,
+                'position' => $invitation->user->bpppmnuMember?->jabatan ?: ($invitation->user->jabatan ?: $invitation->user->ketugasan),
+                'organization' => $invitation->user->bpppmnuMember?->instansi_asal ?: ($invitation->user->madrasah?->name ?: $invitation->user->instansi_asal),
                 'attended' => $event->attendances()->where('user_id', $invitation->user_id)->exists(),
             ]);
 

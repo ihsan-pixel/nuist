@@ -16,7 +16,7 @@
     <p class="bpp-login-url"><a href="{{ $loginUrl }}" target="_blank" rel="noopener">{{ $loginUrl }}</a></p>
     <div class="bpp-login-qr-actions">
         <button id="download-login-qr" type="button" class="btn btn-success">Unduh QR (SVG)</button>
-        <a href="{{ route('admin.bpppmnu.events.show', $event) }}" class="btn btn-outline-secondary">Kembali ke Kegiatan</a>
+        <a href="{{ route('admin.agenda.show', $event) }}" class="btn btn-outline-secondary">Kembali ke Kegiatan</a>
     </div>
 </div></div>
 <script>

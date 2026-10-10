@@ -24,10 +24,10 @@ class AdminYayasanNavigationTest extends TestCase
         $this->assertSame([
             'Dashboard', 'Profile Madrasah/Sekolah', 'Kalender Akademik',
             'SK Yayasan', 'Progress Mengajar', 'Presensi Admin', 'Monitoring Riset MGMP',
-            'Pendataan GTK', 'Agenda Kegiatan BPPPMNU',
+            'Pendataan GTK', 'Agenda Kegiatan',
         ], $matches[1]);
         $this->assertStringContainsString(route('pendataan-gtk.index'), $html);
-        $this->assertStringContainsString(route('admin.bpppmnu.events.index'), $html);
+        $this->assertStringContainsString(route('admin.agenda.index'), $html);
     }
 
     public function test_requested_module_routes_accept_foundation_admin(): void
@@ -42,7 +42,7 @@ class AdminYayasanNavigationTest extends TestCase
             'admin.teaching_progress', 'admin.teaching_progress.teachers',
             'presensi_admin.index', 'presensi_admin.settings', 'presensi_admin.laporan_mingguan',
             'admin.mgmp_reset_uploads',
-            'pendataan-gtk.index', 'admin.bpppmnu.events.index',
+            'pendataan-gtk.index', 'admin.agenda.index',
         ];
 
         foreach ($names as $name) {

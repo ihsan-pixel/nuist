@@ -456,11 +456,15 @@ class BpppmnuAttendanceTest extends TestCase
         $this->assertSame('published', $event->fresh()->status);
     }
 
-    public function test_admin_cannot_invite_other_roles_or_upload_unsafe_files(): void
+    public function test_admin_can_invite_any_active_user_and_rejects_unsafe_files(): void
     {
         $data = $this->agendaData();
+        $data['name'] = 'Agenda Lintas Peran';
         $data['invitees'] = [$this->admin->id];
-        $this->actingAs($this->admin)->postJson('/admin-yayasan/bpppmnu/kegiatan', $data)->assertUnprocessable();
+        $this->actingAs($this->admin)->post('/admin-yayasan/agenda', $data)->assertRedirect();
+        $event = BpppmnuEvent::where('name', 'Agenda Lintas Peran')->firstOrFail();
+        $this->assertDatabaseHas('bpppmnu_event_invitations', ['event_id' => $event->id, 'user_id' => $this->admin->id]);
+
         $data = $this->agendaData();
         $data['attachment'] = UploadedFile::fake()->create('script.php', 1, 'application/x-php');
         $this->postJson('/admin-yayasan/bpppmnu/kegiatan', $data)->assertUnprocessable();

@@ -195,7 +195,7 @@
                 @endif
 
                 @if($userRole === 'admin_yayasan')
-                    <li><a href="{{ route('admin.bpppmnu.events.index') }}"><i class="bx bx-calendar-check"></i><span>Kegiatan BPPPMNU</span></a></li>
+                    <li><a href="{{ route('admin.agenda.index') }}"><i class="bx bx-calendar-check"></i><span>Agenda Kegiatan</span></a></li>
                 @endif
                 @if($userRole === 'admin_yayasan')
                 <li>

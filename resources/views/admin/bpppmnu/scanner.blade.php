@@ -1,7 +1,7 @@
 @extends('admin.bpppmnu.layout')
 @section('bpp-content')
 <style>.scanner-shell{max-width:620px;margin:auto}.scanner-video{width:100%;min-height:300px;object-fit:cover;border-radius:16px;background:#10271f}.scanner-shell .card{border-radius:16px}</style>
-<div class="scanner-shell"><div class="card"><div class="card-body"><a href="{{ route('admin.bpppmnu.events.show', $event) }}" class="btn btn-light mb-3">← Kembali</a><h2 class="h5">Scan Peserta</h2><p class="text-muted small">Arahkan kamera ke barcode peserta agenda ini.</p><video id="scanner-video" class="scanner-video" muted playsinline></video><div id="scanner-status" class="alert alert-secondary mt-3">Membuka kamera…</div><button id="scanner-stop" class="btn btn-outline-secondary">Tutup Kamera</button></div></div></div>
+<div class="scanner-shell"><div class="card"><div class="card-body"><a href="{{ route('admin.agenda.show', $event) }}" class="btn btn-light mb-3">← Kembali</a><h2 class="h5">Scan Peserta</h2><p class="text-muted small">Arahkan kamera ke barcode peserta agenda ini.</p><video id="scanner-video" class="scanner-video" muted playsinline></video><div id="scanner-status" class="alert alert-secondary mt-3">Membuka kamera…</div><button id="scanner-stop" class="btn btn-outline-secondary">Tutup Kamera</button></div></div></div>
 <script src="{{ asset('vendor/jsqr/jsQR.js') }}"></script><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 (() => {
@@ -31,7 +31,7 @@
                 busy = true;
                 stopCamera();
                 try {
-                    const response = await fetch('{{ route('admin.bpppmnu.events.scan-member', $event) }}', {method:'POST', headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'}, body:JSON.stringify({nuist_id:result.data.trim()})});
+                    const response = await fetch('{{ route('admin.agenda.scan-member', $event) }}', {method:'POST', headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'}, body:JSON.stringify({nuist_id:result.data.trim()})});
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.message || 'Barcode tidak dikenali.');
                     await Swal.fire({icon:'success', title:'Presensi berhasil', text:data.name, confirmButtonColor:'#00553f'});
@@ -67,7 +67,7 @@
         }
     }
 
-    stopButton.addEventListener('click', () => { stopCamera(); window.location.href = '{{ route('admin.bpppmnu.events.show', $event) }}'; });
+    stopButton.addEventListener('click', () => { stopCamera(); window.location.href = '{{ route('admin.agenda.show', $event) }}'; });
     window.addEventListener('load', startCamera);
 })();
 </script>

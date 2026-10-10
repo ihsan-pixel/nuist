@@ -44,10 +44,8 @@ class BpppmnuEventController extends Controller
 
     private function form(BpppmnuEvent $event)
     {
-        $members = User::whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])
-            ->where('is_active', true)
-            ->whereHas('bpppmnuMember', fn ($q) => $q->where('is_active', true))
-            ->with('bpppmnuMember')
+        $members = User::where('is_active', true)
+            ->with(['bpppmnuMember', 'madrasah:id,name'])
             ->orderBy('name')->get();
         $selected = $event->exists ? $event->invitations()->pluck('user_id')->all() : [];
 
@@ -74,7 +72,7 @@ class BpppmnuEventController extends Controller
             $event->delete();
         });
         if ($attachment) Storage::disk('local')->delete($attachment);
-        return redirect()->route('admin.bpppmnu.events.index')->with('success', 'Agenda berhasil dihapus.');
+        return redirect()->route('admin.agenda.index')->with('success', 'Agenda berhasil dihapus.');
     }
 
     private function save(Request $request, BpppmnuEvent $event)
@@ -100,7 +98,7 @@ class BpppmnuEventController extends Controller
             'guest_organization_required' => 'nullable|boolean',
             'capacity' => 'nullable|integer|min:1|max:100000',
             'invitees' => 'required_unless:attendance_access_mode,guest|array|max:5000',
-            'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->whereIn('role', ['pengurus_bpppmnu', 'tenaga_pendidik'])->where('is_active', true)],
+            'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->where('is_active', true)],
         ];
         $data = $request->validate($rules);
         // Kolom lama pada database masih NOT NULL, meskipun field-nya sudah
@@ -114,15 +112,15 @@ class BpppmnuEventController extends Controller
         $data['guest_phone_required'] = $request->boolean('guest_phone_required');
         $data['guest_organization_required'] = $request->boolean('guest_organization_required');
         $invitees = $data['invitees'] ?? [];
-        $validMemberIds = User::whereIn('id', $invitees)->whereHas('bpppmnuMember', fn ($q) => $q->where('is_active', true))->pluck('id')->all();
+        $validMemberIds = User::whereIn('id', $invitees)->where('is_active', true)->pluck('id')->all();
         if (count($validMemberIds) !== count(array_unique($invitees))) {
-            throw ValidationException::withMessages(['invitees' => 'Semua peserta undangan harus terdaftar sebagai member BPPPMNU aktif.']);
+            throw ValidationException::withMessages(['invitees' => 'Semua peserta undangan harus merupakan pengguna aktif.']);
         }
         unset($data['invitees'], $data['attachment']);
         $uploaded = null;
         try {
             if ($request->hasFile('attachment')) {
-                $uploaded = $request->file('attachment')->store('bpppmnu/invitations', 'local');
+                $uploaded = $request->file('attachment')->store('agenda/invitations', 'local');
             }
             $event = DB::transaction(function () use ($event, $data, $invitees, $uploaded, $request) {
                 if ($event->exists) {
@@ -161,7 +159,7 @@ class BpppmnuEventController extends Controller
             throw $error;
         }
 
-        return redirect()->route('admin.bpppmnu.events.show', $event)->with('success', 'Agenda berhasil disimpan.');
+        return redirect()->route('admin.agenda.show', $event)->with('success', 'Agenda berhasil disimpan.');
     }
 
     public function show(BpppmnuEvent $event, BpppmnuReportService $reports)
@@ -180,16 +178,7 @@ class BpppmnuEventController extends Controller
     public function scanMember(Request $request, BpppmnuEvent $event, BpppmnuAttendanceService $service)
     {
         $data = $request->validate(['nuist_id' => 'required|string|max:100']);
-        $member = User::where('nuist_id', $data['nuist_id'])
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->where('role', 'pengurus_bpppmnu')
-                    ->orWhere(function ($q) {
-                        $q->where('role', 'tenaga_pendidik')
-                            ->whereHas('bpppmnuMember', fn ($member) => $member->where('is_active', true));
-                    });
-            })
-            ->first();
+        $member = User::where('nuist_id', $data['nuist_id'])->where('is_active', true)->first();
         abort_unless($member, 404, 'Barcode peserta tidak dikenali.');
         $result = $service->recordMember($member, $event);
         return response()->json(['message' => $result['duplicate'] ? 'Peserta sudah tercatat hadir.' : 'Presensi peserta berhasil dicatat.', 'name' => $member->name, 'attended_at' => $result['attendance']->attended_at->format('d-m-Y H:i:s').' WIB', 'duplicate' => $result['duplicate']]);
@@ -257,6 +246,6 @@ class BpppmnuEventController extends Controller
 
     public function export(BpppmnuEvent $event, BpppmnuReportService $reports)
     {
-        return Excel::download(new BpppmnuAttendanceExport($reports->recap($event)['rows']), 'presensi-bpppmnu-'.$event->id.'.xlsx');
+        return Excel::download(new BpppmnuAttendanceExport($reports->recap($event)['rows']), 'presensi-agenda-'.$event->id.'.xlsx');
     }
 }

@@ -13,7 +13,7 @@
 <div id="event-qr">{!! $svg !!}<img id="event-qr-logo" src="{{ asset('images/logo-maarif-nu.png') }}" alt="Logo LP Ma’arif NU"></div>
 <a class="d-block small text-break mb-3" href="{{ $publicUrl }}" target="_blank" rel="noopener">{{ $publicUrl }}</a>
 <div class="bpp-qr-actions"><button id="download-qr" type="button" class="btn btn-primary">Unduh QR (SVG)</button>
-<a href="{{ route('admin.bpppmnu.events.show', $event) }}" class="btn btn-outline-secondary">Kembali ke Rekap</a></div>
+<a href="{{ route('admin.agenda.show', $event) }}" class="btn btn-outline-secondary">Kembali ke Rekap</a></div>
 </div></div>
 <script>
 document.getElementById('download-qr').addEventListener('click', () => {

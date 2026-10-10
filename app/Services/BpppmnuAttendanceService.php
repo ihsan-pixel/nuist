@@ -65,11 +65,11 @@ class BpppmnuAttendanceService
 
     public function recordMember(User $member, BpppmnuEvent $event): array
     {
-        abort_unless($member->is_active !== false && in_array($member->role, ['pengurus_bpppmnu', 'tenaga_pendidik'], true), 403);
+        abort_unless($member->is_active !== false, 403);
 
         return DB::transaction(function () use ($member, $event) {
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
-            $this->check($event->invitations()->where('user_id', $member->id)->exists(), 'Pengurus tidak terdaftar sebagai peserta kegiatan ini.');
+            $this->check($event->invitations()->where('user_id', $member->id)->exists(), 'Pengguna tidak terdaftar sebagai peserta kegiatan ini.');
             $this->check($event->status === 'published', 'Kegiatan belum diterbitkan.');
             $this->check(now()->gte($event->attendance_open_at), 'Presensi kegiatan belum dibuka.');
             $this->check(now()->lte($event->attendance_close_at), 'Waktu presensi kegiatan telah berakhir.');
@@ -94,20 +94,28 @@ class BpppmnuAttendanceService
 
     public function recordPublicRegistered(BpppmnuEventInvitation $invitation, BpppmnuEvent $event, string $token, ?float $latitude = null, ?float $longitude = null): array
     {
-        $this->check($event->allowsRegisteredAttendance(), 'Agenda ini tidak menerima peserta terdaftar.');
-        $this->check($invitation->event_id === $event->id, 'Nama peserta tidak terdaftar pada agenda ini.');
+        return DB::transaction(function () use ($invitation, $event, $token, $latitude, $longitude) {
+            $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
+            $this->validatePublicEvent($event, $token);
+            $this->check($event->allowsRegisteredAttendance(), 'Agenda ini tidak menerima peserta terdaftar.');
+            $this->check($invitation->event_id === $event->id && $invitation->user?->is_active !== false, 'Nama peserta tidak terdaftar pada agenda ini.');
+            $existing = $event->attendances()->where('user_id', $invitation->user_id)->first();
+            if ($existing) {
+                return ['attendance' => $existing, 'duplicate' => true];
+            }
+            if ($event->capacity) {
+                $total = $event->attendances()->count() + $event->guestAttendances()->count();
+                $this->check($total < $event->capacity, 'Kapasitas peserta kegiatan sudah penuh.');
+            }
+            $this->validateLocation($event, $latitude, $longitude);
+            $attendance = $event->attendances()->create([
+                'user_id' => $invitation->user_id,
+                'attended_at' => now(),
+                'method' => 'public_qr_registered',
+            ]);
 
-        if ($event->capacity && ! $event->attendances()->where('user_id', $invitation->user_id)->exists()) {
-            $total = $event->attendances()->count() + $event->guestAttendances()->count();
-            $this->check($total < $event->capacity, 'Kapasitas peserta kegiatan sudah penuh.');
-        }
-
-        $result = $this->record($invitation->user, $event, $token, $latitude, $longitude);
-        if (! $result['duplicate']) {
-            $result['attendance']->update(['method' => 'public_qr_registered']);
-        }
-
-        return $result;
+            return ['attendance' => $attendance, 'duplicate' => false];
+        }, 3);
     }
 
     public function recordPublicGuest(BpppmnuEvent $event, string $token, array $data, Request $request): array

@@ -1,4 +1,4 @@
-# Rancangan Fitur Presensi Agenda melalui QR Publik
+# Rancangan Fitur Presensi Agenda Universal melalui QR Publik
 
 ## 1. Tujuan
 
@@ -10,7 +10,9 @@ Fitur ini memungkinkan peserta melakukan presensi tanpa login dengan alur:
 4. Peserta mencari dan memilih namanya, atau mengisi nama sebagai tamu jika agenda mengizinkan.
 5. Peserta mengonfirmasi identitas, lalu sistem mencatat waktu kehadiran.
 
-Fitur dibangun sebagai pengembangan modul agenda BPPPMNU yang sudah ada agar agenda, peserta, QR, jendela waktu, rekap, dan ekspor tetap berada dalam satu sumber data.
+Fitur dibangun sebagai agenda universal dengan memanfaatkan fondasi teknis modul BPPPMNU yang sudah ada. Agenda dapat digunakan untuk rapat yayasan, pelatihan, seminar, kegiatan sekolah/madrasah, kegiatan organisasi, dan kegiatan umum lain. Peserta terdaftar dapat berasal dari seluruh pengguna aktif tanpa dibatasi role atau keanggotaan BPPPMNU; peserta dari luar sistem dapat dicatat sebagai tamu.
+
+Nama tabel dan sebagian kelas internal lama tetap dipertahankan sementara untuk menjaga kompatibilitas data. Pada antarmuka dan URL admin, fitur ditampilkan sebagai **Agenda Kegiatan**, bukan agenda khusus BPPPMNU.
 
 ## 2. Temuan dari aplikasi saat ini
 
