@@ -641,6 +641,17 @@ class BpppmnuAttendanceTest extends TestCase
         $this->get('/hadir/'.$this->token)->assertNotFound();
     }
 
+    public function test_public_qr_claim_is_limited_to_ten_minutes(): void
+    {
+        $claimKey = 'bpppmnu_public_claim_'.hash('sha256', $this->token);
+
+        $this->get('/hadir/'.$this->token)->assertOk();
+
+        $this->assertSame(now()->addMinutes(10)->timestamp, session($claimKey)['expires_at']);
+        $this->travelTo(now()->addMinutes(10)->addSecond());
+        $this->getJson('/hadir/'.$this->token.'/peserta?q=User')->assertNotFound();
+    }
+
     public function test_admin_qr_status_returns_the_automatically_rotated_qr(): void
     {
         $oldUrl = route('public.bpppmnu.show', ['token' => $this->token]);

@@ -13,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 
 class PublicBpppmnuAttendanceController extends Controller
 {
+    private const CLAIM_TTL_MINUTES = 10;
+
     public function show(Request $request, string $token, BpppmnuAttendanceService $service)
     {
         $event = $this->claimedEvent($request, $service, $token);
@@ -21,7 +23,7 @@ class PublicBpppmnuAttendanceController extends Controller
             abort_unless($event, 404, BpppmnuAttendanceService::INVALID_QR);
             $request->session()->put($this->claimKey($token), [
                 'event_id' => $event->id,
-                'expires_at' => min($event->attendance_close_at->timestamp, now()->addMinutes(30)->timestamp),
+                'expires_at' => min($event->attendance_close_at->timestamp, now()->addMinutes(self::CLAIM_TTL_MINUTES)->timestamp),
             ]);
         }
         $nonce = Str::random(48);
