@@ -17,7 +17,7 @@
                 </thead>
                 <tbody>
 @forelse($events as $index => $event)<tr><td>{{ $events->firstItem() + $index }}</td><td>{{ $event->name }}</td><td>{{ $event->start_at->format('d-m-Y H:i') }}</td><td>{{ $event->status }}</td><td>{{ $event->invitations_count + $event->guest_invitations_count }}</td><td>{{ $event->attendances_count + $event->guest_attendances_count }}</td><td><div class="d-flex gap-1 flex-wrap"><a class="btn btn-sm btn-outline-primary" href="{{ route('admin.agenda.show', $event) }}">Detail & Rekap</a>@if($event->status !== 'cancelled')<a class="btn btn-sm btn-warning" href="{{ route('admin.agenda.edit', $event) }}">Edit</a>@endif
-@if(!$event->attendances_count && !$event->guest_attendances_count)<form method="post" action="{{ route('admin.agenda.destroy', $event) }}" onsubmit="return confirm('Hapus agenda ini beserta undangannya?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Hapus</button></form>@endif</div></td></tr>@empty<tr><td colspan="7">Belum ada kegiatan.</td></tr>@endforelse
+<form method="post" action="{{ route('admin.agenda.destroy', $event) }}" onsubmit="return confirm('Hapus agenda {{ addslashes($event->name) }} secara permanen? Seluruh undangan, QR, dan data presensi agenda ini juga akan dihapus dan tidak dapat dikembalikan.')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button></form></div></td></tr>@empty<tr><td colspan="7">Belum ada kegiatan.</td></tr>@endforelse
                 </tbody>
             </table>
         </div>

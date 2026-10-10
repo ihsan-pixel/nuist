@@ -64,15 +64,23 @@ class BpppmnuEventController extends Controller
 
     public function destroy(BpppmnuEvent $event)
     {
-        abort_if($event->attendances()->exists() || $event->guestAttendances()->exists(), 403, 'Agenda yang sudah memiliki presensi tidak dapat dihapus.');
         $attachment = $event->attachment;
         DB::transaction(function () use ($event) {
+            $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
+
+            // Attendance rows must be removed before their invitations because
+            // both relationships intentionally use restrictive foreign keys.
+            $event->guestAttendances()->delete();
+            $event->attendances()->delete();
             $event->qrTokens()->delete();
             $event->invitations()->delete();
             $event->guestInvitations()->delete();
             $event->delete();
-        });
-        if ($attachment) Storage::disk('local')->delete($attachment);
+        }, 3);
+        if ($attachment) {
+            Storage::disk('local')->delete($attachment);
+        }
+
         return redirect()->route('admin.agenda.index')->with('success', 'Agenda berhasil dihapus.');
     }
 

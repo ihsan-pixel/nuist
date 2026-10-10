@@ -369,6 +369,41 @@ class BpppmnuAttendanceTest extends TestCase
         $this->assertSame('published', $this->event->fresh()->status);
     }
 
+    public function test_admin_can_delete_agenda_and_all_of_its_attendance_data(): void
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('bpppmnu/invitations/to-delete.pdf', 'attachment');
+        $this->event->update(['attachment' => 'bpppmnu/invitations/to-delete.pdf']);
+        $this->scan()->assertOk();
+
+        $guest = $this->event->guestInvitations()->create(['name' => 'Tamu Terhapus']);
+        $this->event->guestAttendances()->create([
+            'guest_invitation_id' => $guest->id,
+            'guest_name' => $guest->name,
+            'attended_at' => now(),
+            'confirmation_code' => 'DELETE-TEST',
+            'request_fingerprint' => hash('sha256', 'delete-test'),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->get('/admin-yayasan/agenda')
+            ->assertOk()
+            ->assertSee(route('admin.agenda.destroy', $this->event), false)
+            ->assertSee('Seluruh undangan, QR, dan data presensi agenda ini juga akan dihapus', false);
+
+        $this->delete('/admin-yayasan/agenda/'.$this->event->id)
+            ->assertRedirect(route('admin.agenda.index'))
+            ->assertSessionHas('success', 'Agenda berhasil dihapus.');
+
+        $this->assertDatabaseMissing('bpppmnu_events', ['id' => $this->event->id]);
+        $this->assertDatabaseCount('bpppmnu_event_attendances', 0);
+        $this->assertDatabaseCount('bpppmnu_event_guest_attendances', 0);
+        $this->assertDatabaseCount('bpppmnu_event_invitations', 0);
+        $this->assertDatabaseCount('bpppmnu_event_guest_invitations', 0);
+        $this->assertDatabaseCount('bpppmnu_event_qr_tokens', 0);
+        Storage::disk('local')->assertMissing('bpppmnu/invitations/to-delete.pdf');
+    }
+
     public function test_disabled_account_cannot_scan(): void
     {
         $this->member->update(['is_active' => false]);
