@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BpppmnuEventGuestAttendance;
+use App\Models\BpppmnuEventGuestInvitation;
 use App\Models\BpppmnuEventInvitation;
 use App\Services\BpppmnuAttendanceService;
 use Illuminate\Http\Request;
@@ -25,20 +26,35 @@ class PublicBpppmnuAttendanceController extends Controller
     public function participants(Request $request, string $token, BpppmnuAttendanceService $service)
     {
         $event = $this->event($service, $token);
-        abort_unless($event->allowsRegisteredAttendance(), 404);
         $data = $request->validate(['q' => 'required|string|min:2|max:100']);
         $needle = trim($data['q']);
 
-        $participants = $event->invitations()
-            ->whereHas('user', fn ($query) => $query->where('is_active', true)->where('name', 'like', '%'.$needle.'%'))
-            ->with(['user:id,name,role,ketugasan,jabatan,instansi_asal,madrasah_id,no_hp', 'user.madrasah:id,name', 'user.bpppmnuMember:user_id,jabatan,instansi_asal'])
-            ->limit(15)->get()->map(fn ($invitation) => [
+        $participants = collect();
+        if ($event->allowsRegisteredAttendance()) {
+            $participants = $event->invitations()
+                ->whereHas('user', fn ($query) => $query->where('is_active', true)->where('name', 'like', '%'.$needle.'%'))
+                ->with(['user:id,name,role,ketugasan,jabatan,instansi_asal,madrasah_id,no_hp', 'user.madrasah:id,name', 'user.bpppmnuMember:user_id,jabatan,instansi_asal'])
+                ->limit(15)->get()->map(fn ($invitation) => [
                 'id' => $invitation->id,
+                'type' => 'registered',
                 'name' => $invitation->user->name,
                 'position' => $invitation->user->bpppmnuMember?->jabatan ?: ($invitation->user->jabatan ?: $invitation->user->ketugasan),
                 'organization' => $invitation->user->bpppmnuMember?->instansi_asal ?: ($invitation->user->madrasah?->name ?: $invitation->user->instansi_asal),
                 'attended' => $event->attendances()->where('user_id', $invitation->user_id)->exists(),
             ]);
+        }
+        if ($event->allowsGuestAttendance() && $participants->count() < 15) {
+            $guestParticipants = $event->guestInvitations()->where('name', 'like', '%'.$needle.'%')
+                ->with('attendance:id,guest_invitation_id')->limit(15 - $participants->count())->get()->map(fn ($invitation) => [
+                    'id' => $invitation->id,
+                    'type' => 'guest',
+                    'name' => $invitation->name,
+                    'position' => 'Tamu undangan',
+                    'organization' => $invitation->organization,
+                    'attended' => (bool) $invitation->attendance,
+                ]);
+            $participants = $participants->concat($guestParticipants);
+        }
 
         return response()->json(['data' => $participants])->header('Cache-Control', 'no-store, private');
     }
@@ -48,11 +64,9 @@ class PublicBpppmnuAttendanceController extends Controller
         $event = $this->event($service, $token);
         $data = $request->validate([
             'participant_type' => ['required', Rule::in(['registered', 'guest'])],
-            'invitation_id' => 'nullable|integer',
+            'invitation_id' => 'required_if:participant_type,registered|nullable|integer',
+            'guest_invitation_id' => 'required_if:participant_type,guest|nullable|integer',
             'verification' => 'nullable|string|max:50',
-            'guest_name' => 'nullable|string|min:3|max:255',
-            'guest_phone' => 'nullable|string|max:30',
-            'guest_organization' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'nonce' => 'required|string|size:48',
@@ -73,11 +87,12 @@ class PublicBpppmnuAttendanceController extends Controller
             $name = $invitation->user->name;
             $confirmationCode = Str::upper(Str::random(12));
         } else {
-            if (empty($data['guest_name'])) {
-                throw ValidationException::withMessages(['guest_name' => 'Nama lengkap wajib diisi.']);
+            $guestInvitation = BpppmnuEventGuestInvitation::whereKey($data['guest_invitation_id'] ?? null)->where('event_id', $event->id)->first();
+            if (! $guestInvitation || ! $event->allowsGuestAttendance()) {
+                throw ValidationException::withMessages(['participant' => 'Nama tamu tidak terdaftar pada agenda ini.']);
             }
-            $result = $service->recordPublicGuest($event, $token, $data, $request);
-            $name = $result['attendance']->guest_name;
+            $result = $service->recordPublicGuestInvitation($guestInvitation, $event, $token, $data, $request);
+            $name = $guestInvitation->name;
             $confirmationCode = $result['attendance']->confirmation_code;
         }
 

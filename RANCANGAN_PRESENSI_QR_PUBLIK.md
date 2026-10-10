@@ -7,7 +7,7 @@ Fitur ini memungkinkan peserta melakukan presensi tanpa login dengan alur:
 1. Admin membuat agenda dan menentukan peserta.
 2. Sistem membuat QR berisi URL HTTPS yang dapat dibaca kamera, Google Lens, dan aplikasi pemindai lain.
 3. Peserta membuka URL dari QR.
-4. Peserta mencari dan memilih namanya, atau mengisi nama sebagai tamu jika agenda mengizinkan.
+4. Peserta mencari dan memilih namanya dari daftar undangan yang telah dibuat admin.
 5. Peserta mengonfirmasi identitas, lalu sistem mencatat waktu kehadiran.
 
 Fitur dibangun sebagai agenda universal dengan memanfaatkan fondasi teknis modul BPPPMNU yang sudah ada. Agenda dapat digunakan untuk rapat yayasan, pelatihan, seminar, kegiatan sekolah/madrasah, kegiatan organisasi, dan kegiatan umum lain. Peserta terdaftar dapat berasal dari seluruh pengguna aktif tanpa dibatasi role atau keanggotaan BPPPMNU; peserta dari luar sistem dapat dicatat sebagai tamu.
@@ -31,7 +31,7 @@ Kesenjangan terhadap kebutuhan baru:
 - QR agenda saat ini berisi JSON internal, bukan URL web, sehingga hasil Google Lens tidak langsung membuka halaman presensi.
 - Endpoint presensi peserta masih berada di balik autentikasi.
 - Peserta belum dapat mencari/memilih nama pada halaman publik.
-- Belum ada peserta tamu/nama manual.
+- Belum ada daftar undangan tamu di luar database pengguna.
 - Route pengelolaan agenda saat ini hanya menerima `admin_yayasan`; `super_admin` perlu diberi akses eksplisit.
 - Memilih nama tanpa pengaman sama sekali memungkinkan seseorang mengabsenkan peserta lain.
 
@@ -42,8 +42,8 @@ Kesenjangan terhadap kebutuhan baru:
 Admin memilih salah satu mode berikut:
 
 - **Peserta terdaftar**: hanya nama yang telah dimasukkan admin yang dapat presensi.
-- **Peserta terdaftar + tamu**: peserta resmi dapat memilih nama, sedangkan peserta yang tidak ditemukan dapat mengetik nama.
-- **Tamu saja**: semua peserta mengetik nama; cocok untuk kegiatan umum.
+- **Peserta terdaftar + tamu**: peserta dari database pengguna dan tamu undangan yang didaftarkan admin dapat memilih nama.
+- **Tamu saja**: hanya tamu undangan yang namanya sudah didaftarkan admin yang dapat presensi.
 
 Mode yang disarankan sebagai default adalah **Peserta terdaftar**.
 
@@ -51,13 +51,13 @@ Mode yang disarankan sebagai default adalah **Peserta terdaftar**.
 
 Tidak ada email/password dan tidak ada sesi akun. Untuk peserta terdaftar, setelah memilih nama sistem meminta konfirmasi ringan berupa 4 digit terakhir nomor HP atau kode peserta. Pengaturan ini dapat dinonaktifkan admin untuk kegiatan berisiko rendah, tetapi layar tetap menampilkan konfirmasi: “Saya benar-benar [nama peserta]”.
 
-Untuk tamu, minimal wajib diisi:
+Untuk undangan tamu, admin dapat menyimpan:
 
 - Nama lengkap.
 - Asal instansi/unit (opsional atau wajib sesuai pengaturan agenda).
 - Nomor HP (opsional atau wajib sesuai pengaturan agenda).
 
-Nama manual tidak otomatis membuat akun `users` dan tidak boleh dikaitkan ke user hanya berdasarkan kemiripan nama.
+Data tamu tidak membuat akun `users`. Tamu tidak dapat menulis nama sendiri pada halaman presensi.
 
 ### 3.3 Isi QR
 
@@ -93,7 +93,7 @@ Token mentah hanya ada di URL dan QR. Database menyimpan hash token. QR dapat di
 1. Scan QR dengan Google Lens/kamera.
 2. Browser membuka halaman publik berisi nama agenda, lokasi, dan status waktu presensi.
 3. Cari nama minimal 2–3 karakter. Daftar tidak ditampilkan seluruhnya saat halaman pertama dibuka.
-4. Pilih nama dan konfirmasi identitas, atau pilih **Nama saya tidak ditemukan** jika tamu diizinkan.
+4. Pilih nama yang telah didaftarkan admin dan konfirmasi identitas.
 5. Tekan **Catat Kehadiran**.
 6. Halaman sukses menampilkan nama agenda, nama peserta, dan waktu presensi.
 
@@ -122,7 +122,7 @@ Token mentah hanya ada di URL dan QR. Database menyimpan hash token. QR dapat di
 - Indikator “Presensi dibuka sampai … WIB”.
 - Kolom pencarian besar: **Ketik nama Anda**.
 - Hasil pencarian berupa kartu nama, unit, dan jabatan; data sensitif tidak ditampilkan.
-- Tombol **Nama saya tidak ditemukan** hanya muncul jika tamu diizinkan.
+- Jika nama tidak ditemukan, peserta diarahkan menghubungi admin kegiatan; tidak tersedia input nama bebas.
 - Dialog konfirmasi sebelum penyimpanan.
 - Halaman sukses yang jelas dan tidak otomatis menampilkan daftar peserta lain.
 
@@ -206,7 +206,7 @@ Penyimpanan dilakukan dalam transaksi database dengan lock pada agenda. Frontend
 - Gunakan CSRF untuk form browser; untuk URL publik tetap buat session anonim secara normal.
 - Hindari menampilkan semua nama sekaligus agar daftar peserta tidak mudah disalin.
 - Masking data pendukung, misalnya nomor HP hanya `****1234` bila perlu.
-- Jangan mengizinkan nama manual pada agenda tertutup tanpa opsi admin.
+- Hanya tamu yang memiliki undangan pada agenda tersebut yang dapat melakukan presensi.
 - Catat koreksi/penghapusan oleh admin di audit log.
 - Sediakan tombol tutup presensi dan cabut QR darurat.
 - Pertimbangkan CAPTCHA hanya setelah terdeteksi trafik mencurigakan agar alur normal tetap cepat.
@@ -232,7 +232,7 @@ Peserta publik tidak dapat melihat rekap nama peserta lain.
 - Akses `super_admin` dan `admin_yayasan`.
 - QR berisi URL publik.
 - Mode peserta terdaftar dan hybrid.
-- Pencarian/pilih nama, input tamu, konfirmasi, dan halaman sukses.
+- Pencarian/pilih nama pengguna atau tamu undangan, konfirmasi, dan halaman sukses.
 - Pencegahan duplikat, throttle, masa berlaku, serta rekap tamu.
 - Tes fitur untuk token, waktu, role, undangan, duplikasi, dan guest mode.
 
@@ -254,7 +254,7 @@ Peserta publik tidak dapat melihat rekap nama peserta lain.
 - QR dapat dikenali Google Lens dan membuka halaman HTTPS yang benar.
 - Halaman dapat digunakan tanpa login.
 - Admin yayasan dan super admin dapat membuat, menerbitkan, dan menutup agenda.
-- Admin dapat memasukkan peserta sekaligus dan mengizinkan/menolak tamu.
+- Admin dapat memasukkan pengguna dan daftar nama tamu undangan sebelum agenda diterbitkan.
 - Peserta terdaftar dapat dicari dan dipilih tanpa membuka seluruh daftar.
 - Nama manual hanya tersedia pada agenda yang mengizinkannya.
 - Satu peserta terdaftar tidak dapat tercatat dua kali.
@@ -266,4 +266,4 @@ Peserta publik tidak dapat melihat rekap nama peserta lain.
 
 ## 13. Rekomendasi final
 
-Gunakan modul BPPPMNU yang sudah ada sebagai fondasi dan pertahankan alur lama untuk kompatibilitas. Tambahkan kanal `public_qr` sebagai pilihan per agenda. Konfigurasi default yang disarankan adalah peserta terdaftar, pencarian nama, verifikasi 4 digit nomor HP, tamu nonaktif, dan validasi lokasi opsional. Untuk kegiatan umum, admin dapat memilih mode hybrid agar orang yang belum terdaftar tetap bisa mengetik nama.
+Gunakan fondasi modul lama dan pertahankan alur lama untuk kompatibilitas. Tambahkan kanal `public_qr` sebagai pilihan per agenda. Konfigurasi default yang disarankan adalah peserta terdaftar, pencarian nama, verifikasi 4 digit nomor HP, tamu nonaktif, dan validasi lokasi opsional. Untuk tamu dari luar sistem, admin wajib mendaftarkan namanya terlebih dahulu; halaman publik tidak menerima nama bebas.

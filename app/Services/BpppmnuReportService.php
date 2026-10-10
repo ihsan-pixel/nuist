@@ -48,6 +48,7 @@ class BpppmnuReportService
             'remaining' => $total - $present,
             'percentage' => $total ? round($present / $total * 100, 1) : 0,
             'guests' => $guestRows->count(),
+            'guest_invited' => $event->guestInvitations()->count(),
             'total_present' => $present + $guestRows->count(),
         ];
     }

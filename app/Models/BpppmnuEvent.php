@@ -24,6 +24,11 @@ class BpppmnuEvent extends Model
         return $this->hasMany(BpppmnuEventGuestAttendance::class, 'event_id');
     }
 
+    public function guestInvitations()
+    {
+        return $this->hasMany(BpppmnuEventGuestInvitation::class, 'event_id');
+    }
+
     public function allowsRegisteredAttendance(): bool
     {
         return in_array($this->attendance_access_mode ?: 'registered', ['registered', 'hybrid'], true);

@@ -35,7 +35,7 @@
 </script>
 @endif
 <div class="row g-3 mb-3">
-@foreach(['Undangan'=>$recap['total'], 'Hadir terdaftar'=>$recap['present'], 'Tamu hadir'=>$recap['guests'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran undangan'=>$recap['percentage'].'%'] as $label=>$value)
+@foreach(['Pengguna diundang'=>$recap['total'], 'Tamu diundang'=>$recap['guest_invited'], 'Hadir terdaftar'=>$recap['present'], 'Tamu hadir'=>$recap['guests'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran pengguna'=>$recap['percentage'].'%'] as $label=>$value)
 <div class="col-6 col-lg-3"><div class="card summary-card h-100 mb-0"><div class="card-body"><div class="text-muted">{{ $label }}</div><strong>{{ $value }}</strong></div></div></div>
 @endforeach
 </div>

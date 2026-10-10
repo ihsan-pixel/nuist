@@ -64,6 +64,7 @@ class BpppmnuAttendanceTest extends TestCase
         (require database_path('migrations/2026_09_11_000005_create_bpppmnu_members_table.php'))->up();
         (require database_path('migrations/2026_09_11_000007_add_location_validation_to_bpppmnu_events.php'))->up();
         (require database_path('migrations/2026_10_10_000001_add_public_attendance_to_bpppmnu_events.php'))->up();
+        (require database_path('migrations/2026_10_10_000002_create_bpppmnu_event_guest_invitations.php'))->up();
         $this->member = $this->user('pengurus_bpppmnu');
         DB::table('bpppmnu_members')->insert([
             'user_id' => $this->member->id,
@@ -447,11 +448,13 @@ class BpppmnuAttendanceTest extends TestCase
         $data['name'] = 'Agenda Umum';
         $data['attendance_access_mode'] = 'guest';
         $data['public_name_verification'] = 'none';
+        $data['guest_invitees'] = [['name' => 'Tamu Agenda', 'organization' => 'Umum', 'phone' => '08123456789']];
         unset($data['invitees']);
 
         $this->actingAs($this->admin)->post('/admin-yayasan/bpppmnu/kegiatan', $data)->assertRedirect();
         $event = BpppmnuEvent::where('name', 'Agenda Umum')->firstOrFail();
         $this->assertSame(0, $event->invitations()->count());
+        $this->assertSame(1, $event->guestInvitations()->count());
         $this->post('/admin-yayasan/bpppmnu/kegiatan/'.$event->id.'/publish')->assertRedirect();
         $this->assertSame('published', $event->fresh()->status);
     }
@@ -546,13 +549,18 @@ class BpppmnuAttendanceTest extends TestCase
     public function test_public_qr_accepts_guest_only_when_event_allows_it(): void
     {
         $this->event->update(['attendance_access_mode' => 'hybrid']);
+        $guestInvitation = $this->event->guestInvitations()->create(['name' => 'Peserta Tamu', 'organization' => 'MI Contoh']);
         $nonce = str_repeat('g', 48);
         $nonceKey = 'bpppmnu_public_nonce_'.hash('sha256', $this->token);
 
+        $this->getJson('/hadir/'.$this->token.'/peserta?q=Peserta')
+            ->assertOk()
+            ->assertJsonPath('data.0.type', 'guest')
+            ->assertJsonPath('data.0.name', 'Peserta Tamu');
+
         $this->withSession([$nonceKey => $nonce])->post('/hadir/'.$this->token.'/konfirmasi', [
             'participant_type' => 'guest',
-            'guest_name' => 'Peserta Tamu',
-            'guest_organization' => 'MI Contoh',
+            'guest_invitation_id' => $guestInvitation->id,
             'nonce' => $nonce,
         ])->assertRedirectContains('/hadir/'.$this->token.'/sukses/');
 
@@ -561,6 +569,21 @@ class BpppmnuAttendanceTest extends TestCase
             'guest_name' => 'Peserta Tamu',
         ]);
         $this->assertSame(1, app(BpppmnuReportService::class)->recap($this->event)['guests']);
+    }
+
+    public function test_public_guest_cannot_type_an_unregistered_name(): void
+    {
+        $this->event->update(['attendance_access_mode' => 'hybrid']);
+        $nonce = str_repeat('u', 48);
+        $nonceKey = 'bpppmnu_public_nonce_'.hash('sha256', $this->token);
+
+        $this->withSession([$nonceKey => $nonce])->post('/hadir/'.$this->token.'/konfirmasi', [
+            'participant_type' => 'guest',
+            'guest_name' => 'Nama Bebas',
+            'nonce' => $nonce,
+        ])->assertSessionHasErrors('guest_invitation_id');
+
+        $this->assertDatabaseCount('bpppmnu_event_guest_attendances', 0);
     }
 
     public function test_public_qr_rejects_invalid_nonce_and_revoked_token(): void

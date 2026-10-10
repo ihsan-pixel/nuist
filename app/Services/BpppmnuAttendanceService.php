@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BpppmnuEvent;
 use App\Models\BpppmnuEventGuestAttendance;
+use App\Models\BpppmnuEventGuestInvitation;
 use App\Models\BpppmnuEventInvitation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -118,14 +119,18 @@ class BpppmnuAttendanceService
         }, 3);
     }
 
-    public function recordPublicGuest(BpppmnuEvent $event, string $token, array $data, Request $request): array
+    public function recordPublicGuestInvitation(BpppmnuEventGuestInvitation $invitation, BpppmnuEvent $event, string $token, array $data, Request $request): array
     {
-        return DB::transaction(function () use ($event, $token, $data, $request) {
+        return DB::transaction(function () use ($invitation, $event, $token, $data, $request) {
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
             $this->validatePublicEvent($event, $token);
             $this->check($event->allowsGuestAttendance(), 'Agenda ini tidak menerima peserta tamu.');
-            $this->check(! $event->guest_phone_required || ! empty($data['guest_phone']), 'Nomor HP wajib diisi.');
-            $this->check(! $event->guest_organization_required || ! empty($data['guest_organization']), 'Asal instansi wajib diisi.');
+            $this->check($invitation->event_id === $event->id, 'Nama tamu tidak terdaftar pada agenda ini.');
+
+            $existing = $event->guestAttendances()->where('guest_invitation_id', $invitation->id)->first();
+            if ($existing) {
+                return ['attendance' => $existing, 'duplicate' => true];
+            }
 
             if ($event->capacity) {
                 $total = $event->attendances()->count() + $event->guestAttendances()->count();
@@ -134,15 +139,11 @@ class BpppmnuAttendanceService
 
             $distance = $this->validateLocation($event, $data['latitude'] ?? null, $data['longitude'] ?? null);
             $fingerprint = hash('sha256', $event->id.'|'.$data['nonce']);
-            $existing = $event->guestAttendances()->where('request_fingerprint', $fingerprint)->first();
-            if ($existing) {
-                return ['attendance' => $existing, 'duplicate' => true];
-            }
-
             $attendance = $event->guestAttendances()->create([
-                'guest_name' => trim($data['guest_name']),
-                'guest_phone' => isset($data['guest_phone']) ? trim($data['guest_phone']) : null,
-                'guest_organization' => isset($data['guest_organization']) ? trim($data['guest_organization']) : null,
+                'guest_invitation_id' => $invitation->id,
+                'guest_name' => $invitation->name,
+                'guest_phone' => $invitation->phone,
+                'guest_organization' => $invitation->organization,
                 'attended_at' => now(),
                 'method' => 'public_qr_guest',
                 'confirmation_code' => Str::upper(Str::random(12)),

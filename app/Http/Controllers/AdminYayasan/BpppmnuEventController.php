@@ -24,7 +24,7 @@ class BpppmnuEventController extends Controller
 {
     public function index()
     {
-        $events = BpppmnuEvent::withCount(['invitations', 'attendances', 'guestAttendances'])->orderByDesc('start_at')->paginate(20);
+        $events = BpppmnuEvent::withCount(['invitations', 'guestInvitations', 'attendances', 'guestAttendances'])->orderByDesc('start_at')->paginate(20);
 
         return view('admin.bpppmnu.index', compact('events'));
     }
@@ -48,8 +48,9 @@ class BpppmnuEventController extends Controller
             ->with(['bpppmnuMember', 'madrasah:id,name'])
             ->orderBy('name')->get();
         $selected = $event->exists ? $event->invitations()->pluck('user_id')->all() : [];
+        $guestInvitees = $event->exists ? $event->guestInvitations()->orderBy('name')->get() : collect();
 
-        return view('admin.bpppmnu.form', compact('event', 'members', 'selected'));
+        return view('admin.bpppmnu.form', compact('event', 'members', 'selected', 'guestInvitees'));
     }
 
     public function store(Request $request)
@@ -69,6 +70,7 @@ class BpppmnuEventController extends Controller
         DB::transaction(function () use ($event) {
             $event->qrTokens()->delete();
             $event->invitations()->delete();
+            $event->guestInvitations()->delete();
             $event->delete();
         });
         if ($attachment) Storage::disk('local')->delete($attachment);
@@ -99,6 +101,11 @@ class BpppmnuEventController extends Controller
             'capacity' => 'nullable|integer|min:1|max:100000',
             'invitees' => 'required_unless:attendance_access_mode,guest|array|max:5000',
             'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->where('is_active', true)],
+            'guest_invitees' => 'nullable|array|max:5000',
+            'guest_invitees.*.id' => 'nullable|integer',
+            'guest_invitees.*.name' => 'required_with:guest_invitees|string|min:3|max:255',
+            'guest_invitees.*.organization' => 'nullable|string|max:255',
+            'guest_invitees.*.phone' => 'nullable|string|max:30',
         ];
         $data = $request->validate($rules);
         // Kolom lama pada database masih NOT NULL, meskipun field-nya sudah
@@ -112,17 +119,30 @@ class BpppmnuEventController extends Controller
         $data['guest_phone_required'] = $request->boolean('guest_phone_required');
         $data['guest_organization_required'] = $request->boolean('guest_organization_required');
         $invitees = $data['invitees'] ?? [];
+        $guestInvitees = collect($data['guest_invitees'] ?? [])->filter(fn ($guest) => trim((string) ($guest['name'] ?? '')) !== '')->values()->all();
+        $accessMode = $data['attendance_access_mode'] ?? ($event->attendance_access_mode ?: 'registered');
+        if ($accessMode === 'guest' && count($guestInvitees) === 0) {
+            throw ValidationException::withMessages(['guest_invitees' => 'Tambahkan minimal satu nama tamu undangan.']);
+        }
+        foreach ($guestInvitees as $index => $guest) {
+            if ($data['guest_phone_required'] && empty($guest['phone'])) {
+                throw ValidationException::withMessages(["guest_invitees.$index.phone" => 'Nomor HP tamu wajib diisi.']);
+            }
+            if ($data['guest_organization_required'] && empty($guest['organization'])) {
+                throw ValidationException::withMessages(["guest_invitees.$index.organization" => 'Instansi tamu wajib diisi.']);
+            }
+        }
         $validMemberIds = User::whereIn('id', $invitees)->where('is_active', true)->pluck('id')->all();
         if (count($validMemberIds) !== count(array_unique($invitees))) {
             throw ValidationException::withMessages(['invitees' => 'Semua peserta undangan harus merupakan pengguna aktif.']);
         }
-        unset($data['invitees'], $data['attachment']);
+        unset($data['invitees'], $data['guest_invitees'], $data['attachment']);
         $uploaded = null;
         try {
             if ($request->hasFile('attachment')) {
                 $uploaded = $request->file('attachment')->store('agenda/invitations', 'local');
             }
-            $event = DB::transaction(function () use ($event, $data, $invitees, $uploaded, $request) {
+            $event = DB::transaction(function () use ($event, $data, $invitees, $guestInvitees, $uploaded, $request) {
                 if ($event->exists) {
                     $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
                     if ($event->status === 'cancelled') {
@@ -147,6 +167,21 @@ class BpppmnuEventController extends Controller
                 foreach ($invitees as $id) {
                     $event->invitations()->firstOrCreate(['user_id' => $id]);
                 }
+                $keptGuestIds = [];
+                foreach ($guestInvitees as $guest) {
+                    $guestId = isset($guest['id']) ? (int) $guest['id'] : null;
+                    $invitation = $guestId
+                        ? $event->guestInvitations()->whereKey($guestId)->first()
+                        : null;
+                    $invitation ??= $event->guestInvitations()->make();
+                    $invitation->fill([
+                        'name' => trim($guest['name']),
+                        'organization' => trim((string) ($guest['organization'] ?? '')) ?: null,
+                        'phone' => trim((string) ($guest['phone'] ?? '')) ?: null,
+                    ])->save();
+                    $keptGuestIds[] = $invitation->id;
+                }
+                $event->guestInvitations()->whereNotIn('id', $keptGuestIds)->delete();
                 // Schedule changes invalidate all previously issued QR codes.
                 $event->qrTokens()->whereNull('revoked_at')->update(['revoked_at' => now()]);
 
@@ -194,8 +229,13 @@ class BpppmnuEventController extends Controller
     {
         DB::transaction(function () use ($event) {
             $event = BpppmnuEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
-            $needsInvitations = ($event->attendance_access_mode ?: 'registered') !== 'guest';
-            if ($event->status !== 'draft' || $event->isFinished() || ($needsInvitations && ! $event->invitations()->exists())) {
+            $mode = $event->attendance_access_mode ?: 'registered';
+            $hasAllowedInvitees = match ($mode) {
+                'guest' => $event->guestInvitations()->exists(),
+                'hybrid' => $event->invitations()->exists() || $event->guestInvitations()->exists(),
+                default => $event->invitations()->exists(),
+            };
+            if ($event->status !== 'draft' || $event->isFinished() || ! $hasAllowedInvitees) {
                 throw ValidationException::withMessages(['event' => 'Agenda tidak dapat diterbitkan. Periksa status, jadwal, dan undangan.']);
             }
             $event->update(['status' => 'published']);
