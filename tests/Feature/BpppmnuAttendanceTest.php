@@ -549,6 +549,12 @@ class BpppmnuAttendanceTest extends TestCase
             'name' => 'Siti Aminah',
             'organization' => 'Fatayat NU',
         ]);
+
+        $this->get('/admin-yayasan/agenda/'.$event->id)
+            ->assertOk()
+            ->assertSee('Ahmad Fauzi')
+            ->assertSee('Siti Aminah')
+            ->assertSee('Belum Presensi');
     }
 
     public function test_admin_can_invite_any_active_user_and_rejects_unsafe_files(): void

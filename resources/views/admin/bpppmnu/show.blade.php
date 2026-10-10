@@ -42,6 +42,6 @@
 <div class="card"><div class="card-body"><div class="d-flex justify-content-between mb-3"><h3 class="h5">Rekap Kehadiran</h3><a href="{{ route('admin.agenda.export', $event) }}" class="btn btn-success btn-sm">Export Excel</a></div>
 <div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>Kategori</th><th>ID NUIST</th><th>Jabatan/Instansi</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody>
 @forelse($recap['rows'] as $row)<tr><td>{{ $row->name }}</td><td>{{ $row->participant_type }}</td><td>{{ $row->nuist_id ?: '—' }}</td><td>{{ $row->jabatan ?: '—' }}</td><td>{{ $row->status }}</td><td>{{ $row->attended_at ?: '—' }}</td></tr>@empty<tr><td colspan="6">Belum ada peserta.</td></tr>@endforelse
-</tbody></table></div><small class="text-muted">Rekap diperbarui setelah presensi berhasil dicatat.</small></div></div>
+</tbody></table></div><small class="text-muted">Seluruh peserta terdaftar dan tamu undangan ditampilkan. Status diperbarui setelah presensi berhasil dicatat.</small></div></div>
 </div>
 @endsection
