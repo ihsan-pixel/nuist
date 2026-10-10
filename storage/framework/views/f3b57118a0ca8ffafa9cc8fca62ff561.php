@@ -182,7 +182,7 @@
                                             <div class="gtk-avatar"><?php echo e(strtoupper(substr($user->name, 0, 1))); ?></div>
                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <div>
-                                            <div class="fw-semibold"><?php echo e($user->name); ?> <?php echo e($user->gelar ? ', ' . $user->gelar : ''); ?></div>
+                                            <div class="fw-semibold"><?php echo e($user->nama_dengan_gelar); ?></div>
                                             <div class="gtk-meta"><?php echo e($user->jabatan ?: ($user->ketugasan ?: 'Tenaga pendidik')); ?></div>
                                         </div>
                                     </div>
@@ -199,6 +199,15 @@
                                     <div class="progress"><div class="progress-bar <?php echo e($completion === 100 ? 'bg-success' : 'bg-primary'); ?>" style="width:<?php echo e($completion); ?>%"></div></div>
                                 </td>
                                 <td class="text-end">
+                                    <a
+                                        href="<?php echo e(route('pendataan-gtk.export-pdf', ['user' => $user, 'v' => filemtime(public_path('images/kop-lpmnu-pwnu-diy.png'))])); ?>"
+                                        class="btn btn-sm btn-outline-danger"
+                                        target="_blank"
+                                        rel="noopener"
+                                        aria-label="Lihat PDF <?php echo e($user->name); ?>"
+                                    >
+                                        <i class="bx bxs-file-pdf me-1"></i> Lihat PDF
+                                    </a>
                                     <button
                                         type="button"
                                         class="btn btn-sm btn-outline-success open-gtk-documents"
@@ -375,12 +384,12 @@
                     <div class="col-md-6">
                         <label class="form-label">Foto Guru</label>
                         <input type="file" class="form-control" name="foto_guru" accept="image/jpeg,image/png,image/webp">
-                        <div class="form-text">Foto resmi, JPG/PNG/WebP maksimal 4 MB. <a data-current-file="foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
+                        <div class="form-text">Foto resmi, JPG/PNG/WebP maksimal 10 MB. <a data-current-file="foto_guru" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Foto Bebas</label>
                         <input type="file" class="form-control" name="foto_bebas" accept="image/jpeg,image/png,image/webp">
-                        <div class="form-text">JPG, PNG, atau WebP maksimal 4 MB. <a data-current-file="foto_bebas" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
+                        <div class="form-text">JPG, PNG, atau WebP maksimal 10 MB. <a data-current-file="foto_bebas" class="d-none" target="_blank" rel="noopener">Lihat foto saat ini</a></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">KTP</label>

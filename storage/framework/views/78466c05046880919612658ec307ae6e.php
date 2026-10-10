@@ -94,8 +94,8 @@
                                     'ktp' => ['PDF/JPG/PNG', '.pdf,image/jpeg,image/png,image/webp', $data?->ktp_path],
                                     'sk_awal' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_awal_path],
                                     'sk_akhir' => ['PDF/foto maks. 10 MB', '.pdf,application/pdf,image/jpeg,image/png,image/webp', $data?->sk_akhir_path],
-                                    'foto_resmi' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $user->avatar],
-                                    'foto_bebas' => ['JPG/PNG/WebP', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
+                                    'foto_resmi' => ['JPG/PNG/WebP maks. 10 MB', 'image/jpeg,image/png,image/webp', $user->avatar],
+                                    'foto_bebas' => ['JPG/PNG/WebP maks. 10 MB', 'image/jpeg,image/png,image/webp', $data?->foto_bebas_path],
                                 ];
                             ?>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $documentTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type => $documentType): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>

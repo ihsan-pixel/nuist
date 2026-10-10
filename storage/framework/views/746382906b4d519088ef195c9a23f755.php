@@ -29,5 +29,5 @@
 </li>
 <li><a href="<?php echo e(route('admin.mgmp_reset_uploads')); ?>" class="waves-effect"><i class="bx bx-search-alt"></i><span>Monitoring Riset MGMP</span></a></li>
 <li><a href="<?php echo e(route('pendataan-gtk.index')); ?>" class="waves-effect"><i class="bx bx-id-card"></i><span>Pendataan GTK</span></a></li>
-<li><a href="<?php echo e(route('admin.bpppmnu.events.index')); ?>" class="waves-effect"><i class="bx bx-calendar-event"></i><span>Agenda BPPPMNU</span></a></li>
+<li><a href="<?php echo e(route('admin.agenda.index')); ?>" class="waves-effect"><i class="bx bx-calendar-event"></i><span>Agenda Kegiatan</span></a></li>
 <?php /**PATH /Users/lpmnudiymacpro/Documents/Project Nuist/nuist/resources/views/layouts/partials/admin-yayasan-menu.blade.php ENDPATH**/ ?>

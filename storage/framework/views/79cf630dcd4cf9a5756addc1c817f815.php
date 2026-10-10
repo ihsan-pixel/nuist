@@ -195,7 +195,7 @@
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
-                    <li><a href="<?php echo e(route('admin.bpppmnu.events.index')); ?>"><i class="bx bx-calendar-check"></i><span>Kegiatan BPPPMNU</span></a></li>
+                    <li><a href="<?php echo e(route('admin.agenda.index')); ?>"><i class="bx bx-calendar-check"></i><span>Agenda Kegiatan</span></a></li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
                 <li>

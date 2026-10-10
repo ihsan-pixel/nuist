@@ -15,7 +15,7 @@
     <p class="bpp-login-url"><a href="<?php echo e($loginUrl); ?>" target="_blank" rel="noopener"><?php echo e($loginUrl); ?></a></p>
     <div class="bpp-login-qr-actions">
         <button id="download-login-qr" type="button" class="btn btn-success">Unduh QR (SVG)</button>
-        <a href="<?php echo e(route('admin.bpppmnu.events.show', $event)); ?>" class="btn btn-outline-secondary">Kembali ke Kegiatan</a>
+        <a href="<?php echo e(route('admin.agenda.show', $event)); ?>" class="btn btn-outline-secondary">Kembali ke Kegiatan</a>
     </div>
 </div></div>
 <script>
