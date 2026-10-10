@@ -121,6 +121,10 @@ class BpppmnuEventController extends Controller
         $invitees = $data['invitees'] ?? [];
         $guestInvitees = collect($data['guest_invitees'] ?? [])->filter(fn ($guest) => trim((string) ($guest['name'] ?? '')) !== '')->values()->all();
         $accessMode = $data['attendance_access_mode'] ?? ($event->attendance_access_mode ?: 'registered');
+        if (count($guestInvitees) > 0 && $accessMode === 'registered') {
+            $accessMode = 'hybrid';
+            $data['attendance_access_mode'] = 'hybrid';
+        }
         if ($accessMode === 'guest' && count($guestInvitees) === 0) {
             throw ValidationException::withMessages(['guest_invitees' => 'Tambahkan minimal satu nama tamu undangan.']);
         }

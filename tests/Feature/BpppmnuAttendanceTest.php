@@ -459,6 +459,29 @@ class BpppmnuAttendanceTest extends TestCase
         $this->assertSame('published', $event->fresh()->status);
     }
 
+    public function test_adding_guest_automatically_enables_hybrid_mode_and_persists_guest(): void
+    {
+        $data = $this->agendaData();
+        $data['name'] = 'Agenda Dengan Tamu Tambahan';
+        $data['attendance_access_mode'] = 'registered';
+        $data['public_name_verification'] = 'none';
+        $data['guest_invitees'] = [[
+            'name' => 'Tamu Tambahan',
+            'organization' => 'Instansi Tamu',
+            'phone' => '081299999999',
+        ]];
+
+        $this->actingAs($this->admin)->post('/admin-yayasan/agenda', $data)->assertRedirect();
+        $event = BpppmnuEvent::where('name', 'Agenda Dengan Tamu Tambahan')->firstOrFail();
+
+        $this->assertSame('hybrid', $event->attendance_access_mode);
+        $this->assertDatabaseHas('bpppmnu_event_guest_invitations', [
+            'event_id' => $event->id,
+            'name' => 'Tamu Tambahan',
+            'organization' => 'Instansi Tamu',
+        ]);
+    }
+
     public function test_admin_can_invite_any_active_user_and_rejects_unsafe_files(): void
     {
         $data = $this->agendaData();
