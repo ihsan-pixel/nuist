@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan,super_admin'])->prefix('admin-yayasan/agenda')->name('admin.agenda.')->group(function () {
     Route::get('/', [BpppmnuEventController::class, 'index'])->name('index');
     Route::get('buat', [BpppmnuEventController::class, 'create'])->name('create');
+    Route::get('template-import-tamu', [BpppmnuEventController::class, 'guestImportTemplate'])->name('guest-import-template');
     Route::post('/', [BpppmnuEventController::class, 'store'])->name('store');
     Route::get('{event}/qr-status', [BpppmnuEventController::class, 'qrStatus'])->middleware('throttle:120,1')->name('qr-status');
     Route::get('{event}', [BpppmnuEventController::class, 'show'])->name('show');
@@ -36,6 +37,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan,super_admin'])->pr
     Route::delete('pengurus/{member}', [BpppmnuMemberController::class, 'destroy'])->name('members.destroy');
     Route::get('kegiatan', [BpppmnuEventController::class, 'index'])->name('events.index');
     Route::get('kegiatan/create', [BpppmnuEventController::class, 'create'])->name('events.create');
+    Route::get('kegiatan/template-import-tamu', [BpppmnuEventController::class, 'guestImportTemplate'])->name('events.guest-import-template');
     Route::post('kegiatan', [BpppmnuEventController::class, 'store'])->name('events.store');
     Route::get('kegiatan/{event}/qr-status', [BpppmnuEventController::class, 'qrStatus'])->middleware('throttle:120,1')->name('events.qr-status');
     Route::get('kegiatan/{event}', [BpppmnuEventController::class, 'show'])->name('events.show');

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\AdminYayasan;
 
 use App\Exports\BpppmnuAttendanceExport;
+use App\Exports\BpppmnuGuestInvitationTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Models\BpppmnuEvent;
 use App\Models\User;
+use App\Imports\BpppmnuGuestInvitationsImport;
 use App\Services\BpppmnuReportService;
 use App\Services\BpppmnuAttendanceService;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
 class BpppmnuEventController extends Controller
@@ -97,6 +100,7 @@ class BpppmnuEventController extends Controller
             'attendance_open_at' => 'required|date|before:end_at',
             'attendance_close_at' => 'required|date|after:attendance_open_at|after_or_equal:start_at',
             'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'guest_import' => 'nullable|file|mimes:xlsx,xls,csv|max:5120',
             'attendance_access_mode' => 'sometimes|in:registered,hybrid,guest',
             'public_name_verification' => 'sometimes|in:none,phone_last4,participant_code',
             'guest_phone_required' => 'nullable|boolean',
@@ -122,7 +126,36 @@ class BpppmnuEventController extends Controller
         $data['guest_phone_required'] = $request->boolean('guest_phone_required');
         $data['guest_organization_required'] = $request->boolean('guest_organization_required');
         $invitees = $data['invitees'] ?? [];
-        $guestInvitees = collect($data['guest_invitees'] ?? [])->filter(fn ($guest) => trim((string) ($guest['name'] ?? '')) !== '')->values()->all();
+        $guestInvitees = collect($data['guest_invitees'] ?? [])->filter(fn ($guest) => trim((string) ($guest['name'] ?? '')) !== '');
+        if ($request->hasFile('guest_import')) {
+            $import = new BpppmnuGuestInvitationsImport;
+            try {
+                Excel::import($import, $request->file('guest_import'));
+            } catch (\Throwable) {
+                throw ValidationException::withMessages(['guest_import' => 'File tidak dapat dibaca. Gunakan template Excel yang telah disediakan.']);
+            }
+            if ($import->invalidRows) {
+                throw ValidationException::withMessages([
+                    'guest_import' => 'Nama tamu wajib diisi pada baris: '.implode(', ', array_slice($import->invalidRows, 0, 20)).'.',
+                ]);
+            }
+            $guestInvitees = $guestInvitees->concat($import->guests);
+        }
+        $guestInvitees = $guestInvitees
+            ->unique(fn ($guest) => mb_strtolower(trim((string) $guest['name'])).'|'.mb_strtolower(trim((string) ($guest['organization'] ?? ''))).'|'.preg_replace('/\D+/', '', (string) ($guest['phone'] ?? '')))
+            ->values()->all();
+        if (count($guestInvitees) > 5000) {
+            throw ValidationException::withMessages(['guest_import' => 'Jumlah tamu maksimal 5.000 nama untuk satu agenda.']);
+        }
+        Validator::make(['guests' => $guestInvitees], [
+            'guests.*.name' => 'required|string|min:3|max:255',
+            'guests.*.organization' => 'nullable|string|max:255',
+            'guests.*.phone' => 'nullable|string|max:30',
+        ], [], [
+            'guests.*.name' => 'nama tamu',
+            'guests.*.organization' => 'instansi tamu',
+            'guests.*.phone' => 'nomor HP tamu',
+        ])->validate();
         $accessMode = $data['attendance_access_mode'] ?? ($event->attendance_access_mode ?: 'registered');
         if (count($guestInvitees) > 0 && $accessMode === 'registered') {
             $accessMode = 'hybrid';
@@ -143,7 +176,7 @@ class BpppmnuEventController extends Controller
         if (count($validMemberIds) !== count(array_unique($invitees))) {
             throw ValidationException::withMessages(['invitees' => 'Semua peserta undangan harus merupakan pengguna aktif.']);
         }
-        unset($data['invitees'], $data['guest_invitees'], $data['attachment']);
+        unset($data['invitees'], $data['guest_invitees'], $data['guest_import'], $data['attachment']);
         $uploaded = null;
         try {
             if ($request->hasFile('attachment')) {
@@ -308,6 +341,11 @@ class BpppmnuEventController extends Controller
     public function export(BpppmnuEvent $event, BpppmnuReportService $reports)
     {
         return Excel::download(new BpppmnuAttendanceExport($reports->recap($event)['rows']), 'presensi-agenda-'.$event->id.'.xlsx');
+    }
+
+    public function guestImportTemplate()
+    {
+        return Excel::download(new BpppmnuGuestInvitationTemplateExport, 'template-import-tamu-agenda.xlsx');
     }
 
     private function qrSvg(string $value): string

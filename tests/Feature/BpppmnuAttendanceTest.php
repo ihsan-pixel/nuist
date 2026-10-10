@@ -518,6 +518,39 @@ class BpppmnuAttendanceTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_download_template_and_import_multiple_guest_invitations(): void
+    {
+        $this->actingAs($this->admin)
+            ->get('/admin-yayasan/agenda/template-import-tamu')
+            ->assertOk()
+            ->assertDownload('template-import-tamu-agenda.xlsx');
+
+        $bytes = \Maatwebsite\Excel\Facades\Excel::raw(
+            new \App\Exports\BpppmnuGuestInvitationTemplateExport,
+            \Maatwebsite\Excel\Excel::XLSX
+        );
+        $data = $this->agendaData();
+        $data['name'] = 'Agenda Import Tamu';
+        $data['attendance_access_mode'] = 'registered';
+        $data['guest_import'] = UploadedFile::fake()->createWithContent('daftar-tamu.xlsx', $bytes);
+
+        $this->post('/admin-yayasan/agenda', $data)->assertRedirect();
+
+        $event = BpppmnuEvent::where('name', 'Agenda Import Tamu')->firstOrFail();
+        $this->assertSame('hybrid', $event->attendance_access_mode);
+        $this->assertSame(2, $event->guestInvitations()->count());
+        $this->assertDatabaseHas('bpppmnu_event_guest_invitations', [
+            'event_id' => $event->id,
+            'name' => 'Ahmad Fauzi',
+            'organization' => 'MI Contoh',
+        ]);
+        $this->assertDatabaseHas('bpppmnu_event_guest_invitations', [
+            'event_id' => $event->id,
+            'name' => 'Siti Aminah',
+            'organization' => 'Fatayat NU',
+        ]);
+    }
+
     public function test_admin_can_invite_any_active_user_and_rejects_unsafe_files(): void
     {
         $data = $this->agendaData();
