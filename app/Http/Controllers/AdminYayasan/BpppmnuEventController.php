@@ -37,7 +37,6 @@ class BpppmnuEventController extends Controller
     public function edit(BpppmnuEvent $event)
     {
         abort_if($event->status === 'cancelled', 403, 'Agenda yang dibatalkan tidak dapat diedit.');
-        abort_if($event->isLocked(), 403, 'Agenda yang presensinya sudah dibuka tidak dapat diedit.');
 
         return $this->form($event);
     }
@@ -79,10 +78,6 @@ class BpppmnuEventController extends Controller
 
     private function save(Request $request, BpppmnuEvent $event)
     {
-        if ($event->exists && $event->isLocked()) {
-            throw ValidationException::withMessages(['event' => 'Agenda yang presensinya sudah dibuka tidak dapat diubah.']);
-        }
-
         $rules = [];
         $rules += ['location_validation_enabled' => 'nullable|boolean', 'latitude' => 'nullable|numeric|between:-90,90', 'longitude' => 'nullable|numeric|between:-180,180', 'location_radius_meters' => 'nullable|integer|between:10,1000'];
         foreach (['name', 'type', 'organizer', 'location_name'] as $field) {
@@ -185,7 +180,8 @@ class BpppmnuEventController extends Controller
                     ])->save();
                     $keptGuestIds[] = $invitation->id;
                 }
-                $event->guestInvitations()->whereNotIn('id', $keptGuestIds)->delete();
+                $event->guestInvitations()->whereNotIn('id', $keptGuestIds)
+                    ->whereDoesntHave('attendance')->delete();
                 // Schedule changes invalidate all previously issued QR codes.
                 $event->qrTokens()->whereNull('revoked_at')->update(['revoked_at' => now()]);
 

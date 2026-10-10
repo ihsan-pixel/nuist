@@ -10,7 +10,7 @@
 @if($event->attachment)<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('admin.agenda.attachment', $event) }}">Unduh lampiran</a>@endif
 <div class="action-bar">
 <a class="btn btn-outline-success" href="{{ route('admin.agenda.login-qr', $event) }}">Tampilkan QR Login NUIST Mobile</a>
-@if($event->status !== 'cancelled' && !$event->isLocked())<a class="btn btn-outline-primary" href="{{ route('admin.agenda.edit', $event) }}">Edit Agenda & Undangan</a>@endif
+@if($event->status !== 'cancelled')<a class="btn btn-outline-primary" href="{{ route('admin.agenda.edit', $event) }}">Edit Agenda & Undangan</a>@endif
 @if($event->status === 'draft')<form method="post" action="{{ route('admin.agenda.publish', $event) }}">@csrf<button class="btn btn-success">Terbitkan</button></form>@endif
 @if($event->status === 'published' && now()->lte($event->attendance_close_at))
 <form method="post" action="{{ route('admin.agenda.qr', $event) }}">@csrf<button class="btn btn-primary">Generate & Tampilkan QR Baru</button></form>

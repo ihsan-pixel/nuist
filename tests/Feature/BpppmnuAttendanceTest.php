@@ -360,9 +360,9 @@ class BpppmnuAttendanceTest extends TestCase
         $this->event->invitations()->create(['user_id' => $this->member->id]);
     }
 
-    public function test_admin_cannot_edit_locked_agenda_or_cancel_recorded_attendance(): void
+    public function test_admin_can_open_edit_page_but_cannot_cancel_recorded_attendance(): void
     {
-        $this->actingAs($this->admin)->getJson('/admin-yayasan/bpppmnu/kegiatan/'.$this->event->id.'/edit')->assertForbidden();
+        $this->actingAs($this->admin)->get('/admin-yayasan/bpppmnu/kegiatan/'.$this->event->id.'/edit')->assertOk();
         $this->scan();
         $this->actingAs($this->admin)->postJson('/admin-yayasan/bpppmnu/kegiatan/'.$this->event->id.'/cancel')->assertUnprocessable();
         $this->assertSame('published', $this->event->fresh()->status);
@@ -496,10 +496,12 @@ class BpppmnuAttendanceTest extends TestCase
         $this->postJson('/admin-yayasan/bpppmnu/kegiatan', $data)->assertUnprocessable();
     }
 
-    public function test_locked_agenda_rejects_update_and_preserves_invitations(): void
+    public function test_published_agenda_can_be_updated_and_preserves_invitations(): void
     {
-        $this->actingAs($this->admin)->putJson('/admin-yayasan/bpppmnu/kegiatan/'.$this->event->id, $this->agendaData())->assertUnprocessable();
-        $this->assertSame('Rapat BPPPMNU', $this->event->fresh()->name);
+        $data = $this->agendaData();
+        $data['name'] = 'Agenda Terbit Diperbarui';
+        $this->actingAs($this->admin)->put('/admin-yayasan/bpppmnu/kegiatan/'.$this->event->id, $data)->assertRedirect();
+        $this->assertSame('Agenda Terbit Diperbarui', $this->event->fresh()->name);
         $this->assertSame(1, $this->event->invitations()->count());
     }
 
