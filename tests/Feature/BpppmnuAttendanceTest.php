@@ -518,6 +518,31 @@ class BpppmnuAttendanceTest extends TestCase
         ]);
     }
 
+    public function test_agenda_can_be_saved_with_manual_guests_without_registered_users(): void
+    {
+        $data = $this->agendaData();
+        $data['name'] = 'Agenda Tamu Tanpa User';
+        $data['attendance_access_mode'] = 'registered';
+        $data['guest_invitees'] = [['name' => 'Tamu Manual', 'organization' => 'Masyarakat']];
+        unset($data['invitees']);
+
+        $this->actingAs($this->admin)->post('/admin-yayasan/agenda', $data)->assertRedirect();
+
+        $event = BpppmnuEvent::where('name', 'Agenda Tamu Tanpa User')->firstOrFail();
+        $this->assertSame('guest', $event->attendance_access_mode);
+        $this->assertSame(0, $event->invitations()->count());
+        $this->assertSame(1, $event->guestInvitations()->count());
+    }
+
+    public function test_agenda_still_requires_at_least_one_registered_user_or_guest(): void
+    {
+        $data = $this->agendaData();
+        unset($data['invitees']);
+
+        $this->actingAs($this->admin)->post('/admin-yayasan/agenda', $data)
+            ->assertSessionHasErrors('invitees');
+    }
+
     public function test_admin_can_download_template_and_import_multiple_guest_invitations(): void
     {
         $this->actingAs($this->admin)
@@ -533,11 +558,12 @@ class BpppmnuAttendanceTest extends TestCase
         $data['name'] = 'Agenda Import Tamu';
         $data['attendance_access_mode'] = 'registered';
         $data['guest_import'] = UploadedFile::fake()->createWithContent('daftar-tamu.xlsx', $bytes);
+        unset($data['invitees']);
 
         $this->post('/admin-yayasan/agenda', $data)->assertRedirect();
 
         $event = BpppmnuEvent::where('name', 'Agenda Import Tamu')->firstOrFail();
-        $this->assertSame('hybrid', $event->attendance_access_mode);
+        $this->assertSame('guest', $event->attendance_access_mode);
         $this->assertSame(2, $event->guestInvitations()->count());
         $this->assertDatabaseHas('bpppmnu_event_guest_invitations', [
             'event_id' => $event->id,

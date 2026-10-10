@@ -106,7 +106,7 @@ class BpppmnuEventController extends Controller
             'guest_phone_required' => 'nullable|boolean',
             'guest_organization_required' => 'nullable|boolean',
             'capacity' => 'nullable|integer|min:1|max:100000',
-            'invitees' => 'required_unless:attendance_access_mode,guest|array|max:5000',
+            'invitees' => 'nullable|array|max:5000',
             'invitees.*' => ['required', 'integer', 'distinct', Rule::exists('users', 'id')->where('is_active', true)],
             'guest_invitees' => 'nullable|array|max:5000',
             'guest_invitees.*.id' => 'nullable|integer',
@@ -157,12 +157,18 @@ class BpppmnuEventController extends Controller
             'guests.*.phone' => 'nomor HP tamu',
         ])->validate();
         $accessMode = $data['attendance_access_mode'] ?? ($event->attendance_access_mode ?: 'registered');
-        if (count($guestInvitees) > 0 && $accessMode === 'registered') {
+        if (count($invitees) === 0 && count($guestInvitees) === 0) {
+            throw ValidationException::withMessages(['invitees' => 'Pilih minimal satu peserta terdaftar atau tambahkan tamu undangan.']);
+        }
+        if (count($invitees) === 0) {
+            $accessMode = 'guest';
+            $data['attendance_access_mode'] = 'guest';
+        } elseif (count($guestInvitees) > 0) {
             $accessMode = 'hybrid';
             $data['attendance_access_mode'] = 'hybrid';
-        }
-        if ($accessMode === 'guest' && count($guestInvitees) === 0) {
-            throw ValidationException::withMessages(['guest_invitees' => 'Tambahkan minimal satu nama tamu undangan.']);
+        } elseif ($accessMode === 'guest') {
+            $accessMode = 'registered';
+            $data['attendance_access_mode'] = 'registered';
         }
         foreach ($guestInvitees as $index => $guest) {
             if ($data['guest_phone_required'] && empty($guest['phone'])) {
