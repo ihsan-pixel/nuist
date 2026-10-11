@@ -249,6 +249,31 @@ class BpppmnuEventController extends Controller
         return view('admin.bpppmnu.show', ['event' => $event, 'recap' => $reports->recap($event)]);
     }
 
+    public function recapStatus(BpppmnuEvent $event, BpppmnuReportService $reports)
+    {
+        $recap = $reports->recap($event);
+
+        return response()->json([
+            'metrics' => [
+                'registered_invited' => $recap['total'],
+                'guest_invited' => $recap['guest_invited'],
+                'registered_present' => $recap['present'],
+                'guest_present' => $recap['guests'],
+                'remaining' => $recap['remaining'],
+                'percentage' => $recap['percentage'].'%',
+            ],
+            'rows' => $recap['rows']->map(fn ($row) => [
+                'name' => $row->name,
+                'participant_type' => $row->participant_type,
+                'nuist_id' => $row->nuist_id ?: '—',
+                'position' => $row->jabatan ?: '—',
+                'status' => $row->status,
+                'attended_at' => $row->attended_at ? \Carbon\Carbon::parse($row->attended_at)->format('d-m-Y H:i:s').' WIB' : '—',
+            ])->values(),
+            'updated_at' => now()->format('H:i:s').' WIB',
+        ])->header('Cache-Control', 'private, no-store');
+    }
+
     public function loginQr(BpppmnuEvent $event)
     {
         $loginUrl = route('mobile.login');

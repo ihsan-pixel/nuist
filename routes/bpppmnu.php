@@ -13,6 +13,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan,super_admin'])->pr
     Route::get('buat', [BpppmnuEventController::class, 'create'])->name('create');
     Route::get('template-import-tamu', [BpppmnuEventController::class, 'guestImportTemplate'])->name('guest-import-template');
     Route::post('/', [BpppmnuEventController::class, 'store'])->name('store');
+    Route::get('{event}/rekap-status', [BpppmnuEventController::class, 'recapStatus'])->middleware('throttle:120,1')->name('recap-status');
     Route::get('{event}/qr-status', [BpppmnuEventController::class, 'qrStatus'])->middleware('throttle:120,1')->name('qr-status');
     Route::get('{event}', [BpppmnuEventController::class, 'show'])->name('show');
     Route::get('{event}/login-qr', [BpppmnuEventController::class, 'loginQr'])->name('login-qr');
@@ -39,6 +40,7 @@ Route::middleware(['auth', BpppmnuRole::class.':admin_yayasan,super_admin'])->pr
     Route::get('kegiatan/create', [BpppmnuEventController::class, 'create'])->name('events.create');
     Route::get('kegiatan/template-import-tamu', [BpppmnuEventController::class, 'guestImportTemplate'])->name('events.guest-import-template');
     Route::post('kegiatan', [BpppmnuEventController::class, 'store'])->name('events.store');
+    Route::get('kegiatan/{event}/rekap-status', [BpppmnuEventController::class, 'recapStatus'])->middleware('throttle:120,1')->name('events.recap-status');
     Route::get('kegiatan/{event}/qr-status', [BpppmnuEventController::class, 'qrStatus'])->middleware('throttle:120,1')->name('events.qr-status');
     Route::get('kegiatan/{event}', [BpppmnuEventController::class, 'show'])->name('events.show');
     Route::get('kegiatan/{event}/login-qr', [BpppmnuEventController::class, 'loginQr'])->name('events.login-qr');

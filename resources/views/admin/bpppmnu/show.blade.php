@@ -35,13 +35,68 @@
 </script>
 @endif
 <div class="row g-3 mb-3">
-@foreach(['Pengguna diundang'=>$recap['total'], 'Tamu diundang'=>$recap['guest_invited'], 'Hadir terdaftar'=>$recap['present'], 'Tamu hadir'=>$recap['guests'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran pengguna'=>$recap['percentage'].'%'] as $label=>$value)
-<div class="col-6 col-lg-3"><div class="card summary-card h-100 mb-0"><div class="card-body"><div class="text-muted">{{ $label }}</div><strong>{{ $value }}</strong></div></div></div>
+@foreach([['registered_invited','Pengguna diundang',$recap['total']], ['guest_invited','Tamu diundang',$recap['guest_invited']], ['registered_present','Hadir terdaftar',$recap['present']], ['guest_present','Tamu hadir',$recap['guests']], ['remaining',($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi')),$recap['remaining']], ['percentage','Kehadiran pengguna',$recap['percentage'].'%']] as [$metric,$label,$value])
+<div class="col-6 col-lg-3"><div class="card summary-card h-100 mb-0"><div class="card-body"><div class="text-muted">{{ $label }}</div><strong data-recap-metric="{{ $metric }}">{{ $value }}</strong></div></div></div>
 @endforeach
 </div>
-<div class="card"><div class="card-body"><div class="d-flex justify-content-between mb-3"><h3 class="h5">Rekap Kehadiran</h3><a href="{{ route('admin.agenda.export', $event) }}" class="btn btn-success btn-sm">Export Excel</a></div>
-<div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>Kategori</th><th>ID NUIST</th><th>Jabatan/Instansi</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody>
+<div class="card"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-3 gap-2"><div><h3 class="h5 mb-0">Rekap Kehadiran</h3><small id="recap-live-status" class="text-success">● Pembaruan otomatis aktif</small></div><a href="{{ route('admin.agenda.export', $event) }}" class="btn btn-success btn-sm">Export Excel</a></div>
+<div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>Kategori</th><th>ID NUIST</th><th>Jabatan/Instansi</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody id="recap-table-body">
 @forelse($recap['rows'] as $row)<tr><td>{{ $row->name }}</td><td>{{ $row->participant_type }}</td><td>{{ $row->nuist_id ?: '—' }}</td><td>{{ $row->jabatan ?: '—' }}</td><td>{{ $row->status }}</td><td>{{ $row->attended_at ?: '—' }}</td></tr>@empty<tr><td colspan="6">Belum ada peserta.</td></tr>@endforelse
 </tbody></table></div><small class="text-muted">Seluruh peserta terdaftar dan tamu undangan ditampilkan. Status diperbarui setelah presensi berhasil dicatat.</small></div></div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const body = document.getElementById('recap-table-body');
+    const status = document.getElementById('recap-live-status');
+    let loading = false;
+
+    const cell = (value) => {
+        const element = document.createElement('td');
+        element.textContent = value ?? '—';
+        return element;
+    };
+
+    const refreshRecap = async () => {
+        if (loading || document.hidden) return;
+        loading = true;
+        try {
+            const response = await fetch(@json(route('admin.agenda.recap-status', $event)), {
+                headers: {'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+                cache: 'no-store'
+            });
+            if (!response.ok) throw new Error('Gagal memperbarui rekap');
+            const data = await response.json();
+            Object.entries(data.metrics).forEach(([key, value]) => {
+                const target = document.querySelector(`[data-recap-metric="${key}"]`);
+                if (target) target.textContent = value;
+            });
+            const fragment = document.createDocumentFragment();
+            data.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                [row.name, row.participant_type, row.nuist_id, row.position, row.status, row.attended_at]
+                    .forEach(value => tr.appendChild(cell(value)));
+                fragment.appendChild(tr);
+            });
+            if (!data.rows.length) {
+                const tr = document.createElement('tr');
+                const td = cell('Belum ada peserta.');
+                td.colSpan = 6;
+                tr.appendChild(td);
+                fragment.appendChild(tr);
+            }
+            body.replaceChildren(fragment);
+            status.textContent = `● Diperbarui ${data.updated_at}`;
+            status.className = 'text-success';
+        } catch (_) {
+            status.textContent = 'Pembaruan otomatis terputus, mencoba kembali…';
+            status.className = 'text-warning';
+        } finally {
+            loading = false;
+        }
+    };
+
+    setInterval(refreshRecap, 3000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshRecap(); });
+});
+</script>
 @endsection

@@ -348,6 +348,25 @@ class BpppmnuAttendanceTest extends TestCase
         $this->assertEquals(50, $recap['percentage']);
     }
 
+    public function test_admin_detail_exposes_live_recap_updates(): void
+    {
+        $this->actingAs($this->admin)
+            ->get('/admin-yayasan/agenda/'.$this->event->id)
+            ->assertOk()
+            ->assertSee('Pembaruan otomatis aktif')
+            ->assertSee('rekap-status');
+
+        $this->scan()->assertOk();
+
+        $this->actingAs($this->admin)
+            ->getJson('/admin-yayasan/agenda/'.$this->event->id.'/rekap-status')
+            ->assertOk()
+            ->assertJsonPath('metrics.registered_present', 1)
+            ->assertJsonPath('metrics.remaining', 0)
+            ->assertJsonPath('rows.0.name', $this->member->name)
+            ->assertJsonPath('rows.0.status', 'Hadir');
+    }
+
     public function test_database_unique_constraints_enforce_integrity(): void
     {
         $this->scan();

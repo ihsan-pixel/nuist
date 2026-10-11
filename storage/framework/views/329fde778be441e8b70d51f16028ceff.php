@@ -34,15 +34,70 @@
 </script>
 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <div class="row g-3 mb-3">
-<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['Pengguna diundang'=>$recap['total'], 'Tamu diundang'=>$recap['guest_invited'], 'Hadir terdaftar'=>$recap['present'], 'Tamu hadir'=>$recap['guests'], ($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi'))=>$recap['remaining'], 'Kehadiran pengguna'=>$recap['percentage'].'%']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $label=>$value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-<div class="col-6 col-lg-3"><div class="card summary-card h-100 mb-0"><div class="card-body"><div class="text-muted"><?php echo e($label); ?></div><strong><?php echo e($value); ?></strong></div></div></div>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [['registered_invited','Pengguna diundang',$recap['total']], ['guest_invited','Tamu diundang',$recap['guest_invited']], ['registered_present','Hadir terdaftar',$recap['present']], ['guest_present','Tamu hadir',$recap['guests']], ['remaining',($event->status === 'cancelled' ? 'Dibatalkan / belum hadir' : ($event->isFinished() && $event->status === 'published' ? 'Tidak Hadir' : 'Belum Presensi')),$recap['remaining']], ['percentage','Kehadiran pengguna',$recap['percentage'].'%']]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$metric,$label,$value]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+<div class="col-6 col-lg-3"><div class="card summary-card h-100 mb-0"><div class="card-body"><div class="text-muted"><?php echo e($label); ?></div><strong data-recap-metric="<?php echo e($metric); ?>"><?php echo e($value); ?></strong></div></div></div>
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
 </div>
-<div class="card"><div class="card-body"><div class="d-flex justify-content-between mb-3"><h3 class="h5">Rekap Kehadiran</h3><a href="<?php echo e(route('admin.agenda.export', $event)); ?>" class="btn btn-success btn-sm">Export Excel</a></div>
-<div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>Kategori</th><th>ID NUIST</th><th>Jabatan/Instansi</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody>
+<div class="card"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-3 gap-2"><div><h3 class="h5 mb-0">Rekap Kehadiran</h3><small id="recap-live-status" class="text-success">● Pembaruan otomatis aktif</small></div><a href="<?php echo e(route('admin.agenda.export', $event)); ?>" class="btn btn-success btn-sm">Export Excel</a></div>
+<div class="table-responsive"><table class="table table-bordered dt-responsive nowrap w-100"><thead class="table-light"><tr><th>Nama</th><th>Kategori</th><th>ID NUIST</th><th>Jabatan/Instansi</th><th>Status</th><th>Waktu hadir (WIB)</th></tr></thead><tbody id="recap-table-body">
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $recap['rows']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?><tr><td><?php echo e($row->name); ?></td><td><?php echo e($row->participant_type); ?></td><td><?php echo e($row->nuist_id ?: '—'); ?></td><td><?php echo e($row->jabatan ?: '—'); ?></td><td><?php echo e($row->status); ?></td><td><?php echo e($row->attended_at ?: '—'); ?></td></tr><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?><tr><td colspan="6">Belum ada peserta.</td></tr><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </tbody></table></div><small class="text-muted">Seluruh peserta terdaftar dan tamu undangan ditampilkan. Status diperbarui setelah presensi berhasil dicatat.</small></div></div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const body = document.getElementById('recap-table-body');
+    const status = document.getElementById('recap-live-status');
+    let loading = false;
+
+    const cell = (value) => {
+        const element = document.createElement('td');
+        element.textContent = value ?? '—';
+        return element;
+    };
+
+    const refreshRecap = async () => {
+        if (loading || document.hidden) return;
+        loading = true;
+        try {
+            const response = await fetch(<?php echo json_encode(route('admin.agenda.recap-status', $event), 512) ?>, {
+                headers: {'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+                cache: 'no-store'
+            });
+            if (!response.ok) throw new Error('Gagal memperbarui rekap');
+            const data = await response.json();
+            Object.entries(data.metrics).forEach(([key, value]) => {
+                const target = document.querySelector(`[data-recap-metric="${key}"]`);
+                if (target) target.textContent = value;
+            });
+            const fragment = document.createDocumentFragment();
+            data.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                [row.name, row.participant_type, row.nuist_id, row.position, row.status, row.attended_at]
+                    .forEach(value => tr.appendChild(cell(value)));
+                fragment.appendChild(tr);
+            });
+            if (!data.rows.length) {
+                const tr = document.createElement('tr');
+                const td = cell('Belum ada peserta.');
+                td.colSpan = 6;
+                tr.appendChild(td);
+                fragment.appendChild(tr);
+            }
+            body.replaceChildren(fragment);
+            status.textContent = `● Diperbarui ${data.updated_at}`;
+            status.className = 'text-success';
+        } catch (_) {
+            status.textContent = 'Pembaruan otomatis terputus, mencoba kembali…';
+            status.className = 'text-warning';
+        } finally {
+            loading = false;
+        }
+    };
+
+    setInterval(refreshRecap, 3000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshRecap(); });
+});
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('admin.bpppmnu.layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/Project Nuist/nuist/resources/views/admin/bpppmnu/show.blade.php ENDPATH**/ ?>
