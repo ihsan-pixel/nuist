@@ -8,6 +8,7 @@ use App\Models\TeachingSchedule;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 
 class ExternalTeachingPermissionService
 {
@@ -53,6 +54,76 @@ class ExternalTeachingPermissionService
     public static function hasApprovedNoPresenceDay(User $user, Carbon|string $date): bool
     {
         return self::approvedRequestForDate($user, $date) !== null;
+    }
+
+    /**
+     * Make the newly approved schedule the only active external-teaching
+     * permission from its start date onward.
+     *
+     * Older schedules remain untouched while the replacement is pending. On
+     * approval, an older schedule is either ended on the previous day or
+     * marked as superseded when it starts on/after the replacement schedule.
+     */
+    public static function activateApprovedRequest(Izin $replacement): void
+    {
+        if ($replacement->type !== self::TYPE || $replacement->status !== 'approved') {
+            return;
+        }
+
+        $replacementStart = Carbon::parse($replacement->tanggal)->startOfDay();
+        $replacementEnd = $replacement->tanggal_selesai
+            ? Carbon::parse($replacement->tanggal_selesai)->startOfDay()
+            : $replacementStart->copy();
+
+        DB::transaction(function () use ($replacement, $replacementStart, $replacementEnd) {
+            $previousRequests = Izin::query()
+                ->where('user_id', $replacement->user_id)
+                ->where('type', self::TYPE)
+                ->where('status', 'approved')
+                ->where('id', '!=', $replacement->id)
+                ->whereDate('tanggal', '<=', $replacementEnd->toDateString())
+                ->where(function ($query) use ($replacementStart) {
+                    $query->whereNull('tanggal_selesai')
+                        ->orWhereDate('tanggal_selesai', '>=', $replacementStart->toDateString());
+                })
+                ->lockForUpdate()
+                ->get();
+
+            $cleanupEnd = $replacementEnd->copy();
+
+            foreach ($previousRequests as $previousRequest) {
+                $previousStart = Carbon::parse($previousRequest->tanggal)->startOfDay();
+                $previousEnd = $previousRequest->tanggal_selesai
+                    ? Carbon::parse($previousRequest->tanggal_selesai)->startOfDay()
+                    : $previousStart->copy();
+                $cleanupEnd = $cleanupEnd->max($previousEnd);
+
+                if ($previousStart->lt($replacementStart)) {
+                    $previousRequest->tanggal_selesai = $replacementStart->copy()->subDay()->toDateString();
+                } else {
+                    $previousRequest->status = 'superseded';
+                    $previousRequest->approval_notes = self::supersededApprovalNotes(
+                        $previousRequest->approval_notes,
+                        $replacement->id,
+                    );
+                }
+
+                $previousRequest->save();
+            }
+
+            // Remove only system-generated no-presence rows in the replaced
+            // range. Actual check-in/check-out records are never changed.
+            Presensi::query()
+                ->where('user_id', $replacement->user_id)
+                ->where('status', 'izin')
+                ->where('status_izin', 'approved')
+                ->where('keterangan', self::KETERANGAN_TIDAK_PRESENSI)
+                ->whereNull('waktu_masuk')
+                ->whereNull('waktu_keluar')
+                ->whereDate('tanggal', '>=', $replacementStart->toDateString())
+                ->whereDate('tanggal', '<=', $cleanupEnd->toDateString())
+                ->delete();
+        });
     }
 
     /**
@@ -175,5 +246,12 @@ class ExternalTeachingPermissionService
             ->unique()
             ->values()
             ->all();
+    }
+
+    private static function supersededApprovalNotes(?string $notes, int $replacementId): string
+    {
+        $replacementNote = "Digantikan oleh pengajuan izin #{$replacementId}.";
+
+        return trim(implode("\n", array_filter([$notes, $replacementNote])));
     }
 }

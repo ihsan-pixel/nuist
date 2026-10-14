@@ -159,6 +159,7 @@ class IzinController extends Controller
             ]);
 
             if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+                ExternalTeachingPermissionService::activateApprovedRequest($izin);
                 ExternalTeachingPermissionService::syncApprovedNoPresencePresensi($izin, now('Asia/Jakarta'));
             } elseif ($izin->type !== 'terlambat') {
                 ApprovedIzinSyncService::syncApprovedIzinPresensi($izin);

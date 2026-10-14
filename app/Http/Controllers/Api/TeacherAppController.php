@@ -4066,6 +4066,7 @@ class TeacherAppController extends Controller
     private function syncApprovedIzinAfterApproval(Izin $izin): void
     {
         if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+            ExternalTeachingPermissionService::activateApprovedRequest($izin);
             ExternalTeachingPermissionService::syncApprovedNoPresencePresensi(
                 $izin,
                 Carbon::today('Asia/Jakarta'),
@@ -4241,16 +4242,18 @@ class TeacherAppController extends Controller
             ]);
         }
 
-        $existingIzin = Izin::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $tanggal)
-            ->where('type', $type)
-            ->whereIn('status', ['pending', 'approved'])
-            ->when(
-                $currentIzin,
-                fn ($query) => $query->where('id', '!=', $currentIzin->id)
-            )
-            ->first();
+        $existingIzin = $type === ExternalTeachingPermissionService::TYPE
+            ? null
+            : Izin::query()
+                ->where('user_id', $user->id)
+                ->whereDate('tanggal', $tanggal)
+                ->where('type', $type)
+                ->whereIn('status', ['pending', 'approved'])
+                ->when(
+                    $currentIzin,
+                    fn ($query) => $query->where('id', '!=', $currentIzin->id)
+                )
+                ->first();
 
         if ($existingIzin) {
             throw ValidationException::withMessages([
@@ -4442,27 +4445,6 @@ class TeacherAppController extends Controller
         if (!empty(array_intersect($hariPresensi, $hariTidakPresensi))) {
             throw ValidationException::withMessages([
                 'hari_tidak_presensi' => 'Hari aktif presensi dan hari izin tidak presensi tidak boleh sama.',
-            ]);
-        }
-
-        $overlappingSchedule = Izin::query()
-            ->where('user_id', $user->id)
-            ->where('type', ExternalTeachingPermissionService::TYPE)
-            ->whereIn('status', ['pending', 'approved'])
-            ->when(
-                $existingIzin,
-                fn ($query) => $query->where('id', '!=', $existingIzin->id)
-            )
-            ->whereDate('tanggal', '<=', $validated['tanggal_selesai'])
-            ->where(function ($query) use ($validated) {
-                $query->whereNull('tanggal_selesai')
-                    ->orWhereDate('tanggal_selesai', '>=', $validated['tanggal_mulai']);
-            })
-            ->exists();
-
-        if ($overlappingSchedule) {
-            throw ValidationException::withMessages([
-                'tanggal_mulai' => 'Anda sudah memiliki pengajuan jadwal mengajar di sekolah lain pada periode tersebut.',
             ]);
         }
 

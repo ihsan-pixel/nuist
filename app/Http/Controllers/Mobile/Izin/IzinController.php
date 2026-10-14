@@ -69,6 +69,7 @@ class IzinController extends \App\Http\Controllers\Controller
     private function syncApprovedIzinPresensi(Izin $izin, int $approvedBy): void
     {
         if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+            ExternalTeachingPermissionService::activateApprovedRequest($izin);
             ExternalTeachingPermissionService::syncApprovedNoPresencePresensi($izin, Carbon::today('Asia/Jakarta'));
 
             return;
@@ -131,11 +132,13 @@ class IzinController extends \App\Http\Controllers\Controller
         }
 
         // Check for existing izin on the same date and type to prevent double submission
-        $existingIzin = \App\Models\Izin::where('user_id', $user->id)
-            ->where('tanggal', $tanggal)
-            ->where('type', $type)
-            ->whereIn('status', ['pending', 'approved'])
-            ->first();
+        $existingIzin = $type === ExternalTeachingPermissionService::TYPE
+            ? null
+            : \App\Models\Izin::where('user_id', $user->id)
+                ->where('tanggal', $tanggal)
+                ->where('type', $type)
+                ->whereIn('status', ['pending', 'approved'])
+                ->first();
 
         if ($existingIzin) {
             $msg = 'Anda sudah mengajukan izin untuk tanggal ini.';
@@ -284,25 +287,6 @@ class IzinController extends \App\Http\Controllers\Controller
                 $alasan = $request->input('alasan') ?: 'Pengaturan presensi karena mengajar di sekolah lain.';
                 $deskripsiTugas = 'Mengajar di sekolah lain';
                 $lokasiTugas = $user->madrasahTambahan->name ?? 'Sekolah lain';
-
-                $overlappingSchedule = \App\Models\Izin::query()
-                    ->where('user_id', $user->id)
-                    ->where('type', ExternalTeachingPermissionService::TYPE)
-                    ->whereIn('status', ['pending', 'approved'])
-                    ->whereDate('tanggal', '<=', $tanggalSelesai)
-                    ->where(function ($query) use ($tanggal) {
-                        $query->whereNull('tanggal_selesai')
-                            ->orWhereDate('tanggal_selesai', '>=', $tanggal);
-                    })
-                    ->exists();
-
-                if ($overlappingSchedule) {
-                    $msg = 'Anda sudah memiliki pengajuan jadwal mengajar di sekolah lain pada periode tersebut.';
-                    if ($request->wantsJson() || $request->ajax()) {
-                        return response()->json(['success' => false, 'message' => $msg], 400);
-                    }
-                    return redirect()->back()->with('error', $msg)->withInput();
-                }
 
                 if ($request->hasFile('file_izin')) {
                     $filePath = $this->uploadSuratIzin($request->file('file_izin'));
