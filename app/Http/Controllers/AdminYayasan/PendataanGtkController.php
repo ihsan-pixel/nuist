@@ -819,7 +819,7 @@ class PendataanGtkController extends Controller
                 $result->AddPage($size['orientation'], [$size['width'], $size['height']]);
                 $result->useTemplate($template);
 
-                $key = [2 => 'ktp', 3 => 'ktp', 4 => 'sk_awal', 5 => 'sk_akhir'][$index] ?? null;
+                $key = [3 => 'ktp', 4 => 'sk_awal', 5 => 'sk_akhir'][$index] ?? null;
                 if (! isset($previews[$key])) {
                     continue;
                 }
@@ -828,7 +828,7 @@ class PendataanGtkController extends Controller
                 $targetX = 15.0;
                 $targetY = 69.5;
                 $targetWidth = 180.0;
-                $targetHeight = $index === 2 ? 46.0 : 195.0;
+                $targetHeight = 195.0;
                 $scale = min($targetWidth / $ktpSize['width'], $targetHeight / $ktpSize['height']);
                 $width = $ktpSize['width'] * $scale;
                 $height = $ktpSize['height'] * $scale;

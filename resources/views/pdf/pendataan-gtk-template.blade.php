@@ -29,7 +29,7 @@
         .attachment-label { margin-bottom: 4px; font-weight: 700; }
         .attachment-frame { width: 100%; text-align: center; overflow: hidden; }
         .attachment-frame img { max-width: 100%; max-height: 100%; }
-        .ktp-frame { height: 46mm; }
+        .face-frame { height: 29mm; }
         .document-frame { height: 195mm; }
         .photo-frame { height: 57mm; }
         .attachment-empty { color: #777; font-size: 7.5pt; line-height: 1.3; }
@@ -129,17 +129,22 @@
     @elseif($page === 3)
         <div class="title">LAMPIRAN BERKAS GTK</div>
 
-        <h2>1. Scan KTP</h2>
+        <h2>1. Data Scan Wajah - 6 Pose</h2>
         <table class="attachment-table">
-            <tr><td>
-                <div class="attachment-frame ktp-frame">
-                    @if(data_get($attachments, 'ktp.image'))
-                        <img src="{{ data_get($attachments, 'ktp.image') }}" alt="Scan KTP">
-                    @else
-                        <div class="attachment-empty">{{ data_get($attachments, 'ktp.note', 'Belum tersedia') }}</div>
-                    @endif
-                </div>
-            </td></tr>
+            <tr>
+                @foreach($attachments['face_poses'] as $pose)
+                    <td>
+                        <div class="attachment-label">{{ $pose['label'] }}</div>
+                        <div class="attachment-frame face-frame">
+                            @if($pose['image'])
+                                <img src="{{ $pose['image'] }}" alt="Pose {{ $pose['label'] }}">
+                            @else
+                                <div class="attachment-empty">{{ $pose['note'] }}</div>
+                            @endif
+                        </div>
+                    </td>
+                @endforeach
+            </tr>
         </table>
 
         <h2>2. Foto Resmi dan Foto Bebas</h2>
