@@ -30,7 +30,7 @@
         .attachment-frame { width: 100%; text-align: center; overflow: hidden; }
         .attachment-frame img { max-width: 100%; max-height: 100%; }
         .ktp-frame { height: 46mm; }
-        .face-frame { height: 29mm; }
+        .document-frame { height: 195mm; }
         .photo-frame { height: 57mm; }
         .attachment-empty { color: #777; font-size: 7.5pt; line-height: 1.3; }
     </style>
@@ -63,7 +63,7 @@
 ?>
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Pendataan GTK 2026</div>
-<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($page = 1; $page <= 3; $page++): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($page = 1; $page <= 6; $page++): ?>
     <div class="header"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($letterheadDataUri): ?><img src="<?php echo e($letterheadDataUri); ?>" alt="Kop LP Ma'arif NU PWNU DIY"><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></div>
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($page === 1): ?>
@@ -126,7 +126,7 @@
             <tr><td class="number">3</td><td>Produk kerja kolaboratif</td><td class="wrap"><?php echo e($value($data?->produk_kerja_kolaboratif)); ?></td></tr>
         </table>
         <div class="page-break"></div>
-    <?php else: ?>
+    <?php elseif($page === 3): ?>
         <div class="title">LAMPIRAN BERKAS GTK</div>
 
         <h2>1. Scan KTP</h2>
@@ -142,25 +142,7 @@
             </td></tr>
         </table>
 
-        <h2>2. Data Scan Wajah - 6 Pose</h2>
-        <table class="attachment-table">
-            <tr>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $attachments['face_poses']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pose): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <td>
-                        <div class="attachment-label"><?php echo e($pose['label']); ?></div>
-                        <div class="attachment-frame face-frame">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pose['image']): ?>
-                                <img src="<?php echo e($pose['image']); ?>" alt="Pose <?php echo e($pose['label']); ?>">
-                            <?php else: ?>
-                                <div class="attachment-empty"><?php echo e($pose['note']); ?></div>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                    </td>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-            </tr>
-        </table>
-
-        <h2>3. Foto Resmi dan Foto Bebas</h2>
+        <h2>2. Foto Resmi dan Foto Bebas</h2>
         <table class="attachment-table">
             <tr>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['foto_resmi' => 'Foto Resmi', 'foto_bebas' => 'Foto Bebas']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
@@ -177,6 +159,29 @@
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
             </tr>
         </table>
+        <div class="page-break"></div>
+    <?php else: ?>
+        <?php
+            [$key, $label] = match ($page) {
+                4 => ['ktp', 'Scan KTP'],
+                5 => ['sk_awal', 'SK Pertama'],
+                6 => ['sk_akhir', 'SK Terakhir'],
+            };
+        ?>
+        <div class="title">LAMPIRAN BERKAS GTK</div>
+        <h2><?php echo e($label); ?></h2>
+        <table class="attachment-table">
+            <tr><td>
+                <div class="attachment-frame document-frame">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(data_get($attachments, $key.'.image')): ?>
+                        <img src="<?php echo e(data_get($attachments, $key.'.image')); ?>" alt="<?php echo e($label); ?>">
+                    <?php else: ?>
+                        <div class="attachment-empty"><?php echo e(data_get($attachments, $key.'.note', 'Belum tersedia')); ?></div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
+            </td></tr>
+        </table>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($page < 6): ?><div class="page-break"></div><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </body>

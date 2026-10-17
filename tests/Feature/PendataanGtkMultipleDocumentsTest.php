@@ -178,7 +178,7 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         file_put_contents($pdfPath, $response->getContent());
         try {
             $exportedPdf = new Fpdi;
-            $this->assertSame(3, $exportedPdf->setSourceFile($pdfPath));
+            $this->assertSame(6, $exportedPdf->setSourceFile($pdfPath));
         } finally {
             @unlink($pdfPath);
         }
@@ -214,7 +214,7 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
         $this->assertStringContainsString('Foto bebas✓ Sudah', $text);
     }
 
-    public function test_gtk_pdf_displays_the_first_page_of_an_uploaded_ktp_pdf(): void
+    public function test_gtk_pdf_displays_uploaded_ktp_and_sk_pdfs_on_separate_pages(): void
     {
         Storage::fake('local');
         $this->actingAs(new User(['role' => 'admin_yayasan']));
@@ -241,6 +241,8 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
                 'disk' => 'local',
                 'path' => 'gtk-documents/ktp-uji.pdf',
             ]),
+            new GtkDocument(['type' => 'sk_awal', 'disk' => 'local', 'path' => 'gtk-documents/ktp-uji.pdf']),
+            new GtkDocument(['type' => 'sk_akhir', 'disk' => 'local', 'path' => 'gtk-documents/ktp-uji.pdf']),
         ]));
 
         $response = (new PendataanGtkController)->exportPdf($user);
@@ -249,7 +251,7 @@ class PendataanGtkMultipleDocumentsTest extends TestCase
 
         try {
             $exportedPdf = new Fpdi;
-            $this->assertSame(3, $exportedPdf->setSourceFile($pdfPath));
+            $this->assertSame(6, $exportedPdf->setSourceFile($pdfPath));
             $this->assertGreaterThan(20_000, strlen($response->getContent()));
         } finally {
             @unlink($pdfPath);

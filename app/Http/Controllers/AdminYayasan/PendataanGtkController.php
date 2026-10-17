@@ -688,7 +688,7 @@ class PendataanGtkController extends Controller
         $font = $pdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
         $pdf->getCanvas()->page_text(520, 806, 'Halaman {PAGE_NUM}', $font, 8, [0.4, 0.4, 0.4]);
 
-        return $this->overlayKtpPdfPreview($pdf->output(), data_get($attachments, 'ktp.pdf_path'));
+        return $this->overlayGtkPdfAttachments($pdf->output(), $attachments);
     }
 
     private function makeGtkPdfAttachments(User $user): array
@@ -697,6 +697,8 @@ class PendataanGtkController extends Controller
 
         $attachments = [
             'ktp' => $this->resolveGtkAttachment($user, 'ktp', 'local', $data?->ktp_path),
+            'sk_awal' => $this->resolveGtkAttachment($user, 'sk_awal', 'local', $data?->sk_awal_path),
+            'sk_akhir' => $this->resolveGtkAttachment($user, 'sk_akhir', 'local', $data?->sk_akhir_path),
             'foto_resmi' => $this->resolveGtkAttachment($user, 'foto_resmi', 'public', $user->avatar),
             'foto_bebas' => $this->resolveGtkAttachment($user, 'foto_bebas', 'local', $data?->foto_bebas_path),
             'face_poses' => collect([
@@ -775,9 +777,9 @@ class PendataanGtkController extends Controller
         }
     }
 
-    private function overlayKtpPdfPreview(string $basePdf, ?string $ktpPdfPath): string
+    private function overlayGtkPdfAttachments(string $basePdf, array $attachments): string
     {
-        if (! filled($ktpPdfPath) || ! is_file($ktpPdfPath)) {
+        if (! collect($attachments)->contains(fn ($attachment) => filled($attachment['pdf_path'] ?? null))) {
             return $basePdf;
         }
 
@@ -797,22 +799,36 @@ class PendataanGtkController extends Controller
                 $basePages[] = [$template, $result->getTemplateSize($template)];
             }
 
-            $result->setSourceFile($ktpPdfPath);
-            $ktpTemplate = $result->importPage(1);
-            $ktpSize = $result->getTemplateSize($ktpTemplate);
+            $previews = [];
+            foreach (['ktp', 'sk_awal', 'sk_akhir'] as $key) {
+                $path = data_get($attachments, $key.'.pdf_path');
+                if (! $path || ! is_file($path)) {
+                    continue;
+                }
+                try {
+                    $result->setSourceFile($path);
+                    $preview = $result->importPage(1);
+                    $previews[$key] = [$preview, $result->getTemplateSize($preview)];
+                } catch (\Throwable) {
+                    // A damaged attachment must not hide the other documents.
+                    continue;
+                }
+            }
 
             foreach ($basePages as $index => [$template, $size]) {
                 $result->AddPage($size['orientation'], [$size['width'], $size['height']]);
                 $result->useTemplate($template);
 
-                if ($index !== 2) {
+                $key = [2 => 'ktp', 3 => 'ktp', 4 => 'sk_awal', 5 => 'sk_akhir'][$index] ?? null;
+                if (! isset($previews[$key])) {
                     continue;
                 }
 
+                [$ktpTemplate, $ktpSize] = $previews[$key];
                 $targetX = 15.0;
                 $targetY = 69.5;
                 $targetWidth = 180.0;
-                $targetHeight = 46.0;
+                $targetHeight = $index === 2 ? 46.0 : 195.0;
                 $scale = min($targetWidth / $ktpSize['width'], $targetHeight / $ktpSize['height']);
                 $width = $ktpSize['width'] * $scale;
                 $height = $ktpSize['height'] * $scale;
