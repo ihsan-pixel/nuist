@@ -55,10 +55,10 @@
     $hasOfficialPhoto = filled($user->avatar) || $user->gtkDocuments->contains('type', 'foto_resmi');
     $hasCasualPhoto = $hasUploadedDocument('foto_bebas', $data?->foto_bebas_path);
     $attachments = $attachments ?? [
-        'ktp' => ['image' => null, 'note' => 'Belum tersedia'],
+        'ktp' => ['image' => null, 'note' => 'Tidak mengirimkan'],
         'face_poses' => [],
-        'foto_resmi' => ['image' => null, 'note' => 'Belum tersedia'],
-        'foto_bebas' => ['image' => null, 'note' => 'Belum tersedia'],
+        'foto_resmi' => ['image' => null, 'note' => 'Tidak mengirimkan'],
+        'foto_bebas' => ['image' => null, 'note' => 'Tidak mengirimkan'],
     ];
 @endphp
 
@@ -157,7 +157,7 @@
                             @if(data_get($attachments, $key.'.image'))
                                 <img src="{{ data_get($attachments, $key.'.image') }}" alt="{{ $label }}">
                             @else
-                                <div class="attachment-empty">{{ data_get($attachments, $key.'.note', 'Belum tersedia') }}</div>
+                                <div class="attachment-empty">{{ data_get($attachments, $key.'.note', 'Tidak mengirimkan') }}</div>
                             @endif
                         </div>
                     </td>
@@ -181,7 +181,7 @@
                     @if(data_get($attachments, $key.'.image'))
                         <img src="{{ data_get($attachments, $key.'.image') }}" alt="{{ $label }}">
                     @else
-                        <div class="attachment-empty">{{ data_get($attachments, $key.'.note', 'Belum tersedia') }}</div>
+                        <div class="attachment-empty">{{ data_get($attachments, $key.'.note', 'Tidak mengirimkan') }}</div>
                     @endif
                 </div>
             </td></tr>

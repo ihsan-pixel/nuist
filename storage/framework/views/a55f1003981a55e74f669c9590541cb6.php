@@ -55,10 +55,10 @@
     $hasOfficialPhoto = filled($user->avatar) || $user->gtkDocuments->contains('type', 'foto_resmi');
     $hasCasualPhoto = $hasUploadedDocument('foto_bebas', $data?->foto_bebas_path);
     $attachments = $attachments ?? [
-        'ktp' => ['image' => null, 'note' => 'Belum tersedia'],
+        'ktp' => ['image' => null, 'note' => 'Tidak mengirimkan'],
         'face_poses' => [],
-        'foto_resmi' => ['image' => null, 'note' => 'Belum tersedia'],
-        'foto_bebas' => ['image' => null, 'note' => 'Belum tersedia'],
+        'foto_resmi' => ['image' => null, 'note' => 'Tidak mengirimkan'],
+        'foto_bebas' => ['image' => null, 'note' => 'Tidak mengirimkan'],
     ];
 ?>
 
@@ -157,7 +157,7 @@
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(data_get($attachments, $key.'.image')): ?>
                                 <img src="<?php echo e(data_get($attachments, $key.'.image')); ?>" alt="<?php echo e($label); ?>">
                             <?php else: ?>
-                                <div class="attachment-empty"><?php echo e(data_get($attachments, $key.'.note', 'Belum tersedia')); ?></div>
+                                <div class="attachment-empty"><?php echo e(data_get($attachments, $key.'.note', 'Tidak mengirimkan')); ?></div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </td>
@@ -181,7 +181,7 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(data_get($attachments, $key.'.image')): ?>
                         <img src="<?php echo e(data_get($attachments, $key.'.image')); ?>" alt="<?php echo e($label); ?>">
                     <?php else: ?>
-                        <div class="attachment-empty"><?php echo e(data_get($attachments, $key.'.note', 'Belum tersedia')); ?></div>
+                        <div class="attachment-empty"><?php echo e(data_get($attachments, $key.'.note', 'Tidak mengirimkan')); ?></div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </td></tr>

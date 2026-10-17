@@ -711,7 +711,7 @@ class PendataanGtkController extends Controller
             ])->map(fn (string $label) => [
                 'label' => $label,
                 'image' => null,
-                'note' => 'Belum tersedia',
+                'note' => 'Tidak mengirimkan',
             ])->all(),
         ];
 
@@ -753,7 +753,7 @@ class PendataanGtkController extends Controller
         return [
             'image' => $image,
             'pdf_path' => $pdfPath,
-            'note' => ($image || $pdfPath) ? null : (filled($path) ? 'Berkas tidak dapat ditampilkan.' : 'Belum tersedia'),
+            'note' => ($image || $pdfPath) ? null : (filled($path) ? 'Berkas tidak dapat ditampilkan.' : 'Tidak mengirimkan'),
         ];
     }
 
