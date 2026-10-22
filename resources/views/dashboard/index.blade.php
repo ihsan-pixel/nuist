@@ -10,36 +10,37 @@
     @slot('title') Dashboard @endslot
 @endcomponent
 
-<div class="row">
-    <div class="col-lg-4 col-12">
+<div class="dashboard-page">
+<div class="row g-4">
+    <div class="col-lg-4 col-12 dashboard-page__profile-column">
         <!-- Welcome Card - Mobile Optimized -->
-        <div class="card border-0 shadow-sm hover-lift overflow-hidden mb-3" style="border-radius: 15px;">
-            <div style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);">
+        <div class="card border-0 shadow-sm hover-lift overflow-hidden mb-4 dashboard-welcome-card">
+            <div class="dashboard-welcome-card__banner">
                 <div class="row align-items-center">
                     <div class="col-8">
                         <div class="text-white p-3">
-                            <h5 class="text-white">Selamat Datang!</h5>
-                            <p class="mb-0 text-white-50">Aplikasi NUIST</p>
+                            <p class="dashboard-eyebrow mb-1">Sistem Informasi Digital</p>
+                            <h5 class="text-white mb-0">Selamat datang, {{ Str::before(trim(Auth::user()->name), ' ') }}!</h5>
                         </div>
                     </div>
                     <div class="col-4 text-end">
-                        {{-- <img src="{{ asset('build/images/logo 1.png') }}" alt="" class="img-fluid" style="max-height: 60px;"> --}}
+                        <span class="dashboard-welcome-card__mark" aria-hidden="true"><i class="mdi mdi-view-dashboard-outline"></i></span>
                     </div>
                 </div>
             </div>
             <div class="card-body pt-0">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <div class="avatar-lg profile-user-wid mb-3 mb-md-0">
-                            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}" alt="" class="img-thumbnail rounded-circle">
+                        <div class="avatar-lg profile-user-wid mb-3 mb-md-0 dashboard-avatar">
+                            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}" alt="Foto profil {{ Auth::user()->name }}" class="img-thumbnail rounded-circle">
                         </div>
                     </div>
                     <div class="col">
                         <h5 class="font-size-16 mb-1">{{ Str::ucfirst(Auth::user()->name) }}</h5>
-                        <p class="text-muted mb-2">Nuist ID : {{ Auth::user()->nuist_id ?? '-' }}</p>
+                        <p class="text-muted mb-2">NUIST ID: {{ Auth::user()->nuist_id ?? '-' }}</p>
                         <div class="d-flex flex-wrap gap-2">
-                            <small class="badge bg-primary-subtle text-primary">{{ Auth::user()->statusKepegawaian ? Auth::user()->statusKepegawaian->name : '-' }}</small>
-                            <small class="badge bg-info-subtle text-info">{{ Auth::user()->ketugasan ?? '-' }}</small>
+                            <small class="badge bg-primary-subtle text-primary">{{ Auth::user()->statusKepegawaian?->name ?? 'Pengguna NUIST' }}</small>
+                            <small class="badge bg-info-subtle text-info">{{ Auth::user()->ketugasan ?? Str::headline(Auth::user()->role) }}</small>
                         </div>
                     </div>
                 </div>
@@ -330,9 +331,9 @@
 
     {{-- Admin Statistics Section - Right side --}}
     @if(Auth::user()->role === 'admin' && isset($adminStats))
-    <div class="col-xl-8 col-12">
+    <div class="col-xl-8 col-12 dashboard-page__main-column">
         <!-- Statistics Overview Header -->
-        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
+        <div class="card border-0 shadow-sm mb-4 dashboard-section-heading">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -351,8 +352,8 @@
         <!-- Primary Statistics Row -->
         <div class="row g-3 mb-4">
             {{-- Total Teachers Card --}}
-            <div class="col-lg-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--teachers">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -375,8 +376,8 @@
             </div>
 
             {{-- School Principal Card --}}
-            <div class="col-lg-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--principal">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -399,8 +400,8 @@
             </div>
 
             {{-- Madrasah Info Card --}}
-            <div class="col-lg-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--school">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -436,7 +437,7 @@
                     @if($adminStats['total_by_status']->count() > 0)
                         @foreach($adminStats['total_by_status'] as $status)
                         <div class="col-lg-6 col-xl-4">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                            <div class="card border-0 shadow-sm h-100 hover-lift dashboard-status-card">
                                 <div class="card-body p-3 text-center">
                                     <div class="avatar-md mx-auto mb-3">
                                         <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
@@ -575,9 +576,9 @@
 
     {{-- Super Admin Statistics Section --}}
     @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
-    <div class="col-xl-8 col-12">
+    <div class="col-xl-8 col-12 dashboard-page__main-column">
         <!-- Statistics Overview Header -->
-        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
+        <div class="card border-0 shadow-sm mb-4 dashboard-section-heading">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -604,8 +605,8 @@
         <!-- Primary Statistics Row -->
         <div class="row g-3 mb-4">
             {{-- Total Madrasah Card --}}
-            <div class="col-lg-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--schools">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -628,8 +629,8 @@
             </div>
 
             {{-- Total Teachers Card --}}
-            <div class="col-lg-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--teachers">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -652,8 +653,8 @@
             </div>
 
             {{-- Total Admins Card --}}
-            <div class="col-lg-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--admins">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -679,8 +680,8 @@
         <!-- Secondary Statistics Row -->
         <div class="row g-3 mb-4">
             {{-- Total Super Admins Card --}}
-            <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--admins">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -698,8 +699,8 @@
             </div>
 
             {{-- Total Pengurus Card --}}
-            <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--leaders">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -717,8 +718,8 @@
             </div>
 
             {{-- Total School Principals Card --}}
-            <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 12px;">
+            <div class="col-sm-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--principals">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -754,7 +755,7 @@
                     @if($superAdminStats['total_by_status']->count() > 0)
                         @foreach($superAdminStats['total_by_status'] as $status)
                         <div class="col-lg-6 col-xl-4">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                            <div class="card border-0 shadow-sm h-100 hover-lift dashboard-status-card">
                                 <div class="card-body p-3 text-center">
                                     <div class="avatar-md mx-auto mb-3">
                                         <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
@@ -1036,6 +1037,7 @@
     </div>
     @endif
 </div>
+</div>
 
 {{-- Social Source, Activity, Top Cities --}}
 {{-- <div class="row">
@@ -1061,13 +1063,145 @@
 
 
 <style>
+.dashboard-page {
+    --dashboard-brand: #075b52;
+    --dashboard-brand-dark: #073b39;
+    --dashboard-ink: #172b29;
+    --dashboard-muted: #647571;
+    --dashboard-line: #e6eeeb;
+}
+
+.dashboard-page .card {
+    border-radius: 1rem;
+}
+
+.dashboard-page .dashboard-welcome-card {
+    border: 1px solid var(--dashboard-line) !important;
+}
+
+.dashboard-welcome-card__banner,
+.dashboard-section-heading {
+    background: linear-gradient(120deg, var(--dashboard-brand-dark), var(--dashboard-brand));
+}
+
+.dashboard-welcome-card__banner {
+    padding: 0.35rem 0.5rem;
+}
+
+.dashboard-eyebrow {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.dashboard-welcome-card__mark {
+    display: inline-grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: 1rem;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.45rem;
+}
+
+.dashboard-avatar img {
+    border: 3px solid #fff;
+    box-shadow: 0 0.4rem 1.2rem rgba(7, 59, 57, 0.16);
+}
+
+.dashboard-section-heading {
+    border-radius: 1rem;
+}
+
+.dashboard-section-heading .card-body {
+    padding: 1.5rem;
+}
+
+.dashboard-stat-card {
+    min-height: 9rem;
+    overflow: hidden;
+    border-radius: 0.9rem;
+    color: #fff;
+}
+
+.dashboard-stat-card .card-body {
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-stat-card h3,
+.dashboard-stat-card h4 {
+    color: #fff;
+    font-weight: 750;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+}
+
+.dashboard-stat-card h3 {
+    font-size: clamp(1.8rem, 2.6vw, 2.35rem);
+}
+
+.dashboard-stat-card h4 {
+    font-size: clamp(1.1rem, 1.4vw, 1.4rem);
+}
+
+.dashboard-stat-card--schools,
+.dashboard-stat-card--school {
+    background: linear-gradient(135deg, #116c61, #198b78);
+}
+
+.dashboard-stat-card--teachers {
+    background: linear-gradient(135deg, #275d88, #367faf);
+}
+
+.dashboard-stat-card--admins {
+    background: linear-gradient(135deg, #6e558c, #9472b3);
+}
+
+.dashboard-stat-card--principal,
+.dashboard-stat-card--principals {
+    background: linear-gradient(135deg, #a66a25, #c28a43);
+}
+
+.dashboard-stat-card--leaders {
+    background: linear-gradient(135deg, #357b72, #5b9e91);
+}
+
+.dashboard-status-card {
+    border: 1px solid var(--dashboard-line) !important;
+    background: linear-gradient(145deg, #fff, #f6faf8);
+}
+
+.dashboard-page .dashboard-stat-card .avatar-title {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #fff !important;
+}
+
+.dashboard-page .card-title {
+    color: var(--dashboard-ink);
+    font-weight: 700;
+}
+
+.dashboard-page .text-muted {
+    color: var(--dashboard-muted) !important;
+}
+
+.dashboard-page .table-responsive {
+    border: 1px solid var(--dashboard-line);
+    border-radius: 0.75rem;
+}
+
 .hover-lift {
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 0.8rem 1.8rem rgba(18, 53, 47, 0.12) !important;
 }
 
 .gradient-primary {
@@ -1096,6 +1230,36 @@
 
 .table-hover tbody tr:hover {
     background-color: rgba(0, 123, 255, 0.05);
+}
+
+@media (max-width: 991.98px) {
+    .dashboard-page__profile-column,
+    .dashboard-page__main-column {
+        width: 100%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .dashboard-page .card-body {
+        padding: 1rem;
+    }
+
+    .dashboard-welcome-card .card-body {
+        padding-top: 0 !important;
+    }
+
+    .dashboard-section-heading .card-body {
+        padding: 1.1rem;
+    }
+
+    .dashboard-stat-card {
+        min-height: 7.5rem;
+    }
+
+    .dashboard-page .table th,
+    .dashboard-page .table td {
+        white-space: nowrap;
+    }
 }
 </style>
 
