@@ -1081,7 +1081,7 @@
 
 .dashboard-welcome-card__banner,
 .dashboard-section-heading {
-    background: linear-gradient(120deg, var(--dashboard-brand-dark), var(--dashboard-brand));
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
 }
 
 .dashboard-welcome-card__banner {
@@ -1151,43 +1151,34 @@
 
 .dashboard-stat-card--schools,
 .dashboard-stat-card--school {
-    background: linear-gradient(135deg, #116c61, #198b78);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .dashboard-stat-card--teachers {
-    background: linear-gradient(135deg, #275d88, #367faf);
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
 .dashboard-stat-card--admins {
-    background: linear-gradient(135deg, #6e558c, #9472b3);
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
 .dashboard-stat-card--principal,
 .dashboard-stat-card--principals {
-    background: linear-gradient(135deg, #a66a25, #c28a43);
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
 .dashboard-stat-card--leaders {
-    background: linear-gradient(135deg, #357b72, #5b9e91);
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 }
 
 .dashboard-status-card {
     border: 1px solid var(--dashboard-line) !important;
-    background: linear-gradient(145deg, #fff, #f6faf8);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
 .dashboard-page .dashboard-stat-card .avatar-title {
-    background: rgba(255, 255, 255, 0.18) !important;
+    background: rgba(255, 255, 255, 0.25) !important;
     color: #fff !important;
-}
-
-.dashboard-page .card-title {
-    color: var(--dashboard-ink);
-    font-weight: 700;
-}
-
-.dashboard-page .text-muted {
-    color: var(--dashboard-muted) !important;
 }
 
 .dashboard-page .table-responsive {
