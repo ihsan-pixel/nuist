@@ -49,11 +49,10 @@
 
         {{-- Madrasah Location and Map - Positioned below welcome card on left side --}}
         @if(Auth::user()->role === 'admin' && isset($madrasahData))
-        <div class="row">
+        <div class="dashboard-location-card card border-0 shadow-sm hover-lift">
             {{-- Address Information --}}
-            <div class="col-12">
-                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
-                    <div class="card-body p-4">
+            <div class="dashboard-location-info">
+                    <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -84,14 +83,11 @@
                             </a>
                             @endif
                         </div>
-                    </div>
-                </div>
             </div>
 
             {{-- Map Display --}}
-            <div class="col-12">
-                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
-                    <div class="card-body p-4">
+            <div class="dashboard-location-map">
+                    <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -142,19 +138,16 @@
                                 </div>
                             @endif
                         </div>
-                    </div>
-                </div>
             </div>
         </div>
         @endif
 
         {{-- Foundation Location and Map for Super Admin and Pengurus --}}
         @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($foundationData))
-        <div class="row">
+        <div class="dashboard-location-card card border-0 shadow-sm hover-lift">
             {{-- Address Information --}}
-            <div class="col-12">
-                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
-                    <div class="card-body p-4">
+            <div class="dashboard-location-info">
+                    <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -185,14 +178,11 @@
                             </a>
                             @endif
                         </div>
-                    </div>
-                </div>
             </div>
 
             {{-- Map Display --}}
-            <div class="col-12">
-                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
-                    <div class="card-body p-4">
+            <div class="dashboard-location-map">
+                    <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -243,8 +233,6 @@
                                 </div>
                             @endif
                         </div>
-                    </div>
-                </div>
             </div>
         </div>
         @endif
@@ -1082,6 +1070,12 @@
     margin-inline: 0;
 }
 
+.dashboard-page > .row > .dashboard-page__profile-column,
+.dashboard-page > .row > .dashboard-page__main-column {
+    width: 100%;
+    flex: 0 0 100%;
+}
+
 .dashboard-page .card {
     border-radius: 1rem;
     border: 1px solid rgba(20, 70, 65, 0.08) !important;
@@ -1097,6 +1091,33 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+}
+
+.dashboard-page__profile-column {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 1rem;
+}
+
+.dashboard-page__profile-column > .dashboard-welcome-card {
+    grid-column: 1;
+}
+
+.dashboard-page__profile-column > .dashboard-location-card {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.dashboard-page__profile-column > .row {
+    display: contents;
+}
+
+.dashboard-page__profile-column > .row > .col-12 {
+    grid-column: 2;
+}
+
+.dashboard-page__main-column {
+    margin-top: 0.25rem;
 }
 
 .dashboard-page__profile-column > .card,
@@ -1115,6 +1136,32 @@
 
 .dashboard-page .dashboard-welcome-card {
     border: 1px solid var(--dashboard-line) !important;
+}
+
+.dashboard-location-card {
+    display: grid;
+    grid-template-columns: minmax(15rem, 0.9fr) minmax(20rem, 1.1fr);
+    min-height: 18rem;
+    overflow: hidden;
+}
+
+.dashboard-location-info,
+.dashboard-location-map {
+    min-width: 0;
+}
+
+.dashboard-location-map {
+    padding: 1rem;
+}
+
+.dashboard-location-map .card-body,
+.dashboard-location-info .card-body {
+    height: 100%;
+    padding: 1.25rem;
+}
+
+.dashboard-location-map #foundation-map-container {
+    height: 13rem !important;
 }
 
 .dashboard-welcome-card__banner,
@@ -1315,6 +1362,23 @@
 }
 
 @media (max-width: 991.98px) {
+    .dashboard-page__profile-column {
+        display: block;
+    }
+
+    .dashboard-page__profile-column > .dashboard-location-card,
+    .dashboard-page__profile-column > .dashboard-welcome-card {
+        margin-bottom: 1rem;
+    }
+
+    .dashboard-location-card {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-location-map {
+        padding-top: 0;
+    }
+
     .dashboard-page__profile-column,
     .dashboard-page__main-column {
         width: 100%;
