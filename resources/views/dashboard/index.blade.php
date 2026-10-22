@@ -1248,7 +1248,8 @@
 .dashboard-live-updated{margin-top:18px;padding-top:12px;border-top:1px solid var(--nuist-border);color:var(--nuist-muted);font-size:11px;text-align:center}
 .dashboard-top-schools{margin-top:16px;padding-top:16px;border-top:1px solid var(--nuist-border)}
 .dashboard-top-schools h6{margin-bottom:12px;font-size:13px;color:var(--nuist-ink)}
-.dashboard-top-school-item{display:grid;grid-template-columns:24px minmax(0,1fr) 48px;gap:9px;align-items:center;padding:8px 0}
+.dashboard-top-school-item{display:grid;grid-template-columns:24px minmax(0,1fr) 48px;gap:10px;align-items:center;padding:11px 0}
+.dashboard-top-school-item+.dashboard-top-school-item{border-top:1px solid #edf1f2}
 .dashboard-top-school-rank{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#e6f5ee;color:var(--nuist-green);font-size:11px;font-weight:700}
 .dashboard-top-school-info{min-width:0}
 .dashboard-top-school-info strong{display:block;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--nuist-ink);font-size:11px}
