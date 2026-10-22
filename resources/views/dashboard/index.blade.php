@@ -321,6 +321,36 @@
         @endif
     </div>
 
+    @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
+    <div class="col-12 dashboard-teacher-status-card">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h5 class="card-title mb-1 text-dark"><i class="mdi mdi-account-group text-success me-2"></i>Statistik Tenaga Pendidik</h5>
+                        <p class="text-muted mb-0 small">Pengelompokan berdasarkan status kepegawaian</p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success">{{ $superAdminStats['total_teachers'] }} Orang</span>
+                </div>
+                <div class="row g-3">
+                    @forelse($superAdminStats['total_by_status'] as $status)
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <div class="dashboard-teacher-status-item h-100">
+                            <div class="avatar-sm mb-2"><div class="avatar-title bg-success-subtle text-success rounded-circle"><i class="mdi mdi-account-tie"></i></div></div>
+                            <div class="h4 mb-1 text-dark">{{ $status['count'] }}</div>
+                            <div class="small text-muted">{{ $status['status_name'] }}</div>
+                            <div class="progress mt-2" style="height:5px"><div class="progress-bar bg-success" style="width:{{ $superAdminStats['total_teachers'] > 0 ? round($status['count'] / $superAdminStats['total_teachers'] * 100) : 0 }}%"></div></div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-12 text-center text-muted py-4">Belum ada data tenaga pendidik.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Admin Statistics Section - Right side --}}
     @if(Auth::user()->role === 'admin' && isset($adminStats))
     <div class="col-xl-8 col-12 dashboard-page__main-column dashboard-admin-stats">
