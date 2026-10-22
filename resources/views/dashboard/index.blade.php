@@ -623,7 +623,7 @@
         </div>
 
         <!-- Primary Statistics Row -->
-        <div class="row g-3 mb-4">
+        <div class="row g-3 mb-4 dashboard-super-primary-stats">
             {{-- Total Madrasah Card --}}
             <div class="col-sm-6 col-xl-4">
                 <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--schools">
@@ -758,7 +758,7 @@
         </div>
 
         {{-- Employment Status Breakdown --}}
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm dashboard-super-status-summary" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -817,7 +817,7 @@
         </div>
 
         {{-- Detailed Statistics Table --}}
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm dashboard-super-detail-table" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -1184,6 +1184,28 @@
     padding-inline: 0;
 }
 
+.dashboard-super-admin-stats {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.65fr) minmax(20rem, 0.85fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.dashboard-super-admin-stats > .dashboard-section-heading,
+.dashboard-super-admin-stats > .dashboard-super-primary-stats {
+    grid-column: 1;
+    margin-bottom: 0 !important;
+}
+
+.dashboard-super-admin-stats > .dashboard-super-status-summary {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.dashboard-super-admin-stats > .dashboard-super-detail-table {
+    grid-column: 1;
+}
+
 .dashboard-admin-stats {
     display: grid;
     grid-template-columns: minmax(0, 1.65fr) minmax(20rem, 0.85fr);
@@ -1470,6 +1492,10 @@
 
     .dashboard-super-admin-stats > .row {
         display: flex;
+    }
+
+    .dashboard-super-admin-stats {
+        display: flex !important;
     }
 
     .dashboard-page__profile-column {
