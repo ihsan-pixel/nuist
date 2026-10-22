@@ -389,6 +389,24 @@
             </div>
         </div>
     </div>
+    <div class="col-12 dashboard-employment-donut-card">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-4 text-dark"><i class="mdi mdi-chart-donut text-success me-2"></i>Ringkasan Status Kepegawaian</h5>
+                <div id="employment-status-donut" class="dashboard-employment-donut"></div>
+                <div class="dashboard-employment-legend">
+                    @foreach($sortedEmploymentStatuses as $status)
+                    @php($statusPercentage = $superAdminStats['total_teachers'] > 0 ? round($status['count'] / $superAdminStats['total_teachers'] * 100, 1) : 0)
+                    <div class="dashboard-employment-legend-item">
+                        <span class="dashboard-employment-dot" style="background:{{ $statusColors[$loop->index % count($statusColors)] }}"></span>
+                        <span class="dashboard-employment-name">{{ $status['status_name'] }}</span>
+                        <strong>{{ $status['count'] }} ({{ number_format($statusPercentage, 1, ',', '.') }}%)</strong>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
     @endif
 
     {{-- Admin Statistics Section - Right side --}}
@@ -1184,7 +1202,14 @@
 .dashboard-page>.row>.dashboard-page__profile-column,.dashboard-page>.row>.dashboard-page__main-column{padding:0;max-width:none;width:100%;flex:0 0 100%;min-width:0}
 .dashboard-page__profile-column{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;align-items:stretch}
 .dashboard-page__profile-column>.card{margin:0!important;min-width:0;height:100%}
-.dashboard-page>.row>.dashboard-teacher-status-card{grid-column:1;min-width:0;width:75%;max-width:75%;flex:0 0 75%;padding:0;margin:0;}
+.dashboard-page>.row>.dashboard-teacher-status-card{grid-column:1;min-width:0;width:calc(75% - 5px);max-width:calc(75% - 5px);flex:0 0 calc(75% - 5px);padding:0;margin:0;}
+.dashboard-page>.row>.dashboard-employment-donut-card{min-width:0;width:calc(25% - 13px);max-width:calc(25% - 13px);flex:0 0 calc(25% - 13px);padding:0;margin:0;}
+.dashboard-employment-donut{height:230px}
+.dashboard-employment-legend{display:grid;gap:9px;margin-top:8px}
+.dashboard-employment-legend-item{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12px;color:var(--nuist-muted)}
+.dashboard-employment-dot{width:10px;height:10px;border-radius:50%}
+.dashboard-employment-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dashboard-employment-legend-item strong{color:var(--nuist-ink);font-size:12px;white-space:nowrap}
 .dashboard-teacher-status-card>.card{width:100%;}
 .dashboard-teacher-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .dashboard-teacher-summary-item{display:flex;align-items:center;gap:12px;min-width:0;padding:14px;border:1px solid var(--nuist-border);border-radius:10px;background:#fff}
@@ -1259,6 +1284,7 @@
 .dashboard-page .hover-lift:hover{transform:translateY(-2px);box-shadow:0 8px 24px #193b3415!important}
 @media(max-width:1199.98px){.dashboard-page__main-column{grid-template-columns:minmax(0,1fr) minmax(260px,.85fr)}.dashboard-admin-primary-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-teacher-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-location-card{grid-template-columns:1fr 1fr}.dashboard-page__main-column{grid-template-columns:1fr}.dashboard-section-heading,.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row,.dashboard-status-summary,.dashboard-super-status-summary,.dashboard-detail-table,.dashboard-super-detail-table,.dashboard-attendance-card,.dashboard-super-attendance{grid-column:1;grid-row:auto}.dashboard-super-admin-stats>.row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:991.98px){.dashboard-page>.row>.dashboard-teacher-status-card,.dashboard-page>.row>.dashboard-employment-donut-card{width:100%;max-width:none;flex-basis:100%}}
 @media(max-width:575.98px){.dashboard-page>.row>.dashboard-teacher-status-card{width:100%;max-width:none;flex-basis:100%;margin-left:0}.dashboard-teacher-summary{grid-template-columns:1fr}.dashboard-page{padding:10px;margin:0 -10px 16px;border-radius:0}.dashboard-page>.row,.dashboard-page__profile-column,.dashboard-page__main-column{gap:12px}.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid var(--nuist-border)}.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .card-body{padding:15px!important}.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{font-size:19px!important}.dashboard-page .dashboard-stat-card .card-body{padding:13px!important}.dashboard-page .table{min-width:460px}}
 </style>
 
@@ -1311,6 +1337,34 @@
         document.querySelectorAll(".nuist-attendance-chart").forEach(function (chartElement) {
             new ApexCharts(chartElement, options).render();
         });
+
+        @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
+        var employmentChartElement = document.querySelector('#employment-status-donut');
+        if (employmentChartElement) {
+            new ApexCharts(employmentChartElement, {
+                chart: { type: 'donut', height: 230, toolbar: { show: false } },
+                series: @json($sortedEmploymentStatuses->pluck('count')->values()),
+                labels: @json($sortedEmploymentStatuses->pluck('status_name')->values()),
+                colors: @json(array_slice(array_merge($statusColors, $statusColors, $statusColors), 0, $sortedEmploymentStatuses->count())),
+                legend: { show: false },
+                stroke: { width: 2, colors: ['#ffffff'] },
+                dataLabels: { enabled: false },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '66%',
+                            labels: {
+                                show: true,
+                                name: { show: true, offsetY: 18, formatter: function () { return 'Orang'; } },
+                                value: { show: false },
+                                total: { show: true, label: 'Orang', formatter: function () { return '{{ $superAdminStats['total_teachers'] }}'; } }
+                            }
+                        }
+                    }
+                }
+            }).render();
+        }
+        @endif
 
 
     });
