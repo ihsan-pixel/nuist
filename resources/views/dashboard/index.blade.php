@@ -599,7 +599,7 @@
     @endif
 
     {{-- Super Admin Statistics Section --}}
-    @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
+    @if(false && in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
     <div class="col-xl-8 col-12 dashboard-page__main-column dashboard-super-admin-stats">
         <!-- Statistics Overview Header -->
         <div class="card border-0 shadow-sm mb-4 dashboard-section-heading">
