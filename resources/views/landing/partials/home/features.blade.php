@@ -5,7 +5,21 @@
     </p>
 
     <div class="landing-home-features__grid animate fade-up delay-3">
-        @foreach(collect($landing->features ?? [])->filter(fn ($feature) => in_array($feature['status'] ?? null, ['active', 'coming_soon'], true)) as $index => $feature)
+        @php
+            $homeFeatures = collect($landing->features ?? [])
+                ->reject(fn ($feature) => strcasecmp(trim((string) ($feature['name'] ?? '')), 'MKKSM') === 0)
+                ->map(function ($feature) {
+                    if (strcasecmp(trim((string) ($feature['name'] ?? '')), 'DPS') === 0) {
+                        $feature['content'] = 'Pengelolaan data dan anggota Dana Pendidikan Sekolah untuk mendukung administrasi program DPS.';
+                        $feature['status'] = 'active';
+                    }
+
+                    return $feature;
+                })
+                ->filter(fn ($feature) => in_array($feature['status'] ?? null, ['active', 'coming_soon'], true));
+        @endphp
+
+        @foreach($homeFeatures as $index => $feature)
             <article class="landing-home-feature-card animate fade-up delay-{{ ($index % 3) + 1 }} {{ ($feature['status'] ?? null) === 'coming_soon' ? 'is-coming-soon' : 'is-active' }}">
                 <h3>{{ $feature['name'] }}</h3>
                 <p>{{ $feature['content'] }}</p>

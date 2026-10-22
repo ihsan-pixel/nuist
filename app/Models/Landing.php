@@ -107,8 +107,8 @@ class Landing extends Model
                 ],
                 [
                     'name' => 'DPS',
-                    'content' => 'Dana Pendidikan Sekolah - Sistem pengelolaan dan transparansi dana pendidikan dari berbagai sumber untuk setiap sekolah.',
-                    'status' => 'coming_soon'
+                    'content' => 'Pengelolaan data dan anggota Dana Pendidikan Sekolah untuk mendukung administrasi program DPS.',
+                    'status' => 'active'
                 ]
             ],
         ]);
