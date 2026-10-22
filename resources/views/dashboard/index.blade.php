@@ -913,6 +913,26 @@
                 </div>
             </div>
         </div>
+
+        <div class="card border-0 shadow-sm dashboard-super-attendance" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="card-title mb-1 text-dark"><i class="mdi mdi-calendar-check text-success me-2"></i>Grafik Presensi</h5>
+                        <p class="text-muted mb-0 small">Ringkasan presensi</p>
+                    </div>
+                    <span class="badge bg-light text-muted">Bulan ini</span>
+                </div>
+                <div class="dashboard-attendance-rings">
+                    @foreach([['label' => 'Hadir', 'value' => round($attendanceData['kehadiran'] ?? 0), 'color' => '#20a464'], ['label' => 'Izin / Sakit', 'value' => round($attendanceData['izin_sakit'] ?? 0), 'color' => '#f4b52b'], ['label' => 'Tidak Hadir', 'value' => round($attendanceData['alpha'] ?? 0), 'color' => '#e66a6a']] as $attendance)
+                    <div class="text-center">
+                        <div class="dashboard-attendance-ring" style="--ring-color: {{ $attendance['color'] }}; --ring-value: {{ $attendance['value'] }}%;"><span>{{ $attendance['value'] }}%</span></div>
+                        <small class="text-muted fw-semibold">{{ $attendance['label'] }}</small>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 
@@ -1131,6 +1151,11 @@
 .dashboard-status-summary,.dashboard-super-status-summary{grid-column:2;grid-row:auto}
 .dashboard-detail-table,.dashboard-super-detail-table{grid-column:1;grid-row:auto}
 .dashboard-attendance-card{grid-column:2}
+.dashboard-super-attendance{grid-column:2;grid-row:auto}
+.dashboard-attendance-rings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
+.dashboard-attendance-ring{width:76px;height:76px;margin:0 auto 8px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(var(--ring-color) var(--ring-value),#edf1f2 0);position:relative;font-weight:700;color:var(--nuist-ink)}
+.dashboard-attendance-ring:after{content:'';position:absolute;inset:8px;border-radius:50%;background:#fff}
+.dashboard-attendance-ring span{position:relative;z-index:1}
 .dashboard-page .dashboard-status-card{box-shadow:none!important;background:#f8fafb!important}
 .dashboard-page .dashboard-status-summary .row,.dashboard-page .dashboard-super-status-summary .row{gap:10px}
 .dashboard-page .dashboard-status-summary .row>[class*=col-],.dashboard-page .dashboard-super-status-summary .row>[class*=col-]{width:100%;flex:0 0 100%}
@@ -1148,7 +1173,7 @@
 .dashboard-page .hover-lift{transition:transform .18s ease,box-shadow .18s ease}
 .dashboard-page .hover-lift:hover{transform:translateY(-2px);box-shadow:0 8px 24px #193b3415!important}
 @media(max-width:1199.98px){.dashboard-page__main-column{grid-template-columns:minmax(0,1fr) minmax(260px,.85fr)}.dashboard-admin-primary-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-location-card{grid-template-columns:1fr 1fr}.dashboard-page__main-column{grid-template-columns:1fr}.dashboard-section-heading,.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row,.dashboard-status-summary,.dashboard-super-status-summary,.dashboard-detail-table,.dashboard-super-detail-table,.dashboard-attendance-card{grid-column:1;grid-row:auto}.dashboard-super-admin-stats>.row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-location-card{grid-template-columns:1fr 1fr}.dashboard-page__main-column{grid-template-columns:1fr}.dashboard-section-heading,.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row,.dashboard-status-summary,.dashboard-super-status-summary,.dashboard-detail-table,.dashboard-super-detail-table,.dashboard-attendance-card,.dashboard-super-attendance{grid-column:1;grid-row:auto}.dashboard-super-admin-stats>.row{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:575.98px){.dashboard-page{padding:10px;margin:0 -10px 16px;border-radius:0}.dashboard-page>.row,.dashboard-page__profile-column,.dashboard-page__main-column{gap:12px}.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid var(--nuist-border)}.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .card-body{padding:15px!important}.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{font-size:19px!important}.dashboard-page .dashboard-stat-card .card-body{padding:13px!important}.dashboard-page .table{min-width:460px}}
 </style>
 
