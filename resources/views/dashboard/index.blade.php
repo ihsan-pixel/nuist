@@ -596,7 +596,7 @@
 
     {{-- Super Admin Statistics Section --}}
     @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
-    <div class="col-xl-8 col-12 dashboard-page__main-column">
+    <div class="col-xl-8 col-12 dashboard-page__main-column dashboard-super-admin-stats">
         <!-- Statistics Overview Header -->
         <div class="card border-0 shadow-sm mb-4 dashboard-section-heading">
             <div class="card-body p-4">
@@ -1170,6 +1170,20 @@
     min-width: 0;
 }
 
+.dashboard-super-admin-stats > .row {
+    width: 100%;
+    margin-inline: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.dashboard-super-admin-stats > .row > [class*="col-"] {
+    width: auto;
+    max-width: none;
+    padding-inline: 0;
+}
+
 .dashboard-admin-stats {
     display: grid;
     grid-template-columns: minmax(0, 1.65fr) minmax(20rem, 0.85fr);
@@ -1452,6 +1466,10 @@
     .dashboard-admin-stats > .dashboard-detail-table,
     .dashboard-admin-stats > .dashboard-attendance-card {
         width: 100%;
+    }
+
+    .dashboard-super-admin-stats > .row {
+        display: flex;
     }
 
     .dashboard-page__profile-column {
