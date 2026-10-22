@@ -84,6 +84,7 @@
                             @endif
                         </div>
             </div>
+            </div>
 
             {{-- Map Display --}}
             <div class="dashboard-location-map">
@@ -139,6 +140,7 @@
                             @endif
                         </div>
             </div>
+            </div>
         </div>
         @endif
 
@@ -178,6 +180,7 @@
                             </a>
                             @endif
                         </div>
+            </div>
             </div>
 
             {{-- Map Display --}}
@@ -233,6 +236,7 @@
                                 </div>
                             @endif
                         </div>
+            </div>
             </div>
         </div>
         @endif
