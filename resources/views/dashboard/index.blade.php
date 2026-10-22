@@ -1260,7 +1260,8 @@
 
 .dashboard-location-card {
     display: grid;
-    grid-template-columns: minmax(15rem, 0.9fr) minmax(20rem, 1.1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
     min-height: 18rem;
     overflow: hidden;
 }
@@ -1268,6 +1269,13 @@
 .dashboard-location-info,
 .dashboard-location-map {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-location-info .card-body,
+.dashboard-location-map .card-body {
+    flex: 1 1 auto;
 }
 
 .dashboard-location-map {
@@ -1281,6 +1289,10 @@
 }
 
 .dashboard-location-map #foundation-map-container {
+    height: 13rem !important;
+}
+
+.dashboard-location-map #map-container {
     height: 13rem !important;
 }
 
