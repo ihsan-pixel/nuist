@@ -7,37 +7,36 @@
     <?php $__env->slot('title'); ?> Dashboard <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
-<div class="dashboard-page">
-<div class="row g-4">
-    <div class="col-lg-4 col-12 dashboard-page__profile-column">
+<div class="row">
+    <div class="col-lg-4 col-12">
         <!-- Welcome Card - Mobile Optimized -->
-        <div class="card border-0 shadow-sm hover-lift overflow-hidden mb-4 dashboard-welcome-card">
-            <div class="dashboard-welcome-card__banner">
+        <div class="card border-0 shadow-sm hover-lift overflow-hidden mb-3" style="border-radius: 15px;">
+            <div style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);">
                 <div class="row align-items-center">
                     <div class="col-8">
                         <div class="text-white p-3">
-                            <p class="dashboard-eyebrow mb-1">Sistem Informasi Digital</p>
-                            <h5 class="text-white mb-0">Selamat datang, <?php echo e(Str::before(trim(Auth::user()->name), ' ')); ?>!</h5>
+                            <h5 class="text-white">Selamat Datang!</h5>
+                            <p class="mb-0 text-white-50">Aplikasi NUIST</p>
                         </div>
                     </div>
                     <div class="col-4 text-end">
-                        <span class="dashboard-welcome-card__mark" aria-hidden="true"><i class="mdi mdi-view-dashboard-outline"></i></span>
+                        
                     </div>
                 </div>
             </div>
             <div class="card-body pt-0">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <div class="avatar-lg profile-user-wid mb-3 mb-md-0 dashboard-avatar">
-                            <img src="<?php echo e(Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg')); ?>" alt="Foto profil <?php echo e(Auth::user()->name); ?>" class="img-thumbnail rounded-circle">
+                        <div class="avatar-lg profile-user-wid mb-3 mb-md-0">
+                            <img src="<?php echo e(isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg')); ?>" alt="" class="img-thumbnail rounded-circle">
                         </div>
                     </div>
                     <div class="col">
                         <h5 class="font-size-16 mb-1"><?php echo e(Str::ucfirst(Auth::user()->name)); ?></h5>
-                        <p class="text-muted mb-2">NUIST ID: <?php echo e(Auth::user()->nuist_id ?? '-'); ?></p>
+                        <p class="text-muted mb-2">Nuist ID : <?php echo e(Auth::user()->nuist_id ?? '-'); ?></p>
                         <div class="d-flex flex-wrap gap-2">
-                            <small class="badge bg-primary-subtle text-primary"><?php echo e(Auth::user()->statusKepegawaian?->name ?? 'Pengguna NUIST'); ?></small>
-                            <small class="badge bg-info-subtle text-info"><?php echo e(Auth::user()->ketugasan ?? Str::headline(Auth::user()->role)); ?></small>
+                            <small class="badge bg-primary-subtle text-primary"><?php echo e(Auth::user()->statusKepegawaian ? Auth::user()->statusKepegawaian->name : '-'); ?></small>
+                            <small class="badge bg-info-subtle text-info"><?php echo e(Auth::user()->ketugasan ?? '-'); ?></small>
                         </div>
                     </div>
                 </div>
@@ -46,10 +45,11 @@
 
         
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role === 'admin' && isset($madrasahData)): ?>
-        <div class="dashboard-location-card card border-0 shadow-sm hover-lift">
+        <div class="row">
             
-            <div class="dashboard-location-info">
-                    <div class="card-body">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -80,12 +80,14 @@
                             </a>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
-            </div>
+                    </div>
+                </div>
             </div>
 
             
-            <div class="dashboard-location-map">
-                    <div class="card-body">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -129,17 +131,19 @@
                                 </div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
-            </div>
+                    </div>
+                </div>
             </div>
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($foundationData)): ?>
-        <div class="dashboard-location-card card border-0 shadow-sm hover-lift">
+        <div class="row">
             
-            <div class="dashboard-location-info">
-                    <div class="card-body">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -170,12 +174,14 @@
                             </a>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
-            </div>
+                    </div>
+                </div>
             </div>
 
             
-            <div class="dashboard-location-map">
-                    <div class="card-body">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
@@ -226,7 +232,8 @@
                                 </div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
-            </div>
+                    </div>
+                </div>
             </div>
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -248,7 +255,7 @@
 
                 <!-- Chart Section -->
                 <div class="mb-3">
-                    <div class="nuist-attendance-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts" style="height: 200px;"></div>
+                    <div id="donut-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts" style="height: 200px;"></div>
                 </div>
 
                 <!-- Stats Cards -->
@@ -311,109 +318,15 @@
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
-    <?php if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats)): ?>
-    <div class="col-12 dashboard-teacher-status-card">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div>
-                        <h5 class="card-title mb-1 text-dark"><i class="mdi mdi-account-group text-success me-2"></i>Statistik Tenaga Pendidik</h5>
-                        <p class="text-muted mb-0 small">Pengelompokan berdasarkan status kepegawaian</p>
-                    </div>
-                    <span class="badge bg-success-subtle text-success"><?php echo e($superAdminStats['total_teachers']); ?> Orang</span>
-                </div>
-                <div class="dashboard-teacher-summary mb-4">
-                    <div class="dashboard-teacher-summary-item">
-                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-school"></i></div></div>
-                        <div><small>Total Sekolah</small><strong><?php echo e($superAdminStats['total_madrasah']); ?></strong></div>
-                    </div>
-                    <div class="dashboard-teacher-summary-item">
-                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-account-group"></i></div></div>
-                        <div><small>Total Tenaga Pendidik</small><strong><?php echo e($superAdminStats['total_teachers']); ?></strong></div>
-                    </div>
-                    <div class="dashboard-teacher-summary-item">
-                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-account-tie"></i></div></div>
-                        <div><small>Total Kepala Sekolah</small><strong><?php echo e($superAdminStats['total_school_principals']); ?></strong></div>
-                    </div>
-                    <div class="dashboard-teacher-summary-item">
-                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-account-cog"></i></div></div>
-                        <div><small>Total Admin Sekolah</small><strong><?php echo e($superAdminStats['total_admin']); ?></strong></div>
-                    </div>
-                </div>
-                <div class="table-responsive dashboard-teacher-status-table">
-                    <?php
-                        $statusColors = ['#20b96b', '#4596ee', '#ffb62e', '#9362e7', '#8798a6'];
-                        $sortedEmploymentStatuses = $superAdminStats['total_by_status']->sortBy(function ($status) {
-                            return strtolower(trim($status['status_name'])) === 'tidak diketahui' ? 1 : 0;
-                        })->values();
-                        $employmentChartCounts = $sortedEmploymentStatuses->pluck('count')->values()->all();
-                        $employmentChartLabels = $sortedEmploymentStatuses->pluck('status_name')->values()->all();
-                        $employmentChartColors = $sortedEmploymentStatuses->map(function ($status, $index) use ($statusColors) {
-                            return $statusColors[$index % count($statusColors)];
-                        })->values()->all();
-                        $employmentChartTotal = $superAdminStats['total_teachers'];
-                    ?>
-                    <table class="table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">No</th>
-                                <th>Status Kepegawaian</th>
-                                <th class="text-center">Jumlah</th>
-                                <th>Persentase</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $sortedEmploymentStatuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                            <?php ($percentage = $superAdminStats['total_teachers'] > 0 ? round($status['count'] / $superAdminStats['total_teachers'] * 100, 1) : 0); ?>
-                            <tr>
-                                <td class="text-center"><?php echo e($loop->iteration); ?></td>
-                                <td class="fw-medium"><?php echo e($status['status_name']); ?></td>
-                                <td class="text-center"><?php echo e($status['count']); ?></td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="progress flex-grow-1"><div class="progress-bar" style="width:<?php echo e($percentage); ?>%;background:<?php echo e($statusColors[$loop->index % count($statusColors)]); ?>"></div></div>
-                                        <span class="dashboard-status-percentage"><?php echo e(number_format($percentage, 1, ',', '.')); ?>%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                            <tr><td colspan="4" class="text-center text-muted py-4">Belum ada data tenaga pendidik.</td></tr>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 dashboard-employment-donut-card">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-4">
-                <h5 class="card-title mb-4 text-dark"><i class="mdi mdi-chart-donut text-success me-2"></i>Ringkasan Status Kepegawaian</h5>
-                <div id="employment-status-donut" class="dashboard-employment-donut"></div>
-                <div class="dashboard-employment-legend">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $sortedEmploymentStatuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <?php ($statusPercentage = $superAdminStats['total_teachers'] > 0 ? round($status['count'] / $superAdminStats['total_teachers'] * 100, 1) : 0); ?>
-                    <div class="dashboard-employment-legend-item">
-                        <span class="dashboard-employment-dot" style="background:<?php echo e($statusColors[$loop->index % count($statusColors)]); ?>"></span>
-                        <span class="dashboard-employment-name"><?php echo e($status['status_name']); ?></span>
-                        <strong><?php echo e($status['count']); ?> (<?php echo e(number_format($statusPercentage, 1, ',', '.')); ?>%)</strong>
-                    </div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
     
     <?php if(Auth::user()->role === 'admin' && isset($adminStats)): ?>
-    <div class="col-xl-8 col-12 dashboard-page__main-column dashboard-admin-stats">
+    <div class="col-xl-8 col-12">
         <!-- Statistics Overview Header -->
-        <div class="card border-0 shadow-sm mb-4 dashboard-section-heading">
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="text-white mb-1">Statistik Admin Sekolah</h4>
+                        <h4 class="text-white mb-1">Dashboard Admin</h4>
                         <p class="text-white-50 mb-0">Ringkasan Sistem Informasi NUIST</p>
                     </div>
                     <div class="avatar-lg">
@@ -426,10 +339,10 @@
         </div>
 
         <!-- Primary Statistics Row -->
-        <div class="row g-3 mb-4 dashboard-admin-primary-stats">
+        <div class="row g-3 mb-4">
             
-            <div class="col-sm-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--teachers">
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -452,8 +365,8 @@
             </div>
 
             
-            <div class="col-sm-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--principal">
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -476,8 +389,8 @@
             </div>
 
             
-            <div class="col-sm-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--school">
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -493,29 +406,10 @@
                     </div>
                 </div>
             </div>
-
-            
-            <div class="col-sm-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--admins">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <h3 class="text-white mb-1"><?php echo e($adminStats['total_by_status']->count()); ?></h3>
-                                <p class="text-white-75 mb-0 fs-6">Status Kepegawaian</p>
-                            </div>
-                            <div class="avatar-md">
-                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                                    <i class="mdi mdi-account-group fs-3"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         
-        <div class="card border-0 shadow-sm dashboard-status-summary" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -532,7 +426,7 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($adminStats['total_by_status']->count() > 0): ?>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $adminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <div class="col-lg-6 col-xl-4">
-                            <div class="card border-0 shadow-sm h-100 hover-lift dashboard-status-card">
+                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                                 <div class="card-body p-3 text-center">
                                     <div class="avatar-md mx-auto mb-3">
                                         <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
@@ -574,7 +468,7 @@
         </div>
 
         
-        <div class="card border-0 shadow-sm dashboard-detail-table" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -666,27 +560,14 @@
                 </div>
             </div>
         </div>
-
-        <div class="card border-0 shadow-sm dashboard-attendance-card" style="border-radius: 15px;">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <h5 class="card-title mb-1 text-dark"><i class="mdi mdi-calendar-check text-success me-2"></i>Grafik Presensi</h5>
-                        <p class="text-muted mb-0 small">Ringkasan presensi bulan ini</p>
-                    </div>
-                    <span class="badge bg-success-subtle text-success">Bulan ini</span>
-                </div>
-                <div class="nuist-attendance-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts" style="height: 220px;"></div>
-            </div>
-        </div>
     </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(false && in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats)): ?>
-    <div class="col-xl-8 col-12 dashboard-page__main-column dashboard-super-admin-stats">
+    <?php if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats)): ?>
+    <div class="col-xl-8 col-12">
         <!-- Statistics Overview Header -->
-        <div class="card border-0 shadow-sm mb-4 dashboard-section-heading">
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -711,10 +592,10 @@
         </div>
 
         <!-- Primary Statistics Row -->
-        <div class="row g-3 mb-4 dashboard-super-primary-stats">
+        <div class="row g-3 mb-4">
             
-            <div class="col-sm-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--schools">
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -737,8 +618,8 @@
             </div>
 
             
-            <div class="col-sm-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--teachers">
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -761,8 +642,8 @@
             </div>
 
             
-            <div class="col-sm-6 col-xl-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--admins">
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -788,8 +669,8 @@
         <!-- Secondary Statistics Row -->
         <div class="row g-3 mb-4">
             
-            <div class="col-sm-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--admins">
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -807,8 +688,8 @@
             </div>
 
             
-            <div class="col-sm-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--leaders">
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -826,8 +707,8 @@
             </div>
 
             
-            <div class="col-sm-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--principals">
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 12px;">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -846,7 +727,7 @@
         </div>
 
         
-        <div class="card border-0 shadow-sm dashboard-super-status-summary" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -863,7 +744,7 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($superAdminStats['total_by_status']->count() > 0): ?>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $superAdminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <div class="col-lg-6 col-xl-4">
-                            <div class="card border-0 shadow-sm h-100 hover-lift dashboard-status-card">
+                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                                 <div class="card-body p-3 text-center">
                                     <div class="avatar-md mx-auto mb-3">
                                         <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
@@ -905,7 +786,7 @@
         </div>
 
         
-        <div class="card border-0 shadow-sm dashboard-super-detail-table" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -994,26 +875,6 @@
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card border-0 shadow-sm dashboard-super-attendance" style="border-radius: 15px;">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <h5 class="card-title mb-1 text-dark"><i class="mdi mdi-calendar-check text-success me-2"></i>Grafik Presensi</h5>
-                        <p class="text-muted mb-0 small">Ringkasan presensi</p>
-                    </div>
-                    <span class="badge bg-light text-muted">Bulan ini</span>
-                </div>
-                <div class="dashboard-attendance-rings">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [['label' => 'Hadir', 'value' => round($attendanceData['kehadiran'] ?? 0), 'color' => '#20a464'], ['label' => 'Izin / Sakit', 'value' => round($attendanceData['izin_sakit'] ?? 0), 'color' => '#f4b52b'], ['label' => 'Tidak Hadir', 'value' => round($attendanceData['alpha'] ?? 0), 'color' => '#e66a6a']]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attendance): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <div class="text-center">
-                        <div class="dashboard-attendance-ring" style="--ring-color: <?php echo e($attendance['color']); ?>; --ring-value: <?php echo e($attendance['value']); ?>%;"><span><?php echo e($attendance['value']); ?>%</span></div>
-                        <small class="text-muted fw-semibold"><?php echo e($attendance['label']); ?></small>
-                    </div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -1166,7 +1027,6 @@
     </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
-</div>
 
 
 
@@ -1186,97 +1046,42 @@
 
 
 <style>
-/* NUIST Dashboard — desktop-first, responsive, scoped to this page */
-.dashboard-page{--nuist-green:#08745a;--nuist-dark:#064b3c;--nuist-ink:#192d37;--nuist-muted:#6c7c86;--nuist-border:#e6edf0;background:#f5f8fa;padding:18px;border-radius:16px;margin-bottom:24px}
-.dashboard-page,.dashboard-page *{box-sizing:border-box}
-.dashboard-page>.row{display:flex;flex-wrap:wrap;gap:18px;margin:0}
-.dashboard-page>.row>.dashboard-page__profile-column,.dashboard-page>.row>.dashboard-page__main-column{padding:0;max-width:none;width:100%;flex:0 0 100%;min-width:0}
-.dashboard-page__profile-column{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;align-items:stretch}
-.dashboard-page__profile-column>.card{margin:0!important;min-width:0;height:100%}
-.dashboard-page>.row>.dashboard-teacher-status-card{grid-column:1;min-width:0;width:calc(75% - 5px);max-width:calc(75% - 5px);flex:0 0 calc(75% - 5px);padding:0;margin:0;}
-.dashboard-page>.row>.dashboard-employment-donut-card{min-width:0;width:calc(25% - 13px);max-width:calc(25% - 13px);flex:0 0 calc(25% - 13px);padding:0;margin:0;}
-.dashboard-employment-donut{height:230px}
-.dashboard-employment-legend{display:grid;gap:9px;margin-top:8px}
-.dashboard-employment-legend-item{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12px;color:var(--nuist-muted)}
-.dashboard-employment-dot{width:10px;height:10px;border-radius:50%}
-.dashboard-employment-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dashboard-employment-legend-item strong{color:var(--nuist-ink);font-size:12px;white-space:nowrap}
-.dashboard-teacher-status-card>.card{width:100%;}
-.dashboard-teacher-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.dashboard-teacher-summary-item{display:flex;align-items:center;gap:12px;min-width:0;padding:14px;border:1px solid var(--nuist-border);border-radius:10px;background:#fff}
-.dashboard-teacher-summary-item .avatar-title{background:#e6f5ee;color:var(--nuist-green)}
-.dashboard-teacher-summary-item small{display:block;color:var(--nuist-muted);font-size:12px;line-height:1.3}
-.dashboard-teacher-summary-item strong{display:block;margin-top:3px;color:var(--nuist-ink);font-size:22px;line-height:1.2}
-.dashboard-teacher-status-table{border:1px solid var(--nuist-border);border-radius:10px;overflow:hidden}
-.dashboard-teacher-status-table .table{min-width:560px}
-.dashboard-teacher-status-table thead th{padding:14px 18px;background:#f2f6f8;color:var(--nuist-ink);font-weight:700;border-bottom:1px solid var(--nuist-border)}
-.dashboard-teacher-status-table tbody td{padding:13px 18px;border-bottom:1px solid var(--nuist-border);color:#465a64}
-.dashboard-teacher-status-table tbody tr:last-child td{border-bottom:0}
-.dashboard-teacher-status-table .progress{height:14px;max-width:230px;background:#e4eaed;border-radius:999px}
-.dashboard-teacher-status-table .progress-bar{border-radius:999px}
-.dashboard-status-percentage{width:58px;color:#465a64;font-weight:600}
-.dashboard-page .card{border:1px solid var(--nuist-border)!important;border-radius:14px!important;box-shadow:0 3px 14px rgba(25,45,55,.045)!important;background:#fff;overflow:hidden}
-.dashboard-page .card-body{padding:20px!important}
-.dashboard-page h3,.dashboard-page h4,.dashboard-page h5,.dashboard-page h6{color:var(--nuist-ink);overflow-wrap:anywhere}
-.dashboard-page .text-muted{color:var(--nuist-muted)!important}
-.dashboard-welcome-card__banner{background:linear-gradient(110deg,#08674e,#15946b);min-height:112px;position:relative}
-.dashboard-welcome-card__banner .p-3{padding:22px!important}
-.dashboard-welcome-card__banner h5{color:#fff!important;font-size:20px}
-.dashboard-eyebrow{font-size:12px;letter-spacing:.06em;opacity:.8;text-transform:uppercase}
-.dashboard-welcome-card__mark{font-size:48px;color:rgba(255,255,255,.22);margin-right:20px}
-.dashboard-avatar img{width:76px;height:76px;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 15px #0002}
-.dashboard-welcome-card .profile-user-wid,
-.dashboard-welcome-card .dashboard-avatar{position:static!important;top:auto!important;left:auto!important;margin:0!important;flex:0 0 96px;width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:50%;box-shadow:0 3px 12px rgba(25,45,55,.12)}
-.dashboard-welcome-card .dashboard-avatar img{width:82px;height:82px;border:0;box-shadow:none}
-.dashboard-welcome-card .card-body{padding-top:20px!important}
-.dashboard-location-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-.dashboard-location-card .card-body{height:100%}
-.dashboard-location-info{border-right:1px solid var(--nuist-border)}
-.dashboard-location-map #map-container,.dashboard-location-map #foundation-map-container{height:200px!important;box-shadow:none!important;border-radius:10px!important}
-.dashboard-page__main-column{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.9fr);gap:18px;align-items:start}
-.dashboard-page__main-column>.card,.dashboard-page__main-column>.row{margin:0!important;min-width:0}
-.dashboard-section-heading{grid-column:1/-1;background:#fff!important}
-.dashboard-section-heading .card-body{padding:18px 22px!important}
-.dashboard-section-heading h4{color:var(--nuist-ink)!important;font-size:19px;margin-bottom:4px!important}
-.dashboard-section-heading p{color:var(--nuist-muted)!important}
-.dashboard-section-heading .avatar-lg{display:none}
-.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-column:1/-1;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0!important}
-.dashboard-super-admin-stats>.row{grid-template-columns:repeat(3,minmax(0,1fr))}
-.dashboard-admin-primary-stats>[class*=col-],.dashboard-super-admin-stats>.row>[class*=col-]{width:100%;max-width:none;min-width:0;padding:0}
-.dashboard-page .dashboard-stat-card{background:#fff!important;min-height:122px}
-.dashboard-page .dashboard-stat-card .card-body{padding:18px!important}
-.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{color:var(--nuist-ink)!important;font-size:24px!important;font-weight:700;line-height:1.25}
-.dashboard-page .dashboard-stat-card p{color:var(--nuist-muted)!important;font-size:13px!important}
-.dashboard-page .dashboard-stat-card .avatar-title{background:#e6f5ee!important;color:var(--nuist-green)!important}
-.dashboard-page .dashboard-stat-card .progress{display:none}
-.dashboard-status-summary,.dashboard-super-status-summary{grid-column:2;grid-row:auto}
-.dashboard-detail-table,.dashboard-super-detail-table{grid-column:1;grid-row:auto}
-.dashboard-attendance-card{grid-column:2}
-.dashboard-super-attendance{grid-column:2;grid-row:auto}
-.dashboard-attendance-rings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
-.dashboard-attendance-ring{width:76px;height:76px;margin:0 auto 8px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(var(--ring-color) var(--ring-value),#edf1f2 0);position:relative;font-weight:700;color:var(--nuist-ink)}
-.dashboard-attendance-ring:after{content:'';position:absolute;inset:8px;border-radius:50%;background:#fff}
-.dashboard-attendance-ring span{position:relative;z-index:1}
-.dashboard-page .dashboard-status-card{box-shadow:none!important;background:#f8fafb!important}
-.dashboard-page .dashboard-status-summary .row,.dashboard-page .dashboard-super-status-summary .row{gap:10px}
-.dashboard-page .dashboard-status-summary .row>[class*=col-],.dashboard-page .dashboard-super-status-summary .row>[class*=col-]{width:100%;flex:0 0 100%}
-.dashboard-page .dashboard-status-card .card-body{display:grid;grid-template-columns:40px 1fr auto;align-items:center;text-align:left!important;gap:8px;padding:10px 12px!important}
-.dashboard-page .dashboard-status-card .avatar-md{grid-column:1;grid-row:1/3;margin:0!important}
-.dashboard-page .dashboard-status-card h5{grid-column:3;grid-row:1/3;margin:0!important}
-.dashboard-page .dashboard-status-card p{grid-column:2;grid-row:1/3;margin:0!important}
-.dashboard-page .dashboard-status-card .progress,.dashboard-page .dashboard-status-card small{display:none!important}
-.dashboard-page .table{font-size:13px}
-.dashboard-page .table td,.dashboard-page .table th{padding-top:12px!important;padding-bottom:12px!important}
-.dashboard-page .progress{background:#e9eff1}
-.dashboard-page .progress-bar{background:var(--nuist-green)!important}
-.dashboard-page .btn-primary,.dashboard-page .btn-success{background:var(--nuist-green);border-color:var(--nuist-green)}
-.dashboard-page .badge{font-weight:500}
-.dashboard-page .hover-lift{transition:transform .18s ease,box-shadow .18s ease}
-.dashboard-page .hover-lift:hover{transform:translateY(-2px);box-shadow:0 8px 24px #193b3415!important}
-@media(max-width:1199.98px){.dashboard-page__main-column{grid-template-columns:minmax(0,1fr) minmax(260px,.85fr)}.dashboard-admin-primary-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-teacher-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-location-card{grid-template-columns:1fr 1fr}.dashboard-page__main-column{grid-template-columns:1fr}.dashboard-section-heading,.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row,.dashboard-status-summary,.dashboard-super-status-summary,.dashboard-detail-table,.dashboard-super-detail-table,.dashboard-attendance-card,.dashboard-super-attendance{grid-column:1;grid-row:auto}.dashboard-super-admin-stats>.row{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:991.98px){.dashboard-page>.row>.dashboard-teacher-status-card,.dashboard-page>.row>.dashboard-employment-donut-card{width:100%;max-width:none;flex-basis:100%}}
-@media(max-width:575.98px){.dashboard-page>.row>.dashboard-teacher-status-card{width:100%;max-width:none;flex-basis:100%;margin-left:0}.dashboard-teacher-summary{grid-template-columns:1fr}.dashboard-page{padding:10px;margin:0 -10px 16px;border-radius:0}.dashboard-page>.row,.dashboard-page__profile-column,.dashboard-page__main-column{gap:12px}.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid var(--nuist-border)}.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .card-body{padding:15px!important}.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{font-size:19px!important}.dashboard-page .dashboard-stat-card .card-body{padding:13px!important}.dashboard-page .table{min-width:460px}}
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-pink {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-blue {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-orange {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.gradient-mint {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.gradient-peach {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
 </style>
 
 <script>
@@ -1325,37 +1130,15 @@
             }
         };
 
-        document.querySelectorAll(".nuist-attendance-chart").forEach(function (chartElement) {
-            new ApexCharts(chartElement, options).render();
-        });
+        var chartElement = document.querySelector("#donut-chart");
+        if (chartElement) {
+            var chart = new ApexCharts(
+                chartElement,
+                options
+            );
 
-        <?php if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats)): ?>
-        var employmentChartElement = document.querySelector('#employment-status-donut');
-        if (employmentChartElement) {
-            new ApexCharts(employmentChartElement, {
-                chart: { type: 'donut', height: 230, toolbar: { show: false } },
-                series: <?php echo json_encode($employmentChartCounts, 15, 512) ?>,
-                labels: <?php echo json_encode($employmentChartLabels, 15, 512) ?>,
-                colors: <?php echo json_encode($employmentChartColors, 15, 512) ?>,
-                legend: { show: false },
-                stroke: { width: 2, colors: ['#ffffff'] },
-                dataLabels: { enabled: false },
-                plotOptions: {
-                    pie: {
-                        donut: {
-                            size: '66%',
-                            labels: {
-                                show: true,
-                                name: { show: true, offsetY: 18, formatter: function () { return 'Orang'; } },
-                                value: { show: false },
-                                total: { show: true, label: 'Orang', formatter: function () { return <?php echo json_encode($employmentChartTotal, 15, 512) ?>; } }
-                            }
-                        }
-                    }
-                }
-            }).render();
+            chart.render();
         }
-        <?php endif; ?>
 
 
     });

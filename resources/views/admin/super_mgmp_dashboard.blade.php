@@ -493,6 +493,7 @@
                             <th>No</th>
                             <th>Nama</th>
                             <th>Email</th>
+                            <th>Nomor HP</th>
                             <th>Grup MGMP</th>
                             <th>Sekolah</th>
                         </tr>
@@ -503,11 +504,12 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $m->name }}</td>
                             <td>{{ $m->email }}</td>
+                            <td>{{ $m->user?->no_hp ?: '-' }}</td>
                             <td>{{ $m->mgmpGroup->name ?? '-' }}</td>
                             <td>{{ $m->sekolah ?? '-' }}</td>
                         </tr>
                         @empty
-                        <tr><td colspan="5" class="text-center">Belum ada anggota MGMP.</td></tr>
+                        <tr><td colspan="6" class="text-center">Belum ada anggota MGMP.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
