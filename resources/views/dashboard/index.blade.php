@@ -356,6 +356,12 @@
                         $sortedEmploymentStatuses = $superAdminStats['total_by_status']->sortBy(function ($status) {
                             return strtolower(trim($status['status_name'])) === 'tidak diketahui' ? 1 : 0;
                         })->values();
+                        $employmentChartCounts = $sortedEmploymentStatuses->pluck('count')->values()->all();
+                        $employmentChartLabels = $sortedEmploymentStatuses->pluck('status_name')->values()->all();
+                        $employmentChartColors = $sortedEmploymentStatuses->map(function ($status, $index) use ($statusColors) {
+                            return $statusColors[$index % count($statusColors)];
+                        })->values()->all();
+                        $employmentChartTotal = $superAdminStats['total_teachers'];
                     @endphp
                     <table class="table align-middle mb-0">
                         <thead>
@@ -1343,9 +1349,9 @@
         if (employmentChartElement) {
             new ApexCharts(employmentChartElement, {
                 chart: { type: 'donut', height: 230, toolbar: { show: false } },
-                series: @json($sortedEmploymentStatuses->pluck('count')->values()),
-                labels: @json($sortedEmploymentStatuses->pluck('status_name')->values()),
-                colors: @json(array_slice(array_merge($statusColors, $statusColors, $statusColors), 0, $sortedEmploymentStatuses->count())),
+                series: @json($employmentChartCounts),
+                labels: @json($employmentChartLabels),
+                colors: @json($employmentChartColors),
                 legend: { show: false },
                 stroke: { width: 2, colors: ['#ffffff'] },
                 dataLabels: { enabled: false },
@@ -1357,7 +1363,7 @@
                                 show: true,
                                 name: { show: true, offsetY: 18, formatter: function () { return 'Orang'; } },
                                 value: { show: false },
-                                total: { show: true, label: 'Orang', formatter: function () { return '{{ $superAdminStats['total_teachers'] }}'; } }
+                                total: { show: true, label: 'Orang', formatter: function () { return @json($employmentChartTotal); } }
                             }
                         }
                     }

@@ -5,7 +5,21 @@
     </p>
 
     <div class="landing-home-features__grid animate fade-up delay-3">
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = collect($landing->features ?? [])->filter(fn ($feature) => in_array($feature['status'] ?? null, ['active', 'coming_soon'], true)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+        <?php
+            $homeFeatures = collect($landing->features ?? [])
+                ->reject(fn ($feature) => strcasecmp(trim((string) ($feature['name'] ?? '')), 'MKKSM') === 0)
+                ->map(function ($feature) {
+                    if (strcasecmp(trim((string) ($feature['name'] ?? '')), 'DPS') === 0) {
+                        $feature['content'] = 'Pengelolaan data dan anggota Dana Pendidikan Sekolah untuk mendukung administrasi program DPS.';
+                        $feature['status'] = 'active';
+                    }
+
+                    return $feature;
+                })
+                ->filter(fn ($feature) => in_array($feature['status'] ?? null, ['active', 'coming_soon'], true));
+        ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $homeFeatures; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
             <article class="landing-home-feature-card animate fade-up delay-<?php echo e(($index % 3) + 1); ?> <?php echo e(($feature['status'] ?? null) === 'coming_soon' ? 'is-coming-soon' : 'is-active'); ?>">
                 <h3><?php echo e($feature['name']); ?></h3>
                 <p><?php echo e($feature['content']); ?></p>
