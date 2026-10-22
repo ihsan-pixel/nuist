@@ -413,6 +413,23 @@
                     @endforeach
                 </div>
                 <div class="dashboard-live-updated">Diperbarui <span id="attendance-live-updated">{{ $todayAttendance['updated_at'] }}</span></div>
+                <div class="dashboard-top-schools">
+                    <h6><i class="mdi mdi-trophy-outline me-2"></i>5 Kehadiran Sekolah Tertinggi</h6>
+                    <div id="attendance-top-schools">
+                        @forelse($todayAttendance['top_schools'] as $school)
+                        <div class="dashboard-top-school-item">
+                            <span class="dashboard-top-school-rank">{{ $loop->iteration }}</span>
+                            <div class="dashboard-top-school-info">
+                                <strong>{{ $school['name'] }}</strong>
+                                <div class="progress"><div class="progress-bar" style="width:{{ $school['percentage'] }}%"></div></div>
+                            </div>
+                            <span class="dashboard-top-school-value">{{ number_format($school['percentage'], 1, ',', '.') }}%</span>
+                        </div>
+                        @empty
+                        <div class="text-muted small text-center py-3">Belum ada data kehadiran sekolah hari ini.</div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1229,6 +1246,15 @@
 .dashboard-live-attendance-item>strong{display:block;color:var(--nuist-ink);font-size:13px}
 .dashboard-live-attendance-item>small{display:block;margin-top:3px;color:var(--nuist-muted);font-size:11px}
 .dashboard-live-updated{margin-top:18px;padding-top:12px;border-top:1px solid var(--nuist-border);color:var(--nuist-muted);font-size:11px;text-align:center}
+.dashboard-top-schools{margin-top:16px;padding-top:16px;border-top:1px solid var(--nuist-border)}
+.dashboard-top-schools h6{margin-bottom:12px;font-size:13px;color:var(--nuist-ink)}
+.dashboard-top-school-item{display:grid;grid-template-columns:24px minmax(0,1fr) 48px;gap:9px;align-items:center;padding:8px 0}
+.dashboard-top-school-rank{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#e6f5ee;color:var(--nuist-green);font-size:11px;font-weight:700}
+.dashboard-top-school-info{min-width:0}
+.dashboard-top-school-info strong{display:block;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--nuist-ink);font-size:11px}
+.dashboard-top-school-info .progress{height:5px;background:#e5ecee;border-radius:999px}
+.dashboard-top-school-info .progress-bar{background:var(--nuist-green)!important;border-radius:999px}
+.dashboard-top-school-value{text-align:right;color:var(--nuist-green);font-size:11px;font-weight:700}
 .dashboard-teacher-status-card>.card{width:100%;}
 .dashboard-teacher-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .dashboard-teacher-summary-item{display:flex;align-items:center;gap:12px;min-width:0;padding:14px;border:1px solid var(--nuist-border);border-radius:10px;background:#fff}
@@ -1375,6 +1401,49 @@
             });
             document.querySelector('#attendance-live-date').textContent = data.date;
             document.querySelector('#attendance-live-updated').textContent = data.updated_at;
+            updateTopSchools(data.top_schools || []);
+        }
+
+        function updateTopSchools(schools) {
+            var container = document.querySelector('#attendance-top-schools');
+            if (!container) return;
+            container.replaceChildren();
+
+            if (!schools.length) {
+                var empty = document.createElement('div');
+                empty.className = 'text-muted small text-center py-3';
+                empty.textContent = 'Belum ada data kehadiran sekolah hari ini.';
+                container.appendChild(empty);
+                return;
+            }
+
+            schools.slice(0, 5).forEach(function (school, index) {
+                var item = document.createElement('div');
+                item.className = 'dashboard-top-school-item';
+
+                var rank = document.createElement('span');
+                rank.className = 'dashboard-top-school-rank';
+                rank.textContent = index + 1;
+
+                var info = document.createElement('div');
+                info.className = 'dashboard-top-school-info';
+                var name = document.createElement('strong');
+                name.textContent = school.name;
+                var progress = document.createElement('div');
+                progress.className = 'progress';
+                var bar = document.createElement('div');
+                bar.className = 'progress-bar';
+                bar.style.width = Number(school.percentage || 0) + '%';
+                progress.appendChild(bar);
+                info.append(name, progress);
+
+                var value = document.createElement('span');
+                value.className = 'dashboard-top-school-value';
+                value.textContent = Number(school.percentage || 0).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+
+                item.append(rank, info, value);
+                container.appendChild(item);
+            });
         }
 
         var attendanceRefreshRunning = false;

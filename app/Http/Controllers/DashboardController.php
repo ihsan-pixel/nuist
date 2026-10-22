@@ -136,6 +136,38 @@ class DashboardController extends Controller
         $permission = $latestAttendance->whereIn('status', ['izin', 'sakit'])->count();
         $absent = max($totalTeachers - $present - $permission, 0);
 
+        $teachersBySchool = User::where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id')
+            ->selectRaw('madrasah_id, COUNT(*) as total')
+            ->groupBy('madrasah_id')
+            ->pluck('total', 'madrasah_id');
+
+        $presentBySchool = \App\Models\Presensi::whereDate('tanggal', now()->toDateString())
+            ->whereIn('status', ['hadir', 'terlambat'])
+            ->whereNotNull('madrasah_id')
+            ->selectRaw('madrasah_id, COUNT(DISTINCT user_id) as total')
+            ->groupBy('madrasah_id')
+            ->pluck('total', 'madrasah_id');
+
+        $schoolNames = \App\Models\Madrasah::whereIn('id', $teachersBySchool->keys())
+            ->pluck('name', 'id');
+
+        $topSchools = $teachersBySchool
+            ->map(function ($schoolTotal, $schoolId) use ($presentBySchool, $schoolNames) {
+                $schoolPresent = (int) ($presentBySchool[$schoolId] ?? 0);
+
+                return [
+                    'id' => (int) $schoolId,
+                    'name' => $schoolNames[$schoolId] ?? 'Sekolah Tidak Diketahui',
+                    'present' => $schoolPresent,
+                    'total' => (int) $schoolTotal,
+                    'percentage' => $schoolTotal > 0 ? round($schoolPresent / $schoolTotal * 100, 1) : 0,
+                ];
+            })
+            ->sortByDesc('percentage')
+            ->take(5)
+            ->values();
+
         return [
             'date' => now()->format('d-m-Y'),
             'total' => $totalTeachers,
@@ -146,6 +178,7 @@ class DashboardController extends Controller
             'permission_percentage' => $totalTeachers > 0 ? round($permission / $totalTeachers * 100, 1) : 0,
             'absent_percentage' => $totalTeachers > 0 ? round($absent / $totalTeachers * 100, 1) : 0,
             'updated_at' => now()->format('H:i:s'),
+            'top_schools' => $topSchools,
         ];
     }
 
