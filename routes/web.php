@@ -1757,6 +1757,9 @@ Route::get('/firebase-messaging-sw.js', function () {
 
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
+Route::get('/dashboard/presensi-hari-ini', [DashboardController::class, 'todayAttendanceSummary'])
+    ->name('dashboard.attendance-today')
+    ->middleware(['auth']);
 
 // Mobile routes for all authenticated users
 Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function () {

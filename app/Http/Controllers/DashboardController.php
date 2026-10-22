@@ -89,9 +89,11 @@ class DashboardController extends Controller
         // Statistics untuk super_admin dan pengurus
         $superAdminStats = null;
         $foundationData = null;
+        $todayAttendance = null;
         if (in_array($user->role, ['super_admin', 'pengurus', 'admin_yayasan'])) {
             $superAdminStats = $this->getSuperAdminStatistics();
             $foundationData = $this->getFoundationData();
+            $todayAttendance = $this->getTodayAttendanceSummary();
         }
 
         if ($user->role === 'tenaga_pendidik') {
@@ -108,7 +110,43 @@ class DashboardController extends Controller
             'schoolPrincipal' => $schoolPrincipal,
             'superAdminStats' => $superAdminStats,
             'foundationData' => $foundationData,
+            'todayAttendance' => $todayAttendance,
         ]);
+    }
+
+    public function todayAttendanceSummary()
+    {
+        abort_unless(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']), 403);
+
+        return response()->json($this->getTodayAttendanceSummary());
+    }
+
+    private function getTodayAttendanceSummary(): array
+    {
+        $totalTeachers = User::where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id')
+            ->count();
+
+        $latestAttendance = \App\Models\Presensi::whereDate('tanggal', now()->toDateString())
+            ->orderByDesc('id')
+            ->get(['user_id', 'status'])
+            ->unique('user_id');
+
+        $present = $latestAttendance->whereIn('status', ['hadir', 'terlambat'])->count();
+        $permission = $latestAttendance->whereIn('status', ['izin', 'sakit'])->count();
+        $absent = max($totalTeachers - $present - $permission, 0);
+
+        return [
+            'date' => now()->format('d-m-Y'),
+            'total' => $totalTeachers,
+            'present' => $present,
+            'permission' => $permission,
+            'absent' => $absent,
+            'present_percentage' => $totalTeachers > 0 ? round($present / $totalTeachers * 100, 1) : 0,
+            'permission_percentage' => $totalTeachers > 0 ? round($permission / $totalTeachers * 100, 1) : 0,
+            'absent_percentage' => $totalTeachers > 0 ? round($absent / $totalTeachers * 100, 1) : 0,
+            'updated_at' => now()->format('H:i:s'),
+        ];
     }
 
     /**

@@ -356,12 +356,6 @@
                         $sortedEmploymentStatuses = $superAdminStats['total_by_status']->sortBy(function ($status) {
                             return strtolower(trim($status['status_name'])) === 'tidak diketahui' ? 1 : 0;
                         })->values();
-                        $employmentChartCounts = $sortedEmploymentStatuses->pluck('count')->values()->all();
-                        $employmentChartLabels = $sortedEmploymentStatuses->pluck('status_name')->values()->all();
-                        $employmentChartColors = $sortedEmploymentStatuses->map(function ($status, $index) use ($statusColors) {
-                            return $statusColors[$index % count($statusColors)];
-                        })->values()->all();
-                        $employmentChartTotal = $superAdminStats['total_teachers'];
                     @endphp
                     <table class="table align-middle mb-0">
                         <thead>
@@ -398,18 +392,27 @@
     <div class="col-12 dashboard-employment-donut-card">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body p-4">
-                <h5 class="card-title mb-4 text-dark"><i class="mdi mdi-chart-donut text-success me-2"></i>Ringkasan Status Kepegawaian</h5>
-                <div id="employment-status-donut" class="dashboard-employment-donut"></div>
-                <div class="dashboard-employment-legend">
-                    @foreach($sortedEmploymentStatuses as $status)
-                    @php($statusPercentage = $superAdminStats['total_teachers'] > 0 ? round($status['count'] / $superAdminStats['total_teachers'] * 100, 1) : 0)
-                    <div class="dashboard-employment-legend-item">
-                        <span class="dashboard-employment-dot" style="background:{{ $statusColors[$loop->index % count($statusColors)] }}"></span>
-                        <span class="dashboard-employment-name">{{ $status['status_name'] }}</span>
-                        <strong>{{ $status['count'] }} ({{ number_format($statusPercentage, 1, ',', '.') }}%)</strong>
+                <div class="d-flex align-items-start justify-content-between mb-4">
+                    <div>
+                        <h5 class="card-title mb-1 text-dark"><i class="mdi mdi-calendar-check text-success me-2"></i>Presensi Hari Ini</h5>
+                        <small class="text-muted" id="attendance-live-date">{{ $todayAttendance['date'] }}</small>
+                    </div>
+                    <span class="dashboard-live-indicator"><i></i> Live</span>
+                </div>
+                <div class="dashboard-live-attendance">
+                    @foreach([
+                        ['key' => 'present', 'percentage' => 'present_percentage', 'label' => 'Hadir', 'color' => '#20b96b'],
+                        ['key' => 'permission', 'percentage' => 'permission_percentage', 'label' => 'Izin', 'color' => '#ffb62e'],
+                        ['key' => 'absent', 'percentage' => 'absent_percentage', 'label' => 'Tidak Masuk', 'color' => '#ee6868']
+                    ] as $attendanceItem)
+                    <div class="dashboard-live-attendance-item" data-attendance-key="{{ $attendanceItem['key'] }}" style="--attendance-color:{{ $attendanceItem['color'] }};--attendance-value:{{ $todayAttendance[$attendanceItem['percentage']] }}%">
+                        <div class="dashboard-live-donut"><span class="attendance-percentage">{{ number_format($todayAttendance[$attendanceItem['percentage']], 1, ',', '.') }}%</span></div>
+                        <strong>{{ $attendanceItem['label'] }}</strong>
+                        <small><span class="attendance-count">{{ $todayAttendance[$attendanceItem['key']] }}</span> Orang</small>
                     </div>
                     @endforeach
                 </div>
+                <div class="dashboard-live-updated">Diperbarui <span id="attendance-live-updated">{{ $todayAttendance['updated_at'] }}</span></div>
             </div>
         </div>
     </div>
@@ -1216,6 +1219,16 @@
 .dashboard-employment-dot{width:10px;height:10px;border-radius:50%}
 .dashboard-employment-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dashboard-employment-legend-item strong{color:var(--nuist-ink);font-size:12px;white-space:nowrap}
+.dashboard-live-indicator{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#e7f7ef;color:#168653;font-size:11px;font-weight:700;text-transform:uppercase}
+.dashboard-live-indicator i{width:7px;height:7px;border-radius:50%;background:#20b96b;box-shadow:0 0 0 4px rgba(32,185,107,.14)}
+.dashboard-live-attendance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dashboard-live-attendance-item{text-align:center;min-width:0}
+.dashboard-live-donut{width:88px;height:88px;margin:0 auto 10px;display:grid;place-items:center;position:relative;border-radius:50%;background:conic-gradient(var(--attendance-color) var(--attendance-value),color-mix(in srgb,var(--attendance-color) 16%,white) 0)}
+.dashboard-live-donut:after{content:'';position:absolute;inset:10px;border-radius:50%;background:#fff}
+.dashboard-live-donut span{position:relative;z-index:1;color:var(--nuist-ink);font-size:15px;font-weight:700}
+.dashboard-live-attendance-item>strong{display:block;color:var(--nuist-ink);font-size:13px}
+.dashboard-live-attendance-item>small{display:block;margin-top:3px;color:var(--nuist-muted);font-size:11px}
+.dashboard-live-updated{margin-top:18px;padding-top:12px;border-top:1px solid var(--nuist-border);color:var(--nuist-muted);font-size:11px;text-align:center}
 .dashboard-teacher-status-card>.card{width:100%;}
 .dashboard-teacher-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .dashboard-teacher-summary-item{display:flex;align-items:center;gap:12px;min-width:0;padding:14px;border:1px solid var(--nuist-border);border-radius:10px;background:#fff}
@@ -1345,31 +1358,33 @@
         });
 
         @if(in_array(Auth::user()->role, ['super_admin', 'pengurus', 'admin_yayasan']) && isset($superAdminStats))
-        var employmentChartElement = document.querySelector('#employment-status-donut');
-        if (employmentChartElement) {
-            new ApexCharts(employmentChartElement, {
-                chart: { type: 'donut', height: 230, toolbar: { show: false } },
-                series: @json($employmentChartCounts),
-                labels: @json($employmentChartLabels),
-                colors: @json($employmentChartColors),
-                legend: { show: false },
-                stroke: { width: 2, colors: ['#ffffff'] },
-                dataLabels: { enabled: false },
-                plotOptions: {
-                    pie: {
-                        donut: {
-                            size: '66%',
-                            labels: {
-                                show: true,
-                                name: { show: true, offsetY: 18, formatter: function () { return 'Orang'; } },
-                                value: { show: false },
-                                total: { show: true, label: 'Orang', formatter: function () { return @json($employmentChartTotal); } }
-                            }
-                        }
-                    }
-                }
-            }).render();
+        var attendanceKeys = {
+            present: 'present_percentage',
+            permission: 'permission_percentage',
+            absent: 'absent_percentage'
+        };
+
+        function updateLiveAttendance(data) {
+            Object.keys(attendanceKeys).forEach(function (key) {
+                var item = document.querySelector('[data-attendance-key="' + key + '"]');
+                if (!item) return;
+                var percentage = Number(data[attendanceKeys[key]] || 0);
+                item.style.setProperty('--attendance-value', percentage + '%');
+                item.querySelector('.attendance-percentage').textContent = percentage.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+                item.querySelector('.attendance-count').textContent = data[key] || 0;
+            });
+            document.querySelector('#attendance-live-date').textContent = data.date;
+            document.querySelector('#attendance-live-updated').textContent = data.updated_at;
         }
+
+        function refreshLiveAttendance() {
+            fetch(@json(route('dashboard.attendance-today')), { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
+                .then(function (response) { if (!response.ok) throw new Error('Gagal mengambil presensi'); return response.json(); })
+                .then(updateLiveAttendance)
+                .catch(function () {});
+        }
+
+        setInterval(refreshLiveAttendance, 30000);
         @endif
 
 
