@@ -1255,7 +1255,8 @@
 .dashboard-top-school-info .progress{height:5px;background:#e5ecee;border-radius:999px}
 .dashboard-top-school-info .progress-bar{background:var(--nuist-green)!important;border-radius:999px}
 .dashboard-top-school-value{text-align:right;color:var(--nuist-green);font-size:11px;font-weight:700}
-.dashboard-teacher-status-card>.card{width:100%;}
+.dashboard-teacher-status-card>.card{width:100%;height:100%;}
+.dashboard-page>.row>.dashboard-teacher-status-card,.dashboard-page>.row>.dashboard-employment-donut-card{align-self:stretch}
 .dashboard-teacher-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .dashboard-teacher-summary-item{display:flex;align-items:center;gap:12px;min-width:0;padding:14px;border:1px solid var(--nuist-border);border-radius:10px;background:#fff}
 .dashboard-teacher-summary-item .avatar-title{background:#e6f5ee;color:var(--nuist-green)}
