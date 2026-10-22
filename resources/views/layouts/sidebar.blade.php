@@ -13,10 +13,6 @@
                         ? preg_replace('/[^a-z0-9_]/', '', preg_replace('/[\s\-]+/', '_', trim(strtolower((string) auth()->user()->role))) ?? '')
                         : '';
                     $isSpmbAdminHost = request()->getHost() === 'spmb.nuist.id' && $userRole === 'admin';
-                    $dashboardRoles = ['super_admin', 'admin'];
-                    $masterDataRoles = ['super_admin', 'admin'];
-                    $showDashboardMenu = in_array($userRole, $dashboardRoles);
-                    $showMasterDataMenu = in_array($userRole, $masterDataRoles);
                 @endphp
                 @if($userRole === 'admin_yayasan')
                     @include('layouts.partials.admin-yayasan-menu')
@@ -64,48 +60,9 @@
                 </li>
                 @elseif($userRole === 'super_admin')
                     @include('layouts.partials.super-admin-menu')
+                @elseif($userRole === 'admin')
+                    @include('layouts.partials.admin-menu')
                 @else
-                @if($showDashboardMenu)
-                <li class="menu-title" key="t-menu">@lang('translation.Menu')</li>
-
-                <li>
-                    <a href="{{ route('dashboard') }}" class="waves-effect">
-                        <i class="bx bx-home-circle"></i>
-                        <span key="t-dashboard">Dashboard</span>
-                    </a>
-                </li>
-                @endif
-
-                @if($showMasterDataMenu)
-                <li>
-                    <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
-                        <i class="bx bx-data"></i>
-                        <span>Master Data</span>
-                    </a>
-                    <ul class="sub-menu collapse" id="masterDataSubmenu">
-                        @if(in_array($userRole, ['super_admin', 'pengurus']))
-                        <li><a href="{{ route('yayasan.index') }}">Data Yayasan</a></li>
-                        <li><a href="{{ route('pengurus.index') }}">Data Pengurus</a></li>
-                        @endif
-                        <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
-                        @if($userRole === 'super_admin')
-                        <li><a href="{{ route('operator-spp.index') }}">Data Operator SPP</a></li>
-                        @endif
-                        <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
-                        <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
-                        <li><a href="{{ route('class-student-counts.index') }}">Data Jml Siswa per Kelas</a></li>
-                        @if($userRole === 'super_admin')
-                        <li><a href="{{ route('dps.index') }}">Data DPS</a></li>
-                        @endif
-                        @if(in_array($userRole, ['super_admin', 'pengurus']))
-                        <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
-                        <li><a href="{{ route('tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
-                        <li><a href="{{ route('admin_masterdata.broadcast-numbers.index') }}">Data Broadcast</a></li>
-                        @endif
-                    </ul>
-                </li>
-                @endif
-
                 @if($userRole === 'super_admin')
                 <li>
                     <a href="{{ route('admin.pending-registrations.index') }}" class="waves-effect">
@@ -194,42 +151,6 @@
                     </a>
                 </li>
                 @endif
-
-                @if($userRole === 'admin_yayasan')
-                    <li><a href="{{ route('admin.agenda.index') }}"><i class="bx bx-calendar-check"></i><span>Agenda Kegiatan</span></a></li>
-                @endif
-                @if($userRole === 'admin_yayasan')
-                <li>
-                    <a href="{{ route('pendataan-gtk.index') }}" class="waves-effect">
-                        <i class="bx bx-id-card"></i>
-                        <span>Pendataan GTK</span>
-                    </a>
-                </li>
-                @endif
-
-                @php
-                    $isAdminOnly = $userRole === 'admin';
-                @endphp
-                {{-- @if($isAdminOnly)
-                <li>
-                    <a href="#adminMasterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
-                        <i class="bx bx-data"></i>
-                        <span>Master Data (Admin)</span>
-                    </a>
-                    <ul class="sub-menu collapse" id="adminMasterDataSubmenu">
-                        <li><a href="{{ route('admin_masterdata.admin.index') }}">Data Admin</a></li>
-                        <li><a href="{{ route('admin_masterdata.madrasah.index') }}">Data Madrasah/Sekolah</a></li>
-                        <li><a href="{{ route('admin_masterdata.tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
-                        <li><a href="{{ route('admin_masterdata.status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
-                        <li><a href="{{ route('admin_masterdata.tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
-                        <li><a href="{{ route('admin_masterdata.broadcast-numbers.index') }}">Data Broadcast</a></li>
-                    </ul>
-                </li>
-                @endif --}}
-
-
-
-
 
                 @php
                     $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
