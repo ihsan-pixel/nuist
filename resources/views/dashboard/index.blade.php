@@ -332,19 +332,36 @@
                     </div>
                     <span class="badge bg-success-subtle text-success">{{ $superAdminStats['total_teachers'] }} Orang</span>
                 </div>
-                <div class="row g-3">
-                    @forelse($superAdminStats['total_by_status'] as $status)
-                    <div class="col-6 col-md-4 col-xl-2">
-                        <div class="dashboard-teacher-status-item h-100">
-                            <div class="avatar-sm mb-2"><div class="avatar-title bg-success-subtle text-success rounded-circle"><i class="mdi mdi-account-tie"></i></div></div>
-                            <div class="h4 mb-1 text-dark">{{ $status['count'] }}</div>
-                            <div class="small text-muted">{{ $status['status_name'] }}</div>
-                            <div class="progress mt-2" style="height:5px"><div class="progress-bar bg-success" style="width:{{ $superAdminStats['total_teachers'] > 0 ? round($status['count'] / $superAdminStats['total_teachers'] * 100) : 0 }}%"></div></div>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="col-12 text-center text-muted py-4">Belum ada data tenaga pendidik.</div>
-                    @endforelse
+                <div class="table-responsive dashboard-teacher-status-table">
+                    @php($statusColors = ['#20b96b', '#4596ee', '#ffb62e', '#9362e7', '#8798a6'])
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-center">No</th>
+                                <th>Status Kepegawaian</th>
+                                <th class="text-center">Jumlah</th>
+                                <th>Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($superAdminStats['total_by_status'] as $status)
+                            @php($percentage = $superAdminStats['total_teachers'] > 0 ? round($status['count'] / $superAdminStats['total_teachers'] * 100, 1) : 0)
+                            <tr>
+                                <td class="text-center">{{ $loop->iteration }}</td>
+                                <td class="fw-medium">{{ $status['status_name'] }}</td>
+                                <td class="text-center">{{ $status['count'] }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="progress flex-grow-1"><div class="progress-bar" style="width:{{ $percentage }}%;background:{{ $statusColors[$loop->index % count($statusColors)] }}"></div></div>
+                                        <span class="dashboard-status-percentage">{{ number_format($percentage, 1, ',', '.') }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="4" class="text-center text-muted py-4">Belum ada data tenaga pendidik.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -1146,6 +1163,14 @@
 .dashboard-page__profile-column>.card{margin:0!important;min-width:0;height:100%}
 .dashboard-page>.row>.dashboard-teacher-status-card{grid-column:1;min-width:0;width:100%;max-width:none;flex:0 0 100%;padding:0;margin:0;}
 .dashboard-teacher-status-card>.card{width:100%;}
+.dashboard-teacher-status-table{border:1px solid var(--nuist-border);border-radius:10px;overflow:hidden}
+.dashboard-teacher-status-table .table{min-width:680px}
+.dashboard-teacher-status-table thead th{padding:14px 18px;background:#f2f6f8;color:var(--nuist-ink);font-weight:700;border-bottom:1px solid var(--nuist-border)}
+.dashboard-teacher-status-table tbody td{padding:13px 18px;border-bottom:1px solid var(--nuist-border);color:#465a64}
+.dashboard-teacher-status-table tbody tr:last-child td{border-bottom:0}
+.dashboard-teacher-status-table .progress{height:14px;max-width:230px;background:#e4eaed;border-radius:999px}
+.dashboard-teacher-status-table .progress-bar{border-radius:999px}
+.dashboard-status-percentage{width:58px;color:#465a64;font-weight:600}
 .dashboard-page .card{border:1px solid var(--nuist-border)!important;border-radius:14px!important;box-shadow:0 3px 14px rgba(25,45,55,.045)!important;background:#fff;overflow:hidden}
 .dashboard-page .card-body{padding:20px!important}
 .dashboard-page h3,.dashboard-page h4,.dashboard-page h5,.dashboard-page h6{color:var(--nuist-ink);overflow-wrap:anywhere}
