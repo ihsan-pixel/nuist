@@ -1071,8 +1071,21 @@
     --dashboard-line: #e6eeeb;
 }
 
+.dashboard-page {
+    margin: -0.5rem -0.75rem -1.5rem;
+    padding: 0.75rem;
+    background: #f4f8f9;
+}
+
+.dashboard-page > .row {
+    max-width: 100%;
+    margin-inline: 0;
+}
+
 .dashboard-page .card {
     border-radius: 1rem;
+    border: 1px solid rgba(20, 70, 65, 0.08) !important;
+    box-shadow: 0 0.25rem 1rem rgba(31, 61, 71, 0.07) !important;
 }
 
 .dashboard-page > .row {
@@ -1113,6 +1126,10 @@
     padding: 0.35rem 0.5rem;
 }
 
+.dashboard-welcome-card .card-body {
+    padding: 1.25rem 1.35rem;
+}
+
 .dashboard-eyebrow {
     color: rgba(255, 255, 255, 0.72);
     font-size: 0.7rem;
@@ -1140,6 +1157,7 @@
 
 .dashboard-section-heading {
     border-radius: 1rem;
+    min-height: 5.5rem;
 }
 
 .dashboard-section-heading .card-body {
@@ -1160,6 +1178,10 @@
     overflow: hidden;
     border-radius: 0.9rem;
     color: #fff;
+}
+
+.dashboard-stat-card .card-body > div:first-child {
+    min-width: 0;
 }
 
 .dashboard-page .dashboard-stat-card .card-body {
@@ -1229,6 +1251,19 @@
     border-radius: 0.75rem;
 }
 
+.dashboard-page .dashboard-status-card .card-body {
+    padding: 1.15rem;
+}
+
+.dashboard-page .dashboard-status-card .avatar-md {
+    width: 3rem;
+    height: 3rem;
+}
+
+.dashboard-page .dashboard-status-card .progress {
+    background: #e8eef0;
+}
+
 .dashboard-page .dashboard-status-card {
     min-height: 10.5rem;
 }
@@ -1295,6 +1330,11 @@
 }
 
 @media (max-width: 575.98px) {
+    .dashboard-page {
+        margin-inline: -0.5rem;
+        padding: 0.5rem;
+    }
+
     .dashboard-page .card-body {
         padding: 1rem;
     }
