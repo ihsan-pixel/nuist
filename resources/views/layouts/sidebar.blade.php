@@ -17,7 +17,6 @@
                     $masterDataRoles = ['super_admin', 'admin'];
                     $showDashboardMenu = in_array($userRole, $dashboardRoles);
                     $showMasterDataMenu = in_array($userRole, $masterDataRoles);
-                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false') . ', showMasterDataMenu: ' . ($showMasterDataMenu ? 'true' : 'false'));
                 @endphp
                 @if($userRole === 'admin_yayasan')
                     @include('layouts.partials.admin-yayasan-menu')
@@ -63,6 +62,8 @@
                         <span>Edit Profile PPDB</span>
                     </a>
                 </li>
+                @elseif($userRole === 'super_admin')
+                    @include('layouts.partials.super-admin-menu')
                 @else
                 @if($showDashboardMenu)
                 <li class="menu-title" key="t-menu">@lang('translation.Menu')</li>
@@ -232,7 +233,6 @@
 
                 @php
                     $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
-                    \Log::info('Sidebar Presensi userRole: [' . $userRole . '], password_changed: ' . (auth()->user()->password_changed ? 'true' : 'false') . ', presensiAllowed: ' . ($presensiAllowed ? 'true' : 'false'));
                 @endphp
                 @if($presensiAllowed)
 
@@ -304,10 +304,6 @@
                     </a>
                 </li>
                 @endif
-                @php
-                    \Log::info('Sidebar PresensiAdmin showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false'));
-                @endphp
-
                 @if($userRole === 'admin')
                 <li class="menu-title">PPDB</li>
 
@@ -621,21 +617,6 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-
-                @if($userRole === 'super_admin')
-                <li>
-                    <a href="{{ route('admin.mgmp_dashboard') }}" class="waves-effect">
-                        <i class="bx bx-bar-chart-alt-2"></i>
-                        <span>Dashboard MGMP (Super Admin)</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.create_mgmp_user') }}" class="waves-effect">
-                        <i class="bx bx-user-plus"></i>
-                        <span>Buat Akun MGMP</span>
-                    </a>
-                </li>
-                @endif
 
                 <li>
                     <a href="{{ route('mgmp.data-mgmp') }}" class="waves-effect">
