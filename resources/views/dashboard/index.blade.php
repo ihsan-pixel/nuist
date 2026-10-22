@@ -1377,14 +1377,25 @@
             document.querySelector('#attendance-live-updated').textContent = data.updated_at;
         }
 
+        var attendanceRefreshRunning = false;
+
         function refreshLiveAttendance() {
+            if (attendanceRefreshRunning) return;
+            attendanceRefreshRunning = true;
+
             fetch(@json(route('dashboard.attendance-today')), { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
                 .then(function (response) { if (!response.ok) throw new Error('Gagal mengambil presensi'); return response.json(); })
                 .then(updateLiveAttendance)
-                .catch(function () {});
+                .catch(function () {})
+                .finally(function () { attendanceRefreshRunning = false; });
         }
 
-        setInterval(refreshLiveAttendance, 30000);
+        refreshLiveAttendance();
+        setInterval(refreshLiveAttendance, 5000);
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) refreshLiveAttendance();
+        });
         @endif
 
 
