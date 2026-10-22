@@ -1211,8 +1211,8 @@
 .dashboard-page>.row>.dashboard-page__profile-column,.dashboard-page>.row>.dashboard-page__main-column{padding:0;max-width:none;width:100%;flex:0 0 100%;min-width:0}
 .dashboard-page__profile-column{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;align-items:stretch}
 .dashboard-page__profile-column>.card{margin:0!important;min-width:0;height:100%}
-.dashboard-page>.row>.dashboard-teacher-status-card{grid-column:1;min-width:0;width:calc(75% - 5px);max-width:calc(75% - 5px);flex:0 0 calc(75% - 5px);padding:0;margin:0;}
-.dashboard-page>.row>.dashboard-employment-donut-card{min-width:0;width:calc(25% - 13px);max-width:calc(25% - 13px);flex:0 0 calc(25% - 13px);padding:0;margin:0;}
+.dashboard-page>.row>.dashboard-teacher-status-card{grid-column:1;min-width:0;width:calc(66.667% - 6px);max-width:calc(66.667% - 6px);flex:0 0 calc(66.667% - 6px);padding:0;margin:0;}
+.dashboard-page>.row>.dashboard-employment-donut-card{min-width:0;width:calc(33.333% - 12px);max-width:calc(33.333% - 12px);flex:0 0 calc(33.333% - 12px);padding:0;margin:0;}
 .dashboard-employment-donut{height:230px}
 .dashboard-employment-legend{display:grid;gap:9px;margin-top:8px}
 .dashboard-employment-legend-item{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12px;color:var(--nuist-muted)}
