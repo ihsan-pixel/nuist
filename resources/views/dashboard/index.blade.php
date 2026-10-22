@@ -1100,12 +1100,17 @@
 .dashboard-page > .row {
     max-width: 100%;
     margin-inline: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
 }
 
 .dashboard-page > .row > .dashboard-page__profile-column,
 .dashboard-page > .row > .dashboard-page__main-column {
     width: 100%;
     flex: 0 0 100%;
+    max-width: none;
+    grid-column: 1;
 }
 
 .dashboard-page .card {
@@ -1150,6 +1155,19 @@
 
 .dashboard-page__main-column {
     margin-top: 0.25rem;
+}
+
+.dashboard-page__main-column:not(.dashboard-admin-stats) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.dashboard-page__main-column:not(.dashboard-admin-stats) > .dashboard-section-heading,
+.dashboard-page__main-column:not(.dashboard-admin-stats) > .row,
+.dashboard-page__main-column:not(.dashboard-admin-stats) > .card {
+    margin-bottom: 0 !important;
+    min-width: 0;
 }
 
 .dashboard-admin-stats {
