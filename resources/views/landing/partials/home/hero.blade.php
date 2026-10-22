@@ -22,6 +22,15 @@
             {{ $landing->content_hero ?? 'Kelola data kelembagaan, aktivitas, sistem informasi dan layanan dalam satu aplikasi yang modern, aman, dan mudah digunakan.' }}
         </p>
 
+        <div class="landing-home-hero__actions animate fade-up delay-3" aria-label="Akses layanan NUIST">
+            <a class="landing-home-hero__button landing-home-hero__button--primary" href="{{ route('landing.produk') }}">
+                Jelajahi layanan <i class="bx bx-right-arrow-alt" aria-hidden="true"></i>
+            </a>
+            <a class="landing-home-hero__button landing-home-hero__button--secondary" href="{{ route('login') }}">
+                Masuk ke NUIST
+            </a>
+        </div>
+
         <img
             src="{{ asset('images/image 2.png') }}"
             alt="Tampilan aplikasi NUIST untuk pengelolaan administrasi sekolah"
