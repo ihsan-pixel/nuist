@@ -10,7 +10,7 @@ class SyncGtkMgmp extends Command
 {
     protected $signature = 'mgmp:sync-gtk
         {--dry-run : Periksa pemetaan tanpa mengubah anggota}
-        {--create-missing-groups : Buat grup mata pelajaran yang dikenali tanpa pengelola}';
+        {--create-missing-groups : Buat seluruh grup/organisasi sesuai pendataan GTK tanpa pengelola}';
 
     protected $description = 'Sesuaikan anggota MGMP dengan nama MGMP pada pendataan GTK';
 

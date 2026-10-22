@@ -14,21 +14,25 @@ class GtkMgmpSyncService
     {
         $existing = MgmpGroup::all()->map(fn ($group) => $this->normalize($group->name));
         $targets = [];
-        foreach (config('mgmp.creatable_groups', []) as $target) {
+        foreach (array_unique(array_merge(config('mgmp.creatable_groups', []), array_keys(config('mgmp.aliases', [])))) as $target) {
             foreach (array_merge([$target], config('mgmp.aliases.'.$target, [])) as $alias) {
                 $targets[$this->normalize($alias)] = $target;
             }
         }
         $needed = [];
         foreach (GtkPendataan::whereNotNull('nama_mgmp')->select('nama_mgmp')->distinct()->cursor() as $row) {
+            if ($existing->contains($this->normalize($row->nama_mgmp))) {
+                continue;
+            }
             foreach (preg_split('/[,;&\r\n]+|\s+sama\s+/iu', $row->nama_mgmp, -1, PREG_SPLIT_NO_EMPTY) as $name) {
                 $key = $this->normalize($name);
-                if ($existing->contains($key)) {
+                if ($this->isNonMembership($name) || $existing->contains($key)) {
                     continue;
                 }
-                $target = $targets[$key] ?? null;
-                if ($target && ! $existing->contains($this->normalize($target))) {
-                    $needed[$target] = $target;
+                // Preserve unrecognised organisations/regions exactly rather than guessing a subject.
+                $target = $targets[$key] ?? preg_replace('/\s+/u', ' ', trim($name));
+                if (! $existing->contains($this->normalize($target))) {
+                    $needed[$this->normalize($target)] = $target;
                 }
             }
         }
@@ -46,6 +50,11 @@ class GtkMgmpSyncService
         $name = Str::lower(preg_replace('/\s+/u', ' ', trim($name)));
 
         return preg_replace('/^mgmp\s+/u', '', $name);
+    }
+
+    private function isNonMembership(string $name): bool
+    {
+        return in_array(Str::lower(trim($name)), ['', '-', 'tidak mengikuti'], true);
     }
 
     public function sync(GtkPendataan $pendataan, bool $dryRun = false): array
@@ -72,6 +81,9 @@ class GtkMgmpSyncService
         $ids = [];
         $unmatched = [];
         foreach ($names as $name) {
+            if ($this->isNonMembership($name)) {
+                continue;
+            }
             $matches = $resolve($name);
             if (! $matches || $matches->count() !== 1) {
                 $unmatched[] = trim($name);

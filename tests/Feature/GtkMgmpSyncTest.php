@@ -116,7 +116,7 @@ class GtkMgmpSyncTest extends TestCase
         DB::table('mgmp_groups')->delete();
         DB::table('mgmp_groups')->insert(['name' => 'MGMP Bahasa Indonesia SMK']);
         $gtk = new GtkPendataan(['user_id' => 1]);
-        foreach (['MGMP Matematika', 'MGMP PAI', 'MGMP PJOK', 'MKKS', 'MGMP Bahasa Indonesia Gunungkidul', '-'] as $name) {
+        foreach (['MGMP Matematika', 'MGMP PAI', 'MGMP PJOK', 'MKKS', 'MGMP Bahasa Indonesia Gunungkidul'] as $name) {
             $gtk->nama_mgmp = $name;
             $this->assertSame([$name], app(GtkMgmpSyncService::class)->sync($gtk));
         }
@@ -136,7 +136,7 @@ class GtkMgmpSyncTest extends TestCase
         DB::table('mgmp_groups')->delete();
         DB::table('gtk_pendataan')->insert(['user_id' => 1, 'nama_mgmp' => 'PAI sama META']);
         $service = app(GtkMgmpSyncService::class);
-        $this->assertSame(['MGMP PAI'], $service->createMissingGroups(true));
+        $this->assertSame(['MGMP PAI', "META YOGYAKARTA (Ma'arif English Teacher Association)"], $service->createMissingGroups(true));
         $this->assertDatabaseCount('mgmp_groups', 0);
         DB::table('gtk_pendataan')->where('user_id', 1)->update(['nama_mgmp' => 'MGMP LPM PAI & Sesogeo']);
         $this->artisan('mgmp:sync-gtk --create-missing-groups')->assertExitCode(0);
@@ -148,11 +148,24 @@ class GtkMgmpSyncTest extends TestCase
         $this->assertDatabaseCount('mgmp_members', 2);
     }
 
-    public function test_missing_groups_does_not_create_organisations_or_unknown_names(): void
+    public function test_missing_groups_includes_organisations_and_unknown_names_but_not_placeholders(): void
     {
         DB::table('gtk_pendataan')->insert(['user_id' => 1, 'nama_mgmp' => 'MKKS, FKKS DIY, -, Tidak mengikuti, MGMP Tidak Dikenal']);
-        $this->assertSame([], app(GtkMgmpSyncService::class)->createMissingGroups());
-        $this->assertDatabaseCount('mgmp_groups', 2);
+        $this->assertSame(['MKKS', 'FKKS DIY', 'MGMP Tidak Dikenal'], app(GtkMgmpSyncService::class)->createMissingGroups());
+        $this->artisan('mgmp:sync-gtk --create-missing-groups')->assertExitCode(0);
+        $this->assertDatabaseCount('mgmp_groups', 5);
+        $this->assertDatabaseCount('mgmp_members', 3);
+    }
+
+    public function test_non_membership_entries_clear_old_memberships_without_creating_groups(): void
+    {
+        $gtk = GtkPendataan::create(['user_id' => 1, 'nama_mgmp' => 'Matematika']);
+        $gtk->update(['nama_mgmp' => '-']);
         $this->assertDatabaseCount('mgmp_members', 0);
+        $gtk->update(['nama_mgmp' => 'Matematika']);
+        $gtk->update(['nama_mgmp' => 'Tidak mengikuti']);
+        $this->assertDatabaseCount('mgmp_members', 0);
+        $this->artisan('mgmp:sync-gtk --create-missing-groups')->assertExitCode(0);
+        $this->assertDatabaseCount('mgmp_groups', 2);
     }
 }
