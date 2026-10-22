@@ -332,6 +332,24 @@
                     </div>
                     <span class="badge bg-success-subtle text-success">{{ $superAdminStats['total_teachers'] }} Orang</span>
                 </div>
+                <div class="dashboard-teacher-summary mb-4">
+                    <div class="dashboard-teacher-summary-item">
+                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-school"></i></div></div>
+                        <div><small>Total Sekolah</small><strong>{{ $superAdminStats['total_madrasah'] }}</strong></div>
+                    </div>
+                    <div class="dashboard-teacher-summary-item">
+                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-account-group"></i></div></div>
+                        <div><small>Total Tenaga Pendidik</small><strong>{{ $superAdminStats['total_teachers'] }}</strong></div>
+                    </div>
+                    <div class="dashboard-teacher-summary-item">
+                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-account-tie"></i></div></div>
+                        <div><small>Total Kepala Sekolah</small><strong>{{ $superAdminStats['total_school_principals'] }}</strong></div>
+                    </div>
+                    <div class="dashboard-teacher-summary-item">
+                        <div class="avatar-sm"><div class="avatar-title rounded-circle"><i class="mdi mdi-account-cog"></i></div></div>
+                        <div><small>Total Admin Sekolah</small><strong>{{ $superAdminStats['total_admin'] }}</strong></div>
+                    </div>
+                </div>
                 <div class="table-responsive dashboard-teacher-status-table">
                     @php
                         $statusColors = ['#20b96b', '#4596ee', '#ffb62e', '#9362e7', '#8798a6'];
@@ -1168,6 +1186,11 @@
 .dashboard-page__profile-column>.card{margin:0!important;min-width:0;height:100%}
 .dashboard-page>.row>.dashboard-teacher-status-card{grid-column:1;min-width:0;width:75%;max-width:75%;flex:0 0 75%;padding:0;margin:0;}
 .dashboard-teacher-status-card>.card{width:100%;}
+.dashboard-teacher-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.dashboard-teacher-summary-item{display:flex;align-items:center;gap:12px;min-width:0;padding:14px;border:1px solid var(--nuist-border);border-radius:10px;background:#fff}
+.dashboard-teacher-summary-item .avatar-title{background:#e6f5ee;color:var(--nuist-green)}
+.dashboard-teacher-summary-item small{display:block;color:var(--nuist-muted);font-size:12px;line-height:1.3}
+.dashboard-teacher-summary-item strong{display:block;margin-top:3px;color:var(--nuist-ink);font-size:22px;line-height:1.2}
 .dashboard-teacher-status-table{border:1px solid var(--nuist-border);border-radius:10px;overflow:hidden}
 .dashboard-teacher-status-table .table{min-width:560px}
 .dashboard-teacher-status-table thead th{padding:14px 18px;background:#f2f6f8;color:var(--nuist-ink);font-weight:700;border-bottom:1px solid var(--nuist-border)}
@@ -1234,9 +1257,9 @@
 .dashboard-page .badge{font-weight:500}
 .dashboard-page .hover-lift{transition:transform .18s ease,box-shadow .18s ease}
 .dashboard-page .hover-lift:hover{transform:translateY(-2px);box-shadow:0 8px 24px #193b3415!important}
-@media(max-width:1199.98px){.dashboard-page__main-column{grid-template-columns:minmax(0,1fr) minmax(260px,.85fr)}.dashboard-admin-primary-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1199.98px){.dashboard-page__main-column{grid-template-columns:minmax(0,1fr) minmax(260px,.85fr)}.dashboard-admin-primary-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-teacher-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-location-card{grid-template-columns:1fr 1fr}.dashboard-page__main-column{grid-template-columns:1fr}.dashboard-section-heading,.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row,.dashboard-status-summary,.dashboard-super-status-summary,.dashboard-detail-table,.dashboard-super-detail-table,.dashboard-attendance-card,.dashboard-super-attendance{grid-column:1;grid-row:auto}.dashboard-super-admin-stats>.row{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:575.98px){.dashboard-page>.row>.dashboard-teacher-status-card{width:100%;max-width:none;flex-basis:100%;margin-left:0}.dashboard-page{padding:10px;margin:0 -10px 16px;border-radius:0}.dashboard-page>.row,.dashboard-page__profile-column,.dashboard-page__main-column{gap:12px}.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid var(--nuist-border)}.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .card-body{padding:15px!important}.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{font-size:19px!important}.dashboard-page .dashboard-stat-card .card-body{padding:13px!important}.dashboard-page .table{min-width:460px}}
+@media(max-width:575.98px){.dashboard-page>.row>.dashboard-teacher-status-card{width:100%;max-width:none;flex-basis:100%;margin-left:0}.dashboard-teacher-summary{grid-template-columns:1fr}.dashboard-page{padding:10px;margin:0 -10px 16px;border-radius:0}.dashboard-page>.row,.dashboard-page__profile-column,.dashboard-page__main-column{gap:12px}.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid var(--nuist-border)}.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .card-body{padding:15px!important}.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{font-size:19px!important}.dashboard-page .dashboard-stat-card .card-body{padding:13px!important}.dashboard-page .table{min-width:460px}}
 </style>
 
 <script>
