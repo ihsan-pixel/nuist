@@ -1104,6 +1104,10 @@
 .dashboard-eyebrow{font-size:12px;letter-spacing:.06em;opacity:.8;text-transform:uppercase}
 .dashboard-welcome-card__mark{font-size:48px;color:rgba(255,255,255,.22);margin-right:20px}
 .dashboard-avatar img{width:76px;height:76px;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 15px #0002}
+.dashboard-welcome-card .profile-user-wid,
+.dashboard-welcome-card .dashboard-avatar{position:static!important;top:auto!important;left:auto!important;margin:0!important;flex:0 0 96px;width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:50%;box-shadow:0 3px 12px rgba(25,45,55,.12)}
+.dashboard-welcome-card .dashboard-avatar img{width:82px;height:82px;border:0;box-shadow:none}
+.dashboard-welcome-card .card-body{padding-top:20px!important}
 .dashboard-location-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .dashboard-location-card .card-body{height:100%}
 .dashboard-location-info{border-right:1px solid var(--nuist-border)}
