@@ -10,6 +10,37 @@ use Illuminate\Support\Str;
 
 class GtkMgmpSyncService
 {
+    public function createMissingGroups(bool $dryRun = false): array
+    {
+        $existing = MgmpGroup::all()->map(fn ($group) => $this->normalize($group->name));
+        $targets = [];
+        foreach (config('mgmp.creatable_groups', []) as $target) {
+            foreach (array_merge([$target], config('mgmp.aliases.'.$target, [])) as $alias) {
+                $targets[$this->normalize($alias)] = $target;
+            }
+        }
+        $needed = [];
+        foreach (GtkPendataan::whereNotNull('nama_mgmp')->select('nama_mgmp')->distinct()->cursor() as $row) {
+            foreach (preg_split('/[,;&\r\n]+|\s+sama\s+/iu', $row->nama_mgmp, -1, PREG_SPLIT_NO_EMPTY) as $name) {
+                $key = $this->normalize($name);
+                if ($existing->contains($key)) {
+                    continue;
+                }
+                $target = $targets[$key] ?? null;
+                if ($target && ! $existing->contains($this->normalize($target))) {
+                    $needed[$target] = $target;
+                }
+            }
+        }
+        if (! $dryRun) {
+            foreach ($needed as $target) {
+                MgmpGroup::firstOrCreate(['name' => $target], ['user_id' => null, 'member_count' => 0]);
+            }
+        }
+
+        return array_values($needed);
+    }
+
     private function normalize(string $name): string
     {
         $name = Str::lower(preg_replace('/\s+/u', ' ', trim($name)));

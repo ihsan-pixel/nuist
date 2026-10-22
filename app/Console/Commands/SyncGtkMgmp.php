@@ -8,12 +8,23 @@ use Illuminate\Console\Command;
 
 class SyncGtkMgmp extends Command
 {
-    protected $signature = 'mgmp:sync-gtk {--dry-run : Periksa pemetaan tanpa mengubah anggota}';
+    protected $signature = 'mgmp:sync-gtk
+        {--dry-run : Periksa pemetaan tanpa mengubah anggota}
+        {--create-missing-groups : Buat grup mata pelajaran yang dikenali tanpa pengelola}';
 
     protected $description = 'Sesuaikan anggota MGMP dengan nama MGMP pada pendataan GTK';
 
     public function handle(GtkMgmpSyncService $sync): int
     {
+        if ($this->option('create-missing-groups')) {
+            $created = $sync->createMissingGroups((bool) $this->option('dry-run'));
+            foreach ($created as $name) {
+                $this->info(($this->option('dry-run') ? 'Rencana grup baru: ' : 'Grup baru: ').$name);
+            }
+            if ($this->option('dry-run') && $created) {
+                $this->comment('Pemetaan di bawah memakai grup yang sudah tersimpan; rencana grup baru belum diterapkan.');
+            }
+        }
         $processed = 0;
         $unmatched = 0;
         $missingNames = [];

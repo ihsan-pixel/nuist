@@ -29,6 +29,9 @@ class GtkMgmpSyncTest extends TestCase
         Schema::create('mgmp_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedInteger('member_count')->default(0);
+            $table->timestamps();
         });
         Schema::create('mgmp_members', function (Blueprint $table) {
             $table->id();
@@ -125,6 +128,31 @@ class GtkMgmpSyncTest extends TestCase
         DB::table('mgmp_groups')->insert(['name' => 'MGMP Matematika']);
         $gtk = new GtkPendataan(['user_id' => 1, 'nama_mgmp' => 'Matematika']);
         $this->assertSame(['Matematika'], app(GtkMgmpSyncService::class)->sync($gtk));
+        $this->assertDatabaseCount('mgmp_members', 0);
+    }
+
+    public function test_create_missing_groups_dry_run_then_sync_without_duplicates(): void
+    {
+        DB::table('mgmp_groups')->delete();
+        DB::table('gtk_pendataan')->insert(['user_id' => 1, 'nama_mgmp' => 'PAI sama META']);
+        $service = app(GtkMgmpSyncService::class);
+        $this->assertSame(['MGMP PAI'], $service->createMissingGroups(true));
+        $this->assertDatabaseCount('mgmp_groups', 0);
+        DB::table('gtk_pendataan')->where('user_id', 1)->update(['nama_mgmp' => 'MGMP LPM PAI & Sesogeo']);
+        $this->artisan('mgmp:sync-gtk --create-missing-groups')->assertExitCode(0);
+        $this->assertDatabaseHas('mgmp_groups', ['name' => 'MGMP PAI', 'user_id' => null]);
+        $this->assertDatabaseHas('mgmp_groups', ['name' => 'MGMP Soseogeo', 'user_id' => null]);
+        $this->assertDatabaseCount('mgmp_members', 2);
+        $this->artisan('mgmp:sync-gtk --create-missing-groups')->assertExitCode(0);
+        $this->assertDatabaseCount('mgmp_groups', 2);
+        $this->assertDatabaseCount('mgmp_members', 2);
+    }
+
+    public function test_missing_groups_does_not_create_organisations_or_unknown_names(): void
+    {
+        DB::table('gtk_pendataan')->insert(['user_id' => 1, 'nama_mgmp' => 'MKKS, FKKS DIY, -, Tidak mengikuti, MGMP Tidak Dikenal']);
+        $this->assertSame([], app(GtkMgmpSyncService::class)->createMissingGroups());
+        $this->assertDatabaseCount('mgmp_groups', 2);
         $this->assertDatabaseCount('mgmp_members', 0);
     }
 }
