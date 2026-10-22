@@ -319,13 +319,13 @@
 
     {{-- Admin Statistics Section - Right side --}}
     @if(Auth::user()->role === 'admin' && isset($adminStats))
-    <div class="col-xl-8 col-12 dashboard-page__main-column">
+    <div class="col-xl-8 col-12 dashboard-page__main-column dashboard-admin-stats">
         <!-- Statistics Overview Header -->
         <div class="card border-0 shadow-sm mb-4 dashboard-section-heading">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="text-white mb-1">Dashboard Admin</h4>
+                        <h4 class="text-white mb-1">Statistik Admin Sekolah</h4>
                         <p class="text-white-50 mb-0">Ringkasan Sistem Informasi NUIST</p>
                     </div>
                     <div class="avatar-lg">
@@ -338,7 +338,7 @@
         </div>
 
         <!-- Primary Statistics Row -->
-        <div class="row g-3 mb-4">
+        <div class="row g-3 mb-4 dashboard-admin-primary-stats">
             {{-- Total Teachers Card --}}
             <div class="col-sm-6 col-xl-4">
                 <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--teachers">
@@ -405,10 +405,29 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Employment Categories Card --}}
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift dashboard-stat-card dashboard-stat-card--admins">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ $adminStats['total_by_status']->count() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Status Kepegawaian</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-account-group fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- Employment Status Breakdown --}}
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm dashboard-status-summary" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -467,7 +486,7 @@
         </div>
 
         {{-- Detailed Statistics Table --}}
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card border-0 shadow-sm dashboard-detail-table" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div>
@@ -557,6 +576,19 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm dashboard-attendance-card" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="card-title mb-1 text-dark"><i class="mdi mdi-calendar-check text-success me-2"></i>Grafik Presensi</h5>
+                        <p class="text-muted mb-0 small">Ringkasan presensi bulan ini</p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success">Bulan ini</span>
+                </div>
+                <div id="donut-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts" style="height: 220px;"></div>
             </div>
         </div>
     </div>
@@ -1120,6 +1152,36 @@
     margin-top: 0.25rem;
 }
 
+.dashboard-admin-stats {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(20rem, 0.85fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.dashboard-admin-stats > .dashboard-section-heading {
+    grid-column: 1;
+    margin-bottom: 0 !important;
+}
+
+.dashboard-admin-stats > .dashboard-admin-primary-stats {
+    grid-column: 1;
+    margin-bottom: 0 !important;
+}
+
+.dashboard-admin-stats > .dashboard-status-summary {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.dashboard-admin-stats > .dashboard-detail-table {
+    grid-column: 1;
+}
+
+.dashboard-admin-stats > .dashboard-attendance-card {
+    grid-column: 2;
+}
+
 .dashboard-page__profile-column > .card,
 .dashboard-page__main-column > .card,
 .dashboard-page__main-column > .row {
@@ -1362,6 +1424,18 @@
 }
 
 @media (max-width: 991.98px) {
+    .dashboard-admin-stats {
+        display: flex;
+    }
+
+    .dashboard-admin-stats > .dashboard-section-heading,
+    .dashboard-admin-stats > .dashboard-admin-primary-stats,
+    .dashboard-admin-stats > .dashboard-status-summary,
+    .dashboard-admin-stats > .dashboard-detail-table,
+    .dashboard-admin-stats > .dashboard-attendance-card {
+        width: 100%;
+    }
+
     .dashboard-page__profile-column {
         display: block;
     }
