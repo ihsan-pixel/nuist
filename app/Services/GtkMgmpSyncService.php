@@ -10,19 +10,38 @@ use Illuminate\Support\Str;
 
 class GtkMgmpSyncService
 {
+    private function normalize(string $name): string
+    {
+        $name = Str::lower(preg_replace('/\s+/u', ' ', trim($name)));
+
+        return preg_replace('/^mgmp\s+/u', '', $name);
+    }
+
     public function sync(GtkPendataan $pendataan, bool $dryRun = false): array
     {
-        $normalize = fn ($name) => Str::lower(preg_replace('/\s+/u', ' ', trim($name)));
+        $normalize = fn ($name) => $this->normalize($name);
         $groups = MgmpGroup::all()->groupBy(fn ($group) => $normalize($group->name));
+        $aliases = [];
+        foreach (config('mgmp.aliases', []) as $target => $variants) {
+            $targets = $groups->get($normalize($target));
+            if (! $targets || $targets->count() !== 1) {
+                continue;
+            }
+            foreach ($variants as $variant) {
+                $key = $normalize($variant);
+                $aliases[$key] = ($aliases[$key] ?? collect())->merge($targets)->unique('id');
+            }
+        }
+        $resolve = fn ($name) => $groups->get($normalize($name)) ?? ($aliases[$normalize($name)] ?? null);
         $value = trim((string) $pendataan->nama_mgmp);
         // Prefer the complete name, since group names can themselves contain commas.
-        $names = $groups->has($normalize($value))
+        $names = $resolve($value) !== null
             ? [$value]
-            : preg_split('/[,;\r\n]+/u', $value, -1, PREG_SPLIT_NO_EMPTY);
+            : preg_split('/[,;&\r\n]+|\s+sama\s+/iu', $value, -1, PREG_SPLIT_NO_EMPTY);
         $ids = [];
         $unmatched = [];
         foreach ($names as $name) {
-            $matches = $groups->get($normalize($name));
+            $matches = $resolve($name);
             if (! $matches || $matches->count() !== 1) {
                 $unmatched[] = trim($name);
                 continue;

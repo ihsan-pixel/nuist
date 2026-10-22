@@ -75,4 +75,56 @@ class GtkMgmpSyncTest extends TestCase
         $this->artisan('mgmp:sync-gtk')->assertExitCode(0);
         $this->assertDatabaseCount('mgmp_members', 2);
     }
+
+    public function test_production_names_resolve_explicit_aliases(): void
+    {
+        DB::table('mgmp_groups')->delete();
+        $cases = [
+            'MGMP Bahasa Indonesia SMK' => ['Bahasa Indonesia', 'mgmp b. indonesia', 'MGMP  B INDONESIA MAARIF'],
+            'MGBK (Musyawarah Guru Bimbingan dan Konseling)' => ['BK', 'MGBK', 'MGMP Bimbingan Konseling'],
+            "META YOGYAKARTA (Ma'arif English Teacher Association)" => ['MGMP META', 'MGMP Bahasa Inggris'],
+            'MGMP EKOBANK' => ['MGMP EKOBANK KWU', 'MGMP Ekobank dan KWU'],
+            'MGMP Teknik Sepeda Motor' => ['TBSM', 'MGMP TSM', 'MGMP TBSM LPM'],
+            'PENDIDIKAN PANCASILA' => ['MGMP PKN', 'MGMP PENDIDIKAN PANCASILA'],
+            'IPA Terapan' => ['IPA Terapa'],
+        ];
+        $gtk = new GtkPendataan(['user_id' => 1]);
+        foreach ($cases as $target => $aliases) {
+            $id = DB::table('mgmp_groups')->insertGetId(['name' => $target]);
+            foreach ($aliases as $alias) {
+                $gtk->nama_mgmp = $alias;
+                $this->assertSame([], app(GtkMgmpSyncService::class)->sync($gtk), $alias);
+                $this->assertDatabaseHas('mgmp_members', ['mgmp_group_id' => $id]);
+                $this->assertDatabaseCount('mgmp_members', 1);
+            }
+        }
+    }
+
+    public function test_multiple_groups_can_use_ampersand_and_sama(): void
+    {
+        $gtk = GtkPendataan::create(['user_id' => 1, 'nama_mgmp' => 'MGMP Matematika & Bahasa Indonesia']);
+        $this->assertDatabaseCount('mgmp_members', 2);
+        $gtk->update(['nama_mgmp' => 'Matematika sama MGMP Bahasa Indonesia']);
+        $this->assertDatabaseCount('mgmp_members', 2);
+    }
+
+    public function test_missing_groups_and_regional_names_are_not_guessed(): void
+    {
+        DB::table('mgmp_groups')->delete();
+        DB::table('mgmp_groups')->insert(['name' => 'MGMP Bahasa Indonesia SMK']);
+        $gtk = new GtkPendataan(['user_id' => 1]);
+        foreach (['MGMP Matematika', 'MGMP PAI', 'MGMP PJOK', 'MKKS', 'MGMP Bahasa Indonesia Gunungkidul', '-'] as $name) {
+            $gtk->nama_mgmp = $name;
+            $this->assertSame([$name], app(GtkMgmpSyncService::class)->sync($gtk));
+        }
+        $this->assertDatabaseCount('mgmp_members', 0);
+    }
+
+    public function test_duplicate_normalized_group_names_are_ambiguous(): void
+    {
+        DB::table('mgmp_groups')->insert(['name' => 'MGMP Matematika']);
+        $gtk = new GtkPendataan(['user_id' => 1, 'nama_mgmp' => 'Matematika']);
+        $this->assertSame(['Matematika'], app(GtkMgmpSyncService::class)->sync($gtk));
+        $this->assertDatabaseCount('mgmp_members', 0);
+    }
 }
