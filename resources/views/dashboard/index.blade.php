@@ -1138,6 +1138,7 @@
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     gap: 1rem;
+    align-items: stretch;
 }
 
 .dashboard-page__profile-column > .dashboard-welcome-card {
@@ -1262,8 +1263,13 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: stretch;
-    min-height: 18rem;
+    min-height: 16rem;
     overflow: hidden;
+}
+
+.dashboard-welcome-card {
+    min-height: 16rem;
+    margin-bottom: 0 !important;
 }
 
 .dashboard-location-info,
@@ -1289,11 +1295,11 @@
 }
 
 .dashboard-location-map #foundation-map-container {
-    height: 13rem !important;
+    height: 10.5rem !important;
 }
 
 .dashboard-location-map #map-container {
-    height: 13rem !important;
+    height: 10.5rem !important;
 }
 
 .dashboard-welcome-card__banner,
