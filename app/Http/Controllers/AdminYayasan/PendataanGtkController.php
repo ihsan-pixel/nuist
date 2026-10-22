@@ -196,6 +196,16 @@ class PendataanGtkController extends Controller
             abort(403, 'Unauthorized access');
         }
 
+        $unmatchedMgmp = app(\App\Services\GtkMgmpSyncService::class)->sync(
+            new \App\Models\GtkPendataan(['nama_mgmp' => $validated['nama_mgmp'] ?? null]),
+            true
+        );
+        if ($unmatchedMgmp) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'nama_mgmp' => 'Nama MGMP tidak ditemukan atau ambigu: '.implode(', ', $unmatchedMgmp).'. Gunakan nama grup MGMP yang terdaftar.',
+            ]);
+        }
+
         DB::transaction(function () use ($user, $validated) {
             $user->fill([
                 'gelar' => $validated['gelar'] ?? null,

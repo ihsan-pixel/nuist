@@ -6,6 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class GtkPendataan extends Model
 {
+    protected static function booted()
+    {
+        static::saved(function (self $pendataan) {
+            if (array_key_exists('nama_mgmp', $pendataan->getAttributes())
+                && ($pendataan->wasChanged('nama_mgmp') || filled($pendataan->nama_mgmp))) {
+                app(\App\Services\GtkMgmpSyncService::class)->sync($pendataan);
+            }
+        });
+    }
+
     protected $table = 'gtk_pendataan';
 
     protected $fillable = [
