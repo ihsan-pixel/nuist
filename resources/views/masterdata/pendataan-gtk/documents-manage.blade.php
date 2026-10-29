@@ -159,7 +159,7 @@
                                                     <span class="stored-file">
                                                         @if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
                                                             <a href="{{ $storedFile['view_url'] }}" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="{{ $storedFile['name'] }}">
-                                                                <img src="{{ $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="lazy">
+                                                                <img src="{{ $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="eager" decoding="async">
                                                                 <span class="d-block text-truncate">{{ $storedFile['name'] }}</span>
                                                             </a>
                                                         @else
