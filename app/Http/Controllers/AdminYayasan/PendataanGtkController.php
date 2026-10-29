@@ -568,8 +568,10 @@ class PendataanGtkController extends Controller
         $this->authorizeAccess();
         $this->authorizeManagedDocument($madrasah, $gtkDocument);
         abort_unless(Storage::disk($gtkDocument->disk)->exists($gtkDocument->path), 404);
+        $absolutePath = Storage::disk($gtkDocument->disk)->path($gtkDocument->path);
+        abort_unless(is_file($absolutePath) && is_readable($absolutePath), 404);
 
-        return Storage::disk($gtkDocument->disk)->response($gtkDocument->path, $gtkDocument->original_name ?: basename($gtkDocument->path), [
+        return response()->file($absolutePath, [
             'Content-Disposition' => 'inline; filename="'.($gtkDocument->original_name ?: basename($gtkDocument->path)).'"',
         ]);
     }
@@ -791,7 +793,10 @@ class PendataanGtkController extends Controller
 
         abort_unless($path && Storage::disk($disk)->exists($path), 404);
 
-        return Storage::disk($disk)->response($path, basename($path), [
+        $absolutePath = Storage::disk($disk)->path($path);
+        abort_unless(is_file($absolutePath) && is_readable($absolutePath), 404);
+
+        return response()->file($absolutePath, [
             'Content-Disposition' => 'inline; filename="'.basename($path).'"',
         ]);
     }
