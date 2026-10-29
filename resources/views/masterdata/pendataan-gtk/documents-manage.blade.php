@@ -132,6 +132,7 @@
                                         $storedFiles->push([
                                             'name' => $document->original_name ?: basename($document->path),
                                             'path' => $document->disk.':'.$document->path,
+                                            'image_url' => $document->disk === 'public' ? asset('storage/'.ltrim($document->path, '/')) : null,
                                             'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
                                             'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
                                         ]);
@@ -140,6 +141,7 @@
                                         $storedFiles->prepend([
                                             'name' => basename($storedPath),
                                             'path' => ($type === 'foto_resmi' ? 'public:' : 'local:').ltrim($storedPath, '/'),
+                                            'image_url' => $type === 'foto_resmi' ? asset('storage/'.ltrim($storedPath, '/')) : null,
                                             'view_url' => route('pendataan-gtk.documents.view', [$user, str_replace('_', '-', $type)]),
                                             'delete_url' => route('pendataan-gtk.documents.manage.destroy', [$madrasah, $user, $type]),
                                         ]);
@@ -159,7 +161,7 @@
                                                     <span class="stored-file">
                                                         @if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
                                                             <a href="{{ $storedFile['view_url'] }}" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="{{ $storedFile['name'] }}">
-                                                                <img src="{{ $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="eager" decoding="async">
+                                                                <img src="{{ $storedFile['image_url'] ?: $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="eager" decoding="async">
                                                                 <span class="d-block text-truncate">{{ $storedFile['name'] }}</span>
                                                             </a>
                                                         @else

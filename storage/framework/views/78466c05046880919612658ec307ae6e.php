@@ -130,6 +130,7 @@
                                         $storedFiles->push([
                                             'name' => $document->original_name ?: basename($document->path),
                                             'path' => $document->disk.':'.$document->path,
+                                            'image_url' => $document->disk === 'public' ? asset('storage/'.ltrim($document->path, '/')) : null,
                                             'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
                                             'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
                                         ]);
@@ -138,6 +139,7 @@
                                         $storedFiles->prepend([
                                             'name' => basename($storedPath),
                                             'path' => ($type === 'foto_resmi' ? 'public:' : 'local:').ltrim($storedPath, '/'),
+                                            'image_url' => $type === 'foto_resmi' ? asset('storage/'.ltrim($storedPath, '/')) : null,
                                             'view_url' => route('pendataan-gtk.documents.view', [$user, str_replace('_', '-', $type)]),
                                             'delete_url' => route('pendataan-gtk.documents.manage.destroy', [$madrasah, $user, $type]),
                                         ]);
@@ -157,7 +159,7 @@
                                                     <span class="stored-file">
                                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'])): ?>
                                                             <a href="<?php echo e($storedFile['view_url']); ?>" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="<?php echo e($storedFile['name']); ?>">
-                                                                <img src="<?php echo e($storedFile['view_url']); ?>" alt="<?php echo e($storedFile['name']); ?>" class="stored-photo-preview" loading="eager" decoding="async">
+                                                                <img src="<?php echo e($storedFile['image_url'] ?: $storedFile['view_url']); ?>" alt="<?php echo e($storedFile['name']); ?>" class="stored-photo-preview" loading="eager" decoding="async">
                                                                 <span class="d-block text-truncate"><?php echo e($storedFile['name']); ?></span>
                                                             </a>
                                                         <?php else: ?>
