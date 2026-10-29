@@ -217,6 +217,10 @@
                     <div id="autoMatchPhotoCount" class="small text-primary mt-2">Belum ada foto dipilih</div>
                 </label>
                 <div id="autoMatchNotice" class="small text-muted mt-3">Foto dengan nama yang cocok akan disimpan sebagai Foto Resmi.</div>
+                <div id="autoMatchProgressWrap" class="mt-3 d-none">
+                    <div class="d-flex justify-content-between small mb-1"><span>Progress pemasangan</span><strong id="autoMatchProgressText">0%</strong></div>
+                    <div class="progress" style="height: 10px"><div id="autoMatchProgressBar" class="progress-bar bg-success" style="width: 0%"></div></div>
+                </div>
                 <div id="autoMatchResults" class="mt-3 d-none">
                     <div class="fw-semibold mb-2"><i class="bx bx-list-check me-1 text-success"></i>Foto siap diproses</div>
                     <div id="autoMatchFileList" class="list-group small"></div>
@@ -256,7 +260,24 @@ window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdf
     const autoMatchNotice = document.getElementById('autoMatchNotice');
     const autoMatchResults = document.getElementById('autoMatchResults');
     const autoMatchFileList = document.getElementById('autoMatchFileList');
+    const autoMatchProgressWrap = document.getElementById('autoMatchProgressWrap');
+    const autoMatchProgressBar = document.getElementById('autoMatchProgressBar');
+    const autoMatchProgressText = document.getElementById('autoMatchProgressText');
     const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','\"':'&quot;'}[character]));
+    const prepareAutoMatchPhoto = (file) => new Promise((resolve) => {
+        if (!file.type.startsWith('image/') || file.size < 1500000) return resolve(file);
+        const image = new Image();
+        image.onload = () => {
+            const scale = Math.min(1, 1600 / Math.max(image.naturalWidth, image.naturalHeight));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+            canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+            canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob((blob) => resolve(blob ? new File([blob], file.name, {type: 'image/jpeg'}) : file), 'image/jpeg', .82);
+        };
+        image.onerror = () => resolve(file);
+        image.src = URL.createObjectURL(file);
+    });
     autoMatchInput?.addEventListener('change', () => {
         const total = autoMatchInput.files.length;
         autoMatchCount.textContent = total ? `${total} foto dipilih` : 'Belum ada foto dipilih';
@@ -274,13 +295,33 @@ window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdf
         }
         autoMatchButton.disabled = true;
         autoMatchButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Mencocokkan...';
+        autoMatchProgressWrap?.classList.remove('d-none');
+        if (autoMatchProgressBar) autoMatchProgressBar.style.width = '0%';
+        if (autoMatchProgressText) autoMatchProgressText.textContent = '0%';
         const payload = new FormData();
-        files.forEach((file) => payload.append('photos[]', file));
-        fetch(autoMatchButton.dataset.url, { method: 'POST', body: payload, headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' } })
-            .then(async (response) => { const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Pencocokan gagal.'); return data; })
+        Promise.all(files.map(prepareAutoMatchPhoto)).then((preparedFiles) => {
+            preparedFiles.forEach((file) => payload.append('photos[]', file));
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', autoMatchButton.dataset.url);
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
+                xhr.upload.onprogress = (event) => {
+                    if (!event.lengthComputable) return;
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    if (autoMatchProgressBar) autoMatchProgressBar.style.width = `${percent}%`;
+                    if (autoMatchProgressText) autoMatchProgressText.textContent = `${percent}%`;
+                };
+                xhr.onload = () => { let data; try { data = JSON.parse(xhr.responseText); } catch { return reject(new Error('Respons server tidak valid.')); } if (xhr.status < 200 || xhr.status >= 300) return reject(new Error(data.message || 'Pencocokan gagal.')); resolve(data); };
+                xhr.onerror = () => reject(new Error('Koneksi ke server gagal.'));
+                xhr.send(payload);
+            });
+        })
             .then((data) => {
+                if (autoMatchProgressBar) autoMatchProgressBar.style.width = '100%';
+                if (autoMatchProgressText) autoMatchProgressText.textContent = '100%';
                 autoMatchResults?.classList.remove('d-none');
-                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? escapeHtml(item.user || 'Cocok') : 'Tidak cocok'}</span></div>`).join('');
+                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.type === 'foto_bebas' ? 'Foto Bebas' : 'Foto Resmi'}` : 'Tidak cocok'}</span></div>`).join('');
                 if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
             })
             .catch((error) => { if (autoMatchNotice) autoMatchNotice.textContent = error.message; })

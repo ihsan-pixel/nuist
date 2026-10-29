@@ -432,16 +432,18 @@ class PendataanGtkController extends Controller
         $users = User::query()->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')->get();
         $results = [];
         foreach ($request->file('photos', []) as $photo) {
+            $isNonFormal = (bool) preg_match('/\bnon[\s_-]*formal\b/i', pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME));
+            $documentType = $isNonFormal ? 'foto_bebas' : 'foto_resmi';
             $matches = $users->map(fn (User $user) => ['user' => $user, 'score' => $this->filenameUserMatchScore($photo->getClientOriginalName(), $user->name)])
                 ->filter(fn (array $match) => $match['score'] > 0)->sortByDesc('score')->values();
             $best = $matches->first();
             $item = ['file' => $photo->getClientOriginalName(), 'matched' => false, 'message' => 'Nama file tidak cocok dengan nama user.'];
             if ($best && ($best['score'] >= 0.85 || ($best['score'] >= 0.65 && $matches->count() === 1))) {
                 $user = $best['user'];
-                $path = $this->storeGtkDocument($photo, $user, 'foto_resmi', 'public');
-                $user->update(['avatar' => $path]);
-                GtkDocument::create(['user_id' => $user->id, 'type' => 'foto_resmi', 'disk' => 'public', 'path' => $path, 'original_name' => $photo->getClientOriginalName()]);
-                $item = ['file' => $photo->getClientOriginalName(), 'matched' => true, 'user' => $user->name, 'similarity' => round($best['score'] * 100, 1), 'message' => 'Foto berhasil dicocokkan berdasarkan nama file dan disimpan.'];
+                $path = $this->storeGtkDocument($photo, $user, $documentType, $documentType === 'foto_resmi' ? 'public' : 'local');
+                if ($documentType === 'foto_resmi') $user->update(['avatar' => $path]);
+                GtkDocument::create(['user_id' => $user->id, 'type' => $documentType, 'disk' => $documentType === 'foto_resmi' ? 'public' : 'local', 'path' => $path, 'original_name' => $photo->getClientOriginalName()]);
+                $item = ['file' => $photo->getClientOriginalName(), 'matched' => true, 'type' => $documentType, 'user' => $user->name, 'similarity' => round($best['score'] * 100, 1), 'message' => 'Foto berhasil dipasangkan sebagai '.($documentType === 'foto_resmi' ? 'Foto Resmi' : 'Foto Bebas').'.'];
             } elseif ($best) {
                 $item['message'] = 'Nama file mirip, tetapi belum cukup yakin untuk disimpan.';
             }
