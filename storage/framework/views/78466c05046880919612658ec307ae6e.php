@@ -23,6 +23,9 @@
     .stored-file .document-preview { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
     #uploadProgressBar { background-color: #198754 !important; }
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
+    .face-session-cell { min-width: 150px; text-align: center; }
+    .face-session-photo { width: 86px; height: 104px; object-fit: cover; border-radius: .65rem; border: 1px solid #dbe3ec; background: #f8fafc; }
+    .face-session-empty { width: 86px; height: 104px; border-radius: .65rem; border: 1px dashed #cbd5e1; background: #f8fafc; color: #94a3b8; display: inline-flex; align-items: center; justify-content: center; font-size: .72rem; text-align: center; padding: .4rem; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
     .pdf-page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: .75rem; max-height: 60vh; overflow-y: auto; padding: .25rem; }
     .pdf-page-option { position: relative; display: block; padding: .45rem; border: 2px solid #dbe3ec; border-radius: .7rem; cursor: pointer; background: #fff; }
@@ -30,6 +33,9 @@
     .pdf-page-option canvas { display: block; width: 100%; height: auto; border-radius: .35rem; box-shadow: 0 1px 5px rgba(15, 23, 42, .15); }
     .pdf-page-option input { position: absolute; top: .65rem; right: .65rem; width: 20px; height: 20px; }
     .pdf-page-number { display: block; margin-top: .4rem; font-size: .75rem; font-weight: 600; text-align: center; }
+    .auto-match-dropzone { border: 2px dashed #93c5fd; border-radius: .9rem; background: #eff6ff; padding: 2rem 1rem; text-align: center; cursor: pointer; }
+    .auto-match-dropzone:hover { background: #dbeafe; border-color: #2563eb; }
+    .auto-match-dropzone input { display: none; }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -49,6 +55,9 @@
             </div>
         </div>
         <div class="d-flex align-items-start gap-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#autoMatchPhotoModal">
+                <i class="bx bx-scan me-1"></i> Auto-Match Foto
+            </button>
             <a href="<?php echo e(route('pendataan-gtk.show', $madrasah)); ?>" class="btn btn-outline-secondary"><i class="bx bx-arrow-back me-1"></i> Kembali</a>
         </div>
     </div>
@@ -71,12 +80,22 @@
                         <th>SK Akhir</th>
                         <th>Foto Resmi</th>
                         <th>Foto Bebas</th>
+                        <th class="face-session-cell">Foto Scan Wajah<br><small class="fw-normal">Menghadap Depan</small></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $gtk; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <?php
                             $data = $user->gtkPendataan;
+                            $frontCapture = collect();
+                            if ($user->relationLoaded('faceEnrollmentSessions')) {
+                                $frontCapture = $user->faceEnrollmentSessions
+                                    ->where('status', 'completed')
+                                    ->sortByDesc(fn ($session) => $session->completed_at ?: $session->updated_at)
+                                    ->flatMap(fn ($session) => $session->captures->whereIn('phase_key', ['front', 'front_2']))
+                                    ->sortByDesc('created_at')
+                                    ->first();
+                            }
                         ?>
                         <tr data-teacher-name="<?php echo e(strtolower($user->name.' '.$user->nuist_id)); ?>">
                             <td class="teacher-cell">
@@ -139,9 +158,19 @@
                                     </label>
                                 </td>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            <td class="face-session-cell">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($frontCapture?->captured_image): ?>
+                                    <a href="<?php echo e($frontCapture->captured_image); ?>" target="_blank" rel="noopener" title="Lihat foto scan wajah <?php echo e($user->name); ?>">
+                                        <img src="<?php echo e($frontCapture->captured_image); ?>" alt="Scan wajah menghadap depan <?php echo e($user->name); ?>" class="face-session-photo">
+                                    </a>
+                                    <div class="small text-success mt-1"><i class="bx bx-check-circle me-1"></i>Tersedia</div>
+                                <?php else: ?>
+                                    <div class="face-session-empty">Belum ada foto sesi depan</div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </td>
                         </tr>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                        <tr><td colspan="6" class="text-center text-muted py-5">Belum ada GTK pada madrasah ini.</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted py-5">Belum ada GTK pada madrasah ini.</td></tr>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </tbody>
             </table>
@@ -157,6 +186,40 @@
         </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </form>
+
+<div class="modal fade" id="autoMatchPhotoModal" tabindex="-1" aria-labelledby="autoMatchPhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="autoMatchPhotoModalLabel"><i class="bx bx-scan me-1 text-primary"></i> Auto-Match Foto Resmi</h5>
+                    <small class="text-muted">Pencocokan foto berdasarkan foto scan wajah menghadap depan.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bx bx-info-circle me-1"></i>
+                    Foto akan dianalisis dan hasil pencocokan harus dikonfirmasi sebelum disimpan. Upload manual di bawah tetap dapat digunakan seperti biasa.
+                </div>
+                <label class="auto-match-dropzone w-100" for="autoMatchPhotos">
+                    <input type="file" id="autoMatchPhotos" accept="image/jpeg,image/png,image/webp" multiple>
+                    <i class="bx bx-images fs-1 text-primary d-block mb-2"></i>
+                    <strong>Pilih banyak foto resmi</strong>
+                    <div class="text-muted small mt-1">JPG, PNG, atau WebP</div>
+                    <div id="autoMatchPhotoCount" class="small text-primary mt-2">Belum ada foto dipilih</div>
+                </label>
+                <div id="autoMatchNotice" class="small text-muted mt-3">Fitur pencocokan akan menampilkan kandidat dan skor kemiripan sebelum penyimpanan.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="startAutoMatchButton" disabled>
+                    <i class="bx bx-search-alt me-1"></i> Mulai Pencocokan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
@@ -176,6 +239,15 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <script>
 (() => {
+    const autoMatchInput = document.getElementById('autoMatchPhotos');
+    const autoMatchCount = document.getElementById('autoMatchPhotoCount');
+    const autoMatchButton = document.getElementById('startAutoMatchButton');
+    autoMatchInput?.addEventListener('change', () => {
+        const total = autoMatchInput.files.length;
+        autoMatchCount.textContent = total ? `${total} foto dipilih` : 'Belum ada foto dipilih';
+        if (autoMatchButton) autoMatchButton.disabled = total === 0;
+    });
+
     const form = document.getElementById('documentsGridForm');
     const inputs = [...form.querySelectorAll('input[type="file"]')];
     const count = document.getElementById('selectedCount');

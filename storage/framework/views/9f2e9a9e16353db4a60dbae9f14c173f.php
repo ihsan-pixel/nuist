@@ -494,6 +494,7 @@
                             <th>No</th>
                             <th>Nama</th>
                             <th>Email</th>
+                            <th>Nomor HP</th>
                             <th>Grup MGMP</th>
                             <th>Sekolah</th>
                         </tr>
@@ -504,11 +505,12 @@
                             <td><?php echo e($loop->iteration); ?></td>
                             <td><?php echo e($m->name); ?></td>
                             <td><?php echo e($m->email); ?></td>
+                            <td><?php echo e($m->user?->no_hp ?: '-'); ?></td>
                             <td><?php echo e($m->mgmpGroup->name ?? '-'); ?></td>
                             <td><?php echo e($m->sekolah ?? '-'); ?></td>
                         </tr>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                        <tr><td colspan="5" class="text-center">Belum ada anggota MGMP.</td></tr>
+                        <tr><td colspan="6" class="text-center">Belum ada anggota MGMP.</td></tr>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </tbody>
                 </table>

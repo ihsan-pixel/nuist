@@ -35,6 +35,9 @@
     .pdf-page-option canvas { display: block; width: 100%; height: auto; border-radius: .35rem; box-shadow: 0 1px 5px rgba(15, 23, 42, .15); }
     .pdf-page-option input { position: absolute; top: .65rem; right: .65rem; width: 20px; height: 20px; }
     .pdf-page-number { display: block; margin-top: .4rem; font-size: .75rem; font-weight: 600; text-align: center; }
+    .auto-match-dropzone { border: 2px dashed #93c5fd; border-radius: .9rem; background: #eff6ff; padding: 2rem 1rem; text-align: center; cursor: pointer; }
+    .auto-match-dropzone:hover { background: #dbeafe; border-color: #2563eb; }
+    .auto-match-dropzone input { display: none; }
 </style>
 @endsection
 
@@ -54,6 +57,9 @@
             </div>
         </div>
         <div class="d-flex align-items-start gap-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#autoMatchPhotoModal">
+                <i class="bx bx-scan me-1"></i> Auto-Match Foto
+            </button>
             <a href="{{ route('pendataan-gtk.show', $madrasah) }}" class="btn btn-outline-secondary"><i class="bx bx-arrow-back me-1"></i> Kembali</a>
         </div>
     </div>
@@ -182,6 +188,40 @@
         </div>
     @endif
 </form>
+
+<div class="modal fade" id="autoMatchPhotoModal" tabindex="-1" aria-labelledby="autoMatchPhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="autoMatchPhotoModalLabel"><i class="bx bx-scan me-1 text-primary"></i> Auto-Match Foto Resmi</h5>
+                    <small class="text-muted">Pencocokan foto berdasarkan foto scan wajah menghadap depan.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bx bx-info-circle me-1"></i>
+                    Foto akan dianalisis dan hasil pencocokan harus dikonfirmasi sebelum disimpan. Upload manual di bawah tetap dapat digunakan seperti biasa.
+                </div>
+                <label class="auto-match-dropzone w-100" for="autoMatchPhotos">
+                    <input type="file" id="autoMatchPhotos" accept="image/jpeg,image/png,image/webp" multiple>
+                    <i class="bx bx-images fs-1 text-primary d-block mb-2"></i>
+                    <strong>Pilih banyak foto resmi</strong>
+                    <div class="text-muted small mt-1">JPG, PNG, atau WebP</div>
+                    <div id="autoMatchPhotoCount" class="small text-primary mt-2">Belum ada foto dipilih</div>
+                </label>
+                <div id="autoMatchNotice" class="small text-muted mt-3">Fitur pencocokan akan menampilkan kandidat dan skor kemiripan sebelum penyimpanan.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="startAutoMatchButton" disabled>
+                    <i class="bx bx-search-alt me-1"></i> Mulai Pencocokan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -201,6 +241,15 @@ window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdf
 @endif
 <script>
 (() => {
+    const autoMatchInput = document.getElementById('autoMatchPhotos');
+    const autoMatchCount = document.getElementById('autoMatchPhotoCount');
+    const autoMatchButton = document.getElementById('startAutoMatchButton');
+    autoMatchInput?.addEventListener('change', () => {
+        const total = autoMatchInput.files.length;
+        autoMatchCount.textContent = total ? `${total} foto dipilih` : 'Belum ada foto dipilih';
+        if (autoMatchButton) autoMatchButton.disabled = total === 0;
+    });
+
     const form = document.getElementById('documentsGridForm');
     const inputs = [...form.querySelectorAll('input[type="file"]')];
     const count = document.getElementById('selectedCount');

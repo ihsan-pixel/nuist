@@ -5,7 +5,7 @@
 <style>
     #gtk-schools-table td { vertical-align: middle; }
     #gtk-schools-table .gtk-school-name { min-width: 200px; white-space: normal; }
-    #gtk-schools-table .gtk-school-address { max-width: 340px; white-space: normal; }
+    #gtk-schools-table .gtk-status { min-width: 105px; }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -39,9 +39,14 @@
                         <th>No</th>
                         <th>SCOD</th>
                         <th>Nama Madrasah / Sekolah</th>
-                        <th>Kabupaten</th>
-                        <th>Alamat</th>
                         <th>Jumlah GTK</th>
+                        <th>Kelengkapan Data</th>
+                        <th>Scan Wajah</th>
+                        <th>KTP</th>
+                        <th>SK Pertama</th>
+                        <th>SK Terakhir</th>
+                        <th>Foto Resmi</th>
+                        <th>Foto Bebas</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -51,9 +56,23 @@
                             <td><?php echo e($loop->iteration); ?></td>
                             <td><?php echo e($madrasah->scod ?: '-'); ?></td>
                             <td class="gtk-school-name fw-semibold"><?php echo e($madrasah->name); ?></td>
-                            <td><?php echo e($madrasah->kabupaten ?: '-'); ?></td>
-                            <td class="gtk-school-address text-muted"><?php echo e($madrasah->alamat ?: '-'); ?></td>
                             <td class="text-center"><?php echo e($madrasah->tenaga_pendidik_users_count); ?></td>
+                            <td class="gtk-status">
+                                <div class="d-flex justify-content-between small mb-1"><span>Progress</span><strong><?php echo e($madrasah->gtk_completion_percentage); ?>%</strong></div>
+                                <div class="progress" style="height: 6px"><div class="progress-bar <?php echo e($madrasah->gtk_completion_percentage === 100 ? 'bg-success' : 'bg-primary'); ?>" style="width:<?php echo e($madrasah->gtk_completion_percentage); ?>%"></div></div>
+                            </td>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['face' => 'Scan Wajah', 'ktp' => 'KTP', 'sk_awal' => 'SK Pertama', 'sk_akhir' => 'SK Terakhir', 'foto_resmi' => 'Foto Resmi', 'foto_bebas' => 'Foto Bebas']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $statusKey => $statusLabel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php ($statusCount = $madrasah->gtk_status_counts[$statusKey] ?? 0); ?>
+                                <td class="text-center gtk-status">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->tenaga_pendidik_users_count > 0 && $statusCount === $madrasah->tenaga_pendidik_users_count): ?>
+                                        <span class="badge bg-success">Sudah</span>
+                                    <?php elseif($statusCount > 0): ?>
+                                        <span class="badge bg-warning text-dark"><?php echo e($statusCount); ?>/<?php echo e($madrasah->tenaga_pendidik_users_count); ?></span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Belum</span>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </td>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             <td>
                                 <div class="d-flex gap-2">
                                     <a href="<?php echo e(route('pendataan-gtk.show', $madrasah->id)); ?>" class="btn btn-primary btn-sm" aria-label="Lihat GTK <?php echo e($madrasah->name); ?>">
@@ -85,10 +104,10 @@ $(function () {
         autoWidth: false,
         pageLength: 25,
         order: [[0, 'asc']],
-        columnDefs: [{ targets: 6, orderable: false, searchable: false }],
+        columnDefs: [{ targets: 11, orderable: false, searchable: false }],
         language: {
             search: 'Cari sekolah:',
-            searchPlaceholder: 'Nama, SCOD, kabupaten...',
+            searchPlaceholder: 'Nama atau SCOD...',
             lengthMenu: 'Tampilkan _MENU_ sekolah',
             info: 'Menampilkan _START_–_END_ dari _TOTAL_ sekolah',
             infoEmpty: 'Belum ada sekolah',
