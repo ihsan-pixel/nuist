@@ -96,6 +96,10 @@
                                     ->sortByDesc('created_at')
                                     ->first();
                             }
+                            $frontCaptureImage = $frontCapture?->captured_image;
+                            if ($frontCaptureImage && !\Illuminate\Support\Str::startsWith($frontCaptureImage, ['data:', 'http://', 'https://', '/'])) {
+                                $frontCaptureImage = asset('storage/' . ltrim($frontCaptureImage, '/'));
+                            }
                         ?>
                         <tr data-teacher-name="<?php echo e(strtolower($user->name.' '.$user->nuist_id)); ?>">
                             <td class="teacher-cell">
@@ -159,10 +163,11 @@
                                 </td>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             <td class="face-session-cell">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($frontCapture?->captured_image): ?>
-                                    <a href="<?php echo e($frontCapture->captured_image); ?>" target="_blank" rel="noopener" title="Lihat foto scan wajah <?php echo e($user->name); ?>">
-                                        <img src="<?php echo e($frontCapture->captured_image); ?>" alt="Scan wajah menghadap depan <?php echo e($user->name); ?>" class="face-session-photo">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($frontCaptureImage): ?>
+                                    <a href="<?php echo e($frontCaptureImage); ?>" target="_blank" rel="noopener" title="Lihat foto scan wajah <?php echo e($user->name); ?>">
+                                        <img src="<?php echo e($frontCaptureImage); ?>" alt="Scan wajah menghadap depan <?php echo e($user->name); ?>" class="face-session-photo" onerror="this.closest('a').classList.add('d-none'); this.closest('td').querySelector('.face-session-image-missing').classList.remove('d-none');">
                                     </a>
+                                    <div class="face-session-empty face-session-image-missing d-none">Foto tidak dapat dimuat</div>
                                     <div class="small text-success mt-1"><i class="bx bx-check-circle me-1"></i>Tersedia</div>
                                 <?php else: ?>
                                     <div class="face-session-empty">Belum ada foto sesi depan</div>

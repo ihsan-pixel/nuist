@@ -98,6 +98,10 @@
                                     ->sortByDesc('created_at')
                                     ->first();
                             }
+                            $frontCaptureImage = $frontCapture?->captured_image;
+                            if ($frontCaptureImage && !\Illuminate\Support\Str::startsWith($frontCaptureImage, ['data:', 'http://', 'https://', '/'])) {
+                                $frontCaptureImage = asset('storage/' . ltrim($frontCaptureImage, '/'));
+                            }
                         @endphp
                         <tr data-teacher-name="{{ strtolower($user->name.' '.$user->nuist_id) }}">
                             <td class="teacher-cell">
@@ -161,10 +165,11 @@
                                 </td>
                             @endforeach
                             <td class="face-session-cell">
-                                @if($frontCapture?->captured_image)
-                                    <a href="{{ $frontCapture->captured_image }}" target="_blank" rel="noopener" title="Lihat foto scan wajah {{ $user->name }}">
-                                        <img src="{{ $frontCapture->captured_image }}" alt="Scan wajah menghadap depan {{ $user->name }}" class="face-session-photo">
+                                @if($frontCaptureImage)
+                                    <a href="{{ $frontCaptureImage }}" target="_blank" rel="noopener" title="Lihat foto scan wajah {{ $user->name }}">
+                                        <img src="{{ $frontCaptureImage }}" alt="Scan wajah menghadap depan {{ $user->name }}" class="face-session-photo" onerror="this.closest('a').classList.add('d-none'); this.closest('td').querySelector('.face-session-image-missing').classList.remove('d-none');">
                                     </a>
+                                    <div class="face-session-empty face-session-image-missing d-none">Foto tidak dapat dimuat</div>
                                     <div class="small text-success mt-1"><i class="bx bx-check-circle me-1"></i>Tersedia</div>
                                 @else
                                     <div class="face-session-empty">Belum ada foto sesi depan</div>
