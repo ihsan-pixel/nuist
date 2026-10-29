@@ -214,6 +214,13 @@
                     <div class="text-muted small mt-1">JPG, PNG, atau WebP</div>
                     <div id="autoMatchPhotoCount" class="small text-primary mt-2">Belum ada foto dipilih</div>
                 </label>
+                <div class="mt-3">
+                    <label for="autoMatchCategory" class="form-label fw-semibold">Simpan ke kolom</label>
+                    <select id="autoMatchCategory" class="form-select">
+                        <option value="foto_resmi">Foto Resmi</option>
+                        <option value="foto_bebas">Foto Bebas</option>
+                    </select>
+                </div>
                 <div id="autoMatchNotice" class="small text-muted mt-3">Wajah foto akan dibandingkan dengan data scan wajah terdaftar.</div>
                 <div id="autoMatchProgressWrap" class="mt-3 d-none">
                     <div class="d-flex justify-content-between small mb-1"><span>Progress pemasangan</span><strong id="autoMatchProgressText">0%</strong></div>
@@ -258,6 +265,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
     const autoMatchNotice = document.getElementById('autoMatchNotice');
     const autoMatchResults = document.getElementById('autoMatchResults');
     const autoMatchFileList = document.getElementById('autoMatchFileList');
+    const autoMatchCategory = document.getElementById('autoMatchCategory');
     const autoMatchProgressWrap = document.getElementById('autoMatchProgressWrap');
     const autoMatchProgressBar = document.getElementById('autoMatchProgressBar');
     const autoMatchProgressText = document.getElementById('autoMatchProgressText');
@@ -297,6 +305,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
         if (autoMatchProgressBar) autoMatchProgressBar.style.width = '0%';
         if (autoMatchProgressText) autoMatchProgressText.textContent = '0%';
         const payload = new FormData();
+        payload.append('category', autoMatchCategory?.value || 'foto_resmi');
         Promise.all(files.map(prepareAutoMatchPhoto)).then((preparedFiles) => {
             preparedFiles.forEach((file) => payload.append('photos[]', file));
             return new Promise((resolve, reject) => {
@@ -322,7 +331,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                 if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.similarity ?? '-'}%` : 'Tidak cocok'}</span></div>`).join('');
                 if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
                 if ((data.results || []).some((item) => item.saved)) {
-                    if (autoMatchNotice) autoMatchNotice.textContent = 'Foto yang cocok berhasil disimpan sebagai Foto Resmi. Halaman akan diperbarui.';
+                    if (autoMatchNotice) autoMatchNotice.textContent = `Foto yang cocok berhasil disimpan sebagai ${autoMatchCategory?.value === 'foto_bebas' ? 'Foto Bebas' : 'Foto Resmi'}. Halaman akan diperbarui.`;
                     window.setTimeout(() => window.location.reload(), 900);
                 }
             })

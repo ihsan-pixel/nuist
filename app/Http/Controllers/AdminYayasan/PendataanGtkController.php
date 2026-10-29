@@ -427,7 +427,9 @@ class PendataanGtkController extends Controller
     public function autoMatchManagedPhotos(Request $request, Madrasah $madrasah)
     {
         $this->authorizeAccess();
-        $request->validate(['photos' => ['required', 'array', 'max:100'], 'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240']]);
+        $request->validate(['category' => ['required', Rule::in(['foto_resmi', 'foto_bebas'])], 'photos' => ['required', 'array', 'max:100'], 'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240']]);
+        $documentType = $request->string('category')->toString();
+        $documentDisk = $documentType === 'foto_resmi' ? 'public' : 'local';
 
         $users = User::query()->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')->with('biometricProfiles')->get();
         $engine = app(\App\Services\KioskFaceEngineService::class);
@@ -438,17 +440,18 @@ class PendataanGtkController extends Controller
             $user = !empty($match['user_id']) ? $users->firstWhere('id', (int) $match['user_id']) : null;
             $item = ['file' => $photo->getClientOriginalName(), 'matched' => (bool) ($match['success'] ?? false), 'user' => $user?->name, 'similarity' => isset($match['similarity']) ? round((float) $match['similarity'] * 100, 1) : null, 'message' => $match['message'] ?? 'Wajah tidak cocok.'];
             if (($match['success'] ?? false) && $user) {
-                $path = $this->storeGtkDocument($photo, $user, 'foto_resmi', 'public');
-                $user->update(['avatar' => $path]);
+                $path = $this->storeGtkDocument($photo, $user, $documentType, $documentDisk);
+                if ($documentType === 'foto_resmi') $user->update(['avatar' => $path]);
                 GtkDocument::create([
                     'user_id' => $user->id,
-                    'type' => 'foto_resmi',
-                    'disk' => 'public',
+                    'type' => $documentType,
+                    'disk' => $documentDisk,
                     'path' => $path,
                     'original_name' => $photo->getClientOriginalName(),
                 ]);
                 $item['saved'] = true;
-                $item['message'] = 'Wajah cocok dan foto berhasil disimpan sebagai Foto Resmi.';
+                $item['type'] = $documentType;
+                $item['message'] = 'Wajah cocok dan foto berhasil disimpan sebagai '.($documentType === 'foto_resmi' ? 'Foto Resmi' : 'Foto Bebas').'.';
             }
             $results[] = $item;
         }
