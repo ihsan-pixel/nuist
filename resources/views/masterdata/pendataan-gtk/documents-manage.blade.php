@@ -27,6 +27,7 @@
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
     .face-session-cell { min-width: 150px; text-align: center; }
     .face-session-photo { width: 86px; height: 104px; object-fit: cover; border-radius: .65rem; border: 1px solid #dbe3ec; background: #f8fafc; }
+    .stored-photo-preview { width: 86px; height: 104px; object-fit: cover; border-radius: .65rem; border: 1px solid #dbe3ec; background: #f8fafc; display: block; margin: 0 auto .35rem; }
     .face-session-empty { width: 86px; height: 104px; border-radius: .65rem; border: 1px dashed #cbd5e1; background: #f8fafc; color: #94a3b8; display: inline-flex; align-items: center; justify-content: center; font-size: .72rem; text-align: center; padding: .4rem; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
     .pdf-page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: .75rem; max-height: 60vh; overflow-y: auto; padding: .25rem; }
@@ -156,7 +157,14 @@
                                             <span class="stored-files">
                                                 @foreach($storedFiles as $storedFile)
                                                     <span class="stored-file">
-                                                        <a href="{{ $storedFile['view_url'] }}" target="_blank" rel="noopener" class="document-preview view-stored-file" title="{{ $storedFile['name'] }}"><i class="bx bx-show me-1"></i>{{ $storedFile['name'] }}</a>
+                                                        @if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
+                                                            <a href="{{ $storedFile['view_url'] }}" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="{{ $storedFile['name'] }}">
+                                                                <img src="{{ $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="lazy">
+                                                                <span class="d-block text-truncate">{{ $storedFile['name'] }}</span>
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ $storedFile['view_url'] }}" target="_blank" rel="noopener" class="document-preview view-stored-file" title="{{ $storedFile['name'] }}"><i class="bx bx-show me-1"></i>{{ $storedFile['name'] }}</a>
+                                                        @endif
                                                         <button type="button" class="btn btn-sm btn-outline-danger remove-document" title="Hapus berkas" data-delete-url="{{ $storedFile['delete_url'] }}" data-document-label="{{ $storedFile['name'] }}"><i class="bx bx-trash"></i></button>
                                                     </span>
                                                 @endforeach
