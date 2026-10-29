@@ -217,6 +217,10 @@
                     <div id="autoMatchPhotoCount" class="small text-primary mt-2">Belum ada foto dipilih</div>
                 </label>
                 <div id="autoMatchNotice" class="small text-muted mt-3">Fitur pencocokan akan menampilkan kandidat dan skor kemiripan sebelum penyimpanan.</div>
+                <div id="autoMatchResults" class="mt-3 d-none">
+                    <div class="fw-semibold mb-2"><i class="bx bx-list-check me-1 text-success"></i>Foto siap diproses</div>
+                    <div id="autoMatchFileList" class="list-group small"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
@@ -249,10 +253,38 @@ window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdf
     const autoMatchInput = document.getElementById('autoMatchPhotos');
     const autoMatchCount = document.getElementById('autoMatchPhotoCount');
     const autoMatchButton = document.getElementById('startAutoMatchButton');
+    const autoMatchNotice = document.getElementById('autoMatchNotice');
+    const autoMatchResults = document.getElementById('autoMatchResults');
+    const autoMatchFileList = document.getElementById('autoMatchFileList');
+    const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','\"':'&quot;'}[character]));
     autoMatchInput?.addEventListener('change', () => {
         const total = autoMatchInput.files.length;
         autoMatchCount.textContent = total ? `${total} foto dipilih` : 'Belum ada foto dipilih';
         if (autoMatchButton) autoMatchButton.disabled = total === 0;
+        if (autoMatchResults) autoMatchResults.classList.add('d-none');
+        if (autoMatchNotice) autoMatchNotice.textContent = total
+            ? 'Klik “Mulai Pencocokan” untuk menyiapkan foto dan menampilkan daftar kandidat.'
+            : 'Pilih foto terlebih dahulu.';
+    });
+    autoMatchButton?.addEventListener('click', () => {
+        const files = [...(autoMatchInput?.files || [])];
+        if (!files.length) {
+            if (autoMatchNotice) autoMatchNotice.textContent = 'Pilih minimal satu foto terlebih dahulu.';
+            return;
+        }
+        autoMatchButton.disabled = true;
+        autoMatchButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Menyiapkan...';
+        if (autoMatchFileList) {
+            autoMatchFileList.innerHTML = files.map((file, index) =>
+                `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${index + 1}. ${escapeHtml(file.name)}</span><span class="badge bg-secondary">${Math.ceil(file.size / 1024)} KB</span></div>`
+            ).join('');
+        }
+        window.setTimeout(() => {
+            autoMatchButton.disabled = false;
+            autoMatchButton.innerHTML = '<i class="bx bx-search-alt me-1"></i> Mulai Pencocokan';
+            autoMatchResults?.classList.remove('d-none');
+            if (autoMatchNotice) autoMatchNotice.textContent = `${files.length} foto sudah disiapkan. Daftar kandidat akan tersedia setelah mesin pencocokan server diaktifkan.`;
+        }, 350);
     });
 
     const form = document.getElementById('documentsGridForm');
