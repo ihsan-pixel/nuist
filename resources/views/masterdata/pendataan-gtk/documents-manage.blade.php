@@ -130,6 +130,7 @@
                                     foreach ($user->gtkDocuments->where('type', $type) as $document) {
                                         $storedFiles->push([
                                             'name' => $document->original_name ?: basename($document->path),
+                                            'path' => $document->disk.':'.$document->path,
                                             'view_url' => route('pendataan-gtk.documents.manage.view', [$madrasah, $document]),
                                             'delete_url' => route('pendataan-gtk.documents.manage.file.destroy', [$madrasah, $document]),
                                         ]);
@@ -137,10 +138,12 @@
                                     if ($storedPath) {
                                         $storedFiles->prepend([
                                             'name' => basename($storedPath),
+                                            'path' => ($type === 'foto_resmi' ? 'public:' : 'local:').ltrim($storedPath, '/'),
                                             'view_url' => route('pendataan-gtk.documents.view', [$user, str_replace('_', '-', $type)]),
                                             'delete_url' => route('pendataan-gtk.documents.manage.destroy', [$madrasah, $user, $type]),
                                         ]);
                                     }
+                                    $storedFiles = $storedFiles->unique('path')->values();
                                 @endphp
                                 <td>
                                     <label class="drop-zone {{ $storedFiles->isNotEmpty() ? 'has-stored-file' : '' }}" tabindex="0">
