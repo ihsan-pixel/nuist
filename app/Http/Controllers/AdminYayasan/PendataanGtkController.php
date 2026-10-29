@@ -429,27 +429,43 @@ class PendataanGtkController extends Controller
         $this->authorizeAccess();
         $request->validate(['photos' => ['required', 'array', 'max:100'], 'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240']]);
 
-        $users = User::query()->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')
-            ->with('biometricProfiles')->get();
-        $engine = app(\App\Services\KioskFaceEngineService::class);
+        $users = User::query()->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')->get();
         $results = [];
         foreach ($request->file('photos', []) as $photo) {
-            $dataUrl = 'data:'.$photo->getMimeType().';base64,'.base64_encode($photo->get());
-            $match = $engine->identify($users, ['selfie_frames' => [$dataUrl]], ['source' => 'gtk_bulk_photo_match', 'madrasah_id' => $madrasah->id]);
-            $item = ['file' => $photo->getClientOriginalName(), 'matched' => false, 'message' => $match['message'] ?? 'Tidak ditemukan kecocokan.'];
-            if (($match['success'] ?? false) && !empty($match['user_id'])) {
-                $user = $users->firstWhere('id', (int) $match['user_id']);
-                if ($user) {
-                    $path = $this->storeGtkDocument($photo, $user, 'foto_resmi', 'public');
-                    $user->update(['avatar' => $path]);
-                    GtkDocument::create(['user_id' => $user->id, 'type' => 'foto_resmi', 'disk' => 'public', 'path' => $path, 'original_name' => $photo->getClientOriginalName()]);
-                    $item = ['file' => $photo->getClientOriginalName(), 'matched' => true, 'user' => $user->name, 'similarity' => $match['similarity'] ?? null, 'message' => 'Foto berhasil dicocokkan dan disimpan.'];
-                }
+            $matches = $users->map(fn (User $user) => ['user' => $user, 'score' => $this->filenameUserMatchScore($photo->getClientOriginalName(), $user->name)])
+                ->filter(fn (array $match) => $match['score'] > 0)->sortByDesc('score')->values();
+            $best = $matches->first();
+            $item = ['file' => $photo->getClientOriginalName(), 'matched' => false, 'message' => 'Nama file tidak cocok dengan nama user.'];
+            if ($best && ($best['score'] >= 0.85 || ($best['score'] >= 0.65 && $matches->count() === 1))) {
+                $user = $best['user'];
+                $path = $this->storeGtkDocument($photo, $user, 'foto_resmi', 'public');
+                $user->update(['avatar' => $path]);
+                GtkDocument::create(['user_id' => $user->id, 'type' => 'foto_resmi', 'disk' => 'public', 'path' => $path, 'original_name' => $photo->getClientOriginalName()]);
+                $item = ['file' => $photo->getClientOriginalName(), 'matched' => true, 'user' => $user->name, 'similarity' => round($best['score'] * 100, 1), 'message' => 'Foto berhasil dicocokkan berdasarkan nama file dan disimpan.'];
+            } elseif ($best) {
+                $item['message'] = 'Nama file mirip, tetapi belum cukup yakin untuk disimpan.';
             }
             $results[] = $item;
         }
 
         return response()->json(['message' => 'Pencocokan selesai.', 'results' => $results]);
+    }
+
+    private function filenameUserMatchScore(string $filename, string $userName): float
+    {
+        $clean = static function (string $value): string {
+            $value = strtolower(pathinfo($value, PATHINFO_FILENAME));
+            $value = preg_replace('/\b(formal|non formal|nonformal)\b/i', ' ', $value) ?? $value;
+            $value = preg_replace('/[^a-z0-9]+/i', ' ', $value) ?? $value;
+            return trim(preg_replace('/\s+/', ' ', $value) ?? $value);
+        };
+        $file = $clean($filename);
+        $name = $clean($userName);
+        if ($file === '' || $name === '') return 0.0;
+        if (str_contains(' '.$file.' ', ' '.$name.' ')) return 1.0;
+        $nameTokens = array_values(array_filter(explode(' ', $name), fn ($token) => strlen($token) > 1));
+        $matched = count(array_filter($nameTokens, fn ($token) => str_contains($file, $token)));
+        return $matched / max(1, count($nameTokens));
     }
 
     public function storeManagedDocuments(Request $request, Madrasah $madrasah)

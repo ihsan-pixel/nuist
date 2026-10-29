@@ -198,14 +198,14 @@
             <div class="modal-header">
                 <div>
                     <h5 class="modal-title" id="autoMatchPhotoModalLabel"><i class="bx bx-scan me-1 text-primary"></i> Auto-Match Foto Resmi</h5>
-                    <small class="text-muted">Pencocokan foto berdasarkan foto scan wajah menghadap depan.</small>
+                    <small class="text-muted">Pencocokan foto berdasarkan nama file.</small>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-info">
                     <i class="bx bx-info-circle me-1"></i>
-                    Foto akan dianalisis dan hasil pencocokan harus dikonfirmasi sebelum disimpan. Upload manual di bawah tetap dapat digunakan seperti biasa.
+                    Nama file akan dicocokkan dengan nama GTK. Contoh: <strong>Formal - Khusniatun Badriyah - Kepala Sekolah.jpg</strong>. Upload manual di bawah tetap dapat digunakan seperti biasa.
                 </div>
                 <label class="auto-match-dropzone w-100" for="autoMatchPhotos">
                     <input type="file" id="autoMatchPhotos" accept="image/jpeg,image/png,image/webp" multiple>
@@ -214,7 +214,7 @@
                     <div class="text-muted small mt-1">JPG, PNG, atau WebP</div>
                     <div id="autoMatchPhotoCount" class="small text-primary mt-2">Belum ada foto dipilih</div>
                 </label>
-                <div id="autoMatchNotice" class="small text-muted mt-3">Fitur pencocokan akan menampilkan kandidat dan skor kemiripan sebelum penyimpanan.</div>
+                <div id="autoMatchNotice" class="small text-muted mt-3">Foto dengan nama yang cocok akan disimpan sebagai Foto Resmi.</div>
                 <div id="autoMatchResults" class="mt-3 d-none">
                     <div class="fw-semibold mb-2"><i class="bx bx-list-check me-1 text-success"></i>Foto siap diproses</div>
                     <div id="autoMatchFileList" class="list-group small"></div>
