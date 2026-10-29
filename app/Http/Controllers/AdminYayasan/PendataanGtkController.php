@@ -46,11 +46,51 @@ class PendataanGtkController extends Controller
         $this->authorizeAccess();
 
         $madrasahs = Madrasah::query()
+            ->whereKeyNot(52)
             ->orderByRaw("CAST(COALESCE(NULLIF(scod, ''), '0') AS UNSIGNED) ASC")
             ->orderBy('name')
-            ->select(['id', 'name', 'scod', 'kabupaten', 'alamat', 'logo'])
-            ->withCount('tenagaPendidikUsers')
+            ->select(['id', 'name', 'scod', 'logo'])
+            ->with(['tenagaPendidikUsers' => fn ($query) => $query->with('gtkPendataan')])
             ->get();
+
+        $madrasahs->each(function (Madrasah $madrasah) {
+            $gtk = $madrasah->tenagaPendidikUsers;
+            $total = $gtk->count();
+            $fieldCount = 13;
+            $completedFields = $gtk->sum(function (User $user) {
+                $data = $user->gtkPendataan;
+                $fields = [
+                    $user->nuist_id,
+                    $user->name,
+                    $user->status_kepegawaian_id,
+                    $user->no_hp,
+                    $user->email,
+                    $user->pendidikan_terakhir,
+                    $user->avatar,
+                    $data?->foto_bebas_path,
+                    $data?->nik,
+                    $data?->ktp_path,
+                    $data?->tmt_sk_pertama,
+                    $data?->sk_awal_path,
+                    $data?->sk_akhir_path,
+                ];
+
+                return collect($fields)->filter(fn ($value) => filled($value))->count();
+            });
+
+            $madrasah->tenaga_pendidik_users_count = $total;
+            $madrasah->gtk_completion_percentage = $total > 0
+                ? (int) round($completedFields / ($total * $fieldCount) * 100)
+                : 0;
+            $madrasah->gtk_status_counts = [
+                'face' => $gtk->filter(fn (User $user) => $user->hasFaceEnrollment())->count(),
+                'ktp' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->ktp_path))->count(),
+                'sk_awal' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->sk_awal_path))->count(),
+                'sk_akhir' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->sk_akhir_path))->count(),
+                'foto_resmi' => $gtk->filter(fn (User $user) => filled($user->avatar))->count(),
+                'foto_bebas' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->foto_bebas_path))->count(),
+            ];
+        });
 
         return view('masterdata.pendataan-gtk.index', compact('madrasahs'));
     }

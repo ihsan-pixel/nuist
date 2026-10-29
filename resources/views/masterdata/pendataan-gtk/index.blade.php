@@ -7,7 +7,7 @@
 <style>
     #gtk-schools-table td { vertical-align: middle; }
     #gtk-schools-table .gtk-school-name { min-width: 200px; white-space: normal; }
-    #gtk-schools-table .gtk-school-address { max-width: 340px; white-space: normal; }
+    #gtk-schools-table .gtk-status { min-width: 105px; }
 </style>
 @endsection
 
@@ -41,9 +41,14 @@
                         <th>No</th>
                         <th>SCOD</th>
                         <th>Nama Madrasah / Sekolah</th>
-                        <th>Kabupaten</th>
-                        <th>Alamat</th>
                         <th>Jumlah GTK</th>
+                        <th>Kelengkapan Data</th>
+                        <th>Scan Wajah</th>
+                        <th>KTP</th>
+                        <th>SK Pertama</th>
+                        <th>SK Terakhir</th>
+                        <th>Foto Resmi</th>
+                        <th>Foto Bebas</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -53,9 +58,23 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $madrasah->scod ?: '-' }}</td>
                             <td class="gtk-school-name fw-semibold">{{ $madrasah->name }}</td>
-                            <td>{{ $madrasah->kabupaten ?: '-' }}</td>
-                            <td class="gtk-school-address text-muted">{{ $madrasah->alamat ?: '-' }}</td>
                             <td class="text-center">{{ $madrasah->tenaga_pendidik_users_count }}</td>
+                            <td class="gtk-status">
+                                <div class="d-flex justify-content-between small mb-1"><span>Progress</span><strong>{{ $madrasah->gtk_completion_percentage }}%</strong></div>
+                                <div class="progress" style="height: 6px"><div class="progress-bar {{ $madrasah->gtk_completion_percentage === 100 ? 'bg-success' : 'bg-primary' }}" style="width:{{ $madrasah->gtk_completion_percentage }}%"></div></div>
+                            </td>
+                            @foreach(['face' => 'Scan Wajah', 'ktp' => 'KTP', 'sk_awal' => 'SK Pertama', 'sk_akhir' => 'SK Terakhir', 'foto_resmi' => 'Foto Resmi', 'foto_bebas' => 'Foto Bebas'] as $statusKey => $statusLabel)
+                                @php($statusCount = $madrasah->gtk_status_counts[$statusKey] ?? 0)
+                                <td class="text-center gtk-status">
+                                    @if($madrasah->tenaga_pendidik_users_count > 0 && $statusCount === $madrasah->tenaga_pendidik_users_count)
+                                        <span class="badge bg-success">Sudah</span>
+                                    @elseif($statusCount > 0)
+                                        <span class="badge bg-warning text-dark">{{ $statusCount }}/{{ $madrasah->tenaga_pendidik_users_count }}</span>
+                                    @else
+                                        <span class="badge bg-secondary">Belum</span>
+                                    @endif
+                                </td>
+                            @endforeach
                             <td>
                                 <div class="d-flex gap-2">
                                     <a href="{{ route('pendataan-gtk.show', $madrasah->id) }}" class="btn btn-primary btn-sm" aria-label="Lihat GTK {{ $madrasah->name }}">
@@ -87,10 +106,10 @@ $(function () {
         autoWidth: false,
         pageLength: 25,
         order: [[0, 'asc']],
-        columnDefs: [{ targets: 6, orderable: false, searchable: false }],
+        columnDefs: [{ targets: 11, orderable: false, searchable: false }],
         language: {
             search: 'Cari sekolah:',
-            searchPlaceholder: 'Nama, SCOD, kabupaten...',
+            searchPlaceholder: 'Nama atau SCOD...',
             lengthMenu: 'Tampilkan _MENU_ sekolah',
             info: 'Menampilkan _START_–_END_ dari _TOTAL_ sekolah',
             infoEmpty: 'Belum ada sekolah',
