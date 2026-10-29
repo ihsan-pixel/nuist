@@ -222,7 +222,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="startAutoMatchButton" disabled>
+                <button type="button" class="btn btn-primary" id="startAutoMatchButton" data-url="<?php echo e(route('pendataan-gtk.documents.manage.auto-match', $madrasah)); ?>" disabled>
                     <i class="bx bx-search-alt me-1"></i> Mulai Pencocokan
                 </button>
             </div>
@@ -271,18 +271,18 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
             return;
         }
         autoMatchButton.disabled = true;
-        autoMatchButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Menyiapkan...';
-        if (autoMatchFileList) {
-            autoMatchFileList.innerHTML = files.map((file, index) =>
-                `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${index + 1}. ${escapeHtml(file.name)}</span><span class="badge bg-secondary">${Math.ceil(file.size / 1024)} KB</span></div>`
-            ).join('');
-        }
-        window.setTimeout(() => {
-            autoMatchButton.disabled = false;
-            autoMatchButton.innerHTML = '<i class="bx bx-search-alt me-1"></i> Mulai Pencocokan';
-            autoMatchResults?.classList.remove('d-none');
-            if (autoMatchNotice) autoMatchNotice.textContent = `${files.length} foto sudah disiapkan. Daftar kandidat akan tersedia setelah mesin pencocokan server diaktifkan.`;
-        }, 350);
+        autoMatchButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Mencocokkan...';
+        const payload = new FormData();
+        files.forEach((file) => payload.append('photos[]', file));
+        fetch(autoMatchButton.dataset.url, { method: 'POST', body: payload, headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' } })
+            .then(async (response) => { const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Pencocokan gagal.'); return data; })
+            .then((data) => {
+                autoMatchResults?.classList.remove('d-none');
+                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? escapeHtml(item.user || 'Cocok') : 'Tidak cocok'}</span></div>`).join('');
+                if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
+            })
+            .catch((error) => { if (autoMatchNotice) autoMatchNotice.textContent = error.message; })
+            .finally(() => { autoMatchButton.disabled = false; autoMatchButton.innerHTML = '<i class="bx bx-search-alt me-1"></i> Mulai Pencocokan'; });
     });
 
     const form = document.getElementById('documentsGridForm');

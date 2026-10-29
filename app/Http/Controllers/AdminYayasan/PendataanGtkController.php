@@ -424,6 +424,34 @@ class PendataanGtkController extends Controller
         return view('masterdata.pendataan-gtk.documents-manage', compact('madrasah', 'gtk'));
     }
 
+    public function autoMatchManagedPhotos(Request $request, Madrasah $madrasah)
+    {
+        $this->authorizeAccess();
+        $request->validate(['photos' => ['required', 'array', 'max:100'], 'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240']]);
+
+        $users = User::query()->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')
+            ->with('biometricProfiles')->get();
+        $engine = app(\App\Services\KioskFaceEngineService::class);
+        $results = [];
+        foreach ($request->file('photos', []) as $photo) {
+            $dataUrl = 'data:'.$photo->getMimeType().';base64,'.base64_encode($photo->get());
+            $match = $engine->identify($users, ['frames' => [$dataUrl]], ['source' => 'gtk_bulk_photo_match', 'madrasah_id' => $madrasah->id]);
+            $item = ['file' => $photo->getClientOriginalName(), 'matched' => false, 'message' => $match['message'] ?? 'Tidak ditemukan kecocokan.'];
+            if (($match['success'] ?? false) && !empty($match['user_id'])) {
+                $user = $users->firstWhere('id', (int) $match['user_id']);
+                if ($user) {
+                    $path = $this->storeGtkDocument($photo, $user, 'foto_resmi', 'public');
+                    $user->update(['avatar' => $path]);
+                    GtkDocument::create(['user_id' => $user->id, 'type' => 'foto_resmi', 'disk' => 'public', 'path' => $path, 'original_name' => $photo->getClientOriginalName()]);
+                    $item = ['file' => $photo->getClientOriginalName(), 'matched' => true, 'user' => $user->name, 'similarity' => $match['similarity'] ?? null, 'message' => 'Foto berhasil dicocokkan dan disimpan.'];
+                }
+            }
+            $results[] = $item;
+        }
+
+        return response()->json(['message' => 'Pencocokan selesai.', 'results' => $results]);
+    }
+
     public function storeManagedDocuments(Request $request, Madrasah $madrasah)
     {
         $this->authorizeAccess();
