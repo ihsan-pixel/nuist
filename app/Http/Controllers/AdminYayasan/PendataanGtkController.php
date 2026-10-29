@@ -421,6 +421,15 @@ class PendataanGtkController extends Controller
             ->orderBy('name')
             ->get();
 
+        foreach ($gtk as $teacher) {
+            $capture = $teacher->faceEnrollmentSessions
+                ->where('status', 'completed')
+                ->sortByDesc(fn ($session) => $session->completed_at ?: $session->updated_at)
+                ->flatMap(fn ($session) => $session->captures->whereIn('phase_key', ['front', 'front_2']))
+                ->sortByDesc('created_at')->first();
+            $teacher->setAttribute('front_capture_preview', $capture ? $this->attachmentImageDataUri('public', $capture->captured_image) : null);
+        }
+
         return view('masterdata.pendataan-gtk.documents-manage', compact('madrasah', 'gtk'));
     }
 
@@ -568,10 +577,15 @@ class PendataanGtkController extends Controller
         $this->authorizeAccess();
         $this->authorizeManagedDocument($madrasah, $gtkDocument);
         abort_unless(Storage::disk($gtkDocument->disk)->exists($gtkDocument->path), 404);
-        $absolutePath = Storage::disk($gtkDocument->disk)->path($gtkDocument->path);
-        abort_unless(is_file($absolutePath) && is_readable($absolutePath), 404);
-
-        return response()->file($absolutePath, [
+        $disk = Storage::disk($gtkDocument->disk);
+        $stream = $disk->readStream($gtkDocument->path);
+        abort_unless(is_resource($stream), 404);
+        $mime = $disk->mimeType($gtkDocument->path) ?: 'application/octet-stream';
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $mime,
             'Content-Disposition' => 'inline; filename="'.($gtkDocument->original_name ?: basename($gtkDocument->path)).'"',
         ]);
     }
@@ -793,10 +807,15 @@ class PendataanGtkController extends Controller
 
         abort_unless($path && Storage::disk($disk)->exists($path), 404);
 
-        $absolutePath = Storage::disk($disk)->path($path);
-        abort_unless(is_file($absolutePath) && is_readable($absolutePath), 404);
-
-        return response()->file($absolutePath, [
+        $storageDisk = Storage::disk($disk);
+        $stream = $storageDisk->readStream($path);
+        abort_unless(is_resource($stream), 404);
+        $mime = $storageDisk->mimeType($path) ?: 'application/octet-stream';
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $mime,
             'Content-Disposition' => 'inline; filename="'.basename($path).'"',
         ]);
     }

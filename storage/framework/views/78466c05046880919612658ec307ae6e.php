@@ -97,7 +97,7 @@
                                     ->sortByDesc('created_at')
                                     ->first();
                             }
-                            $frontCaptureImage = $frontCapture?->captured_image;
+                            $frontCaptureImage = $user->front_capture_preview ?: $frontCapture?->captured_image;
                             if ($frontCaptureImage && !\Illuminate\Support\Str::startsWith($frontCaptureImage, ['data:', 'http://', 'https://', '/'])) {
                                 $frontCaptureImage = asset('storage/' . ltrim($frontCaptureImage, '/'));
                             }
@@ -159,7 +159,7 @@
                                                     <span class="stored-file">
                                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'])): ?>
                                                             <a href="<?php echo e($storedFile['view_url']); ?>" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="<?php echo e($storedFile['name']); ?>">
-                                                                <img src="<?php echo e($storedFile['image_url'] ?: $storedFile['view_url']); ?>" data-fallback-url="<?php echo e($storedFile['view_url']); ?>" alt="<?php echo e($storedFile['name']); ?>" class="stored-photo-preview" loading="eager" decoding="async">
+                                                                <img src="<?php echo e($storedFile['view_url']); ?>" data-fallback-url="<?php echo e($storedFile['image_url'] ?: $storedFile['view_url']); ?>" alt="<?php echo e($storedFile['name']); ?>" class="stored-photo-preview" loading="eager" decoding="async">
                                                                 <span class="d-block text-truncate"><?php echo e($storedFile['name']); ?></span>
                                                             </a>
                                                         <?php else: ?>

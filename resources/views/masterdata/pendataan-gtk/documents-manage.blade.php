@@ -99,7 +99,7 @@
                                     ->sortByDesc('created_at')
                                     ->first();
                             }
-                            $frontCaptureImage = $frontCapture?->captured_image;
+                            $frontCaptureImage = $user->front_capture_preview ?: $frontCapture?->captured_image;
                             if ($frontCaptureImage && !\Illuminate\Support\Str::startsWith($frontCaptureImage, ['data:', 'http://', 'https://', '/'])) {
                                 $frontCaptureImage = asset('storage/' . ltrim($frontCaptureImage, '/'));
                             }
@@ -161,7 +161,7 @@
                                                     <span class="stored-file">
                                                         @if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
                                                             <a href="{{ $storedFile['view_url'] }}" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="{{ $storedFile['name'] }}">
-                                                                <img src="{{ $storedFile['image_url'] ?: $storedFile['view_url'] }}" data-fallback-url="{{ $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="eager" decoding="async">
+                                                                <img src="{{ $storedFile['view_url'] }}" data-fallback-url="{{ $storedFile['image_url'] ?: $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="eager" decoding="async">
                                                                 <span class="d-block text-truncate">{{ $storedFile['name'] }}</span>
                                                             </a>
                                                         @else
