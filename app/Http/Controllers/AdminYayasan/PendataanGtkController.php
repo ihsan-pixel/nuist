@@ -437,6 +437,19 @@ class PendataanGtkController extends Controller
             $match = $engine->identify($users, ['selfie_frames' => [$dataUrl]], ['source' => 'gtk_bulk_face_match', 'madrasah_id' => $madrasah->id]);
             $user = !empty($match['user_id']) ? $users->firstWhere('id', (int) $match['user_id']) : null;
             $item = ['file' => $photo->getClientOriginalName(), 'matched' => (bool) ($match['success'] ?? false), 'user' => $user?->name, 'similarity' => isset($match['similarity']) ? round((float) $match['similarity'] * 100, 1) : null, 'message' => $match['message'] ?? 'Wajah tidak cocok.'];
+            if (($match['success'] ?? false) && $user) {
+                $path = $this->storeGtkDocument($photo, $user, 'foto_resmi', 'public');
+                $user->update(['avatar' => $path]);
+                GtkDocument::create([
+                    'user_id' => $user->id,
+                    'type' => 'foto_resmi',
+                    'disk' => 'public',
+                    'path' => $path,
+                    'original_name' => $photo->getClientOriginalName(),
+                ]);
+                $item['saved'] = true;
+                $item['message'] = 'Wajah cocok dan foto berhasil disimpan sebagai Foto Resmi.';
+            }
             $results[] = $item;
         }
 

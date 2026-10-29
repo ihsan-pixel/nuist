@@ -321,6 +321,10 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                 autoMatchResults?.classList.remove('d-none');
                 if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.similarity ?? '-'}%` : 'Tidak cocok'}</span></div>`).join('');
                 if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
+                if ((data.results || []).some((item) => item.saved)) {
+                    if (autoMatchNotice) autoMatchNotice.textContent = 'Foto yang cocok berhasil disimpan sebagai Foto Resmi. Halaman akan diperbarui.';
+                    window.setTimeout(() => window.location.reload(), 900);
+                }
             })
             .catch((error) => { if (autoMatchNotice) autoMatchNotice.textContent = error.message; })
             .finally(() => { autoMatchButton.disabled = false; autoMatchButton.innerHTML = '<i class="bx bx-search-alt me-1"></i> Mulai Pencocokan'; });
