@@ -577,15 +577,14 @@ class PendataanGtkController extends Controller
         $this->authorizeAccess();
         $this->authorizeManagedDocument($madrasah, $gtkDocument);
         abort_unless(Storage::disk($gtkDocument->disk)->exists($gtkDocument->path), 404);
-        $disk = Storage::disk($gtkDocument->disk);
-        $stream = $disk->readStream($gtkDocument->path);
-        abort_unless(is_resource($stream), 404);
-        $mime = $disk->mimeType($gtkDocument->path) ?: 'application/octet-stream';
-        return response()->stream(function () use ($stream) {
-            fpassthru($stream);
-            fclose($stream);
-        }, 200, [
-            'Content-Type' => $mime,
+        try {
+            $disk = Storage::disk($gtkDocument->disk);
+            $content = $disk->get($gtkDocument->path);
+        } catch (\Throwable) {
+            abort(404);
+        }
+        return response($content, 200, [
+            'Content-Type' => $this->guessImageMime($gtkDocument->path),
             'Content-Disposition' => 'inline; filename="'.($gtkDocument->original_name ?: basename($gtkDocument->path)).'"',
         ]);
     }
@@ -807,15 +806,13 @@ class PendataanGtkController extends Controller
 
         abort_unless($path && Storage::disk($disk)->exists($path), 404);
 
-        $storageDisk = Storage::disk($disk);
-        $stream = $storageDisk->readStream($path);
-        abort_unless(is_resource($stream), 404);
-        $mime = $storageDisk->mimeType($path) ?: 'application/octet-stream';
-        return response()->stream(function () use ($stream) {
-            fpassthru($stream);
-            fclose($stream);
-        }, 200, [
-            'Content-Type' => $mime,
+        try {
+            $content = Storage::disk($disk)->get($path);
+        } catch (\Throwable) {
+            abort(404);
+        }
+        return response($content, 200, [
+            'Content-Type' => $this->guessImageMime($path),
             'Content-Disposition' => 'inline; filename="'.basename($path).'"',
         ]);
     }
@@ -1036,6 +1033,18 @@ class PendataanGtkController extends Controller
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    private function guessImageMime(string $path): string
+    {
+        return match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            'gif' => 'image/gif',
+            'pdf' => 'application/pdf',
+            default => 'application/octet-stream',
+        };
     }
 
     private function authorizeManagedDocument(Madrasah $madrasah, GtkDocument $gtkDocument): void
