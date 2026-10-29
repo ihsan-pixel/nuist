@@ -161,7 +161,7 @@
                                                     <span class="stored-file">
                                                         @if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
                                                             <a href="{{ $storedFile['view_url'] }}" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="{{ $storedFile['name'] }}">
-                                                                <img src="{{ $storedFile['image_url'] ?: $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="eager" decoding="async">
+                                                                <img src="{{ $storedFile['image_url'] ?: $storedFile['view_url'] }}" alt="{{ $storedFile['name'] }}" class="stored-photo-preview" loading="eager" decoding="async" onerror="if (this.dataset.fallback !== '1') { this.dataset.fallback = '1'; this.src = @json($storedFile['view_url']); } else { this.style.display = 'none'; }">
                                                                 <span class="d-block text-truncate">{{ $storedFile['name'] }}</span>
                                                             </a>
                                                         @else
