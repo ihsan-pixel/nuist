@@ -8,6 +8,21 @@ use App\Models\Question;
 
 class QuestionController extends Controller
 {
+    private function questionRules(): array
+    {
+        return [
+            'kategori' => ['required', 'string'],
+            'pertanyaan' => ['required', 'string'],
+            'choice_texts' => ['nullable', 'array'],
+            'choice_scores' => ['nullable', 'array'],
+            'choice_scores.A' => ['nullable', 'integer'],
+            'choice_scores.B' => ['nullable', 'integer'],
+            'choice_scores.C' => ['nullable', 'integer'],
+            'choice_scores.D' => ['nullable', 'integer'],
+            'choice_scores.E' => ['nullable', 'integer'],
+        ];
+    }
+
     public function __construct()
     {
         $this->middleware(['auth','role:super_admin']);
@@ -26,17 +41,7 @@ class QuestionController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'kategori' => 'required|string',
-            'pertanyaan' => 'required|string',
-            'choice_texts' => 'nullable|array',
-            'choice_scores' => 'nullable|array',
-            'choice_scores.A' => 'nullable|integer',
-            'choice_scores.B' => 'nullable|integer',
-            'choice_scores.C' => 'nullable|integer',
-            'choice_scores.D' => 'nullable|integer',
-            'choice_scores.E' => 'nullable|integer',
-        ]);
+        $data = $request->validate($this->questionRules());
 
         Question::create([
             'kategori' => $data['kategori'],
@@ -54,17 +59,7 @@ class QuestionController extends Controller
 
     public function update(Request $request, Question $question)
     {
-        $data = $request->validate([
-            'kategori' => 'required|string',
-            'pertanyaan' => 'required|string',
-            'choice_texts' => 'nullable|array',
-            'choice_scores' => 'nullable|array',
-            'choice_scores.A' => 'nullable|integer',
-            'choice_scores.B' => 'nullable|integer',
-            'choice_scores.C' => 'nullable|integer',
-            'choice_scores.D' => 'nullable|integer',
-            'choice_scores.E' => 'nullable|integer',
-        ]);
+        $data = $request->validate($this->questionRules());
 
         $question->update([
             'kategori' => $data['kategori'],

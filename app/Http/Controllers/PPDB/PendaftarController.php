@@ -16,27 +16,39 @@ use App\Mail\PPDBRegistrationConfirmation;
 
 class PendaftarController extends Controller
 {
+    private function currentSettingFor(string $slug, bool $withSchool = false): ?PPDBSetting
+    {
+        $query = PPDBSetting::query()
+            ->where('slug', $slug)
+            ->where('tahun', now()->year);
+
+        if ($withSchool) {
+            $query->with('sekolah');
+        }
+
+        $setting = $query->first();
+
+        if (!$setting && is_numeric($slug)) {
+            $settingQuery = PPDBSetting::query()
+                ->where('sekolah_id', $slug)
+                ->where('tahun', now()->year);
+
+            if ($withSchool) {
+                $settingQuery->with('sekolah');
+            }
+
+            $setting = $settingQuery->first();
+        }
+
+        return $setting;
+    }
+
     /**
      * Menampilkan form pendaftaran
      */
     public function create($slug)
     {
-        // Coba cari berdasarkan slug PPDB setting
-        $ppdbSetting = PPDBSetting::where('slug', $slug)
-            ->where('tahun', now()->year)
-            ->with('sekolah')
-            ->first();
-
-        // Jika tidak ditemukan berdasarkan slug, coba cari berdasarkan ID madrasah
-        if (!$ppdbSetting && is_numeric($slug)) {
-            $madrasah = Madrasah::find($slug);
-            if ($madrasah) {
-                $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
-                    ->where('tahun', now()->year)
-                    ->with('sekolah')
-                    ->first();
-            }
-        }
+        $ppdbSetting = $this->currentSettingFor($slug, true);
 
         // Jika masih tidak ditemukan, buat objek temporary untuk tampilan
         if (!$ppdbSetting) {
@@ -89,20 +101,7 @@ class PendaftarController extends Controller
      */
     public function store(Request $request, $slug)
     {
-        // Coba cari PPDB setting berdasarkan slug
-        $ppdbSetting = PPDBSetting::where('slug', $slug)
-            ->where('tahun', now()->year)
-            ->first();
-
-        // Jika tidak ditemukan, coba cari berdasarkan ID madrasah
-        if (!$ppdbSetting && is_numeric($slug)) {
-            $madrasah = Madrasah::find($slug);
-            if ($madrasah) {
-                $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
-                    ->where('tahun', now()->year)
-                    ->first();
-            }
-        }
+        $ppdbSetting = $this->currentSettingFor($slug);
 
         // Jika PPDB setting tidak ditemukan atau tidak aktif, redirect dengan error
         if (!$ppdbSetting || $ppdbSetting->ppdb_status !== 'buka') {

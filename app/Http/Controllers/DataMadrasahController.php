@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Madrasah;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MadrasahCompletenessExport;
@@ -24,7 +23,10 @@ class DataMadrasahController extends Controller
             'Kota Yogyakarta'
         ];
 
-        $madrasahs = Madrasah::orderByRaw("FIELD(kabupaten, '" . implode("','", $kabupatenOrder) . "')")
+        $madrasahs = Madrasah::withCount(['users as tenaga_pendidik_count' => function ($query) {
+                $query->where('role', 'tenaga_pendidik');
+            }])
+            ->orderByRaw("FIELD(kabupaten, '" . implode("','", $kabupatenOrder) . "')")
             ->get()
             ->groupBy('kabupaten')
             ->map(function ($group) use ($kabupatenOrder) {
@@ -46,13 +48,7 @@ class DataMadrasahController extends Controller
                         }
                     }
 
-                    // Check if there is at least one tenaga pendidik for this madrasah
-                    $hasTeacher = User::where('madrasah_id', $madrasah->id)
-                        ->where('role', 'tenaga_pendidik')
-                        ->exists();
-
-                    // Status guru column is not changed, so just show check or cross based on existence
-                    $fieldStatus['status_guru'] = $hasTeacher ? '✅' : '❌';
+                    $fieldStatus['status_guru'] = $madrasah->tenaga_pendidik_count > 0 ? '✅' : '❌';
 
                     // Calculate percentage only based on madrasah fields (7 fields)
                     $percentage = round(($filled / count($fields)) * 100);

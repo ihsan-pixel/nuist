@@ -36,18 +36,7 @@ class PresensiController extends Controller
 
     public function pdfRekap($madrasahId, $bulan)
     {
-        // Parsing bulan
-        if (preg_match('/^\d{4}-\d{2}$/', $bulan)) {
-            list($year, $monthNum) = explode('-', $bulan);
-        } elseif (preg_match('/^\d{1,2}$/', $bulan)) {
-            $year = date('Y');
-            $monthNum = $bulan;
-        } else {
-            $bulanParts = explode(' ', $bulan);
-            $monthName = $bulanParts[0];
-            $year = $bulanParts[1] ?? date('Y');
-            $monthNum = date('m', strtotime("$monthName 1"));
-        }
+        [$year, $monthNum] = $this->parseReportMonth($bulan);
 
         // Get madrasah to determine hari_kbm
         $madrasah = Madrasah::find($madrasahId);
@@ -75,20 +64,7 @@ class PresensiController extends Controller
         $dates = [];
         foreach ($rawDates as $date) {
             $carbonDate = Carbon::parse($date);
-            $dayOfWeek = $carbonDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
-
-            // Check if it's a working day based on hari_kbm
-            $isWorkingDay = false;
-            if ($hariKbm == '5') {
-                // Monday to Friday (1-5)
-                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
-            } elseif ($hariKbm == '6') {
-                // Monday to Saturday (1-6)
-                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
-            }
-
-            // Exclude holidays
-            if ($isWorkingDay && !Holiday::isHoliday($date)) {
+            if ($this->isWorkingDay($carbonDate, $hariKbm) && !Holiday::isHoliday($date)) {
                 $dates[] = $date;
             }
         }
@@ -121,5 +97,31 @@ class PresensiController extends Controller
         ])->setPaper('A4', 'landscape'); // agar cukup lebar
 
         return $pdf->download('Rekap Presensi '.$bulan.'.pdf');
+    }
+
+    private function parseReportMonth(string $bulan): array
+    {
+        if (preg_match('/^\d{4}-\d{2}$/', $bulan)) {
+            return explode('-', $bulan);
+        }
+
+        if (preg_match('/^\d{1,2}$/', $bulan)) {
+            return [date('Y'), $bulan];
+        }
+
+        $parts = explode(' ', $bulan);
+        $year = $parts[1] ?? date('Y');
+        $month = date('m', strtotime(($parts[0] ?? '') . ' 1'));
+
+        return [$year, $month];
+    }
+
+    private function isWorkingDay(Carbon $date, string|int|null $hariKbm): bool
+    {
+        return match ((string) $hariKbm) {
+            '5' => $date->dayOfWeek >= Carbon::MONDAY && $date->dayOfWeek <= Carbon::FRIDAY,
+            '6' => $date->dayOfWeek >= Carbon::MONDAY && $date->dayOfWeek <= Carbon::SATURDAY,
+            default => false,
+        };
     }
 }

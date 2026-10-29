@@ -5,6 +5,10 @@
 /vendor
 .env
 .env.backup
+.env.bak
+*.bak
+*.backup
+*.apk
 .phpunit.result.cache
 docker-compose.override.yml
 Homestead.json
@@ -15,3 +19,11 @@ yarn-error.log
 /.vscode
 storage/nuist-mobile-firebase-adminsdk-fbsvc-2ed201bbd6.json
 services/kiosk_face_engine/models/*.onnx
+storage/framework/views/*.php
+storage/framework/testing/*.php
+__pycache__/
+*.pyc
+nuist_flutter_mobile/build/
+nuist_flutter_mobile/.dart_tool/
+mobile-capacitor/node_modules/
+services/kiosk_face_engine/.venv/

@@ -32,7 +32,7 @@ class IzinController extends \App\Http\Controllers\Controller
             ->exists();
     }
 
-    private function canManageIzin(User $user, \App\Models\Izin $izin): bool
+    private function canManageIzin(User $user, Izin $izin): bool
     {
         if (in_array($user->role, ['super_admin', 'pengurus'], true)) {
             return true;
@@ -394,34 +394,22 @@ class IzinController extends \App\Http\Controllers\Controller
 
         $status = request('status', 'pending');
 
-        // Kepala madrasah: show requests for the whole madrasah
-        if ((($user->role === 'tenaga_pendidik') || ($user->role === 'admin')) && $user->ketugasan === 'kepala madrasah/sekolah') {
-            // Get izin requests from izins table only
-            $izinRequests = \App\Models\Izin::with('user')
-                ->whereHas('user', function ($q) use ($user) {
-                    $q->where('madrasah_id', $user->madrasah_id);
-                });
+        $isHeadOfSchool = in_array($user->role, ['tenaga_pendidik', 'admin'], true)
+            && $user->ketugasan === 'kepala madrasah/sekolah';
 
-            if ($status !== 'all') {
-                $izinRequests->where('status', $status);
-            }
-
-            $izinRequests = $izinRequests->orderBy('tanggal', 'desc')->paginate(10);
-
-            return view('mobile.kelola-izin', compact('izinRequests'));
-        }
-
-        // Regular tenaga_pendidik: show only their own izin requests
-        if ($user->role === 'tenaga_pendidik') {
-            // Get izin requests from izins table only
-            $izinRequests = \App\Models\Izin::with('user')
-                ->where('user_id', $user->id);
-
-            if ($status !== 'all') {
-                $izinRequests->where('status', $status);
-            }
-
-            $izinRequests = $izinRequests->orderBy('tanggal', 'desc')->paginate(10);
+        if ($isHeadOfSchool || $user->role === 'tenaga_pendidik') {
+            $izinRequests = Izin::with('user')
+                ->when($isHeadOfSchool, function ($query) use ($user) {
+                    $query->whereHas('user', function ($userQuery) use ($user) {
+                        $userQuery->where('madrasah_id', $user->madrasah_id);
+                    });
+                })
+                ->when(!$isHeadOfSchool, function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->when($status !== 'all', fn ($query) => $query->where('status', $status))
+                ->orderBy('tanggal', 'desc')
+                ->paginate(10);
 
             return view('mobile.kelola-izin', compact('izinRequests'));
         }

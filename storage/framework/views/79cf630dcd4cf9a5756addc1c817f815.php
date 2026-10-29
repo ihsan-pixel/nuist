@@ -13,11 +13,6 @@
                         ? preg_replace('/[^a-z0-9_]/', '', preg_replace('/[\s\-]+/', '_', trim(strtolower((string) auth()->user()->role))) ?? '')
                         : '';
                     $isSpmbAdminHost = request()->getHost() === 'spmb.nuist.id' && $userRole === 'admin';
-                    $dashboardRoles = ['super_admin', 'admin'];
-                    $masterDataRoles = ['super_admin', 'admin'];
-                    $showDashboardMenu = in_array($userRole, $dashboardRoles);
-                    $showMasterDataMenu = in_array($userRole, $masterDataRoles);
-                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false') . ', showMasterDataMenu: ' . ($showMasterDataMenu ? 'true' : 'false'));
                 ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
                     <?php echo $__env->make('layouts.partials.admin-yayasan-menu', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -63,48 +58,11 @@
                         <span>Edit Profile PPDB</span>
                     </a>
                 </li>
+                <?php elseif($userRole === 'super_admin'): ?>
+                    <?php echo $__env->make('layouts.partials.super-admin-menu', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php elseif($userRole === 'admin'): ?>
+                    <?php echo $__env->make('layouts.partials.admin-menu', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 <?php else: ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showDashboardMenu): ?>
-                <li class="menu-title" key="t-menu"><?php echo app('translator')->get('translation.Menu'); ?></li>
-
-                <li>
-                    <a href="<?php echo e(route('dashboard')); ?>" class="waves-effect">
-                        <i class="bx bx-home-circle"></i>
-                        <span key="t-dashboard">Dashboard</span>
-                    </a>
-                </li>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showMasterDataMenu): ?>
-                <li>
-                    <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
-                        <i class="bx bx-data"></i>
-                        <span>Master Data</span>
-                    </a>
-                    <ul class="sub-menu collapse" id="masterDataSubmenu">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>
-                        <li><a href="<?php echo e(route('yayasan.index')); ?>">Data Yayasan</a></li>
-                        <li><a href="<?php echo e(route('pengurus.index')); ?>">Data Pengurus</a></li>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <li><a href="<?php echo e(route('admin.index')); ?>">Data Admin</a></li>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
-                        <li><a href="<?php echo e(route('operator-spp.index')); ?>">Data Operator SPP</a></li>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <li><a href="<?php echo e(route('madrasah.index')); ?>">Data Madrasah/Sekolah</a></li>
-                        <li><a href="<?php echo e(route('tenaga-pendidik.index')); ?>">Data Tenaga Pendidik</a></li>
-                        <li><a href="<?php echo e(route('class-student-counts.index')); ?>">Data Jml Siswa per Kelas</a></li>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
-                        <li><a href="<?php echo e(route('dps.index')); ?>">Data DPS</a></li>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>
-                        <li><a href="<?php echo e(route('status-kepegawaian.index')); ?>">Data Status Kepegawaian</a></li>
-                        <li><a href="<?php echo e(route('tahun-pelajaran.index')); ?>">Data Tahun Pelajaran</a></li>
-                        <li><a href="<?php echo e(route('admin_masterdata.broadcast-numbers.index')); ?>">Data Broadcast</a></li>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </ul>
-                </li>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
                 <li>
                     <a href="<?php echo e(route('admin.pending-registrations.index')); ?>" class="waves-effect">
@@ -194,30 +152,8 @@
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
-                    <li><a href="<?php echo e(route('admin.agenda.index')); ?>"><i class="bx bx-calendar-check"></i><span>Agenda Kegiatan</span></a></li>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_yayasan'): ?>
-                <li>
-                    <a href="<?php echo e(route('pendataan-gtk.index')); ?>" class="waves-effect">
-                        <i class="bx bx-id-card"></i>
-                        <span>Pendataan GTK</span>
-                    </a>
-                </li>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <?php
-                    $isAdminOnly = $userRole === 'admin';
-                ?>
-                
-
-
-
-
-
                 <?php
                     $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
-                    \Log::info('Sidebar Presensi userRole: [' . $userRole . '], password_changed: ' . (auth()->user()->password_changed ? 'true' : 'false') . ', presensiAllowed: ' . ($presensiAllowed ? 'true' : 'false'));
                 ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensiAllowed): ?>
 
@@ -289,10 +225,6 @@
                     </a>
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <?php
-                    \Log::info('Sidebar PresensiAdmin showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false'));
-                ?>
-
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin'): ?>
                 <li class="menu-title">PPDB</li>
 
@@ -557,21 +489,6 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
-                <li>
-                    <a href="<?php echo e(route('admin.mgmp_dashboard')); ?>" class="waves-effect">
-                        <i class="bx bx-bar-chart-alt-2"></i>
-                        <span>Dashboard MGMP (Super Admin)</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo e(route('admin.create_mgmp_user')); ?>" class="waves-effect">
-                        <i class="bx bx-user-plus"></i>
-                        <span>Buat Akun MGMP</span>
-                    </a>
-                </li>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <li>
                     <a href="<?php echo e(route('mgmp.data-mgmp')); ?>" class="waves-effect">

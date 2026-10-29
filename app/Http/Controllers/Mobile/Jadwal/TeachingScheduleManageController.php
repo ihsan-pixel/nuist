@@ -16,6 +16,21 @@ class TeachingScheduleManageController extends Controller
     private const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     private const NEW_VALUE = '__new__';
 
+    private function scheduleRules(): array
+    {
+        return [
+            'day' => ['required', Rule::in(self::DAYS)],
+            'subject' => ['required', 'string', 'max:255'],
+            'subject_new' => ['nullable', 'string', 'max:255'],
+            'class_name' => ['nullable', 'string', 'max:255'],
+            'class_name_new' => ['nullable', 'string', 'max:1000'],
+            'class_names' => ['nullable', 'array'],
+            'class_names.*' => ['nullable', 'string', 'max:255'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+        ];
+    }
+
     public function create()
     {
         $user = Auth::user();
@@ -60,17 +75,7 @@ class TeachingScheduleManageController extends Controller
         }
         $this->ensureRequestUsesActivePeriod($activePeriod, $request->integer('period_id'));
 
-        $validated = $request->validate([
-            'day' => ['required', Rule::in(self::DAYS)],
-            'subject' => ['required', 'string', 'max:255'],
-            'subject_new' => ['nullable', 'string', 'max:255'],
-            'class_name' => ['nullable', 'string', 'max:255'],
-            'class_name_new' => ['nullable', 'string', 'max:1000'],
-            'class_names' => ['nullable', 'array'],
-            'class_names.*' => ['nullable', 'string', 'max:255'],
-            'start_time' => ['required', 'date_format:H:i'],
-            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
-        ]);
+        $validated = $request->validate($this->scheduleRules());
 
         $validated['subject'] = trim((string) $validated['subject']);
         $validated['class_name'] = trim((string) ($validated['class_name'] ?? ''));
@@ -198,17 +203,7 @@ class TeachingScheduleManageController extends Controller
             return redirect()->route('mobile.jadwal', ['period_id' => $schedule->teaching_schedule_period_id])->with('error', 'Jadwal ini berada di luar periode aktif, sehingga tidak bisa diubah dari mobile.');
         }
 
-        $validated = $request->validate([
-            'day' => ['required', Rule::in(self::DAYS)],
-            'subject' => ['required', 'string', 'max:255'],
-            'subject_new' => ['nullable', 'string', 'max:255'],
-            'class_name' => ['nullable', 'string', 'max:255'],
-            'class_name_new' => ['nullable', 'string', 'max:1000'],
-            'class_names' => ['nullable', 'array'],
-            'class_names.*' => ['nullable', 'string', 'max:255'],
-            'start_time' => ['required', 'date_format:H:i'],
-            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
-        ]);
+        $validated = $request->validate($this->scheduleRules());
 
         $validated['subject'] = trim((string) $validated['subject']);
         $validated['class_name'] = trim((string) ($validated['class_name'] ?? ''));
