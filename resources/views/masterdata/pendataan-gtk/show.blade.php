@@ -25,8 +25,12 @@
     }
     .wizard-nav .step-dot.active { background:#0d6efd; color:#fff; }
     .gtk-table-card { overflow:hidden; }
+    .gtk-table-scroll { max-height: calc(100vh - 300px); overflow: auto; border: 1px solid #eef2f7; border-radius: .75rem; }
     .gtk-table-card .table thead th { white-space:nowrap; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:#64748b; }
+    .gtk-table-card .table thead th { position: sticky; top: 0; z-index: 2; background: #f8fafc; box-shadow: 0 1px 0 #e9edf4; }
     .gtk-table-card .table tbody td { vertical-align:middle; }
+    .gtk-table-card .table tbody tr:hover { background: #f8fbff; }
+    .gtk-table-card .table td { padding: .85rem .75rem; }
     .gtk-data-table { min-width:3200px; font-size:.78rem; }
     .gtk-data-table th, .gtk-data-table td { padding:.7rem .8rem; }
     .gtk-data-table thead th[rowspan="2"] { background:#f8fafc; }
@@ -38,6 +42,11 @@
     .gtk-meta { color:#64748b; font-size:.78rem; }
     .gtk-completion { min-width:120px; }
     .gtk-completion .progress { height:5px; }
+    .gtk-status-list { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.45rem; }
+    .gtk-status-list .badge { font-weight:500; }
+    .gtk-actions { min-width: 245px; }
+    .school-hero .school-meta { display:flex; flex-wrap:wrap; gap:.4rem .8rem; }
+    .school-hero .school-meta span { font-size:.82rem; color:#64748b; }
     .wizard-section-title { color:#0f172a; font-size:.95rem; font-weight:700; margin-bottom:1rem; }
     .wizard-section-title span { color:#64748b; font-size:.78rem; font-weight:400; }
     .form-label { font-size:.82rem; font-weight:600; color:#334155; }
@@ -76,8 +85,11 @@
                     <img src="{{ $madrasah->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($madrasah->logo) ? asset('storage/' . $madrasah->logo) : asset('build/images/logo-light.png') }}" alt="{{ $madrasah->name }}" class="rounded-3 border" style="width:72px;height:72px;object-fit:cover;">
                     <div>
                         <h4 class="mb-1">{{ $madrasah->name }}</h4>
-                        <div class="text-muted">{{ $madrasah->kabupaten ?: '-' }} · SCOD {{ $madrasah->scod ?: '-' }}</div>
-                        <div class="text-muted small mt-1">{{ $madrasah->alamat ?: 'Alamat belum tersedia' }}</div>
+                        <div class="school-meta">
+                            <span><i class="bx bx-map-pin me-1"></i>{{ $madrasah->kabupaten ?: 'Kabupaten belum diisi' }}</span>
+                            <span><i class="bx bx-barcode me-1"></i>SCOD {{ $madrasah->scod ?: '-' }}</span>
+                        </div>
+                        <div class="text-muted small mt-1 text-truncate" style="max-width:680px">{{ $madrasah->alamat ?: 'Alamat belum tersedia' }}</div>
                     </div>
                 </div>
                 <div class="text-md-end">
@@ -107,7 +119,7 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
+            <div class="gtk-table-scroll">
                 <table class="table align-middle table-hover">
                     <thead class="table-light">
                         <tr>
@@ -122,6 +134,9 @@
                         @foreach($gtk as $user)
                             @php
                                 $gtkPendataan = $user->gtkPendataan;
+                                $gtkDocuments = $user->gtkDocuments ?? collect();
+                                $hasGtkDocument = fn (string $type, ?string $legacyPath = null) => filled($legacyPath)
+                                    || $gtkDocuments->contains(fn ($document) => $document->type === $type && filled($document->path));
                                 $mgmpNames = $user->mgmpMemberships
                                     ->map(fn ($membership) => $membership->mgmpGroup?->name)
                                     ->filter()
@@ -183,9 +198,12 @@
                                         @else
                                             <div class="gtk-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
                                         @endif
-                                        <div>
+                                        <div class="min-w-0">
                                             <div class="fw-semibold">{{ $user->nama_dengan_gelar }}</div>
-                                            <div class="gtk-meta">{{ $user->jabatan ?: ($user->ketugasan ?: 'Tenaga pendidik') }}</div>
+                                            <div class="gtk-meta text-truncate" style="max-width:220px">{{ $user->jabatan ?: ($user->ketugasan ?: 'Tenaga pendidik') }}</div>
+                                            <div class="gtk-status-list">
+                                                <span class="badge {{ $user->hasFaceEnrollment() ? 'bg-success-subtle text-success' : 'bg-light text-muted' }}">Wajah {{ $user->hasFaceEnrollment() ? 'sudah' : 'belum' }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -194,13 +212,13 @@
                                 <td class="gtk-completion">
                                     @php
                                         // Catatan hanya sebagai informasi dan tidak dihitung sebagai kelengkapan.
-                                        $completionFields = [$user->nuist_id, $user->name, $user->status_kepegawaian_id, $user->no_hp, $user->email, $user->pendidikan_terakhir, $user->avatar, $gtkPendataan?->foto_bebas_path, $gtkPendataan?->nik, $gtkPendataan?->ktp_path, $gtkPendataan?->tmt_sk_pertama, $gtkPendataan?->sk_awal_path, $gtkPendataan?->sk_akhir_path];
+                                        $completionFields = [$user->nuist_id, $user->name, $user->status_kepegawaian_id, $user->no_hp, $user->email, $user->pendidikan_terakhir, $user->avatar, $hasGtkDocument('foto_bebas', $gtkPendataan?->foto_bebas_path), $gtkPendataan?->nik, $hasGtkDocument('ktp', $gtkPendataan?->ktp_path), $gtkPendataan?->tmt_sk_pertama, $hasGtkDocument('sk_awal', $gtkPendataan?->sk_awal_path), $hasGtkDocument('sk_akhir', $gtkPendataan?->sk_akhir_path)];
                                         $completion = (int) round(collect($completionFields)->filter(fn ($value) => filled($value))->count() / count($completionFields) * 100);
                                     @endphp
                                     <div class="d-flex justify-content-between gtk-meta mb-1"><span>Kelengkapan</span><strong>{{ $completion }}%</strong></div>
                                     <div class="progress"><div class="progress-bar {{ $completion === 100 ? 'bg-success' : 'bg-primary' }}" style="width:{{ $completion }}%"></div></div>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end gtk-actions">
                                     <a
                                         href="{{ route('pendataan-gtk.export-pdf', ['user' => $user, 'v' => filemtime(public_path('images/kop-lpmnu-pwnu-diy.png'))]) }}"
                                         class="btn btn-sm btn-outline-danger"
@@ -257,8 +275,6 @@
                         <div class="progress wizard-progress">
                             <div class="progress-bar" id="wizardProgressBar" style="width:20%"></div>
                         </div>
-                    </div>
-
                     <div class="d-flex justify-content-between align-items-center wizard-nav mb-4">
                         <div class="text-center flex-fill"><div class="step-dot active" data-step-dot="1">1</div><small>Data GTK</small></div>
                         <div class="text-center flex-fill"><div class="step-dot" data-step-dot="2">2</div><small>Identitas</small></div>

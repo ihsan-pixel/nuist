@@ -186,7 +186,7 @@ class PendataanGtkController extends Controller
         $gtk = User::query()
             ->where('madrasah_id', $madrasah->id)
             ->where('role', 'tenaga_pendidik')
-            ->with(['statusKepegawaian', 'madrasah', 'gtkPendataan', 'mgmpMemberships.mgmpGroup', 'simfoni'])
+            ->with(['statusKepegawaian', 'madrasah', 'gtkPendataan', 'gtkDocuments', 'mgmpMemberships.mgmpGroup', 'simfoni'])
             ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
             ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) = 'kepala madrasah/sekolah' THEN 0 ELSE 1 END")
             ->orderBy('name')
