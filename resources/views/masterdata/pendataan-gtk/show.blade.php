@@ -135,6 +135,15 @@
                             @php
                                 $gtkPendataan = $user->gtkPendataan;
                                 $gtkDocuments = $user->gtkDocuments ?? collect();
+                                $hasFaceEnrollment = $user->hasFaceEnrollment();
+                                if (! $hasFaceEnrollment && $user->relationLoaded('biometricProfiles')) {
+                                    $hasFaceEnrollment = $user->biometricProfiles->contains(fn ($profile) => $profile->status === 'active' && filled($profile->embedding));
+                                }
+                                if (! $hasFaceEnrollment && $user->relationLoaded('faceEnrollmentSessions')) {
+                                    $hasFaceEnrollment = $user->faceEnrollmentSessions
+                                        ->where('status', 'completed')
+                                        ->contains(fn ($session) => $session->captures->whereIn('phase_key', ['front', 'front_2'])->isNotEmpty());
+                                }
                                 $hasGtkDocument = fn (string $type, ?string $legacyPath = null) => filled($legacyPath)
                                     || $gtkDocuments->contains(fn ($document) => $document->type === $type && filled($document->path));
                                 $mgmpNames = $user->mgmpMemberships
@@ -202,7 +211,7 @@
                                             <div class="fw-semibold">{{ $user->nama_dengan_gelar }}</div>
                                             <div class="gtk-meta text-truncate" style="max-width:220px">{{ $user->jabatan ?: ($user->ketugasan ?: 'Tenaga pendidik') }}</div>
                                             <div class="gtk-status-list">
-                                                <span class="badge {{ $user->hasFaceEnrollment() ? 'bg-success-subtle text-success' : 'bg-light text-muted' }}">Wajah {{ $user->hasFaceEnrollment() ? 'sudah' : 'belum' }}</span>
+                                                <span class="badge {{ $hasFaceEnrollment ? 'bg-success-subtle text-success' : 'bg-light text-muted' }}">Wajah {{ $hasFaceEnrollment ? 'sudah' : 'belum' }}</span>
                                             </div>
                                         </div>
                                     </div>

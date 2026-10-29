@@ -183,10 +183,21 @@ class PendataanGtkController extends Controller
 
         $statusKepegawaian = StatusKepegawaian::query()->orderBy('name')->get(['id', 'name']);
 
+        $faceRelations = [];
+        if (Schema::hasTable('biometric_profiles')) {
+            $faceRelations['biometricProfiles'] = fn ($query) => $query->where('status', 'active');
+        }
+        if (Schema::hasTable('face_enrollment_sessions') && Schema::hasTable('face_enrollment_captures')) {
+            $faceRelations[] = 'faceEnrollmentSessions.captures';
+        }
+
         $gtk = User::query()
             ->where('madrasah_id', $madrasah->id)
             ->where('role', 'tenaga_pendidik')
-            ->with(['statusKepegawaian', 'madrasah', 'gtkPendataan', 'gtkDocuments', 'mgmpMemberships.mgmpGroup', 'simfoni'])
+            ->with(array_merge(
+                ['statusKepegawaian', 'madrasah', 'gtkPendataan', 'gtkDocuments', 'mgmpMemberships.mgmpGroup', 'simfoni'],
+                $faceRelations,
+            ))
             ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
             ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) = 'kepala madrasah/sekolah' THEN 0 ELSE 1 END")
             ->orderBy('name')
