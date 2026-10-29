@@ -343,7 +343,7 @@ window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdf
                 if (autoMatchProgressBar) autoMatchProgressBar.style.width = '100%';
                 if (autoMatchProgressText) autoMatchProgressText.textContent = '100%';
                 autoMatchResults?.classList.remove('d-none');
-                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.similarity ?? '-'}%` : 'Tidak cocok'}</span></div>`).join('');
+                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.skipped ? 'bg-secondary' : (item.matched ? 'bg-success' : 'bg-warning text-dark')}">${item.skipped ? 'Dilewati' : (item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.similarity ?? '-'}%` : 'Tidak cocok')}</span></div>`).join('');
                 if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
                 if ((data.results || []).some((item) => item.saved)) {
                     if (autoMatchNotice) autoMatchNotice.textContent = `Foto yang cocok berhasil disimpan sebagai ${autoMatchCategory?.value === 'foto_bebas' ? 'Foto Bebas' : 'Foto Resmi'}. Halaman akan diperbarui.`;

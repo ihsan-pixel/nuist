@@ -449,6 +449,19 @@ class PendataanGtkController extends Controller
             $user = !empty($match['user_id']) ? $users->firstWhere('id', (int) $match['user_id']) : null;
             $item = ['file' => $photo->getClientOriginalName(), 'matched' => (bool) ($match['success'] ?? false), 'user' => $user?->name, 'similarity' => isset($match['similarity']) ? round((float) $match['similarity'] * 100, 1) : null, 'message' => $match['message'] ?? 'Wajah tidak cocok.'];
             if (($match['success'] ?? false) && $user) {
+                $hasExisting = GtkDocument::where('user_id', $user->id)->where('type', $documentType)->exists();
+                if ($documentType === 'foto_resmi') {
+                    $hasExisting = $hasExisting || filled($user->avatar);
+                } else {
+                    $hasExisting = $hasExisting || filled($user->gtkPendataan?->foto_bebas_path);
+                }
+                if ($hasExisting) {
+                    $item['skipped'] = true;
+                    $item['saved'] = false;
+                    $item['message'] = 'Dilewati karena kolom '.($documentType === 'foto_resmi' ? 'Foto Resmi' : 'Foto Bebas').' sudah memiliki file.';
+                    $results[] = $item;
+                    continue;
+                }
                 $path = $this->storeGtkDocument($photo, $user, $documentType, $documentDisk);
                 if ($documentType === 'foto_resmi') $user->update(['avatar' => $path]);
                 GtkDocument::create([
