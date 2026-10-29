@@ -45,12 +45,20 @@ class PendataanGtkController extends Controller
     {
         $this->authorizeAccess();
 
+        $gtkRelations = ['gtkPendataan'];
+        if (Schema::hasTable('gtk_documents')) {
+            $gtkRelations[] = 'gtkDocuments';
+        }
+        if (Schema::hasTable('biometric_profiles')) {
+            $gtkRelations['biometricProfiles'] = fn ($profiles) => $profiles->where('status', 'active');
+        }
+
         $madrasahs = Madrasah::query()
             ->whereKeyNot(52)
             ->orderByRaw("CAST(COALESCE(NULLIF(scod, ''), '0') AS UNSIGNED) ASC")
             ->orderBy('name')
             ->select(['id', 'name', 'scod', 'logo'])
-            ->with(['tenagaPendidikUsers' => fn ($query) => $query->with('gtkPendataan')])
+            ->with(['tenagaPendidikUsers' => fn ($query) => $query->with($gtkRelations)])
             ->get();
 
         $madrasahs->each(function (Madrasah $madrasah) {
@@ -59,6 +67,9 @@ class PendataanGtkController extends Controller
             $fieldCount = 13;
             $completedFields = $gtk->sum(function (User $user) {
                 $data = $user->gtkPendataan;
+                $documents = $user->relationLoaded('gtkDocuments') ? $user->gtkDocuments : collect();
+                $hasDocument = fn (string $type, ?string $legacyPath = null): bool => filled($legacyPath)
+                    || $documents->contains(fn ($document) => $document->type === $type && filled($document->path));
                 $fields = [
                     $user->nuist_id,
                     $user->name,
@@ -67,12 +78,12 @@ class PendataanGtkController extends Controller
                     $user->email,
                     $user->pendidikan_terakhir,
                     $user->avatar,
-                    $data?->foto_bebas_path,
+                    $hasDocument('foto_bebas', $data?->foto_bebas_path) ? true : null,
                     $data?->nik,
-                    $data?->ktp_path,
+                    $hasDocument('ktp', $data?->ktp_path) ? true : null,
                     $data?->tmt_sk_pertama,
-                    $data?->sk_awal_path,
-                    $data?->sk_akhir_path,
+                    $hasDocument('sk_awal', $data?->sk_awal_path) ? true : null,
+                    $hasDocument('sk_akhir', $data?->sk_akhir_path) ? true : null,
                 ];
 
                 return collect($fields)->filter(fn ($value) => filled($value))->count();
@@ -83,12 +94,18 @@ class PendataanGtkController extends Controller
                 ? (int) round($completedFields / ($total * $fieldCount) * 100)
                 : 0;
             $madrasah->gtk_status_counts = [
-                'face' => $gtk->filter(fn (User $user) => $user->hasFaceEnrollment())->count(),
-                'ktp' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->ktp_path))->count(),
-                'sk_awal' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->sk_awal_path))->count(),
-                'sk_akhir' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->sk_akhir_path))->count(),
-                'foto_resmi' => $gtk->filter(fn (User $user) => filled($user->avatar))->count(),
-                'foto_bebas' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->foto_bebas_path))->count(),
+                'face' => $gtk->filter(fn (User $user) => $user->hasFaceEnrollment()
+                    || ($user->relationLoaded('biometricProfiles') && $user->biometricProfiles->isNotEmpty()))->count(),
+                'ktp' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->ktp_path)
+                    || ($user->relationLoaded('gtkDocuments') && $user->gtkDocuments->contains(fn ($document) => $document->type === 'ktp' && filled($document->path))))->count(),
+                'sk_awal' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->sk_awal_path)
+                    || ($user->relationLoaded('gtkDocuments') && $user->gtkDocuments->contains(fn ($document) => $document->type === 'sk_awal' && filled($document->path))))->count(),
+                'sk_akhir' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->sk_akhir_path)
+                    || ($user->relationLoaded('gtkDocuments') && $user->gtkDocuments->contains(fn ($document) => $document->type === 'sk_akhir' && filled($document->path))))->count(),
+                'foto_resmi' => $gtk->filter(fn (User $user) => filled($user->avatar)
+                    || ($user->relationLoaded('gtkDocuments') && $user->gtkDocuments->contains(fn ($document) => $document->type === 'foto_resmi' && filled($document->path))))->count(),
+                'foto_bebas' => $gtk->filter(fn (User $user) => filled($user->gtkPendataan?->foto_bebas_path)
+                    || ($user->relationLoaded('gtkDocuments') && $user->gtkDocuments->contains(fn ($document) => $document->type === 'foto_bebas' && filled($document->path))))->count(),
             ];
         });
 
