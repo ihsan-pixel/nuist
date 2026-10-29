@@ -25,6 +25,9 @@
     .stored-file .document-preview { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
     #uploadProgressBar { background-color: #198754 !important; }
     .teacher-avatar { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-weight: 700; flex: 0 0 auto; }
+    .face-session-cell { min-width: 150px; text-align: center; }
+    .face-session-photo { width: 86px; height: 104px; object-fit: cover; border-radius: .65rem; border: 1px solid #dbe3ec; background: #f8fafc; }
+    .face-session-empty { width: 86px; height: 104px; border-radius: .65rem; border: 1px dashed #cbd5e1; background: #f8fafc; color: #94a3b8; display: inline-flex; align-items: center; justify-content: center; font-size: .72rem; text-align: center; padding: .4rem; }
     .save-bar { position: sticky; bottom: 1rem; z-index: 5; }
     .pdf-page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: .75rem; max-height: 60vh; overflow-y: auto; padding: .25rem; }
     .pdf-page-option { position: relative; display: block; padding: .45rem; border: 2px solid #dbe3ec; border-radius: .7rem; cursor: pointer; background: #fff; }
@@ -73,12 +76,22 @@
                         <th>SK Akhir</th>
                         <th>Foto Resmi</th>
                         <th>Foto Bebas</th>
+                        <th class="face-session-cell">Foto Scan Wajah<br><small class="fw-normal">Menghadap Depan</small></th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($gtk as $user)
                         @php
                             $data = $user->gtkPendataan;
+                            $frontCapture = collect();
+                            if ($user->relationLoaded('faceEnrollmentSessions')) {
+                                $frontCapture = $user->faceEnrollmentSessions
+                                    ->where('status', 'completed')
+                                    ->sortByDesc(fn ($session) => $session->completed_at ?: $session->updated_at)
+                                    ->flatMap(fn ($session) => $session->captures->whereIn('phase_key', ['front', 'front_2']))
+                                    ->sortByDesc('created_at')
+                                    ->first();
+                            }
                         @endphp
                         <tr data-teacher-name="{{ strtolower($user->name.' '.$user->nuist_id) }}">
                             <td class="teacher-cell">
@@ -141,9 +154,19 @@
                                     </label>
                                 </td>
                             @endforeach
+                            <td class="face-session-cell">
+                                @if($frontCapture?->captured_image)
+                                    <a href="{{ $frontCapture->captured_image }}" target="_blank" rel="noopener" title="Lihat foto scan wajah {{ $user->name }}">
+                                        <img src="{{ $frontCapture->captured_image }}" alt="Scan wajah menghadap depan {{ $user->name }}" class="face-session-photo">
+                                    </a>
+                                    <div class="small text-success mt-1"><i class="bx bx-check-circle me-1"></i>Tersedia</div>
+                                @else
+                                    <div class="face-session-empty">Belum ada foto sesi depan</div>
+                                @endif
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center text-muted py-5">Belum ada GTK pada madrasah ini.</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted py-5">Belum ada GTK pada madrasah ini.</td></tr>
                     @endforelse
                 </tbody>
             </table>

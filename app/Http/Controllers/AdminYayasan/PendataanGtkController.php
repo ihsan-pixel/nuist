@@ -397,10 +397,15 @@ class PendataanGtkController extends Controller
     {
         $this->authorizeAccess();
 
+        $relations = ['gtkPendataan', 'gtkDocuments'];
+        if (Schema::hasTable('face_enrollment_sessions') && Schema::hasTable('face_enrollment_captures')) {
+            $relations[] = 'faceEnrollmentSessions.captures';
+        }
+
         $gtk = User::query()
             ->where('madrasah_id', $madrasah->id)
             ->where('role', 'tenaga_pendidik')
-            ->with(['gtkPendataan', 'gtkDocuments'])
+            ->with($relations)
             ->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(ketugasan, ''))) LIKE '%kepala%' THEN 0 ELSE 1 END")
             ->orderBy('name')
             ->get();
