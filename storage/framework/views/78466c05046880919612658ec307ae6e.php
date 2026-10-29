@@ -214,7 +214,7 @@
                     <div class="text-muted small mt-1">JPG, PNG, atau WebP</div>
                     <div id="autoMatchPhotoCount" class="small text-primary mt-2">Belum ada foto dipilih</div>
                 </label>
-                <div id="autoMatchNotice" class="small text-muted mt-3">Foto dengan nama yang cocok akan disimpan sebagai Foto Resmi.</div>
+                <div id="autoMatchNotice" class="small text-muted mt-3">Wajah foto akan dibandingkan dengan data scan wajah terdaftar.</div>
                 <div id="autoMatchProgressWrap" class="mt-3 d-none">
                     <div class="d-flex justify-content-between small mb-1"><span>Progress pemasangan</span><strong id="autoMatchProgressText">0%</strong></div>
                     <div class="progress" style="height: 10px"><div id="autoMatchProgressBar" class="progress-bar bg-success" style="width: 0%"></div></div>
@@ -319,7 +319,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                 if (autoMatchProgressBar) autoMatchProgressBar.style.width = '100%';
                 if (autoMatchProgressText) autoMatchProgressText.textContent = '100%';
                 autoMatchResults?.classList.remove('d-none');
-                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.type === 'foto_bebas' ? 'Foto Bebas' : 'Foto Resmi'}` : 'Tidak cocok'}</span></div>`).join('');
+                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.similarity ?? '-'}%` : 'Tidak cocok'}</span></div>`).join('');
                 if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
             })
             .catch((error) => { if (autoMatchNotice) autoMatchNotice.textContent = error.message; })
