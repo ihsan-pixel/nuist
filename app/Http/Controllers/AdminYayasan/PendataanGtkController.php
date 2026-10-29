@@ -435,7 +435,7 @@ class PendataanGtkController extends Controller
         $results = [];
         foreach ($request->file('photos', []) as $photo) {
             $dataUrl = 'data:'.$photo->getMimeType().';base64,'.base64_encode($photo->get());
-            $match = $engine->identify($users, ['frames' => [$dataUrl]], ['source' => 'gtk_bulk_photo_match', 'madrasah_id' => $madrasah->id]);
+            $match = $engine->identify($users, ['selfie_frames' => [$dataUrl]], ['source' => 'gtk_bulk_photo_match', 'madrasah_id' => $madrasah->id]);
             $item = ['file' => $photo->getClientOriginalName(), 'matched' => false, 'message' => $match['message'] ?? 'Tidak ditemukan kecocokan.'];
             if (($match['success'] ?? false) && !empty($match['user_id'])) {
                 $user = $users->firstWhere('id', (int) $match['user_id']);
