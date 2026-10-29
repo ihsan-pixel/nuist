@@ -159,7 +159,7 @@
                                                     <span class="stored-file">
                                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array(strtolower(pathinfo($storedFile['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'])): ?>
                                                             <a href="<?php echo e($storedFile['view_url']); ?>" target="_blank" rel="noopener" class="document-preview view-stored-file text-center w-100" title="<?php echo e($storedFile['name']); ?>">
-                                                                <img src="<?php echo e($storedFile['image_url'] ?: $storedFile['view_url']); ?>" alt="<?php echo e($storedFile['name']); ?>" class="stored-photo-preview" loading="eager" decoding="async" onerror="if (this.dataset.fallback !== '1') { this.dataset.fallback = '1'; this.src = <?php echo json_encode($storedFile['view_url'], 15, 512) ?>; } else { this.style.display = 'none'; }">
+                                                                <img src="<?php echo e($storedFile['image_url'] ?: $storedFile['view_url']); ?>" data-fallback-url="<?php echo e($storedFile['view_url']); ?>" alt="<?php echo e($storedFile['name']); ?>" class="stored-photo-preview" loading="eager" decoding="async">
                                                                 <span class="d-block text-truncate"><?php echo e($storedFile['name']); ?></span>
                                                             </a>
                                                         <?php else: ?>
@@ -358,6 +358,16 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
     const save = document.getElementById('saveButton');
     const pdfPageSelections = new WeakMap();
     const processedPdfFiles = new WeakMap();
+    document.querySelectorAll('.stored-photo-preview').forEach((image) => {
+        image.addEventListener('error', () => {
+            if (image.dataset.fallbackUsed === '1') {
+                image.style.display = 'none';
+                return;
+            }
+            image.dataset.fallbackUsed = '1';
+            image.src = image.dataset.fallbackUrl;
+        });
+    });
 
     async function selectPdfPages(file) {
         const pdfjs = await window.pdfJsReady;
