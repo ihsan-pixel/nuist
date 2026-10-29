@@ -7,6 +7,9 @@ use App\Services\SiswaMobileAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class MobileAuthController extends Controller
@@ -95,5 +98,86 @@ class MobileAuthController extends Controller
         }
 
         return redirect()->intended('/dashboard')->withCookies($queuedCookies);
+    }
+
+    public function authenticatePresensi(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'string'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()->withErrors(['email' => 'Email atau password salah'])
+                ->withInput($request->only('email'));
+        }
+
+        $request->session()->regenerate();
+        $user = Auth::user();
+        $role = $this->normalizeRole($user->role ?? '');
+
+        if (! in_array($role, ['tenaga_pendidik', 'pengurus_bpppmnu'], true)
+            || (isset($user->is_active) && ! $user->is_active)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Akun tidak memiliki akses presensi mobile.',
+            ])->withInput($request->only('email'));
+        }
+
+        return redirect($role === 'pengurus_bpppmnu'
+            ? '/mobile/bpppmnu/presensi'
+            : '/mobile/dashboard');
+    }
+
+    private function normalizeRole(?string $role): string
+    {
+        return preg_replace('/\s+/', '_', trim(strtolower((string) $role))) ?? '';
+    }
+
+    public function sendResetLink(Request $request)
+    {
+        $data = $request->validate(['email' => ['required', 'email']]);
+        $status = Password::sendResetLink($data);
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('status', __($status));
+        }
+
+        return back()->withErrors(['email' => __($status)]);
+    }
+
+    public function showResetForm(string $token)
+    {
+        return view('mobile.reset-password', [
+            'token' => $token,
+            'email' => request()->query('email'),
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        $status = Password::reset($data, function ($user, $password) {
+            $user->forceFill([
+                'password' => Hash::make($password),
+                'remember_token' => Str::random(60),
+            ])->save();
+
+            $user->tokens()->delete();
+        });
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('mobile.login')->with('status', __($status));
+        }
+
+        return back()->withErrors(['email' => [__($status)]])->withInput($request->only('email'));
     }
 }

@@ -1193,65 +1193,11 @@ Route::domain('presensi.nuist.id')->group(function () {
         abort(404);
     })->middleware(['guest']);
 
-    Route::post('/login', function (\Illuminate\Http\Request $request) {
-        $credentials = $request->validate([
-            'email' => 'required|string',
-            'password' => 'required',
-        ]);
+    Route::post('/login', [\App\Http\Controllers\Mobile\MobileAuthController::class, 'authenticatePresensi'])
+        ->middleware(['guest', 'throttle:6,1', 'cloudflare.turnstile']);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()
-                ->withErrors(['email' => 'Email atau password salah'])
-                ->withInput($request->only('email'));
-        }
-
-        $request->session()->regenerate();
-
-        $user = Auth::user();
-        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
-
-        if (! in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && ! $user->is_active)) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect('/login')
-                ->withErrors(['email' => 'Akun tidak memiliki akses presensi mobile.'])
-                ->withInput($request->only('email'));
-        }
-
-        return redirect($normalizedRole === 'pengurus_bpppmnu' ? '/mobile/bpppmnu/presensi' : '/mobile/dashboard');
-    })->middleware(['guest', 'throttle:6,1', 'cloudflare.turnstile']);
-
-    Route::post('/mobile/login', function (\Illuminate\Http\Request $request) {
-        $credentials = $request->validate([
-            'email' => 'required|string',
-            'password' => 'required',
-        ]);
-
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return redirect('/mobile/login')
-                ->withErrors(['email' => 'Email atau password salah'])
-                ->withInput($request->only('email'));
-        }
-
-        $request->session()->regenerate();
-
-        $user = Auth::user();
-        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
-
-        if (! in_array($normalizedRole, ['tenaga_pendidik', 'pengurus_bpppmnu'], true) || (isset($user->is_active) && ! $user->is_active)) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect('/mobile/login')
-                ->withErrors(['email' => 'Akun tidak memiliki akses presensi mobile.'])
-                ->withInput($request->only('email'));
-        }
-
-        return redirect($normalizedRole === 'pengurus_bpppmnu' ? '/mobile/bpppmnu/presensi' : '/mobile/dashboard');
-    })->middleware(['guest', 'throttle:6,1', 'cloudflare.turnstile']);
+    Route::post('/mobile/login', [\App\Http\Controllers\Mobile\MobileAuthController::class, 'authenticatePresensi'])
+        ->middleware(['guest', 'throttle:6,1', 'cloudflare.turnstile']);
 
     Route::get('/mobile/forgot-password', function () {
         return view('mobile.forgot-password-v2');
@@ -1684,45 +1630,18 @@ Route::get('/mobile/student-password-reset/captcha', function () {
     ]);
 })->middleware('guest')->name('mobile.student-password-reset.captcha');
 
-Route::post('/mobile/forgot-password', function (Request $request) {
-    $request->validate(['email' => 'required|email']);
-
-    $status = Password::sendResetLink($request->only('email'));
-
-    if ($status === Password::RESET_LINK_SENT) {
-        return back()->with('status', __($status));
-    }
-
-    return back()->withErrors(['email' => __($status)]);
-})->middleware(['guest', 'throttle:6,1'])->name('mobile.password.email');
+Route::post('/mobile/forgot-password', [MobileAuthController::class, 'sendResetLink'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('mobile.password.email');
 
 // Mobile reset password routes (show form + process reset)
-Route::get('/mobile/reset-password/{token}', function ($token) {
-    return view('mobile.reset-password', ['token' => $token, 'email' => request()->query('email')]);
-})->name('mobile.password.reset');
+Route::get('/mobile/reset-password/{token}', [MobileAuthController::class, 'showResetForm'])
+    ->middleware('guest')
+    ->name('mobile.password.reset');
 
-Route::post('/mobile/reset-password', function (Request $request) {
-    $request->validate([
-        'token' => 'required',
-        'email' => 'required|email',
-        'password' => 'required|confirmed|min:8',
-    ]);
-
-    $status = Password::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function ($user, $password) {
-            $user->password = Hash::make($password);
-            $user->setRememberToken(Str::random(60));
-            $user->save();
-        }
-    );
-
-    if ($status === Password::PASSWORD_RESET) {
-        return redirect()->route('mobile.login')->with('status', __($status));
-    }
-
-    return back()->withErrors(['email' => [__($status)]]);
-})->middleware(['guest', 'throttle:6,1'])->name('mobile.password.update');
+Route::post('/mobile/reset-password', [MobileAuthController::class, 'resetPassword'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('mobile.password.update');
 
 // Contact form submission
 Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])
