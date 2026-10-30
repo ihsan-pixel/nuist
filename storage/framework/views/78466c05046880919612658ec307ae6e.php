@@ -380,10 +380,10 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
         confirmAllButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Menyimpan...';
         for (const button of buttons) {
             button.click();
-            await new Promise((resolve) => window.setTimeout(resolve, 180));
+            await new Promise((resolve) => window.setTimeout(resolve, 900));
         }
         confirmAllButton.innerHTML = '<i class="bx bx-check-double me-1"></i> Selesai';
-        window.setTimeout(() => window.location.reload(), 900);
+        window.setTimeout(() => window.location.reload(), 1800);
     });
 
     const form = document.getElementById('documentsGridForm');
