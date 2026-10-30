@@ -249,6 +249,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" id="confirmAllAutoMatchButton"><i class="bx bx-check-double me-1"></i> Konfirmasi Semua</button>
                 <button type="button" class="btn btn-primary" id="startAutoMatchButton" data-url="{{ route('pendataan-gtk.documents.manage.auto-match', $madrasah) }}" disabled>
                     <i class="bx bx-search-alt me-1"></i> Mulai Pencocokan
                 </button>
@@ -285,6 +286,7 @@ window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdf
     const autoMatchProgressWrap = document.getElementById('autoMatchProgressWrap');
     const autoMatchProgressBar = document.getElementById('autoMatchProgressBar');
     const autoMatchProgressText = document.getElementById('autoMatchProgressText');
+    const confirmAllButton = document.getElementById('confirmAllAutoMatchButton');
     const autoMatchPendingFiles = new Map();
     const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','\"':'&quot;'}[character]));
     const prepareAutoMatchPhoto = (file) => new Promise((resolve) => {
@@ -369,6 +371,21 @@ window.pdfJsReady = import(@json(asset('build/libs/pdfjs/pdf.min.js'))).then(pdf
         button.disabled = true;
         const response = await fetch(@json(route('pendataan-gtk.documents.manage.auto-match.confirm', $madrasah)), {method: 'POST', body: payload, headers: {'Accept': 'application/json'}});
         if (response.ok) { button.textContent = 'Tersimpan'; button.classList.replace('btn-outline-primary', 'btn-success'); } else { button.disabled = false; }
+    });
+    confirmAllButton?.addEventListener('click', async () => {
+        const buttons = [...document.querySelectorAll('.manual-match-choice:not(:disabled)')];
+        if (!buttons.length) {
+            if (autoMatchNotice) autoMatchNotice.textContent = 'Belum ada kandidat yang siap dikonfirmasi.';
+            return;
+        }
+        confirmAllButton.disabled = true;
+        confirmAllButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Menyimpan...';
+        for (const button of buttons) {
+            button.click();
+            await new Promise((resolve) => window.setTimeout(resolve, 180));
+        }
+        confirmAllButton.innerHTML = '<i class="bx bx-check-double me-1"></i> Selesai';
+        window.setTimeout(() => window.location.reload(), 900);
     });
 
     const form = document.getElementById('documentsGridForm');
