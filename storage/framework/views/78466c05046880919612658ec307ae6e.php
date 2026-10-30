@@ -356,7 +356,8 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
             .catch((error) => { if (autoMatchNotice) autoMatchNotice.textContent = error.message; })
             .finally(() => { autoMatchButton.disabled = false; autoMatchButton.innerHTML = '<i class="bx bx-search-alt me-1"></i> Mulai Pencocokan'; });
     });
-    const submitManualMatch = async (button) => {
+    autoMatchFileList?.addEventListener('click', async (event) => {
+        const button = event.target.closest('.manual-match-choice');
         if (!button) return;
         const file = autoMatchPendingFiles.get(button.dataset.file);
         if (!file) return;
@@ -367,11 +368,8 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
         payload.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
         button.disabled = true;
         const response = await fetch(<?php echo json_encode(route('pendataan-gtk.documents.manage.auto-match.confirm', $madrasah), 512) ?>, {method: 'POST', body: payload, headers: {'Accept': 'application/json'}});
-        if (response.ok) { button.textContent = 'Tersimpan'; button.classList.replace('btn-outline-primary', 'btn-success'); return true; }
-        button.disabled = false;
-        return false;
-    };
-    autoMatchFileList?.addEventListener('click', async (event) => submitManualMatch(event.target.closest('.manual-match-choice')));
+        if (response.ok) { button.textContent = 'Tersimpan'; button.classList.replace('btn-outline-primary', 'btn-success'); } else { button.disabled = false; }
+    });
     confirmAllButton?.addEventListener('click', async () => {
         const buttons = [...document.querySelectorAll('.manual-match-choice:not(:disabled)')];
         if (!buttons.length) {
@@ -381,7 +379,8 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
         confirmAllButton.disabled = true;
         confirmAllButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Menyimpan...';
         for (const button of buttons) {
-            await submitManualMatch(button);
+            button.click();
+            await new Promise((resolve) => window.setTimeout(resolve, 900));
         }
         confirmAllButton.innerHTML = '<i class="bx bx-check-double me-1"></i> Selesai';
         window.setTimeout(() => window.location.reload(), 1800);

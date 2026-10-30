@@ -589,9 +589,14 @@ class PendataanGtkController extends Controller
         ]);
     }
 
-    public function destroyManagedDocumentFile(Request $request, Madrasah $madrasah, GtkDocument $gtkDocument)
+    public function destroyManagedDocumentFile(Request $request, Madrasah $madrasah, string $gtkDocument)
     {
         $this->authorizeAccess();
+        $gtkDocument = GtkDocument::find((int) $gtkDocument);
+        if (! $gtkDocument) {
+            $message = 'Berkas sudah tidak tersedia.';
+            return $request->expectsJson() ? response()->json(['message' => $message, 'already_deleted' => true]) : back()->with('success', $message);
+        }
         $this->authorizeManagedDocument($madrasah, $gtkDocument);
 
         Storage::disk($gtkDocument->disk)->delete($gtkDocument->path);
