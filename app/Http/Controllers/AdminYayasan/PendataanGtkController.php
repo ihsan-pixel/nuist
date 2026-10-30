@@ -421,15 +421,6 @@ class PendataanGtkController extends Controller
             ->orderBy('name')
             ->get();
 
-        foreach ($gtk as $teacher) {
-            $capture = $teacher->faceEnrollmentSessions
-                ->where('status', 'completed')
-                ->sortByDesc(fn ($session) => $session->completed_at ?: $session->updated_at)
-                ->flatMap(fn ($session) => $session->captures->whereIn('phase_key', ['front', 'front_2']))
-                ->sortByDesc('created_at')->first();
-            $teacher->setAttribute('front_capture_preview', $capture ? $this->attachmentImageDataUri('public', $capture->captured_image) : null);
-        }
-
         return view('masterdata.pendataan-gtk.documents-manage', compact('madrasah', 'gtk'));
     }
 
@@ -451,7 +442,8 @@ class PendataanGtkController extends Controller
             $dataUrl = 'data:'.$photo->getMimeType().';base64,'.base64_encode($photo->get());
             $match = $engine->identify($users, ['selfie_frames' => [$dataUrl]], ['source' => 'gtk_bulk_face_match', 'madrasah_id' => $madrasah->id]);
             $user = !empty($match['user_id']) ? $users->firstWhere('id', (int) $match['user_id']) : null;
-            $item = ['file' => $photo->getClientOriginalName(), 'matched' => (bool) ($match['success'] ?? false), 'user' => $user?->name, 'similarity' => isset($match['similarity']) ? round((float) $match['similarity'] * 100, 1) : null, 'message' => $match['message'] ?? 'Wajah tidak cocok.', 'manual_candidates' => ($match['success'] ?? false) ? [] : $manualCandidates];
+            $candidate = $user ? collect($manualCandidates)->firstWhere('id', $user->id) : null;
+            $item = ['file' => $photo->getClientOriginalName(), 'matched' => (bool) ($match['success'] ?? false), 'user' => $user?->name, 'candidate_user_id' => $user?->id, 'similarity' => isset($match['similarity']) ? round((float) $match['similarity'] * 100, 1) : null, 'message' => $match['message'] ?? 'Wajah tidak cocok.', 'manual_candidates' => ($match['success'] ?? false) ? [] : $manualCandidates, 'uploaded_image' => $dataUrl, 'candidate_image' => $candidate['face_image'] ?? null];
             if (($match['success'] ?? false) && $user) {
                 $item['pending_confirmation'] = true;
                 $item['candidate_user_id'] = $user->id;

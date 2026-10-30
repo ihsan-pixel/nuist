@@ -37,6 +37,7 @@
     .auto-match-dropzone { border: 2px dashed #93c5fd; border-radius: .9rem; background: #eff6ff; padding: 2rem 1rem; text-align: center; cursor: pointer; }
     .auto-match-dropzone:hover { background: #dbeafe; border-color: #2563eb; }
     .auto-match-dropzone input { display: none; }
+    .auto-match-compare-photo { width: 110px; height: 130px; object-fit: cover; border-radius: .65rem; border: 1px solid #dbe3ec; background: #f8fafc; }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -97,7 +98,7 @@
                                     ->sortByDesc('created_at')
                                     ->first();
                             }
-                            $frontCaptureImage = $user->front_capture_preview ?: $frontCapture?->captured_image;
+                            $frontCaptureImage = $frontCapture?->captured_image;
                             if ($frontCaptureImage && !\Illuminate\Support\Str::startsWith($frontCaptureImage, ['data:', 'http://', 'https://', '/'])) {
                                 $frontCaptureImage = asset('storage/' . ltrim($frontCaptureImage, '/'));
                             }
@@ -343,7 +344,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                 if (autoMatchProgressBar) autoMatchProgressBar.style.width = '100%';
                 if (autoMatchProgressText) autoMatchProgressText.textContent = '100%';
                 autoMatchResults?.classList.remove('d-none');
-                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item"><div class="d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Kandidat')} · ${item.similarity ?? '-'}%` : 'Perlu pilihan'}</span></div>${item.candidate_user_id ? `<div class="mt-2"><button type="button" class="btn btn-sm btn-outline-primary manual-match-choice" data-file="${escapeHtml(item.file)}" data-user-id="${item.candidate_user_id}">Konfirmasi ${escapeHtml(item.user || 'kandidat ini')}</button></div>` : (item.manual_candidates?.length ? `<div class="mt-2 d-flex flex-wrap gap-2">${item.manual_candidates.map((candidate) => `<button type="button" class="btn btn-sm btn-outline-primary manual-match-choice" data-file="${escapeHtml(item.file)}" data-user-id="${candidate.id}">${escapeHtml(candidate.name)} — Cocok</button>`).join('')}</div>` : '')}</div>`).join('');
+                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item"><div class="d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.matched ? 'bg-success' : 'bg-warning text-dark'}">${item.matched ? `${escapeHtml(item.user || 'Kandidat')} · ${item.similarity ?? '-'}%` : 'Perlu pilihan'}</span></div><div class="d-flex gap-3 mt-3 align-items-center"><div class="text-center"><small class="d-block text-muted mb-1">Foto upload</small><img src="${item.uploaded_image || ''}" class="auto-match-compare-photo" alt="Foto upload"></div>${item.candidate_image ? `<div class="text-center"><small class="d-block text-muted mb-1">Scan wajah</small><img src="${item.candidate_image}" class="auto-match-compare-photo" alt="Foto scan wajah"></div>` : ''}</div>${item.candidate_user_id ? `<div class="mt-2"><button type="button" class="btn btn-sm btn-outline-primary manual-match-choice" data-file="${escapeHtml(item.file)}" data-user-id="${item.candidate_user_id}">Konfirmasi ${escapeHtml(item.user || 'kandidat ini')}</button></div>` : (item.manual_candidates?.length ? `<div class="mt-2 d-flex flex-wrap gap-2">${item.manual_candidates.map((candidate) => `<button type="button" class="btn btn-sm btn-outline-primary manual-match-choice" data-file="${escapeHtml(item.file)}" data-user-id="${candidate.id}">${escapeHtml(candidate.name)} — Cocok</button>`).join('')}</div>` : '')}</div>`).join('');
                 if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
                 if ((data.results || []).some((item) => item.saved)) {
                     if (autoMatchNotice) autoMatchNotice.textContent = `Foto yang cocok berhasil disimpan sebagai ${autoMatchCategory?.value === 'foto_bebas' ? 'Foto Bebas' : 'Foto Resmi'}. Halaman akan diperbarui.`;
