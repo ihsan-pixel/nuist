@@ -440,14 +440,18 @@ class PendataanGtkController extends Controller
         $documentType = $request->string('category')->toString();
         $documentDisk = $documentType === 'foto_resmi' ? 'public' : 'local';
 
-        $users = User::query()->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')->with('biometricProfiles')->get();
+        $users = User::query()->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')->with(['biometricProfiles', 'faceEnrollmentSessions.captures'])->get();
+        $manualCandidates = $users->map(function (User $teacher) {
+            $capture = $teacher->faceEnrollmentSessions->where('status', 'completed')->sortByDesc(fn ($session) => $session->completed_at ?: $session->updated_at)->flatMap(fn ($session) => $session->captures->whereIn('phase_key', ['front', 'front_2']))->sortByDesc('created_at')->first();
+            return ['id' => $teacher->id, 'name' => $teacher->name, 'face_image' => $capture ? $this->attachmentImageDataUri('public', $capture->captured_image) : null];
+        })->values()->all();
         $engine = app(\App\Services\KioskFaceEngineService::class);
         $results = [];
         foreach ($request->file('photos', []) as $photo) {
             $dataUrl = 'data:'.$photo->getMimeType().';base64,'.base64_encode($photo->get());
             $match = $engine->identify($users, ['selfie_frames' => [$dataUrl]], ['source' => 'gtk_bulk_face_match', 'madrasah_id' => $madrasah->id]);
             $user = !empty($match['user_id']) ? $users->firstWhere('id', (int) $match['user_id']) : null;
-            $item = ['file' => $photo->getClientOriginalName(), 'matched' => (bool) ($match['success'] ?? false), 'user' => $user?->name, 'similarity' => isset($match['similarity']) ? round((float) $match['similarity'] * 100, 1) : null, 'message' => $match['message'] ?? 'Wajah tidak cocok.'];
+            $item = ['file' => $photo->getClientOriginalName(), 'matched' => (bool) ($match['success'] ?? false), 'user' => $user?->name, 'similarity' => isset($match['similarity']) ? round((float) $match['similarity'] * 100, 1) : null, 'message' => $match['message'] ?? 'Wajah tidak cocok.', 'manual_candidates' => ($match['success'] ?? false) ? [] : $manualCandidates];
             if (($match['success'] ?? false) && $user) {
                 $hasExisting = GtkDocument::where('user_id', $user->id)->where('type', $documentType)->exists();
                 if ($documentType === 'foto_resmi') {
@@ -479,6 +483,19 @@ class PendataanGtkController extends Controller
         }
 
         return response()->json(['message' => 'Pencocokan selesai.', 'results' => $results]);
+    }
+
+    public function confirmManagedPhotoMatch(Request $request, Madrasah $madrasah)
+    {
+        $this->authorizeAccess();
+        $request->validate(['photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'], 'user_id' => ['required', 'integer'], 'category' => [Rule::in(['foto_resmi', 'foto_bebas'])]]);
+        $user = User::where('id', $request->integer('user_id'))->where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')->firstOrFail();
+        $type = $request->string('category')->toString() ?: 'foto_resmi';
+        $disk = $type === 'foto_resmi' ? 'public' : 'local';
+        $path = $this->storeGtkDocument($request->file('photo'), $user, $type, $disk);
+        if ($type === 'foto_resmi') $user->update(['avatar' => $path]);
+        GtkDocument::create(['user_id' => $user->id, 'type' => $type, 'disk' => $disk, 'path' => $path, 'original_name' => $request->file('photo')->getClientOriginalName()]);
+        return response()->json(['message' => 'Foto berhasil disimpan.', 'saved' => true]);
     }
 
     private function filenameUserMatchScore(string $filename, string $userName): float

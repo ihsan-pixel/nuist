@@ -282,6 +282,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
     const autoMatchProgressWrap = document.getElementById('autoMatchProgressWrap');
     const autoMatchProgressBar = document.getElementById('autoMatchProgressBar');
     const autoMatchProgressText = document.getElementById('autoMatchProgressText');
+    const autoMatchPendingFiles = new Map();
     const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','\"':'&quot;'}[character]));
     const prepareAutoMatchPhoto = (file) => new Promise((resolve) => {
         if (!file.type.startsWith('image/') || file.size < 1500000) return resolve(file);
@@ -319,6 +320,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
         if (autoMatchProgressText) autoMatchProgressText.textContent = '0%';
         const payload = new FormData();
         payload.append('category', autoMatchCategory?.value || 'foto_resmi');
+        files.forEach((file) => autoMatchPendingFiles.set(file.name, file));
         Promise.all(files.map(prepareAutoMatchPhoto)).then((preparedFiles) => {
             preparedFiles.forEach((file) => payload.append('photos[]', file));
             return new Promise((resolve, reject) => {
@@ -341,7 +343,7 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
                 if (autoMatchProgressBar) autoMatchProgressBar.style.width = '100%';
                 if (autoMatchProgressText) autoMatchProgressText.textContent = '100%';
                 autoMatchResults?.classList.remove('d-none');
-                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.skipped ? 'bg-secondary' : (item.matched ? 'bg-success' : 'bg-warning text-dark')}">${item.skipped ? 'Dilewati' : (item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.similarity ?? '-'}%` : 'Tidak cocok')}</span></div>`).join('');
+                if (autoMatchFileList) autoMatchFileList.innerHTML = (data.results || []).map((item) => `<div class="list-group-item"><div class="d-flex justify-content-between align-items-center"><span class="text-truncate me-2">${escapeHtml(item.file)} — ${escapeHtml(item.message || '')}</span><span class="badge ${item.skipped ? 'bg-secondary' : (item.matched ? 'bg-success' : 'bg-warning text-dark')}">${item.skipped ? 'Dilewati' : (item.matched ? `${escapeHtml(item.user || 'Cocok')} · ${item.similarity ?? '-'}%` : 'Perlu pilihan')}</span></div>${!item.matched && item.manual_candidates?.length ? `<div class="mt-2 d-flex flex-wrap gap-2">${item.manual_candidates.map((candidate) => `<button type="button" class="btn btn-sm btn-outline-primary manual-match-choice" data-file="${escapeHtml(item.file)}" data-user-id="${candidate.id}">${escapeHtml(candidate.name)} — Cocok</button>`).join('')}</div>` : ''}</div>`).join('');
                 if (autoMatchNotice) autoMatchNotice.textContent = data.message || 'Pencocokan selesai.';
                 if ((data.results || []).some((item) => item.saved)) {
                     if (autoMatchNotice) autoMatchNotice.textContent = `Foto yang cocok berhasil disimpan sebagai ${autoMatchCategory?.value === 'foto_bebas' ? 'Foto Bebas' : 'Foto Resmi'}. Halaman akan diperbarui.`;
@@ -350,6 +352,20 @@ window.pdfJsReady = import(<?php echo json_encode(asset('build/libs/pdfjs/pdf.mi
             })
             .catch((error) => { if (autoMatchNotice) autoMatchNotice.textContent = error.message; })
             .finally(() => { autoMatchButton.disabled = false; autoMatchButton.innerHTML = '<i class="bx bx-search-alt me-1"></i> Mulai Pencocokan'; });
+    });
+    autoMatchFileList?.addEventListener('click', async (event) => {
+        const button = event.target.closest('.manual-match-choice');
+        if (!button) return;
+        const file = autoMatchPendingFiles.get(button.dataset.file);
+        if (!file) return;
+        const payload = new FormData();
+        payload.append('photo', file);
+        payload.append('user_id', button.dataset.userId);
+        payload.append('category', autoMatchCategory?.value || 'foto_resmi');
+        payload.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
+        button.disabled = true;
+        const response = await fetch(<?php echo json_encode(route('pendataan-gtk.documents.manage.auto-match.confirm', $madrasah), 512) ?>, {method: 'POST', body: payload, headers: {'Accept': 'application/json'}});
+        if (response.ok) { button.textContent = 'Tersimpan'; button.classList.replace('btn-outline-primary', 'btn-success'); } else { button.disabled = false; }
     });
 
     const form = document.getElementById('documentsGridForm');
