@@ -25,7 +25,7 @@
         .footer { position: fixed; bottom: -6mm; left: 0; color: #666; font-size: 8pt; }
         .wrap { white-space: normal; }
         .attachment-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .attachment-table td { border: .65px solid #222; padding: 5px; text-align: center; vertical-align: middle; }
+        .attachment-table td { border: none; padding: 5px; text-align: center; vertical-align: middle; }
         .attachment-label { margin-bottom: 4px; font-weight: 700; }
         .attachment-frame { width: 100%; text-align: center; overflow: hidden; }
         .attachment-frame img { max-width: 100%; max-height: 100%; }
