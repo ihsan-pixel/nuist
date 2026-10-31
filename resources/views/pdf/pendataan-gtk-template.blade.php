@@ -111,6 +111,20 @@
         </table>
         <div class="page-break"></div>
     @elseif($page === 2)
+        <h2>KTP</h2>
+        <table class="attachment-table">
+            <tr><td>
+                <div class="attachment-frame document-frame">
+                    @if(data_get($attachments, 'ktp.image'))
+                        <img src="{{ data_get($attachments, 'ktp.image') }}" alt="KTP">
+                    @else
+                        <div class="attachment-empty">{{ data_get($attachments, 'ktp.note', 'Tidak mengirimkan') }}</div>
+                    @endif
+                </div>
+            </td></tr>
+        </table>
+        <div class="page-break"></div>
+    @elseif($page === 3)
         <h2>1. Data Scan Wajah - 6 Pose</h2>
         <table class="attachment-table">
             <tr>
@@ -128,7 +142,6 @@
                 @endforeach
             </tr>
         </table>
-
         <h2>2. Foto Resmi dan Foto Bebas</h2>
         <table class="attachment-table">
             <tr>
@@ -150,7 +163,6 @@
     @else
         @php
             [$key, $label] = match ($page) {
-                3 => ['ktp', 'Scan KTP'],
                 4 => ['sk_awal', 'SK Pertama'],
                 5 => ['sk_akhir', 'SK Terakhir'],
             };

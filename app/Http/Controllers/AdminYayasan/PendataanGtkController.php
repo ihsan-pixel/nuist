@@ -980,7 +980,7 @@ class PendataanGtkController extends Controller
                 $result->AddPage($size['orientation'], [$size['width'], $size['height']]);
                 $result->useTemplate($template);
 
-                $key = [3 => 'ktp', 4 => 'sk_awal', 5 => 'sk_akhir'][$index] ?? null;
+                $key = [1 => 'ktp', 3 => 'sk_awal', 4 => 'sk_akhir'][$index] ?? null;
                 if (! isset($previews[$key])) {
                     continue;
                 }
