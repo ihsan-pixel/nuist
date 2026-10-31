@@ -244,6 +244,8 @@ class SkYayasanController extends Controller
             'uploadedCount' => SkYayasanDocument::query()
                 ->whereNotNull('scan_pdf_path')
                 ->count(),
+            'uploadLogs' => DB::table('sk_yayasan_scan_upload_logs')
+                ->orderByDesc('id')->limit(100)->get(),
         ]);
     }
 
@@ -279,6 +281,11 @@ class SkYayasanController extends Controller
         })->filter(fn ($candidate) => $candidate['score'] > 0)->sortByDesc('score')->first();
 
         if (! $match) {
+            DB::table('sk_yayasan_scan_upload_logs')->insert([
+                'uploaded_by' => auth()->id(), 'original_name' => $file->getClientOriginalName(),
+                'status' => 'failed', 'message' => 'Nama file tidak cocok dengan user atau nomor SK.',
+                'created_at' => now(), 'updated_at' => now(),
+            ]);
             return response()->json(['ok' => false, 'message' => 'Tidak menemukan user/nomor SK yang cocok dari nama file.'], 422);
         }
 
@@ -295,6 +302,12 @@ class SkYayasanController extends Controller
             'scan_pdf_disk' => $disk,
             'scan_pdf_original_name' => $file->getClientOriginalName(),
             'scan_pdf_uploaded_at' => now(),
+        ]);
+        DB::table('sk_yayasan_scan_upload_logs')->insert([
+            'uploaded_by' => auth()->id(), 'document_id' => $document->id,
+            'original_name' => $file->getClientOriginalName(), 'document_number' => $document->document_number,
+            'employee_name' => $document->request?->employee?->name, 'status' => 'success',
+            'message' => 'Scan berhasil disimpan.', 'created_at' => now(), 'updated_at' => now(),
         ]);
 
         return response()->json([

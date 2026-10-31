@@ -41,6 +41,25 @@
                     <div id="results" class="list-group small" style="max-height:330px;overflow:auto"></div>
                 </div>
 
+                <div class="mt-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div><h5 class="mb-1">Riwayat Upload</h5><p class="text-muted small mb-0">100 aktivitas terakhir.</p></div>
+                        <span class="badge bg-light text-dark">{{ $uploadLogs->count() }} aktivitas</span>
+                    </div>
+                    <div class="table-responsive border rounded-3">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light"><tr><th>Waktu</th><th>Nama File</th><th>User</th><th>Nomor SK</th><th>Status</th><th>Keterangan</th></tr></thead>
+                            <tbody id="historyBody">
+                            @forelse($uploadLogs as $log)
+                                <tr><td class="small text-nowrap">{{ \Illuminate\Support\Carbon::parse($log->created_at)->format('d/m/Y H:i') }}</td><td class="text-truncate" style="max-width:220px" title="{{ $log->original_name }}">{{ $log->original_name }}</td><td>{{ $log->employee_name ?: '-' }}</td><td>{{ $log->document_number ?: '-' }}</td><td><span class="badge bg-{{ $log->status === 'success' ? 'success' : 'danger' }}">{{ $log->status === 'success' ? 'Berhasil' : 'Gagal' }}</span></td><td class="small">{{ $log->message ?: '-' }}</td></tr>
+                            @empty
+                                <tr><td colspan="6" class="text-center text-muted py-4">Belum ada riwayat upload.</td></tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="alert alert-info mt-4 mb-0 small"><i class="bx bx-info-circle me-1"></i> Format wajib PDF, maksimal 30 MB per file. Nama file sebaiknya memuat nomor SK atau nama/NUIST ID user. File dengan nama sama akan menggantikan scan sebelumnya.</div>
             </div>
         </div>
