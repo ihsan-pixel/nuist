@@ -945,22 +945,24 @@ class PendataanGtkController extends Controller
 
         $path = ltrim($path, '/');
 
-        try {
-            if (! Storage::disk($disk)->exists($path)) {
-                return null;
-            }
+        foreach (array_values(array_unique([$disk, 'local', 'public'])) as $candidateDisk) {
+            try {
+                if (! Storage::disk($candidateDisk)->exists($path)) {
+                    continue;
+                }
 
-            $mimeType = (string) Storage::disk($disk)->mimeType($path);
-            $isPdf = $mimeType === 'application/pdf'
-                || str_ends_with(strtolower($path), '.pdf');
-            if (! $isPdf) {
-                return null;
+                $mimeType = (string) Storage::disk($candidateDisk)->mimeType($path);
+                $isPdf = $mimeType === 'application/pdf'
+                    || str_ends_with(strtolower($path), '.pdf');
+                if ($isPdf) {
+                    return Storage::disk($candidateDisk)->path($path);
+                }
+            } catch (\Throwable) {
+                continue;
             }
-
-            return Storage::disk($disk)->path($path);
-        } catch (\Throwable) {
-            return null;
         }
+
+        return null;
     }
 
     private function overlayGtkPdfAttachments(string $basePdf, array $attachments): string
