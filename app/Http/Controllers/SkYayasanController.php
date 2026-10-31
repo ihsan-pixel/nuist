@@ -244,39 +244,9 @@ class SkYayasanController extends Controller
             'uploadedCount' => SkYayasanDocument::query()
                 ->whereNotNull('scan_pdf_path')
                 ->count(),
-            'uploadLogs' => $this->scanUploadHistory(),
+            'uploadLogs' => DB::table('sk_yayasan_scan_upload_logs')
+                ->orderByDesc('id')->limit(100)->get(),
         ]);
-    }
-
-    private function scanUploadHistory(): Collection
-    {
-        $scanLogs = DB::table('sk_yayasan_scan_upload_logs')
-            ->select('created_at', 'original_name', 'employee_name', 'document_number', 'status', 'message')
-            ->get()
-            ->map(fn ($log) => (object) [
-                'created_at' => $log->created_at,
-                'original_name' => $log->original_name,
-                'employee_name' => $log->employee_name,
-                'document_number' => $log->document_number,
-                'status' => $log->status,
-                'message' => $log->message,
-            ]);
-
-        $importLogs = SkYayasanImportBatch::query()
-            ->with(['madrasah:id,name'])
-            ->latest('uploaded_at')
-            ->limit(100)
-            ->get()
-            ->map(fn (SkYayasanImportBatch $batch) => (object) [
-                'created_at' => $batch->uploaded_at ?: $batch->created_at,
-                'original_name' => $batch->original_filename,
-                'employee_name' => $batch->madrasah?->name,
-                'document_number' => null,
-                'status' => in_array($batch->status, ['synced', 'reviewed', 'approved', 'published'], true) ? 'success' : 'failed',
-                'message' => 'Import data SK Yayasan: '.str_replace('_', ' ', $batch->status),
-            ]);
-
-        return $scanLogs->concat($importLogs)->sortByDesc('created_at')->take(100)->values();
     }
 
     public function uploadScanFile(Request $request)
