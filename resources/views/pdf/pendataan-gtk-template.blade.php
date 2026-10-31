@@ -63,8 +63,8 @@
 @endphp
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Pendataan GTK 2026</div>
-@for($page = 1; $page <= 6; $page++)
-    @if($page <= 2)
+@for($page = 1; $page <= 5; $page++)
+    @if($page === 1)
         <div class="header">@if($letterheadDataUri)<img src="{{ $letterheadDataUri }}" alt="Kop LP Ma'arif NU PWNU DIY">@endif</div>
     @endif
 
@@ -100,11 +100,6 @@
             <tr><td class="number">11</td><td>Nomor SK Pertama</td><td>{{ $value($data?->nomor_sk_pertama ?: $simfoni?->nomor_sk_pertama) }}</td></tr>
             <tr><td class="number">12</td><td>Masa Kerja</td><td>{{ $value($user->masa_kerja ?: $simfoni?->masa_kerja) }}</td></tr>
             <tr><td class="number">13</td><td>No. Sertifikasi Pendidik</td><td>{{ $value($data?->nomor_sertifikasi_pendidik ?: $simfoni?->nomor_sertifikasi_pendidik) }}</td></tr>
-        </table>
-        <div class="page-break"></div>
-    @elseif($page === 2)
-        <table class="data">
-            <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">14</td><td>Gaji dari Satpen (Rp)</td><td>{{ $money($data?->gaji_satpen ?: $simfoni?->gaji_pokok) }}</td></tr>
             <tr><td class="number">15</td><td>Sertifikasi (Rp)</td><td>{{ $money($data?->gaji_sertifikasi ?: $simfoni?->gaji_sertifikasi) }}</td></tr>
             <tr><td class="number">16</td><td>Tunjangan rerata per bulan (Rp)</td><td>{{ $money($data?->tunjangan_rerata_bulanan) }}</td></tr>
@@ -117,7 +112,7 @@
             <tr><td class="number">3</td><td>Produk kerja kolaboratif</td><td class="wrap">{{ $value($data?->produk_kerja_kolaboratif) }}</td></tr>
         </table>
         <div class="page-break"></div>
-    @elseif($page === 3)
+    @elseif($page === 2)
         <h2>1. Data Scan Wajah - 6 Pose</h2>
         <table class="attachment-table">
             <tr>
@@ -157,9 +152,9 @@
     @else
         @php
             [$key, $label] = match ($page) {
-                4 => ['ktp', 'Scan KTP'],
-                5 => ['sk_awal', 'SK Pertama'],
-                6 => ['sk_akhir', 'SK Terakhir'],
+                3 => ['ktp', 'Scan KTP'],
+                4 => ['sk_awal', 'SK Pertama'],
+                5 => ['sk_akhir', 'SK Terakhir'],
             };
         @endphp
         <h2>{{ $label }}</h2>
@@ -174,7 +169,7 @@
                 </div>
             </td></tr>
         </table>
-        @if($page < 6)<div class="page-break"></div>@endif
+        @if($page < 5)<div class="page-break"></div>@endif
     @endif
 @endfor
 </body>
