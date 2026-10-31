@@ -946,14 +946,19 @@ class PendataanGtkController extends Controller
                 $document = GtkDocument::query()
                     ->where('type', $type)
                     ->where(function ($query) use ($nameParts) {
-                        foreach ($nameParts as $part) {
-                            $query->where(function ($partQuery) use ($part) {
+                        foreach ($nameParts as $index => $part) {
+                            $method = $index === 0 ? 'where' : 'orWhere';
+                            $query->{$method}(function ($partQuery) use ($part) {
                                 $partQuery->where('original_name', 'like', '%'.$part.'%')
                                     ->orWhere('path', 'like', '%'.$part.'%');
                             });
                         }
                     })
-                    ->latest('id')
+                    ->get()
+                    ->sortByDesc(function (GtkDocument $candidate) use ($nameParts) {
+                        $haystack = Str::lower(($candidate->original_name ?: '').' '.($candidate->path ?: ''));
+                        return $nameParts->sum(fn ($part) => str_contains($haystack, $part) ? 1 : 0);
+                    })
                     ->first();
             }
         }
