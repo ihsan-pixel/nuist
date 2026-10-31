@@ -879,8 +879,7 @@ class PendataanGtkController extends Controller
 
         if (Schema::hasTable('sk_yayasan_documents')) {
             $skYayasan = SkYayasanDocument::query()
-                ->whereIn('status', ['published', 'draft'])
-                ->whereIn('meta_payload->school_year', ['2026', 2026, '2026/2027'])
+                ->whereNotNull('scan_pdf_path')
                 ->whereHas('request', fn ($query) => $query->where('employee_id', $user->id))
                 ->with('request')
                 ->latest('id')
