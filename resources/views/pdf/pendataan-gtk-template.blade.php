@@ -41,7 +41,7 @@
         ->map(fn ($membership) => $membership->mgmpGroup?->name)
         ->filter()->unique()->implode(', ');
     $value = fn ($item) => filled($item) ? $item : '-';
-    $date = fn ($item) => $item ? $item->translatedFormat('d F Y') : '-';
+    $date = fn ($item) => $item ? $item->locale('id')->translatedFormat('d F Y') : '-';
     $money = fn ($item) => filled($item) ? 'Rp '.number_format((float) $item, 0, ',', '.') : '-';
     $yesNo = fn ($condition, $yes = 'Sudah', $no = 'Belum') => ($condition ? '✓ '.$yes : '□ '.$no);
     $firstSkDate = $data?->tmt_sk_pertama ?: $user->tmt;
