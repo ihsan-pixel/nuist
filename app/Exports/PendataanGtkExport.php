@@ -27,8 +27,8 @@ class PendataanGtkExport extends DefaultValueBinder implements FromCollection, W
     public function headings(): array
     {
         return [
-            ['No', 'SCOD', 'NUIST ID', 'Nama dan Gelar', 'Asal Sekolah', 'Data Identitas GTK', '', '', '', '', 'Data Kepegawaian', '', '', '', '', '', '', '', '', '', ''],
-            ['', '', '', '', '', 'NIK', 'Alamat', 'Gol. Darah', 'No HP', 'Email Aktif', 'Status Kepegawaian', 'TMT SK 1', 'TMT SK Terakhir', 'Nomor SK Pertama', 'Tahun SK Pertama', 'Masa Kerja', 'Jabatan', 'Gaji dari Satpen (Rp)', 'No. Sertifikasi Pendidik', 'Sertifikasi (Rp)', 'Tunjangan rerata per bulan (Rp)'],
+            ['No', 'SCOD', 'NUIST ID', 'Nama dan Gelar', 'Asal Sekolah', 'Data Identitas GTK', '', '', '', '', 'Data Kepegawaian', '', '', '', '', '', '', '', '', '', '', 'Data MGMP', '', ''],
+            ['', '', '', '', '', 'NIK', 'Alamat', 'Gol. Darah', 'No HP', 'Email Aktif', 'Status Kepegawaian', 'TMT SK 1', 'TMT SK Terakhir', 'Nomor SK Pertama', 'Tahun SK Pertama', 'Masa Kerja', 'Jabatan', 'Gaji dari Satpen (Rp)', 'No. Sertifikasi Pendidik', 'Sertifikasi (Rp)', 'Tunjangan rerata per bulan (Rp)', 'Nama MGMP', 'Status Keaktifan', 'Produk Kerja Kolaboratif'],
         ];
     }
 
@@ -36,6 +36,9 @@ class PendataanGtkExport extends DefaultValueBinder implements FromCollection, W
     {
         return $this->gtk->values()->map(function (User $user, int $index) {
             $data = $user->gtkPendataan;
+            $mgmpNames = $data?->nama_mgmp ?: $user->mgmpMemberships
+                ->map(fn ($membership) => $membership->mgmpGroup?->name)
+                ->filter()->unique()->implode(', ');
             return [
                 $index + 1,
                 $user->madrasah?->scod,
@@ -58,6 +61,9 @@ class PendataanGtkExport extends DefaultValueBinder implements FromCollection, W
                 $data?->nomor_sertifikasi_pendidik,
                 $data?->gaji_sertifikasi === null ? null : (float) $data->gaji_sertifikasi,
                 $data?->tunjangan_rerata_bulanan === null ? null : (float) $data->tunjangan_rerata_bulanan,
+                $mgmpNames,
+                filled($mgmpNames) ? 'Aktif' : null,
+                $data?->produk_kerja_kolaboratif,
             ];
         });
     }
@@ -83,26 +89,26 @@ class PendataanGtkExport extends DefaultValueBinder implements FromCollection, W
     {
         return [AfterSheet::class => function (AfterSheet $event) {
             $sheet = $event->sheet->getDelegate();
-            foreach (['A1:A2', 'B1:B2', 'C1:C2', 'D1:D2', 'E1:E2', 'F1:J1', 'K1:U1'] as $range) {
+            foreach (['A1:A2', 'B1:B2', 'C1:C2', 'D1:D2', 'E1:E2', 'F1:J1', 'K1:U1', 'V1:X1'] as $range) {
                 $sheet->mergeCells($range);
             }
             $lastRow = max(2, $sheet->getHighestRow());
-            $sheet->getStyle("A1:U{$lastRow}")->applyFromArray([
+            $sheet->getStyle("A1:X{$lastRow}")->applyFromArray([
                 'alignment' => ['vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'CBD5E1']]],
             ]);
-            $sheet->getStyle('A1:U2')->applyFromArray([
+            $sheet->getStyle('A1:X2')->applyFromArray([
                 'font' => ['bold' => true],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E2E8F0']],
             ]);
-            foreach (['F1:J2' => 'EFF6FF', 'K1:U2' => 'F0FDF4'] as $range => $color) {
+            foreach (['F1:J2' => 'EFF6FF', 'K1:U2' => 'F0FDF4', 'V1:X2' => 'FFF7ED'] as $range => $color) {
                 $sheet->getStyle($range)->getFill()->getStartColor()->setRGB($color);
             }
-            foreach (range('A', 'U') as $column) {
+            foreach (range('A', 'X') as $column) {
                 $sheet->getColumnDimension($column)->setWidth(22);
             }
-            foreach (['D', 'E', 'G', 'J'] as $column) {
+            foreach (['D', 'E', 'G', 'J', 'V', 'X'] as $column) {
                 $sheet->getColumnDimension($column)->setWidth(36);
             }
             $sheet->getColumnDimension('A')->setWidth(7);
