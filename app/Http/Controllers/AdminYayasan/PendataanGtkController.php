@@ -887,9 +887,11 @@ class PendataanGtkController extends Controller
 
             $scanDisk = $skYayasan?->scan_pdf_disk ?: 'public';
             if ($skYayasan?->scan_pdf_path && Storage::disk($scanDisk)->exists($skYayasan->scan_pdf_path)) {
+                $gtkFallback = $attachments['sk_akhir']['pdf_path'] ?? null;
                 $attachments['sk_akhir'] = [
                     'image' => null,
                     'pdf_path' => Storage::disk($scanDisk)->path($skYayasan->scan_pdf_path),
+                    'fallback_pdf_path' => $gtkFallback,
                     'note' => null,
                 ];
             }
@@ -1035,8 +1037,16 @@ class PendataanGtkController extends Controller
                     $preview = $result->importPage(1);
                     $previews[$key] = [$preview, $result->getTemplateSize($preview)];
                 } catch (\Throwable) {
-                    // A damaged attachment must not hide the other documents.
-                    continue;
+                    $fallbackPath = data_get($attachments, $key.'.fallback_pdf_path');
+                    if ($fallbackPath && is_file($fallbackPath)) {
+                        try {
+                            $result->setSourceFile($fallbackPath);
+                            $preview = $result->importPage(1);
+                            $previews[$key] = [$preview, $result->getTemplateSize($preview)];
+                        } catch (\Throwable) {
+                            // Leave the attachment empty when both files are unreadable.
+                        }
+                    }
                 }
             }
 
