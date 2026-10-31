@@ -925,15 +925,37 @@ class PendataanGtkController extends Controller
             ->where('type', $type)
             ->sortByDesc('id')
             ->first();
-        if (! $document && filled($user->nuist_id)) {
-            $document = GtkDocument::query()
-                ->where('type', $type)
-                ->where(function ($query) use ($user) {
-                    $query->where('original_name', 'like', '%'.$user->nuist_id.'%')
-                        ->orWhere('path', 'like', '%'.$user->nuist_id.'%');
-                })
-                ->latest('id')
-                ->first();
+        if (! $document && (filled($user->nuist_id) || filled($user->name))) {
+            $identifier = filled($user->nuist_id) ? (string) $user->nuist_id : '';
+            $nameParts = collect(preg_split('/\s+/', trim((string) $user->name), -1, PREG_SPLIT_NO_EMPTY))
+                ->map(fn ($part) => Str::slug($part))
+                ->filter(fn ($part) => strlen($part) >= 3)
+                ->values();
+            $document = $identifier !== ''
+                ? GtkDocument::query()
+                    ->where('type', $type)
+                    ->where(function ($query) use ($identifier) {
+                        $query->where('original_name', 'like', '%'.$identifier.'%')
+                            ->orWhere('path', 'like', '%'.$identifier.'%');
+                    })
+                    ->latest('id')
+                    ->first()
+                : null;
+
+            if (! $document && $nameParts->isNotEmpty()) {
+                $document = GtkDocument::query()
+                    ->where('type', $type)
+                    ->where(function ($query) use ($nameParts) {
+                        foreach ($nameParts as $part) {
+                            $query->where(function ($partQuery) use ($part) {
+                                $partQuery->where('original_name', 'like', '%'.$part.'%')
+                                    ->orWhere('path', 'like', '%'.$part.'%');
+                            });
+                        }
+                    })
+                    ->latest('id')
+                    ->first();
+            }
         }
         $disk = $document?->disk ?: $legacyDisk;
         $path = $document?->path ?: $legacyPath;
