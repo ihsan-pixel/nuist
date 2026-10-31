@@ -232,6 +232,80 @@ class SkYayasanController extends Controller
         ]);
     }
 
+    public function scanUploadIndex(): View
+    {
+        $this->ensureSuperAdmin();
+
+        return view('sk-yayasan.scan-upload', [
+            'documentCount' => SkYayasanDocument::query()
+                ->whereIn('status', ['published', 'draft'])
+                ->whereIn('meta_payload->school_year', ['2026', 2026, '2026/2027'])
+                ->count(),
+            'uploadedCount' => SkYayasanDocument::query()
+                ->whereNotNull('scan_pdf_path')
+                ->count(),
+        ]);
+    }
+
+    public function uploadScanFile(Request $request)
+    {
+        $this->ensureSuperAdmin();
+        $request->validate(['file' => ['required', 'file', 'mimes:pdf', 'max:30720']]);
+
+        $file = $request->file('file');
+        $needle = Str::of(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
+            ->ascii()->lower()->replaceMatches('/[^a-z0-9]+/', '')->value();
+
+        $documents = SkYayasanDocument::query()
+            ->whereIn('status', ['published', 'draft'])
+            ->whereIn('meta_payload->school_year', ['2026', 2026, '2026/2027'])
+            ->with(['request.employee:id,name,nuist_id']);
+
+        $match = $documents->get()->map(function (SkYayasanDocument $document) use ($needle) {
+            $employee = $document->request?->employee;
+            $tokens = collect([
+                $document->document_number,
+                $employee?->name,
+                $employee?->nuist_id,
+            ])->filter()->map(fn ($value) => Str::of((string) $value)->ascii()->lower()->replaceMatches('/[^a-z0-9]+/', '')->value());
+
+            $score = $tokens->reduce(function (int $score, string $token) use ($needle) {
+                return $token !== '' && str_contains($needle, $token)
+                    ? max($score, strlen($token))
+                    : $score;
+            }, 0);
+
+            return compact('document', 'score');
+        })->filter(fn ($candidate) => $candidate['score'] > 0)->sortByDesc('score')->first();
+
+        if (! $match) {
+            return response()->json(['ok' => false, 'message' => 'Tidak menemukan user/nomor SK yang cocok dari nama file.'], 422);
+        }
+
+        $document = $match['document'];
+        $disk = 'public';
+        $directory = 'sk-yayasan/scans/2026';
+        if ($document->scan_pdf_path && Storage::disk($document->scan_pdf_disk ?: $disk)->exists($document->scan_pdf_path)) {
+            Storage::disk($document->scan_pdf_disk ?: $disk)->delete($document->scan_pdf_path);
+        }
+
+        $path = $file->store($directory, $disk);
+        $document->update([
+            'scan_pdf_path' => $path,
+            'scan_pdf_disk' => $disk,
+            'scan_pdf_original_name' => $file->getClientOriginalName(),
+            'scan_pdf_uploaded_at' => now(),
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'name' => $file->getClientOriginalName(),
+            'user' => $document->request?->employee?->name,
+            'number' => $document->document_number,
+            'replaced' => $document->wasChanged('scan_pdf_path') && $document->getOriginal('scan_pdf_path'),
+        ]);
+    }
+
     public function updateDocumentNumber(Request $request, SkYayasanDocument $document): RedirectResponse
     {
         $this->ensureSuperAdmin();

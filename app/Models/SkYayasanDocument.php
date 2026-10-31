@@ -22,6 +22,10 @@ class SkYayasanDocument extends Model
         'publication_notes',
         'meta_payload',
         'rendered_content',
+        'scan_pdf_path',
+        'scan_pdf_disk',
+        'scan_pdf_original_name',
+        'scan_pdf_uploaded_at',
         'status',
         'generated_at',
         'published_at',
@@ -34,6 +38,7 @@ class SkYayasanDocument extends Model
         'generated_at' => 'datetime',
         'published_at' => 'datetime',
         'number_locked_at' => 'datetime',
+        'scan_pdf_uploaded_at' => 'datetime',
     ];
 
     public function request()

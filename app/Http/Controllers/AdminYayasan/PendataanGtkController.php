@@ -6,6 +6,7 @@ use App\Exports\PendataanGtkExport;
 use App\Http\Controllers\Controller;
 use App\Models\GtkDocument;
 use App\Models\Madrasah;
+use App\Models\SkYayasanDocument;
 use App\Models\StatusKepegawaian;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -875,6 +876,25 @@ class PendataanGtkController extends Controller
                 'note' => 'Tidak mengirimkan',
             ])->all(),
         ];
+
+        if (Schema::hasTable('sk_yayasan_documents')) {
+            $skYayasan = SkYayasanDocument::query()
+                ->whereIn('status', ['published', 'draft'])
+                ->whereIn('meta_payload->school_year', ['2026', 2026, '2026/2027'])
+                ->whereHas('request', fn ($query) => $query->where('employee_id', $user->id))
+                ->with('request')
+                ->latest('id')
+                ->first();
+
+            $scanDisk = $skYayasan?->scan_pdf_disk ?: 'public';
+            if ($skYayasan?->scan_pdf_path && Storage::disk($scanDisk)->exists($skYayasan->scan_pdf_path)) {
+                $attachments['sk_akhir'] = [
+                    'image' => null,
+                    'pdf_path' => Storage::disk($scanDisk)->path($skYayasan->scan_pdf_path),
+                    'note' => null,
+                ];
+            }
+        }
 
         if (! $user->exists || ! Schema::hasTable('face_enrollment_sessions')) {
             return $attachments;

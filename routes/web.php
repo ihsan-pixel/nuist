@@ -2042,6 +2042,8 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::put('/template/{template}', [SkYayasanController::class, 'updateTemplate'])->name('template.update');
         Route::delete('/template/{template}', [SkYayasanController::class, 'destroyTemplate'])->name('template.destroy');
         Route::get('/generate', [SkYayasanController::class, 'generateIndex'])->name('generate.index');
+        Route::get('/upload-scan', [SkYayasanController::class, 'scanUploadIndex'])->name('scan-upload.index');
+        Route::post('/upload-scan/file', [SkYayasanController::class, 'uploadScanFile'])->name('scan-upload.file');
         Route::patch('/generate/settings', [SkYayasanController::class, 'updateGenerateSettings'])->name('generate.settings.update');
         Route::post('/generate/appointment-nipm-sync', [SkYayasanController::class, 'syncGenerateAppointmentNipm'])->name('generate.appointment-nipm-sync');
         Route::post('/generate/regenerate-all', [SkYayasanController::class, 'regenerateAllDocuments'])->name('generate.regenerate-all');

@@ -25,6 +25,7 @@
         <li><a href="{{ route('sk-yayasan.pengajuan.index') }}">Pengajuan</a></li>
         <li><a href="{{ route('sk-yayasan.template.index') }}">Template</a></li>
         <li><a href="{{ route('sk-yayasan.generate.index') }}">Generate SK</a></li>
+        <li><a href="{{ route('sk-yayasan.scan-upload.index') }}">Upload Scan SK</a></li>
     </ul>
 </li>
 <li><a href="{{ route('admin.mgmp_reset_uploads') }}" class="waves-effect"><i class="bx bx-search-alt"></i><span>Monitoring Unggahan MGMP</span></a></li>
