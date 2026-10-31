@@ -946,8 +946,14 @@ class PendataanGtkController extends Controller
         $path = ltrim($path, '/');
 
         try {
-            if (! Storage::disk($disk)->exists($path)
-                || Storage::disk($disk)->mimeType($path) !== 'application/pdf') {
+            if (! Storage::disk($disk)->exists($path)) {
+                return null;
+            }
+
+            $mimeType = (string) Storage::disk($disk)->mimeType($path);
+            $isPdf = $mimeType === 'application/pdf'
+                || str_ends_with(strtolower($path), '.pdf');
+            if (! $isPdf) {
                 return null;
             }
 
