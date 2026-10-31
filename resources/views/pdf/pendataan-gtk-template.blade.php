@@ -118,8 +118,6 @@
         </table>
         <div class="page-break"></div>
     @elseif($page === 3)
-        <div class="title">LAMPIRAN BERKAS GTK</div>
-
         <h2>1. Data Scan Wajah - 6 Pose</h2>
         <table class="attachment-table">
             <tr>
@@ -164,7 +162,6 @@
                 6 => ['sk_akhir', 'SK Terakhir'],
             };
         @endphp
-        <div class="title">LAMPIRAN BERKAS GTK</div>
         <h2>{{ $label }}</h2>
         <table class="attachment-table">
             <tr><td>
