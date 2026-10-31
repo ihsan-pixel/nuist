@@ -6,14 +6,14 @@
     <style>
         @page { size: A4 portrait; margin: 12mm 14mm 13mm; }
         * { box-sizing: border-box; }
-        body { margin: 0; color: #111; font-family: DejaVu Sans, sans-serif; font-size: 8.2pt; line-height: 1.2; }
-        .header { width: 100%; margin: -2mm 0 10px; }
+        body { margin: 0; color: #111; font-family: DejaVu Sans, sans-serif; font-size: 7.8pt; line-height: 1.15; }
+        .header { width: 100%; margin: -2mm 0 6px; }
         .header img { display: block; width: 100%; height: auto; }
-        .title { margin: 4px 0 11px; text-align: center; font-size: 14pt; line-height: 1.4; font-weight: 700; }
-        h2 { margin: 8px 0 6px; font-size: 11.5pt; }
+        .title { margin: 2px 0 6px; text-align: center; font-size: 12.5pt; line-height: 1.2; font-weight: 700; }
+        h2 { margin: 5px 0 4px; font-size: 10.5pt; }
         .intro { margin: 0 0 5px; }
         table.data { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        table.data th, table.data td { border: .65px solid #222; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; }
+        table.data th, table.data td { border: .65px solid #222; padding: 3px 5px; vertical-align: middle; word-wrap: break-word; }
         table.data th { font-weight: 700; text-align: center; background: #fff; }
         .number { width: 7%; text-align: center; }
         .label { width: 29%; }
