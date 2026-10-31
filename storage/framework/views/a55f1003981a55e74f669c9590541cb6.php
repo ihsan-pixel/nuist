@@ -6,26 +6,24 @@
     <style>
         @page { size: A4 portrait; margin: 12mm 14mm 13mm; }
         * { box-sizing: border-box; }
-        body { margin: 0; color: #111; font-family: DejaVu Sans, sans-serif; font-size: 8.2pt; line-height: 1.2; }
-        .header { width: 100%; margin: -2mm 0 10px; }
+        body { margin: 0; color: #111; font-family: DejaVu Sans, sans-serif; font-size: 7.8pt; line-height: 1.15; }
+        .header { width: 100%; margin: -2mm 0 6px; }
         .header img { display: block; width: 100%; height: auto; }
-        .title { margin: 4px 0 11px; text-align: center; font-size: 14pt; line-height: 1.4; font-weight: 700; }
-        h2 { margin: 8px 0 6px; font-size: 11.5pt; }
+        .title { margin: 2px 0 6px; text-align: center; font-size: 12.5pt; line-height: 1.2; font-weight: 700; }
+        h2 { margin: 5px 0 4px; font-size: 10.5pt; }
         .intro { margin: 0 0 5px; }
         table.data { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        table.data th, table.data td { border: .65px solid #222; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; }
+        table.data th, table.data td { border: .65px solid #222; padding: 3px 5px; vertical-align: middle; word-wrap: break-word; }
         table.data th { font-weight: 700; text-align: center; background: #fff; }
         .number { width: 7%; text-align: center; }
         .label { width: 29%; }
         .value { width: 64%; word-wrap: break-word; }
-        .verification-label { width: 62%; }
-        .verification-result { width: 31%; }
         .check { font-family: DejaVu Sans, sans-serif; white-space: nowrap; }
         .page-break { page-break-before: always; height: 1px; }
         .footer { position: fixed; bottom: -6mm; left: 0; color: #666; font-size: 8pt; }
         .wrap { white-space: normal; }
         .attachment-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .attachment-table td { border: .65px solid #222; padding: 5px; text-align: center; vertical-align: middle; }
+        .attachment-table td { border: none; padding: 5px; text-align: center; vertical-align: middle; }
         .attachment-label { margin-bottom: 4px; font-weight: 700; }
         .attachment-frame { width: 100%; text-align: center; overflow: hidden; }
         .attachment-frame img { max-width: 100%; max-height: 100%; }
@@ -63,8 +61,10 @@
 ?>
 
 <div class="footer">LP Ma'arif NU PWNU DIY | Pendataan GTK 2026</div>
-<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($page = 1; $page <= 6; $page++): ?>
-    <div class="header"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($letterheadDataUri): ?><img src="<?php echo e($letterheadDataUri); ?>" alt="Kop LP Ma'arif NU PWNU DIY"><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></div>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($page = 1; $page <= 5; $page++): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($page === 1): ?>
+        <div class="header"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($letterheadDataUri): ?><img src="<?php echo e($letterheadDataUri); ?>" alt="Kop LP Ma'arif NU PWNU DIY"><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($page === 1): ?>
         <div class="title">FORM KELENGKAPAN DOKUMEN GTK<br>LP MA'ARIF NU PWNU DIY</div>
@@ -98,37 +98,33 @@
             <tr><td class="number">11</td><td>Nomor SK Pertama</td><td><?php echo e($value($data?->nomor_sk_pertama ?: $simfoni?->nomor_sk_pertama)); ?></td></tr>
             <tr><td class="number">12</td><td>Masa Kerja</td><td><?php echo e($value($user->masa_kerja ?: $simfoni?->masa_kerja)); ?></td></tr>
             <tr><td class="number">13</td><td>No. Sertifikasi Pendidik</td><td><?php echo e($value($data?->nomor_sertifikasi_pendidik ?: $simfoni?->nomor_sertifikasi_pendidik)); ?></td></tr>
-        </table>
-        <div class="page-break"></div>
-    <?php elseif($page === 2): ?>
-        <table class="data">
-            <tr><th class="number">No.</th><th class="label">Data Kepegawaian</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">14</td><td>Gaji dari Satpen (Rp)</td><td><?php echo e($money($data?->gaji_satpen ?: $simfoni?->gaji_pokok)); ?></td></tr>
             <tr><td class="number">15</td><td>Sertifikasi (Rp)</td><td><?php echo e($money($data?->gaji_sertifikasi ?: $simfoni?->gaji_sertifikasi)); ?></td></tr>
             <tr><td class="number">16</td><td>Tunjangan rerata per bulan (Rp)</td><td><?php echo e($money($data?->tunjangan_rerata_bulanan)); ?></td></tr>
         </table>
-        <h2>3. Proses Verifikasi</h2>
+        <h2>3. Keaktifan MGMP</h2>
         <table class="data">
-            <tr><th class="number">No.</th><th class="verification-label">Pengambilan Data</th><th class="verification-result">Hasil</th></tr>
-            <tr><td class="number">1</td><td>KTP asli telah di-scan</td><td class="check"><?php echo e($yesNo($hasKtp)); ?></td></tr>
-            <tr><td class="number">2</td><td>Scan wajah telah dilakukan</td><td class="check"><?php echo e($yesNo($user->hasFaceEnrollment())); ?></td></tr>
-            <tr><td class="number">3</td><td>SK Pertama telah di-scan</td><td class="check"><?php echo e($yesNo($hasFirstSk)); ?></td></tr>
-            <tr><td class="number">4</td><td>SK Terakhir telah di-scan</td><td class="check"><?php echo e($yesNo($hasLastSk)); ?></td></tr>
-            <tr><td class="number">5</td><td>SK Pertama dan SK Terakhir telah sesuai</td><td class="check">[ ] Sesuai &nbsp;&nbsp; [ ] Tidak Sesuai</td></tr>
-            <tr><td class="number">6</td><td>Foto resmi</td><td class="check"><?php echo e($yesNo($hasOfficialPhoto)); ?></td></tr>
-            <tr><td class="number">7</td><td>Foto bebas</td><td class="check"><?php echo e($yesNo($hasCasualPhoto)); ?></td></tr>
-        </table>
-        <h2>4. Keaktifan MGMP</h2>
-        <table class="data">
-            <tr><th class="number">No.</th><th class="verification-label">Keaktifan MGMP</th><th class="verification-result">Keterangan Pengisian</th></tr>
+            <tr><th class="number">No.</th><th class="label">Keaktifan MGMP</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">1</td><td>Nama MGMP</td><td><?php echo e($value($mgmpNames)); ?></td></tr>
             <tr><td class="number">2</td><td>Status keaktifan</td><td><?php echo e(filled($mgmpNames) ? 'Aktif' : '-'); ?></td></tr>
             <tr><td class="number">3</td><td>Produk kerja kolaboratif</td><td class="wrap"><?php echo e($value($data?->produk_kerja_kolaboratif)); ?></td></tr>
         </table>
         <div class="page-break"></div>
+    <?php elseif($page === 2): ?>
+        <h2>KTP</h2>
+        <table class="attachment-table">
+            <tr><td>
+                <div class="attachment-frame document-frame">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(data_get($attachments, 'ktp.image')): ?>
+                        <img src="<?php echo e(data_get($attachments, 'ktp.image')); ?>" alt="KTP">
+                    <?php else: ?>
+                        <div class="attachment-empty"><?php echo e(data_get($attachments, 'ktp.note', 'Tidak mengirimkan')); ?></div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
+            </td></tr>
+        </table>
+        <div class="page-break"></div>
     <?php elseif($page === 3): ?>
-        <div class="title">LAMPIRAN BERKAS GTK</div>
-
         <h2>1. Data Scan Wajah - 6 Pose</h2>
         <table class="attachment-table">
             <tr>
@@ -146,7 +142,6 @@
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
             </tr>
         </table>
-
         <h2>2. Foto Resmi dan Foto Bebas</h2>
         <table class="attachment-table">
             <tr>
@@ -168,12 +163,10 @@
     <?php else: ?>
         <?php
             [$key, $label] = match ($page) {
-                4 => ['ktp', 'Scan KTP'],
-                5 => ['sk_awal', 'SK Pertama'],
-                6 => ['sk_akhir', 'SK Terakhir'],
+                4 => ['sk_awal', 'SK Pertama'],
+                5 => ['sk_akhir', 'SK Terakhir'],
             };
         ?>
-        <div class="title">LAMPIRAN BERKAS GTK</div>
         <h2><?php echo e($label); ?></h2>
         <table class="attachment-table">
             <tr><td>
@@ -186,7 +179,7 @@
                 </div>
             </td></tr>
         </table>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($page < 6): ?><div class="page-break"></div><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($page < 5): ?><div class="page-break"></div><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </body>

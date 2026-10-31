@@ -25,6 +25,7 @@
         <li><a href="<?php echo e(route('sk-yayasan.pengajuan.index')); ?>">Pengajuan</a></li>
         <li><a href="<?php echo e(route('sk-yayasan.template.index')); ?>">Template</a></li>
         <li><a href="<?php echo e(route('sk-yayasan.generate.index')); ?>">Generate SK</a></li>
+        <li><a href="<?php echo e(route('sk-yayasan.scan-upload.index')); ?>">Upload Scan SK</a></li>
     </ul>
 </li>
 <li><a href="<?php echo e(route('admin.mgmp_reset_uploads')); ?>" class="waves-effect"><i class="bx bx-search-alt"></i><span>Monitoring Unggahan MGMP</span></a></li>
