@@ -925,6 +925,16 @@ class PendataanGtkController extends Controller
             ->where('type', $type)
             ->sortByDesc('id')
             ->first();
+        if (! $document && filled($user->nuist_id)) {
+            $document = GtkDocument::query()
+                ->where('type', $type)
+                ->where(function ($query) use ($user) {
+                    $query->where('original_name', 'like', '%'.$user->nuist_id.'%')
+                        ->orWhere('path', 'like', '%'.$user->nuist_id.'%');
+                })
+                ->latest('id')
+                ->first();
+        }
         $disk = $document?->disk ?: $legacyDisk;
         $path = $document?->path ?: $legacyPath;
         $image = $this->attachmentImageDataUri($disk, $path);
