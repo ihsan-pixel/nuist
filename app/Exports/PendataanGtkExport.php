@@ -36,6 +36,10 @@ class PendataanGtkExport extends DefaultValueBinder implements FromCollection, W
     {
         return $this->gtk->values()->map(function (User $user, int $index) {
             $data = $user->gtkPendataan;
+            $tmtPertama = $data?->tmt_sk_pertama ?: $user->tmt;
+            $masaJabatan = $tmtPertama
+                ? sprintf('%d Tahun %d Bulan', $tmtPertama->diffInYears(now()), $tmtPertama->copy()->addYears($tmtPertama->diffInYears(now()))->diffInMonths(now()))
+                : null;
             $mgmpNames = $data?->nama_mgmp ?: $user->mgmpMemberships
                 ->map(fn ($membership) => $membership->mgmpGroup?->name)
                 ->filter()->unique()->implode(', ');
@@ -55,7 +59,7 @@ class PendataanGtkExport extends DefaultValueBinder implements FromCollection, W
                 ($data?->tmt_sk_terakhir ?? $user->tmt)?->format('d-m-Y'),
                 $data?->nomor_sk_pertama,
                 $data?->tahun_sk_pertama,
-                $user->masa_kerja,
+                $masaJabatan,
                 $user->jabatan ?: $user->ketugasan,
                 $data?->gaji_satpen === null ? null : (float) $data->gaji_satpen,
                 $data?->nomor_sertifikasi_pendidik,
