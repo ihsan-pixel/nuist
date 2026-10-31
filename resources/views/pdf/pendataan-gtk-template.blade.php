@@ -18,8 +18,6 @@
         .number { width: 7%; text-align: center; }
         .label { width: 29%; }
         .value { width: 64%; word-wrap: break-word; }
-        .verification-label { width: 62%; }
-        .verification-result { width: 31%; }
         .check { font-family: DejaVu Sans, sans-serif; white-space: nowrap; }
         .page-break { page-break-before: always; height: 1px; }
         .footer { position: fixed; bottom: -6mm; left: 0; color: #666; font-size: 8pt; }
@@ -106,7 +104,7 @@
         </table>
         <h2>3. Keaktifan MGMP</h2>
         <table class="data">
-            <tr><th class="number">No.</th><th class="verification-label">Keaktifan MGMP</th><th class="verification-result">Keterangan Pengisian</th></tr>
+            <tr><th class="number">No.</th><th class="label">Keaktifan MGMP</th><th class="value">Keterangan Pengisian</th></tr>
             <tr><td class="number">1</td><td>Nama MGMP</td><td>{{ $value($mgmpNames) }}</td></tr>
             <tr><td class="number">2</td><td>Status keaktifan</td><td>{{ filled($mgmpNames) ? 'Aktif' : '-' }}</td></tr>
             <tr><td class="number">3</td><td>Produk kerja kolaboratif</td><td class="wrap">{{ $value($data?->produk_kerja_kolaboratif) }}</td></tr>
