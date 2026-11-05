@@ -13,6 +13,7 @@
     <style>
         .turnstile-wrap { display: flex; justify-content: center; margin: 4px 0 14px; }
         .turnstile-wrap .cf-turnstile { max-width: 100%; }
+        .submit-btn:disabled { cursor: not-allowed; opacity: .58; box-shadow: none; }
     </style>
 @endsection
 
@@ -124,6 +125,9 @@
                                         data-theme="dark"
                                         data-size="flexible"
                                         data-appearance="always"
+                                        data-callback="enableMobileLoginSubmit"
+                                        data-expired-callback="disableMobileLoginSubmit"
+                                        data-error-callback="disableMobileLoginSubmit"
                                     ></div>
                                 </div>
                                 @error('turnstile')
@@ -131,7 +135,7 @@
                                 @enderror
                             @endif
 
-                            <button class="submit-btn" type="submit">Masuk</button>
+                            <button class="submit-btn" id="mobileLoginSubmit" type="submit" @if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key'))) disabled @endif>Masuk</button>
                         </form>
                     </div>
                 </div>
@@ -145,6 +149,14 @@
 @section('scripts')
     @include('mobile._auth-loader-script')
     <script>
+        window.enableMobileLoginSubmit = function () {
+            var button = document.getElementById('mobileLoginSubmit');
+            if (button) button.disabled = false;
+        };
+        window.disableMobileLoginSubmit = function () {
+            var button = document.getElementById('mobileLoginSubmit');
+            if (button) button.disabled = true;
+        };
         document.addEventListener('DOMContentLoaded', function () {
             var passwordInput = document.getElementById('password');
             var togglePasswordBtn = document.getElementById('togglePassword');
