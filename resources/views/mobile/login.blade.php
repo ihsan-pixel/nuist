@@ -13,7 +13,8 @@
     <style>
         .turnstile-wrap { display: flex; justify-content: center; margin: 4px 0 14px; }
         .turnstile-wrap .cf-turnstile { max-width: 100%; }
-        .submit-btn:disabled { cursor: not-allowed; opacity: .58; box-shadow: none; }
+        .submit-btn:disabled { color: #8b9b97; background: #d9e2df; cursor: not-allowed; opacity: .8; box-shadow: none; transform: none; }
+        .submit-btn:disabled:hover { box-shadow: none; transform: none; }
     </style>
 @endsection
 
