@@ -1540,7 +1540,28 @@ body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:c
         function updateTopSchools(schools) {
             var container = document.querySelector('#attendance-top-schools');
             if (!container) return;
+
+            if (container.dataset.rendered === 'true' && schools.length) {
+                schools.slice(0, 5).forEach(function (school, index) {
+                    var item = container.children[index];
+                    if (!item) return;
+                    var percentage = Number(school.percentage || 0);
+                    var name = item.querySelector('.dashboard-top-school-info strong');
+                    var bar = item.querySelector('.progress-bar');
+                    var value = item.querySelector('.dashboard-top-school-value');
+                    var nextLabel = percentage.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+                    if (name && name.textContent !== school.name) name.textContent = school.name;
+                    if (bar && bar.dataset.percentage !== String(percentage)) {
+                        bar.dataset.percentage = String(percentage);
+                        bar.style.width = percentage + '%';
+                    }
+                    if (value && value.textContent !== nextLabel) value.textContent = nextLabel;
+                });
+                return;
+            }
+
             container.replaceChildren();
+            container.dataset.rendered = 'true';
 
             if (!schools.length) {
                 var empty = document.createElement('div');
@@ -1566,6 +1587,7 @@ body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:c
                 progress.className = 'progress';
                 var bar = document.createElement('div');
                 bar.className = 'progress-bar';
+                bar.dataset.percentage = String(Number(school.percentage || 0));
                 bar.style.width = Number(school.percentage || 0) + '%';
                 progress.appendChild(bar);
                 info.append(name, progress);
