@@ -295,9 +295,8 @@ class DashboardController extends Controller
         $totalSuperAdmin = User::where('role', 'super_admin')->count();
         $totalPengurus = User::where('role', 'pengurus')->count();
         $totalAdmin = User::where('role', 'admin')
-            ->where(function ($query) {
-                $query->whereNull('madrasah_id')->orWhere('madrasah_id', '!=', 52);
-            })
+            ->whereNotNull('madrasah_id')
+            ->where('madrasah_id', '!=', 52)
             ->count();
         $totalSchoolPrincipals = User::where('ketugasan', 'kepala madrasah/sekolah')
             ->where(function ($query) {
