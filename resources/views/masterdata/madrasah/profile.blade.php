@@ -96,6 +96,7 @@
         color: #192d37;
         text-decoration: none;
         transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        overflow: hidden;
     }
 
     .madrasah-profile-page .profile-school-item:hover {
@@ -114,6 +115,18 @@
         background: #e6f5ef;
         color: #08745a;
         font-size: 1.35rem;
+        overflow: hidden;
+    }
+
+    .madrasah-profile-page .profile-school-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .madrasah-profile-page .profile-school-copy {
+        min-width: 0;
+        overflow: hidden;
     }
 
     .madrasah-profile-page .profile-school-list-heading {
@@ -177,9 +190,15 @@
                     <div class="profile-school-list">
                         @foreach($madrasahs as $madrasah)
                             <a class="profile-school-item" href="{{ route('madrasah.detail', $madrasah->id) }}">
-                                <span class="profile-school-icon"><i class="bx bx-school"></i></span>
-                                <span class="flex-grow-1 min-w-0">
-                                    <strong class="d-block text-truncate">{{ $madrasah->name }}</strong>
+                                <span class="profile-school-icon">
+                                    @if($madrasah->logo)
+                                        <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="Logo {{ $madrasah->name }}">
+                                    @else
+                                        <i class="bx bx-school"></i>
+                                    @endif
+                                </span>
+                                <span class="profile-school-copy flex-grow-1">
+                                    <strong class="d-block text-truncate" title="{{ $madrasah->name }}">{{ $madrasah->name }}</strong>
                                     <small class="text-muted d-block text-truncate">
                                         {{ $madrasah->kabupaten ?: 'Wilayah belum diisi' }}
                                         <span class="mx-1">•</span>
