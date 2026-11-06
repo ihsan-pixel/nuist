@@ -268,14 +268,14 @@ class DashboardController extends Controller
         // Total madrasah/sekolah
         $totalMadrasah = \App\Models\Madrasah::count();
 
-        // Total guru dan pegawai (tenaga_pendidik only)
-        $totalTeachers = User::where('role', 'tenaga_pendidik')
-            ->whereNotNull('madrasah_id')
-            ->count();
+        // Statistik tenaga pendidik hanya mengambil user yang terhubung ke madrasah.
+        $teacherQuery = User::where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id');
+
+        $totalTeachers = (clone $teacherQuery)->count();
 
         // Total by employment status
-        $statusStats = User::where('role', 'tenaga_pendidik')
-            ->whereNotNull('madrasah_id')
+        $statusStats = (clone $teacherQuery)
             ->with('statusKepegawaian')
             ->selectRaw('status_kepegawaian_id, COUNT(*) as count')
             ->groupBy('status_kepegawaian_id')
