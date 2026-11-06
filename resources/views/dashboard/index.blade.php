@@ -14,8 +14,7 @@
     /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
     body{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
     .main-content{background:transparent!important}
-    .dashboard-page{opacity:0!important;background:transparent!important;border:0!important;box-shadow:none!important;transition:opacity .28s ease}
-    body.dashboard-painted .dashboard-page{opacity:1!important}
+    .dashboard-page{opacity:1!important;background:transparent!important;border:0!important;box-shadow:none!important}
 </style>
 
 <div class="dashboard-page">
