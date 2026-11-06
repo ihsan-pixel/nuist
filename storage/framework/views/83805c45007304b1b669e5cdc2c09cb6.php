@@ -9,6 +9,7 @@
 
 <style>
     /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
+    body,.main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
     .dashboard-page{opacity:0;transition:opacity .28s ease}
     body.dashboard-painted .dashboard-page{opacity:1}
 </style>
