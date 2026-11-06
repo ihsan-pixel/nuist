@@ -1385,7 +1385,8 @@ body.dashboard-motion-ready .dashboard-page .dashboard-stat-card{animation-name:
 .dashboard-page .progress-bar{transform-origin:left center;animation:nuist-progress-in 1.1s cubic-bezier(.2,.8,.2,1) both;animation-delay:420ms}
 .dashboard-page .dashboard-stat-card .avatar-title{animation:nuist-icon-breathe 3.6s ease-in-out infinite;animation-delay:650ms}
 .dashboard-page .dashboard-stat-card{animation-duration:.82s}
-body.dashboard-motion-ready .dashboard-page .dashboard-location-card,body.dashboard-motion-ready .dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards,nuist-glass-float 8s ease-in-out 1.2s infinite;animation-delay:var(--nuist-delay,0ms),1.2s}
+body.dashboard-motion-ready .dashboard-page .dashboard-location-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--nuist-delay,0ms)}
+body.dashboard-motion-ready .dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--nuist-delay,0ms)}
 .dashboard-page .dashboard-live-attendance-item:nth-child(2) .dashboard-live-donut{animation-delay:280ms}.dashboard-page .dashboard-live-attendance-item:nth-child(3) .dashboard-live-donut{animation-delay:380ms}
 .dashboard-page .nuist-stagger-item{opacity:1;transform:none;animation:none}
 body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transform:translateY(12px);animation:nuist-stagger-in .62s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--stagger-delay,0ms)}

@@ -11,7 +11,8 @@
     /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
     body{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
     .main-content{background:transparent!important}
-    .dashboard-page{opacity:1!important;background:transparent!important;border:0!important;box-shadow:none!important}
+    .dashboard-page{opacity:0!important;background:transparent!important;border:0!important;box-shadow:none!important;transition:opacity .28s ease}
+    body.dashboard-painted .dashboard-page{opacity:1!important}
 </style>
 
 <div class="dashboard-page">
@@ -1334,8 +1335,8 @@
 .dashboard-page{position:relative;isolation:isolate;overflow:visible;padding:22px!important;border-radius:0;background:transparent;border:0;box-shadow:none}
 .dashboard-page:before{display:none}
 .dashboard-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none}
-.dashboard-page:after{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:none}
-.dashboard-page>.row:after{content:"";position:absolute;width:240px;height:240px;left:-100px;bottom:-100px;z-index:-1;border-radius:50%;background:rgba(98,158,255,.12);filter:blur(2px);animation:none;pointer-events:none}
+.dashboard-page:after{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:nuist-float 10s ease-in-out infinite}
+.dashboard-page>.row:after{content:"";position:absolute;width:240px;height:240px;left:-100px;bottom:-100px;z-index:-1;border-radius:50%;background:rgba(98,158,255,.12);filter:blur(2px);animation:nuist-float 12s ease-in-out infinite reverse;pointer-events:none}
 .dashboard-page .card{border:1px solid rgba(255,255,255,.66)!important;border-radius:24px!important;background:rgba(255,255,255,.42)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.055)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
 .dashboard-page .card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.98)!important;box-shadow:0 20px 42px rgba(32,70,78,.13)!important}
 .dashboard-page .card-body{padding:24px!important}
@@ -1367,10 +1368,10 @@ body.dashboard-motion-ready .dashboard-page .dashboard-stat-card{animation-name:
 .dashboard-page .dashboard-live-indicator i{animation:nuist-pulse 1.8s ease-out infinite}
 .dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut{animation:nuist-ring-in 1.2s cubic-bezier(.2,.8,.2,1) both;animation-delay:180ms}
 .dashboard-page .progress-bar{transform-origin:left center;animation:nuist-progress-in 1.1s cubic-bezier(.2,.8,.2,1) both;animation-delay:420ms}
-.dashboard-page .dashboard-top-schools.dashboard-no-replay .progress-bar{animation:none!important;transition:width .55s ease}
 .dashboard-page .dashboard-stat-card .avatar-title{animation:nuist-icon-breathe 3.6s ease-in-out infinite;animation-delay:650ms}
 .dashboard-page .dashboard-stat-card{animation-duration:.82s}
-body.dashboard-motion-ready .dashboard-page .dashboard-location-card,body.dashboard-motion-ready .dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards,nuist-glass-float 8s ease-in-out 1.2s infinite;animation-delay:var(--nuist-delay,0ms),1.2s}
+body.dashboard-motion-ready .dashboard-page .dashboard-location-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--nuist-delay,0ms)}
+body.dashboard-motion-ready .dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--nuist-delay,0ms)}
 .dashboard-page .dashboard-live-attendance-item:nth-child(2) .dashboard-live-donut{animation-delay:280ms}.dashboard-page .dashboard-live-attendance-item:nth-child(3) .dashboard-live-donut{animation-delay:380ms}
 .dashboard-page .nuist-stagger-item{opacity:1;transform:none;animation:none}
 body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transform:translateY(12px);animation:nuist-stagger-in .62s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--stagger-delay,0ms)}
@@ -1524,26 +1525,7 @@ body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:c
         function updateTopSchools(schools) {
             var container = document.querySelector('#attendance-top-schools');
             if (!container) return;
-            var isRefresh = container.dataset.rendered === 'true';
-            container.classList.toggle('dashboard-no-replay', isRefresh);
-
-            if (isRefresh && schools.length) {
-                schools.slice(0, 5).forEach(function (school, index) {
-                    var item = container.children[index];
-                    if (!item) return;
-                    var percentage = Number(school.percentage || 0);
-                    var name = item.querySelector('.dashboard-top-school-info strong');
-                    var bar = item.querySelector('.progress-bar');
-                    var value = item.querySelector('.dashboard-top-school-value');
-                    if (name) name.textContent = school.name;
-                    if (bar) bar.style.width = percentage + '%';
-                    if (value) value.textContent = percentage.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
-                });
-                return;
-            }
-
             container.replaceChildren();
-            container.dataset.rendered = 'true';
 
             if (!schools.length) {
                 var empty = document.createElement('div');
