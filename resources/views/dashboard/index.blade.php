@@ -1349,8 +1349,8 @@
 .dashboard-page{position:relative;isolation:isolate;overflow:visible;padding:22px!important;border-radius:0;background:transparent;border:0;box-shadow:none}
 .dashboard-page:before{display:none}
 .dashboard-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none}
-.dashboard-page:after{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:nuist-float 10s ease-in-out infinite}
-.dashboard-page>.row:after{content:"";position:absolute;width:240px;height:240px;left:-100px;bottom:-100px;z-index:-1;border-radius:50%;background:rgba(98,158,255,.12);filter:blur(2px);animation:nuist-float 12s ease-in-out infinite reverse;pointer-events:none}
+.dashboard-page:after{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:none}
+.dashboard-page>.row:after{content:"";position:absolute;width:240px;height:240px;left:-100px;bottom:-100px;z-index:-1;border-radius:50%;background:rgba(98,158,255,.12);filter:blur(2px);animation:none;pointer-events:none}
 .dashboard-page .card{border:1px solid rgba(255,255,255,.66)!important;border-radius:24px!important;background:rgba(255,255,255,.42)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.055)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
 .dashboard-page .card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.98)!important;box-shadow:0 20px 42px rgba(32,70,78,.13)!important}
 .dashboard-page .card-body{padding:24px!important}
