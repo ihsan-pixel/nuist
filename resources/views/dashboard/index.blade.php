@@ -1423,6 +1423,11 @@ body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transf
 /* Keep the application shell untouched; glass styles stay inside dashboard content. */
 body:has(.dashboard-page) .main-content{background:transparent!important}
 body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:calc(100vh - 150px)}
+body:has(.dashboard-page) .vertical-menu{background:rgba(255,255,255,.68)!important;border-right:1px solid rgba(255,255,255,.78);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:8px 0 30px rgba(35,76,83,.06)}
+body:has(.dashboard-page) .vertical-menu .metismenu>li>a{margin:3px 12px;border-radius:16px;transition:background .22s ease,color .22s ease,transform .22s ease,box-shadow .22s ease}
+body:has(.dashboard-page) .vertical-menu .metismenu>li>a:hover{background:rgba(7,116,90,.08);transform:translateX(3px)}
+body:has(.dashboard-page) .vertical-menu .metismenu>li.mm-active>a,body:has(.dashboard-page) .vertical-menu .metismenu>li>a.active{background:rgba(7,116,90,.13);color:#075f4a!important;box-shadow:0 8px 18px rgba(7,116,90,.08)}
+body:has(.dashboard-page) .vertical-menu .menu-title{color:#6c7c86}
 @media(max-width:991.98px){.dashboard-page{min-height:calc(100vh - 110px)!important}}
 </style>
 
