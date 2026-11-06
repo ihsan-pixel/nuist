@@ -33,7 +33,7 @@
     <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/images/logo-light.png') }}">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo1.png') }}">
 
     <!-- Open Graph for better social sharing -->
     <meta property="og:title" content="@yield('title') | NUIST Mobile" />

@@ -19,7 +19,7 @@
     <meta property="og:image" content="{{ asset('build/images/logo-light.png') }}" />
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo1.png') }}">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
