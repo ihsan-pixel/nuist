@@ -1350,10 +1350,11 @@
 @media(max-width:575.98px){.dashboard-page{padding:12px!important;border-radius:24px}.dashboard-page .card{border-radius:20px!important}.dashboard-page .card-body{padding:18px!important}}
 
 /* Motion system: soft entrance, ambient floating and live status feedback */
-.dashboard-page .card{opacity:0;animation:nuist-card-in .72s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--nuist-delay,0ms)}
+.dashboard-page .card{opacity:1;animation:none}
+body.dashboard-motion-ready .dashboard-page .card{opacity:0;animation:nuist-card-in .72s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--nuist-delay,0ms)}
 .dashboard-page>.row>*:nth-child(1){--nuist-delay:60ms}.dashboard-page>.row>*:nth-child(2){--nuist-delay:130ms}.dashboard-page>.row>*:nth-child(3){--nuist-delay:200ms}.dashboard-page>.row>*:nth-child(4){--nuist-delay:270ms}
 .dashboard-page__profile-column .card:nth-child(2){--nuist-delay:180ms}.dashboard-page__main-column .card:nth-child(2){--nuist-delay:220ms}.dashboard-page__main-column .card:nth-child(3){--nuist-delay:290ms}.dashboard-page__main-column .card:nth-child(4){--nuist-delay:360ms}
-.dashboard-page .dashboard-stat-card{animation-name:nuist-stat-in}
+body.dashboard-motion-ready .dashboard-page .dashboard-stat-card{animation-name:nuist-stat-in}
 .dashboard-page .dashboard-stat-card:nth-child(1){--nuist-delay:180ms}.dashboard-page .dashboard-stat-card:nth-child(2){--nuist-delay:240ms}.dashboard-page .dashboard-stat-card:nth-child(3){--nuist-delay:300ms}.dashboard-page .dashboard-stat-card:nth-child(4){--nuist-delay:360ms}
 .dashboard-page .dashboard-live-indicator{animation:nuist-live 2.2s ease-in-out infinite}
 .dashboard-page .dashboard-live-indicator i{animation:nuist-pulse 1.8s ease-out infinite}
@@ -1361,7 +1362,7 @@
 .dashboard-page .progress-bar{transform-origin:left center;animation:nuist-progress-in 1.1s cubic-bezier(.2,.8,.2,1) both;animation-delay:420ms}
 .dashboard-page .dashboard-stat-card .avatar-title{animation:nuist-icon-breathe 3.6s ease-in-out infinite;animation-delay:650ms}
 .dashboard-page .dashboard-stat-card{animation-duration:.82s}
-.dashboard-page .dashboard-location-card,.dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards,nuist-glass-float 8s ease-in-out 1.2s infinite;animation-delay:var(--nuist-delay,0ms),1.2s}
+body.dashboard-motion-ready .dashboard-page .dashboard-location-card,body.dashboard-motion-ready .dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards,nuist-glass-float 8s ease-in-out 1.2s infinite;animation-delay:var(--nuist-delay,0ms),1.2s}
 .dashboard-page .dashboard-live-attendance-item:nth-child(2) .dashboard-live-donut{animation-delay:280ms}.dashboard-page .dashboard-live-attendance-item:nth-child(3) .dashboard-live-donut{animation-delay:380ms}
 .dashboard-page .nuist-stagger-item{opacity:0;transform:translateY(12px);animation:nuist-stagger-in .62s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--stagger-delay,0ms)}
 @keyframes nuist-card-in{from{opacity:0;transform:translateY(22px) scale(.985);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
@@ -1383,11 +1384,12 @@ body:has(.dashboard-page) .vertical-menu .metismenu>li>a{border-radius:14px;marg
 body:has(.dashboard-page) .vertical-menu .metismenu>li>a:hover{background:rgba(10,128,100,.09);transform:translateX(3px)}
 body:has(.dashboard-page) .vertical-menu .metismenu>li.mm-active>a,.vertical-menu .metismenu>li>a.active{background:rgba(10,128,100,.12);color:#075f4a!important}
 body:has(.dashboard-page) .main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%);}
+body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none}
 body:has(.dashboard-page) .page-content{padding-top:calc(70px + 28px);padding-left:28px;padding-right:28px}
 body:has(.dashboard-page) .page-title-box{padding-top:0;margin-bottom:12px}
 body:has(.dashboard-page) .page-title-box h4{font-size:28px;letter-spacing:-.04em;color:#20333d}
 body:has(.dashboard-page) .page-title-box .breadcrumb{padding:10px 16px;border:1px solid rgba(255,255,255,.8);border-radius:999px;background:rgba(255,255,255,.48);backdrop-filter:blur(12px)}
-body:has(.dashboard-page) .container-fluid{max-width:1680px}
+body:has(.dashboard-page) .container-fluid{max-width:none;width:100%}
 body:has(.dashboard-page) .dashboard-page{min-height:calc(100vh - 150px)}
 @media(max-width:991.98px){body:has(.dashboard-page) .page-content{padding-left:16px;padding-right:16px}.dashboard-page{min-height:calc(100vh - 110px)!important}}
 </style>
@@ -1397,6 +1399,9 @@ body:has(.dashboard-page) .dashboard-page{min-height:calc(100vh - 150px)}
         if (window.lucide) {
             window.lucide.createIcons({ attrs: { 'stroke-width': 1.8 } });
         }
+
+        // Keep the first paint stable; motion starts only after the layout is ready.
+        document.body.classList.add('dashboard-motion-ready');
 
         // Count-up numbers: start at 1 and land on the server-rendered value.
         function animateNumber(element) {
