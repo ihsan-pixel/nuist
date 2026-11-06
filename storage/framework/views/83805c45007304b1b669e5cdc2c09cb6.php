@@ -1364,7 +1364,8 @@ body.dashboard-motion-ready .dashboard-page .dashboard-stat-card{animation-name:
 .dashboard-page .dashboard-stat-card{animation-duration:.82s}
 body.dashboard-motion-ready .dashboard-page .dashboard-location-card,body.dashboard-motion-ready .dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards,nuist-glass-float 8s ease-in-out 1.2s infinite;animation-delay:var(--nuist-delay,0ms),1.2s}
 .dashboard-page .dashboard-live-attendance-item:nth-child(2) .dashboard-live-donut{animation-delay:280ms}.dashboard-page .dashboard-live-attendance-item:nth-child(3) .dashboard-live-donut{animation-delay:380ms}
-.dashboard-page .nuist-stagger-item{opacity:0;transform:translateY(12px);animation:nuist-stagger-in .62s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--stagger-delay,0ms)}
+.dashboard-page .nuist-stagger-item{opacity:1;transform:none;animation:none}
+body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transform:translateY(12px);animation:nuist-stagger-in .62s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--stagger-delay,0ms)}
 @keyframes nuist-card-in{from{opacity:0;transform:translateY(22px) scale(.985);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
 @keyframes nuist-stat-in{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes nuist-ring-in{from{transform:scale(.72) rotate(-28deg);opacity:.25}to{transform:scale(1) rotate(0);opacity:1}}
