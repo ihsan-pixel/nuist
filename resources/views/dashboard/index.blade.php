@@ -1428,6 +1428,10 @@ body:has(.dashboard-page) .vertical-menu .metismenu>li>a{margin:3px 12px;border-
 body:has(.dashboard-page) .vertical-menu .metismenu>li>a:hover{background:rgba(7,116,90,.08);transform:translateX(3px)}
 body:has(.dashboard-page) .vertical-menu .metismenu>li.mm-active>a,body:has(.dashboard-page) .vertical-menu .metismenu>li>a.active{background:rgba(7,116,90,.13);color:#075f4a!important;box-shadow:0 8px 18px rgba(7,116,90,.08)}
 body:has(.dashboard-page) .vertical-menu .menu-title{color:#6c7c86}
+body.vertical-collpsed:has(.dashboard-page) .vertical-menu #sidebar-menu>ul>li>a{margin:3px 6px;padding:15px 0!important;min-height:55px;text-align:center;border-radius:16px}
+body.vertical-collpsed:has(.dashboard-page) .vertical-menu #sidebar-menu>ul>li>a i{margin:0!important;min-width:0;font-size:1.45rem}
+body.vertical-collpsed:has(.dashboard-page) .vertical-menu #sidebar-menu>ul>li.mm-active>a,body.vertical-collpsed:has(.dashboard-page) .vertical-menu #sidebar-menu>ul>li>a.active{width:auto;background:rgba(7,116,90,.13)}
+body.vertical-collpsed:has(.dashboard-page) .dashboard-page{width:100%;max-width:none}
 @media(max-width:991.98px){.dashboard-page{min-height:calc(100vh - 110px)!important}}
 </style>
 
