@@ -94,6 +94,7 @@
         color: #192d37;
         text-decoration: none;
         transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        overflow: hidden;
     }
 
     .madrasah-profile-page .profile-school-item:hover {
@@ -112,6 +113,18 @@
         background: #e6f5ef;
         color: #08745a;
         font-size: 1.35rem;
+        overflow: hidden;
+    }
+
+    .madrasah-profile-page .profile-school-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .madrasah-profile-page .profile-school-copy {
+        min-width: 0;
+        overflow: hidden;
     }
 
     .madrasah-profile-page .profile-school-list-heading {
@@ -177,9 +190,15 @@
                     <div class="profile-school-list">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <a class="profile-school-item" href="<?php echo e(route('madrasah.detail', $madrasah->id)); ?>">
-                                <span class="profile-school-icon"><i class="bx bx-school"></i></span>
-                                <span class="flex-grow-1 min-w-0">
-                                    <strong class="d-block text-truncate"><?php echo e($madrasah->name); ?></strong>
+                                <span class="profile-school-icon">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
+                                        <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="Logo <?php echo e($madrasah->name); ?>">
+                                    <?php else: ?>
+                                        <i class="bx bx-school"></i>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </span>
+                                <span class="profile-school-copy flex-grow-1">
+                                    <strong class="d-block text-truncate" title="<?php echo e($madrasah->name); ?>"><?php echo e($madrasah->name); ?></strong>
                                     <small class="text-muted d-block text-truncate">
                                         <?php echo e($madrasah->kabupaten ?: 'Wilayah belum diisi'); ?>
 

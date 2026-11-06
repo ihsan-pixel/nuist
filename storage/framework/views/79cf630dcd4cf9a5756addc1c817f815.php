@@ -199,10 +199,12 @@
                 <li>
                     <a href="#presensiAdminSubmenu" data-bs-toggle="collapse" class="has-arrow">
                         <i class="bx bx-check-square"></i>
-                        <span>Presensi Admin</span>
+                        <span>Presensi</span>
                     </a>
                     <ul class="sub-menu collapse" id="presensiAdminSubmenu">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
                         <li><a href="<?php echo e(route('presensi_admin.settings')); ?>">Pengaturan Presensi</a></li>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <li><a href="<?php echo e(route('presensi_admin.index')); ?>">Data Presensi</a></li>
                         <li><a href="<?php echo e(route('presensi_admin.laporan_mingguan')); ?>">Laporan</a></li>
                     </ul>
@@ -274,12 +276,14 @@
                 <!-- Super Admin / Pengurus PPDB Menu -->
                 
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
                 <li>
                     <a href="<?php echo e(route('ppdb.index')); ?>" class="waves-effect">
                         <i class="bx bx-file"></i>
                         <span>Halaman PPDB</span>
                     </a>
                 </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <li>
                     <a href="<?php echo e(route('ppdb.lp.dashboard')); ?>" class="waves-effect">
                         <i class="bx bx-bar-chart-alt-2"></i>
@@ -334,17 +338,6 @@
 
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>
-                <li class="menu-title">PEMBAYARAN</li>
-
-                <li>
-                    <a href="<?php echo e(route('uppm.pembayaran')); ?>" class="waves-effect">
-                        <i class="bx bx-credit-card"></i>
-                        <span>Pembayaran</span>
-                    </a>
-                </li>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
                 <?php if(in_array($userRole, ['super_admin', 'admin', 'pengurus'])): ?>
                 <li class="menu-title">DATA SEKOLAH</li>
 
@@ -355,8 +348,6 @@
                     </a>
                     <ul class="sub-menu collapse" id="dataSekolahSubmenu">
                         <li><a href="<?php echo e(route('data-sekolah.data-siswa.index')); ?>">Data Siswa</a></li>
-                        <li><a href="<?php echo e(route('data-sekolah.siswa')); ?>">Data Siswa per Tahun</a></li>
-                        <li><a href="<?php echo e(route('data-sekolah.guru')); ?>">Data Guru per Tahun</a></li>
                     </ul>
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -420,13 +411,6 @@
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>
                 <li class="menu-title">ABOUT</li>
-
-                <li>
-                    <a href="<?php echo e(route('development-history.index')); ?>" class="waves-effect">
-                        <i class="bx bx-history"></i>
-                        <span>Riwayat Pengembangan</span>
-                    </a>
-                </li>
 
                 
 

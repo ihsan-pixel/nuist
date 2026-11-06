@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="col-4 text-end">
-                        <span class="dashboard-welcome-card__mark" aria-hidden="true"><i class="mdi mdi-view-dashboard-outline"></i></span>
+                        <span class="dashboard-welcome-card__mark" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>
                     </div>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h5 class="card-title mb-1 text-dark">
-                                    <i class="mdi mdi-map-marker text-primary me-2"></i>
+                                    <i data-lucide="map-pin" class="text-primary me-2"></i>
                                     Alamat Madrasah
                                 </h5>
                                 <p class="text-muted mb-0 small">Informasi lokasi dan kontak madrasah</p>
@@ -67,7 +67,7 @@
                         <div class="mb-3">
                             <h6 class="mb-3 text-primary fw-semibold"><?php echo e($madrasahData->name); ?></h6>
                             <div class="d-flex align-items-start mb-3">
-                                <i class="mdi mdi-map-marker-outline text-success me-2 mt-1"></i>
+                                <i data-lucide="map-pin" class="text-success me-2 mt-1"></i>
                                 <div>
                                     <p class="text-muted mb-1 small">Alamat Lengkap</p>
                                     <p class="mb-0 fw-medium"><?php echo e($madrasahData->alamat ?? 'Alamat belum diisi'); ?></p>
@@ -75,7 +75,7 @@
                             </div>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasahData->map_link): ?>
                             <a href="<?php echo e($madrasahData->map_link); ?>" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center">
-                                <i class="mdi mdi-google-maps me-1"></i>
+                                <i data-lucide="map" class="me-1"></i>
                                 Lihat di Google Maps
                             </a>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -1204,11 +1204,12 @@
 <?php $__env->startSection('script'); ?>
 <!-- apexcharts -->
 <script src="<?php echo e(asset('build/libs/apexcharts/apexcharts.min.js')); ?>"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
 
 
 <style>
-/* NUIST Dashboard — desktop-first, responsive, scoped to this page */
+/* NUIST Dashboard — floating glassmorphism UI, scoped to this page */
 .page-title-box{padding-bottom:8px}
 .dashboard-page{--nuist-green:#08745a;--nuist-dark:#064b3c;--nuist-ink:#192d37;--nuist-muted:#6c7c86;--nuist-border:#e6edf0;background:#f5f8fa;padding:8px 0 18px;border-radius:16px;margin-bottom:24px}
 .dashboard-page,.dashboard-page *{box-sizing:border-box}
@@ -1321,10 +1322,38 @@
 @media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-location-card{grid-template-columns:1fr 1fr}.dashboard-page__main-column{grid-template-columns:1fr}.dashboard-section-heading,.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row,.dashboard-status-summary,.dashboard-super-status-summary,.dashboard-detail-table,.dashboard-super-detail-table,.dashboard-attendance-card,.dashboard-super-attendance{grid-column:1;grid-row:auto}.dashboard-super-admin-stats>.row{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:991.98px){.dashboard-page>.row>.dashboard-teacher-status-card,.dashboard-page>.row>.dashboard-employment-donut-card{width:100%;max-width:none;flex-basis:100%}}
 @media(max-width:575.98px){.dashboard-page>.row>.dashboard-teacher-status-card{width:100%;max-width:none;flex-basis:100%;margin-left:0}.dashboard-teacher-summary{grid-template-columns:1fr}.dashboard-page{padding:10px;margin:0 -10px 16px;border-radius:0}.dashboard-page>.row,.dashboard-page__profile-column,.dashboard-page__main-column{gap:12px}.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid var(--nuist-border)}.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .card-body{padding:15px!important}.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{font-size:19px!important}.dashboard-page .dashboard-stat-card .card-body{padding:13px!important}.dashboard-page .table{min-width:460px}}
+
+/* Floating glass layer */
+.dashboard-page{position:relative;isolation:isolate;overflow:hidden;padding:22px!important;border-radius:32px;background:linear-gradient(135deg,rgba(236,248,246,.96),rgba(244,247,251,.9));border:1px solid rgba(255,255,255,.9);box-shadow:0 24px 70px rgba(25,61,69,.11)}
+.dashboard-page:before,.dashboard-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none}
+.dashboard-page:before{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:nuist-float 10s ease-in-out infinite}
+.dashboard-page:after{width:240px;height:240px;left:-100px;bottom:-100px;background:rgba(98,158,255,.12);animation:nuist-float 12s ease-in-out infinite reverse}
+.dashboard-page .card{border:1px solid rgba(255,255,255,.78)!important;border-radius:24px!important;background:rgba(255,255,255,.62)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 34px rgba(32,70,78,.08)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
+.dashboard-page .card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.98)!important;box-shadow:0 20px 42px rgba(32,70,78,.13)!important}
+.dashboard-page .card-body{padding:24px!important}
+.dashboard-welcome-card__banner{min-height:142px;border-radius:23px 23px 0 0;background:linear-gradient(125deg,#075f4a 0%,#0e9b76 62%,#55c7a4 100%);overflow:hidden}
+.dashboard-welcome-card__banner:after{content:"";position:absolute;width:180px;height:180px;right:-35px;top:-55px;border:1px solid rgba(255,255,255,.24);border-radius:50%;box-shadow:0 0 0 22px rgba(255,255,255,.06),0 0 0 46px rgba(255,255,255,.04)}
+.dashboard-welcome-card__mark{position:relative;z-index:1;color:rgba(255,255,255,.38);font-size:52px}
+.dashboard-avatar img{border:5px solid rgba(255,255,255,.9);box-shadow:0 8px 20px rgba(21,70,59,.18)}
+.dashboard-page .dashboard-stat-card{min-height:142px;background:rgba(255,255,255,.58)!important}
+.dashboard-page .dashboard-stat-card .avatar-title,.dashboard-page .dashboard-status-card .avatar-title{border-radius:16px!important;background:rgba(19,155,117,.12)!important}
+.dashboard-page .dashboard-section-heading{background:rgba(255,255,255,.48)!important}
+.dashboard-page .dashboard-section-heading .card-body{padding:20px 24px!important}
+.dashboard-page .dashboard-teacher-summary-item{border-color:rgba(219,232,233,.8);border-radius:18px;background:rgba(255,255,255,.48)}
+.dashboard-page .dashboard-location-card{overflow:hidden}
+.dashboard-page .dashboard-location-map #map-container,.dashboard-page .dashboard-location-map #foundation-map-container{border-radius:16px!important}
+.dashboard-page .btn-primary,.dashboard-page .btn-success{border-radius:12px;padding:.55rem .9rem;box-shadow:0 8px 18px rgba(8,116,90,.16)}
+.dashboard-page .badge{border-radius:999px;padding:.45rem .7rem}
+.dashboard-page [data-lucide]{width:18px;height:18px;vertical-align:-.2em}
+@keyframes nuist-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,16px,0)}}
+@media(max-width:575.98px){.dashboard-page{padding:12px!important;border-radius:24px}.dashboard-page .card{border-radius:20px!important}.dashboard-page .card-body{padding:18px!important}}
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        if (window.lucide) {
+            window.lucide.createIcons({ attrs: { 'stroke-width': 1.8 } });
+        }
         var attendanceData = <?php echo json_encode($attendanceData ?? ['kehadiran' => 0, 'izin_sakit' => 0, 'alpha' => 0]) ?>;
 
         var options = {
