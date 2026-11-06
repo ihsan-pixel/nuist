@@ -10,8 +10,8 @@
 <style>
     /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
     body,.main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
-    .dashboard-page{opacity:0;transition:opacity .28s ease}
-    body.dashboard-painted .dashboard-page{opacity:1}
+    .dashboard-page{opacity:0!important;background:transparent!important;border:0!important;box-shadow:none!important;transition:opacity .28s ease}
+    body.dashboard-painted .dashboard-page{opacity:1!important}
 </style>
 
 <div class="dashboard-page">
@@ -1389,6 +1389,7 @@ body:has(.dashboard-page) .main-content{background:linear-gradient(135deg,rgba(2
 body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:calc(100vh - 150px)}
 body:has(.dashboard-page) .page-content{padding-top:calc(70px + 28px);padding-left:28px;padding-right:28px}
 body:has(.dashboard-page) .page-title-box{padding-top:0;margin-bottom:12px}
+body:has(.dashboard-page) .page-title-box .page-title-right{display:none}
 body:has(.dashboard-page) .page-title-box h4{font-size:28px;letter-spacing:-.04em;color:#20333d}
 body:has(.dashboard-page) .page-title-box .breadcrumb{padding:10px 16px;border:1px solid rgba(255,255,255,.8);border-radius:999px;background:rgba(255,255,255,.48);backdrop-filter:blur(12px)}
 body:has(.dashboard-page) .container-fluid{max-width:none;width:100%}
