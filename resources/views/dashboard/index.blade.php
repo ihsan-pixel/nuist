@@ -1541,22 +1541,6 @@ body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:c
             if (!container) return;
             var isRefresh = container.dataset.rendered === 'true';
             container.classList.toggle('dashboard-no-replay', isRefresh);
-
-            if (isRefresh && schools.length) {
-                schools.slice(0, 5).forEach(function (school, index) {
-                    var item = container.children[index];
-                    if (!item) return;
-                    var percentage = Number(school.percentage || 0);
-                    var name = item.querySelector('.dashboard-top-school-info strong');
-                    var bar = item.querySelector('.progress-bar');
-                    var value = item.querySelector('.dashboard-top-school-value');
-                    if (name) name.textContent = school.name;
-                    if (bar) bar.style.width = percentage + '%';
-                    if (value) value.textContent = percentage.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
-                });
-                return;
-            }
-
             container.replaceChildren();
             container.dataset.rendered = 'true';
 
