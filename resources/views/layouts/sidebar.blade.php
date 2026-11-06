@@ -81,7 +81,7 @@
 
                 @if($userRole === 'pengurus')
                 <li>
-                    <a href="{{ route('mobile.pengurus.dashboard') }}" class="waves-effect">
+                    <a href="{{ route('dashboard') }}" class="waves-effect">
                         <i class="bx bx-home-circle"></i>
                         <span>Dashboard</span>
                     </a>

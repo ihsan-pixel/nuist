@@ -1697,7 +1697,8 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
 
     // Pengurus routes
     Route::prefix('pengurus')->name('pengurus.')->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'dashboard'])->name('dashboard');
+        // Dashboard pengurus menggunakan layout desktop utama seperti super admin/admin yayasan.
+        Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/kelengkapan-data', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'kelengkapanData'])->name('kelengkapan-data');
         Route::get('/sekolah', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'index'])->name('sekolah');
         Route::get('/sekolah/{id}', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'show'])->name('sekolah.show');
