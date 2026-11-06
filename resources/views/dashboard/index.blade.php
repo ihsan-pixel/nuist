@@ -1364,6 +1364,24 @@
 @keyframes nuist-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,16px,0)}}
 @media(max-width:575.98px){.dashboard-page{padding:12px!important;border-radius:24px}.dashboard-page .card{border-radius:20px!important}.dashboard-page .card-body{padding:18px!important}}
 
+/* Motion system: soft entrance, ambient floating and live status feedback */
+.dashboard-page .card{opacity:0;animation:nuist-card-in .72s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--nuist-delay,0ms)}
+.dashboard-page>.row>*:nth-child(1){--nuist-delay:60ms}.dashboard-page>.row>*:nth-child(2){--nuist-delay:130ms}.dashboard-page>.row>*:nth-child(3){--nuist-delay:200ms}.dashboard-page>.row>*:nth-child(4){--nuist-delay:270ms}
+.dashboard-page__profile-column .card:nth-child(2){--nuist-delay:180ms}.dashboard-page__main-column .card:nth-child(2){--nuist-delay:220ms}.dashboard-page__main-column .card:nth-child(3){--nuist-delay:290ms}.dashboard-page__main-column .card:nth-child(4){--nuist-delay:360ms}
+.dashboard-page .dashboard-stat-card{animation-name:nuist-stat-in}
+.dashboard-page .dashboard-stat-card:nth-child(1){--nuist-delay:180ms}.dashboard-page .dashboard-stat-card:nth-child(2){--nuist-delay:240ms}.dashboard-page .dashboard-stat-card:nth-child(3){--nuist-delay:300ms}.dashboard-page .dashboard-stat-card:nth-child(4){--nuist-delay:360ms}
+.dashboard-page .dashboard-live-indicator{animation:nuist-live 2.2s ease-in-out infinite}
+.dashboard-page .dashboard-live-indicator i{animation:nuist-pulse 1.8s ease-out infinite}
+.dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut{animation:nuist-ring-in 1.2s cubic-bezier(.2,.8,.2,1) both;animation-delay:180ms}
+.dashboard-page .progress-bar{transform-origin:left center;animation:nuist-progress-in 1.1s cubic-bezier(.2,.8,.2,1) both;animation-delay:420ms}
+@keyframes nuist-card-in{from{opacity:0;transform:translateY(22px) scale(.985);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@keyframes nuist-stat-in{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes nuist-ring-in{from{transform:scale(.72) rotate(-28deg);opacity:.25}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes nuist-progress-in{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes nuist-live{0%,100%{box-shadow:0 0 0 0 rgba(32,185,107,0)}50%{box-shadow:0 0 0 7px rgba(32,185,107,.08)}}
+@keyframes nuist-pulse{0%{box-shadow:0 0 0 0 rgba(32,185,107,.4)}70%{box-shadow:0 0 0 7px rgba(32,185,107,0)}100%{box-shadow:0 0 0 0 rgba(32,185,107,0)}}
+@media(prefers-reduced-motion:reduce){.dashboard-page .card,.dashboard-page .dashboard-stat-card,.dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut,.dashboard-page .progress-bar,.dashboard-page .dashboard-live-indicator,.dashboard-page .dashboard-live-indicator i{animation:none!important;opacity:1;transform:none;filter:none}}
+
 /* Extend the glass system to the dashboard shell */
 body:has(.dashboard-page){background:linear-gradient(135deg,#eef7f6 0%,#f7f9fc 52%,#edf7f4 100%);}
 body:has(.dashboard-page) #page-topbar{background:rgba(255,255,255,.72)!important;border-bottom:1px solid rgba(209,225,225,.7);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 8px 24px rgba(30,67,73,.05)}
@@ -1392,6 +1410,12 @@ body:has(.dashboard-page) .dashboard-page{min-height:calc(100vh - 150px)}
             chart: {
                 height: 200,
                 type: 'radialBar',
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1400,
+                    dynamicAnimation: { enabled: true, speed: 650 }
+                },
             },
             plotOptions: {
                 radialBar: {
