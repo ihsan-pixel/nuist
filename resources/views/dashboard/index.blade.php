@@ -5,12 +5,10 @@
 
 @section('content')
 
-<div class="dashboard-breadcrumb-sticky">
-    @component('components.breadcrumb')
-        @slot('li_1') Dashboards @endslot
-        @slot('title') Dashboard @endslot
-    @endcomponent
-</div>
+@component('components.breadcrumb')
+    @slot('li_1') Dashboards @endslot
+    @slot('title') Dashboard @endslot
+@endcomponent
 
 <div class="dashboard-page">
 <div class="row g-4">
@@ -1224,9 +1222,6 @@
 
 <style>
 /* NUIST Dashboard — desktop-first, responsive, scoped to this page */
-.dashboard-sticky-layout .main-content{overflow:visible}
-.dashboard-breadcrumb-sticky{position:sticky;top:70px;z-index:1020;background:rgba(255,255,255,.98);padding:0;margin:-8px 0 14px;border-bottom:1px solid #e6edf0;box-shadow:0 2px 8px rgba(25,45,55,.04)}
-.dashboard-breadcrumb-sticky .page-title-box{min-height:58px;padding:8px 0 14px;margin:0}
 .dashboard-page{--nuist-green:#08745a;--nuist-dark:#064b3c;--nuist-ink:#192d37;--nuist-muted:#6c7c86;--nuist-border:#e6edf0;background:#f5f8fa;padding:18px;border-radius:16px;margin-bottom:24px}
 .dashboard-page,.dashboard-page *{box-sizing:border-box}
 .dashboard-page>.row{display:flex;flex-wrap:wrap;gap:18px;margin:0}
@@ -1477,7 +1472,4 @@
 
     });
 </script>
-@push('scripts')
-<script>document.body.classList.add('dashboard-sticky-layout');</script>
-@endpush
 @endsection
