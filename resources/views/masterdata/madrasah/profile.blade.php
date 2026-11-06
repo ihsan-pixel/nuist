@@ -44,6 +44,40 @@
         color: #fff;
         font-weight: 700;
     }
+
+    .madrasah-profile-page .profile-page-card {
+        border: 0;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 .75rem 1.5rem rgba(15, 23, 42, .06);
+    }
+
+    .madrasah-profile-page .profile-page-header {
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #075e4d, #0b8b68);
+        color: #fff;
+    }
+
+    .madrasah-profile-page .profile-page-header h4 {
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .madrasah-profile-page .profile-page-header p {
+        color: rgba(255, 255, 255, .78);
+    }
+
+    .madrasah-profile-page .profile-filter {
+        padding: 1rem;
+        border: 1px solid #e6edf0;
+        border-radius: .75rem;
+        background: #f8fafb;
+    }
+
+    .madrasah-profile-page .profile-summary-card,
+    .madrasah-profile-page .profile-summary-card:hover {
+        box-shadow: 0 .5rem 1rem rgba(15, 23, 42, .06);
+    }
 </style>
 @endsection
 
@@ -53,13 +87,15 @@
     @slot('title') Profile Madrasah/Sekolah @endslot
 @endcomponent
 
-<div class="row">
+<div class="row madrasah-profile-page">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bx bx-school me-2"></i>Profile Madrasah/Sekolah
-                </h4>
+        <div class="card profile-page-card">
+            <div class="profile-page-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                <div>
+                    <h4 class="mb-1"><i class="bx bx-school me-2"></i>Profile Madrasah/Sekolah</h4>
+                    <p class="mb-0">Monitoring profil, kelengkapan data, dan perkembangan setiap madrasah/sekolah.</p>
+                </div>
+                <span class="badge bg-white text-success px-3 py-2">Master Data</span>
             </div>
             <div class="card-body">
                 @if(session('success'))
@@ -76,7 +112,7 @@
                 </div>
                 @endif
 
-                <form method="GET" action="{{ route('madrasah.profile') }}" class="mb-4">
+                <form method="GET" action="{{ route('madrasah.profile') }}" class="mb-4 profile-filter">
                     <div class="row g-3">
                         <div class="col-xl-4 col-md-6">
                             <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama madrasah..." value="{{ $search ?? '' }}">
