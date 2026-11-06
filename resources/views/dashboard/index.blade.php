@@ -353,7 +353,9 @@
                 <div class="table-responsive dashboard-teacher-status-table">
                     @php
                         $statusColors = ['#20b96b', '#4596ee', '#ffb62e', '#9362e7', '#8798a6'];
-                        $sortedEmploymentStatuses = $superAdminStats['total_by_status']->sortBy(function ($status) {
+                        $sortedEmploymentStatuses = $superAdminStats['total_by_status']->filter(function ($status) {
+                            return strtolower(trim($status['status_name'])) !== 'tidak diketahui';
+                        })->sortBy(function ($status) {
                             return strtolower(trim($status['status_name'])) === 'tidak diketahui' ? 1 : 0;
                         })->values();
                     @endphp
