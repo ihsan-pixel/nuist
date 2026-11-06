@@ -320,12 +320,14 @@
                     </a>
                 </li> --}}
 
+                @if($userRole === 'super_admin')
                 <li>
                     <a href="{{ route('ppdb.index') }}" class="waves-effect">
                         <i class="bx bx-file"></i>
                         <span>Halaman PPDB</span>
                     </a>
                 </li>
+                @endif
                 <li>
                     <a href="{{ route('ppdb.lp.dashboard') }}" class="waves-effect">
                         <i class="bx bx-bar-chart-alt-2"></i>
