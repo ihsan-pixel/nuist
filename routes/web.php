@@ -610,9 +610,6 @@ Route::domain('admin.nuist.id')->group(function () {
         Route::middleware(['role:super_admin'])->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'index']);
 
-            Route::get('/teaching-progress', [App\Http\Controllers\TeachingProgressController::class, 'index']);
-            Route::get('/teaching-progress/madrasah/{madrasahId}/teachers', [App\Http\Controllers\TeachingProgressController::class, 'getMadrasahTeachers']);
-
             Route::get('/development-history', [DevelopmentHistoryController::class, 'index']);
             Route::get('/development-history/sync', [DevelopmentHistoryController::class, 'syncMigrations']);
             Route::get('/development-history/export/{format}', [DevelopmentHistoryController::class, 'export']);
