@@ -21,7 +21,8 @@ class AdminLPController extends Controller
 
         // Ambil semua madrasah dan PPDB setting untuk tahun ini
         // Pastikan kolom ppdb_status di-select
-        $madrasahs = Madrasah::select('*')->with(['ppdbSettings' => function($query) use ($tahun) {
+        $madrasahs = Madrasah::where('id', '!=', 52)
+            ->select('*')->with(['ppdbSettings' => function($query) use ($tahun) {
             $query->where('tahun', $tahun);
         }])->get();
 
