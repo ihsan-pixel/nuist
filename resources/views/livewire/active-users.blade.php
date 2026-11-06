@@ -118,6 +118,7 @@
         padding: 0.75rem 1rem;
         border-bottom: 1px solid #f1f1f1;
         transition: background-color 0.2s;
+        overflow: hidden;
     }
 
     .user-item:hover {
@@ -133,12 +134,25 @@
         height: 40px;
         border-radius: 50%;
         object-fit: cover;
+        flex: 0 0 40px;
     }
 
     .stats-card {
         border-radius: 10px;
         border: none;
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .user-item .grow {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .user-item h6,
+    .user-item p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     </style>
 </div>

@@ -35,8 +35,8 @@ class ActiveUsers extends Component
                         'name' => $user->name,
                         'email' => $user->email,
                         'nuist_id' => $user->nuist_id,
-                        'avatar' => $user->avatar ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg'),
-                        'madrasah' => $user->madrasah ? $user->madrasah->nama : null,
+                        'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg'),
+                        'madrasah' => $user->madrasah ? $user->madrasah->name : null,
                         'last_seen' => $user->last_seen ? $user->last_seen->diffForHumans() : 'N/A',
                         'role' => $user->role,
                     ];
