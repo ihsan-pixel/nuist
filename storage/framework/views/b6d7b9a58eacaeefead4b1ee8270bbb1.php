@@ -42,6 +42,89 @@
         color: #fff;
         font-weight: 700;
     }
+
+    .madrasah-profile-page .profile-page-card {
+        border: 0;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 .75rem 1.5rem rgba(15, 23, 42, .06);
+    }
+
+    .madrasah-profile-page .profile-page-header {
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #075e4d, #0b8b68);
+        color: #fff;
+    }
+
+    .madrasah-profile-page .profile-page-header h4 {
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .madrasah-profile-page .profile-page-header p {
+        color: rgba(255, 255, 255, .78);
+    }
+
+    .madrasah-profile-page .profile-filter {
+        padding: 1rem;
+        border: 1px solid #e6edf0;
+        border-radius: .75rem;
+        background: #f8fafb;
+    }
+
+    .madrasah-profile-page .profile-summary-card,
+    .madrasah-profile-page .profile-summary-card:hover {
+        box-shadow: 0 .5rem 1rem rgba(15, 23, 42, .06);
+    }
+
+    .madrasah-profile-page .profile-school-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .madrasah-profile-page .profile-school-item {
+        display: flex;
+        align-items: center;
+        gap: .9rem;
+        min-height: 92px;
+        padding: 1rem;
+        border: 1px solid #e6edf0;
+        border-radius: .85rem;
+        color: #192d37;
+        text-decoration: none;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .madrasah-profile-page .profile-school-item:hover {
+        border-color: #0b8b68;
+        box-shadow: 0 .5rem 1rem rgba(8, 116, 90, .12);
+        transform: translateY(-2px);
+    }
+
+    .madrasah-profile-page .profile-school-icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #e6f5ef;
+        color: #08745a;
+        font-size: 1.35rem;
+    }
+
+    .madrasah-profile-page .profile-school-list-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .madrasah-profile-page .profile-legacy-content {
+        display: none;
+    }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -51,13 +134,15 @@
     <?php $__env->slot('title'); ?> Profile Madrasah/Sekolah <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
-<div class="row">
+<div class="row madrasah-profile-page">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bx bx-school me-2"></i>Profile Madrasah/Sekolah
-                </h4>
+        <div class="card profile-page-card">
+            <div class="profile-page-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                <div>
+                    <h4 class="mb-1"><i class="bx bx-school me-2"></i>Profile Madrasah/Sekolah</h4>
+                    <p class="mb-0">Monitoring profil, kelengkapan data, dan perkembangan setiap madrasah/sekolah.</p>
+                </div>
+                <span class="badge bg-white text-success px-3 py-2">Master Data</span>
             </div>
             <div class="card-body">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
@@ -76,7 +161,40 @@
                 </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <form method="GET" action="<?php echo e(route('madrasah.profile')); ?>" class="mb-4">
+                <div class="profile-school-list-heading">
+                    <div>
+                        <h5 class="mb-1">Daftar Madrasah/Sekolah</h5>
+                        <p class="text-muted mb-0">Pilih nama sekolah untuk melihat profil dan data lengkapnya.</p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success"><?php echo e($madrasahs->count()); ?> Sekolah</span>
+                </div>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasahs->isEmpty()): ?>
+                    <div class="alert alert-info mb-0">
+                        <i class="bx bx-info-circle me-2"></i>Belum ada data madrasah/sekolah yang sesuai.
+                    </div>
+                <?php else: ?>
+                    <div class="profile-school-list">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <a class="profile-school-item" href="<?php echo e(route('madrasah.detail', $madrasah->id)); ?>">
+                                <span class="profile-school-icon"><i class="bx bx-school"></i></span>
+                                <span class="flex-grow-1 min-w-0">
+                                    <strong class="d-block text-truncate"><?php echo e($madrasah->name); ?></strong>
+                                    <small class="text-muted d-block text-truncate">
+                                        <?php echo e($madrasah->kabupaten ?: 'Wilayah belum diisi'); ?>
+
+                                        <span class="mx-1">•</span>
+                                        <?php echo e($madrasah->tenaga_pendidik_users_count); ?> tenaga pendidik
+                                    </small>
+                                </span>
+                                <i class="bx bx-chevron-right text-success fs-4"></i>
+                            </a>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <div class="profile-legacy-content">
+                <form method="GET" action="<?php echo e(route('madrasah.profile')); ?>" class="mb-4 profile-filter">
                     <div class="row g-3">
                         <div class="col-xl-4 col-md-6">
                             <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama madrasah..." value="<?php echo e($search ?? ''); ?>">
@@ -296,6 +414,7 @@
                     </div>
                 </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

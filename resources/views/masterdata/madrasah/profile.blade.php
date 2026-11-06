@@ -78,6 +78,55 @@
     .madrasah-profile-page .profile-summary-card:hover {
         box-shadow: 0 .5rem 1rem rgba(15, 23, 42, .06);
     }
+
+    .madrasah-profile-page .profile-school-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .madrasah-profile-page .profile-school-item {
+        display: flex;
+        align-items: center;
+        gap: .9rem;
+        min-height: 92px;
+        padding: 1rem;
+        border: 1px solid #e6edf0;
+        border-radius: .85rem;
+        color: #192d37;
+        text-decoration: none;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .madrasah-profile-page .profile-school-item:hover {
+        border-color: #0b8b68;
+        box-shadow: 0 .5rem 1rem rgba(8, 116, 90, .12);
+        transform: translateY(-2px);
+    }
+
+    .madrasah-profile-page .profile-school-icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #e6f5ef;
+        color: #08745a;
+        font-size: 1.35rem;
+    }
+
+    .madrasah-profile-page .profile-school-list-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .madrasah-profile-page .profile-legacy-content {
+        display: none;
+    }
 </style>
 @endsection
 
@@ -112,6 +161,38 @@
                 </div>
                 @endif
 
+                <div class="profile-school-list-heading">
+                    <div>
+                        <h5 class="mb-1">Daftar Madrasah/Sekolah</h5>
+                        <p class="text-muted mb-0">Pilih nama sekolah untuk melihat profil dan data lengkapnya.</p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success">{{ $madrasahs->count() }} Sekolah</span>
+                </div>
+
+                @if($madrasahs->isEmpty())
+                    <div class="alert alert-info mb-0">
+                        <i class="bx bx-info-circle me-2"></i>Belum ada data madrasah/sekolah yang sesuai.
+                    </div>
+                @else
+                    <div class="profile-school-list">
+                        @foreach($madrasahs as $madrasah)
+                            <a class="profile-school-item" href="{{ route('madrasah.detail', $madrasah->id) }}">
+                                <span class="profile-school-icon"><i class="bx bx-school"></i></span>
+                                <span class="flex-grow-1 min-w-0">
+                                    <strong class="d-block text-truncate">{{ $madrasah->name }}</strong>
+                                    <small class="text-muted d-block text-truncate">
+                                        {{ $madrasah->kabupaten ?: 'Wilayah belum diisi' }}
+                                        <span class="mx-1">•</span>
+                                        {{ $madrasah->tenaga_pendidik_users_count }} tenaga pendidik
+                                    </small>
+                                </span>
+                                <i class="bx bx-chevron-right text-success fs-4"></i>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="profile-legacy-content">
                 <form method="GET" action="{{ route('madrasah.profile') }}" class="mb-4 profile-filter">
                     <div class="row g-3">
                         <div class="col-xl-4 col-md-6">
@@ -330,6 +411,7 @@
                     </div>
                 </div>
                 @endif
+                </div>
             </div>
         </div>
     </div>
