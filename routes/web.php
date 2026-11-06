@@ -1501,7 +1501,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/kiosk-face-enrollment/sessions/{session}', [App\Http\Controllers\Kiosk\FaceEnrollmentKioskController::class, 'reset'])->name('kiosk.face-enrollment.sessions.reset');
 
     // Laporan Presensi Mingguan
-    Route::middleware(['role:super_admin,admin_yayasan'])->group(function () {
+    Route::middleware(['role:super_admin,admin_yayasan,pengurus'])->group(function () {
         Route::get('/admin/presensi_admin/laporan-mingguan', [PresensiAdminController::class, 'laporanMingguan'])->name('presensi_admin.laporan_mingguan');
     });
 

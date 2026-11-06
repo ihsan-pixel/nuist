@@ -1016,7 +1016,7 @@ class PresensiAdminController extends Controller
     public function exportMadrasah(Request $request, $madrasahId)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'admin_yayasan'], true)) {
+        if (!in_array($user->role, ['super_admin', 'admin_yayasan', 'pengurus'], true)) {
             abort(403, 'Unauthorized');
         }
 
