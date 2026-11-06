@@ -60,7 +60,5 @@
     </a>
     <ul class="sub-menu collapse {{ request()->routeIs('data-sekolah.*') ? 'show' : '' }}" id="schoolAdminSchoolData">
         <li><a href="{{ route('data-sekolah.data-siswa.index') }}">Data Siswa</a></li>
-        <li><a href="{{ route('data-sekolah.siswa') }}">Rekap Siswa per Tahun</a></li>
-        <li><a href="{{ route('data-sekolah.guru') }}">Rekap Guru per Tahun</a></li>
     </ul>
 </li>

@@ -59,8 +59,6 @@
     </a>
     <ul class="sub-menu collapse {{ request()->routeIs('data-sekolah.*') ? 'show' : '' }}" id="superAdminSchoolData">
         <li><a href="{{ route('data-sekolah.data-siswa.index') }}">Data Siswa</a></li>
-        <li><a href="{{ route('data-sekolah.siswa') }}">Rekap Siswa per Tahun</a></li>
-        <li><a href="{{ route('data-sekolah.guru') }}">Rekap Guru per Tahun</a></li>
     </ul>
 </li>
 
@@ -92,7 +90,6 @@
         <li><a href="{{ route('uppm.index') }}">Dashboard UPPM</a></li>
         <li><a href="{{ route('uppm.data-sekolah') }}">Data Sekolah</a></li>
         <li><a href="{{ route('uppm.perhitungan-iuran') }}">Perhitungan Iuran</a></li>
-        <li><a href="{{ route('uppm.pembayaran') }}">Pembayaran UPPM</a></li>
         <li><a href="{{ route('uppm.update-uppm') }}">Pembaruan UPPM</a></li>
         <li><a href="{{ route('uppm.pengaturan') }}">Pengaturan UPPM</a></li>
     </ul>
@@ -117,5 +114,4 @@
 <li class="menu-title">SISTEM</li>
 <li><a href="{{ route('chat.index') }}" class="waves-effect"><i class="bx bx-chat"></i><span>Chat Admin</span></a></li>
 <li><a href="{{ route('fake-location.index') }}" class="waves-effect"><i class="bx bx-error-circle"></i><span>Deteksi Lokasi Palsu</span></a></li>
-<li><a href="{{ route('development-history.index') }}" class="waves-effect"><i class="bx bx-history"></i><span>Riwayat Pengembangan</span></a></li>
 <li><a href="{{ route('app-settings.index') }}" class="waves-effect"><i class="bx bx-cog"></i><span>Pengaturan Aplikasi</span></a></li>

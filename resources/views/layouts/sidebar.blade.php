@@ -382,17 +382,6 @@
 
                 @endif
 
-                @if(in_array($userRole, ['super_admin', 'pengurus']))
-                <li class="menu-title">PEMBAYARAN</li>
-
-                <li>
-                    <a href="{{ route('uppm.pembayaran') }}" class="waves-effect">
-                        <i class="bx bx-credit-card"></i>
-                        <span>Pembayaran</span>
-                    </a>
-                </li>
-                @endif
-
                 @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']))
                 <li class="menu-title">DATA SEKOLAH</li>
 
@@ -403,8 +392,6 @@
                     </a>
                     <ul class="sub-menu collapse" id="dataSekolahSubmenu">
                         <li><a href="{{ route('data-sekolah.data-siswa.index') }}">Data Siswa</a></li>
-                        <li><a href="{{ route('data-sekolah.siswa') }}">Data Siswa per Tahun</a></li>
-                        <li><a href="{{ route('data-sekolah.guru') }}">Data Guru per Tahun</a></li>
                     </ul>
                 </li>
                 @endif
@@ -468,13 +455,6 @@
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">ABOUT</li>
-
-                <li>
-                    <a href="{{ route('development-history.index') }}" class="waves-effect">
-                        <i class="bx bx-history"></i>
-                        <span>Riwayat Pengembangan</span>
-                    </a>
-                </li>
 
                 {{-- <li>
                     <a href="{{ route('panduan.index') }}" class="waves-effect">
