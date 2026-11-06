@@ -1254,7 +1254,8 @@
 .dashboard-live-attendance-item{text-align:center;min-width:0;padding:16px 8px 14px;border:1px solid rgba(255,255,255,.72);border-radius:22px;background:rgba(255,255,255,.42);box-shadow:0 8px 20px rgba(32,70,78,.045);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;animation:nuist-donut-card-in .7s cubic-bezier(.22,.8,.24,1) both}
 .dashboard-live-attendance-item:nth-child(1){animation-delay:180ms}.dashboard-live-attendance-item:nth-child(2){animation-delay:290ms}.dashboard-live-attendance-item:nth-child(3){animation-delay:400ms}
 .dashboard-live-attendance-item:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.98);box-shadow:0 16px 28px rgba(32,70,78,.11)}
-.dashboard-live-donut{width:88px;height:88px;margin:0 auto 10px;display:grid;place-items:center;position:relative;border-radius:50%;background:conic-gradient(var(--attendance-color) var(--attendance-value),color-mix(in srgb,var(--attendance-color) 16%,white) 0)}
+.dashboard-live-donut{--attendance-value:0%;--cap-x:50%;--cap-y:0%;width:88px;height:88px;margin:0 auto 10px;display:grid;place-items:center;position:relative;border-radius:50%;background:conic-gradient(var(--attendance-color) var(--attendance-value),color-mix(in srgb,var(--attendance-color) 16%,white) 0)}
+.dashboard-live-donut:before{content:"";position:absolute;left:var(--cap-x);top:var(--cap-y);width:13px;height:13px;border-radius:50%;background:var(--attendance-color);transform:translate(-50%,-50%);z-index:1}
 .dashboard-live-donut:after{content:'';position:absolute;inset:10px;border-radius:50%;background:#fff}
 .dashboard-live-donut span{position:relative;z-index:1;color:var(--nuist-ink);font-size:15px;font-weight:700}
 .dashboard-live-attendance-item>strong{display:block;color:var(--nuist-ink);font-size:13px}
@@ -1538,12 +1539,41 @@ body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:c
             absent: 'absent_percentage'
         };
 
+        function setDonutVisual(item, percentage) {
+            var donut = item.querySelector('.dashboard-live-donut');
+            if (!donut) return;
+            var value = Math.max(0, Math.min(100, Number(percentage) || 0));
+            var angle = (value / 100) * Math.PI * 2 - Math.PI / 2;
+            var radius = 38;
+            donut.style.setProperty('--attendance-value', value + '%');
+            donut.style.setProperty('--cap-x', (50 + Math.cos(angle) * radius / 0.88) + '%');
+            donut.style.setProperty('--cap-y', (50 + Math.sin(angle) * radius / 0.88) + '%');
+        }
+
+        function animateDonutVisual(item, target) {
+            var start = performance.now();
+            var duration = 1250;
+            function tick(now) {
+                var progress = Math.min((now - start) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                setDonutVisual(item, target * eased);
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        document.querySelectorAll('.dashboard-live-attendance-item').forEach(function (item) {
+            var initial = parseFloat(item.style.getPropertyValue('--attendance-value')) || 0;
+            animateDonutVisual(item, initial);
+        });
+
         function updateLiveAttendance(data) {
             Object.keys(attendanceKeys).forEach(function (key) {
                 var item = document.querySelector('[data-attendance-key="' + key + '"]');
                 if (!item) return;
                 var percentage = Number(data[attendanceKeys[key]] || 0);
                 item.style.setProperty('--attendance-value', percentage + '%');
+                setDonutVisual(item, percentage);
                 item.querySelector('.attendance-percentage').textContent = percentage.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
                 item.querySelector('.attendance-count').textContent = data[key] || 0;
             });
