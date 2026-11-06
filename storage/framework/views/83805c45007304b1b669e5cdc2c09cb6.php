@@ -1236,7 +1236,9 @@
 .dashboard-live-indicator{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#e7f7ef;color:#168653;font-size:11px;font-weight:700;text-transform:uppercase}
 .dashboard-live-indicator i{width:7px;height:7px;border-radius:50%;background:#20b96b;box-shadow:0 0 0 4px rgba(32,185,107,.14)}
 .dashboard-live-attendance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.dashboard-live-attendance-item{text-align:center;min-width:0}
+.dashboard-live-attendance-item{text-align:center;min-width:0;padding:16px 8px 14px;border:1px solid rgba(255,255,255,.72);border-radius:22px;background:rgba(255,255,255,.42);box-shadow:0 8px 20px rgba(32,70,78,.045);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;animation:nuist-donut-card-in .7s cubic-bezier(.22,.8,.24,1) both}
+.dashboard-live-attendance-item:nth-child(1){animation-delay:180ms}.dashboard-live-attendance-item:nth-child(2){animation-delay:290ms}.dashboard-live-attendance-item:nth-child(3){animation-delay:400ms}
+.dashboard-live-attendance-item:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.98);box-shadow:0 16px 28px rgba(32,70,78,.11)}
 .dashboard-live-donut{width:88px;height:88px;margin:0 auto 10px;display:grid;place-items:center;position:relative;border-radius:50%;background:conic-gradient(var(--attendance-color) var(--attendance-value),color-mix(in srgb,var(--attendance-color) 16%,white) 0)}
 .dashboard-live-donut:after{content:'';position:absolute;inset:10px;border-radius:50%;background:#fff}
 .dashboard-live-donut span{position:relative;z-index:1;color:var(--nuist-ink);font-size:15px;font-weight:700}
@@ -1396,7 +1398,8 @@ body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transf
 @keyframes nuist-icon-breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(19,155,117,0)}50%{transform:scale(1.045);box-shadow:0 0 0 8px rgba(19,155,117,.055)}}
 @keyframes nuist-glass-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes nuist-stagger-in{from{opacity:0;transform:translateY(12px) scale(.99);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
-@media(prefers-reduced-motion:reduce){.dashboard-page .card,.dashboard-page .dashboard-stat-card,.dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut,.dashboard-page .progress-bar,.dashboard-page .dashboard-live-indicator,.dashboard-page .dashboard-live-indicator i{animation:none!important;opacity:1;transform:none;filter:none}}
+@keyframes nuist-donut-card-in{from{opacity:0;transform:translateY(18px) scale(.9);filter:blur(4px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@media(prefers-reduced-motion:reduce){.dashboard-page .card,.dashboard-page .dashboard-stat-card,.dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut,.dashboard-page .dashboard-live-attendance-item,.dashboard-page .progress-bar,.dashboard-page .dashboard-live-indicator,.dashboard-page .dashboard-live-indicator i{animation:none!important;opacity:1;transform:none;filter:none}}
 
 /* Keep the application shell untouched; glass styles stay inside dashboard content. */
 body:has(.dashboard-page) .main-content{background:transparent!important}
