@@ -1388,13 +1388,7 @@ body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transf
 /* Keep the application shell untouched; glass styles stay inside dashboard content. */
 body:has(.dashboard-page) .main-content{background:transparent!important}
 body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:calc(100vh - 150px)}
-body:has(.dashboard-page) .page-content{padding-top:calc(70px + 28px);padding-left:28px;padding-right:28px}
-body:has(.dashboard-page) .page-title-box{padding-top:0;margin-bottom:12px}
-body:has(.dashboard-page) .page-title-box .page-title-right{display:none}
-body:has(.dashboard-page) .page-title-box h4{font-size:28px;letter-spacing:-.04em;color:#20333d}
-body:has(.dashboard-page) .page-title-box .breadcrumb{padding:10px 16px;border:1px solid rgba(255,255,255,.8);border-radius:999px;background:rgba(255,255,255,.48);backdrop-filter:blur(12px)}
-body:has(.dashboard-page) .container-fluid{max-width:none;width:100%}
-@media(max-width:991.98px){body:has(.dashboard-page) .page-content{padding-left:16px;padding-right:16px}.dashboard-page{min-height:calc(100vh - 110px)!important}}
+@media(max-width:991.98px){.dashboard-page{min-height:calc(100vh - 110px)!important}}
 </style>
 
 <script>
