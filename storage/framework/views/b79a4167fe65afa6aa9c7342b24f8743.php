@@ -33,7 +33,7 @@
     <link rel="apple-touch-icon" sizes="57x57" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="<?php echo e(asset('build/images/favicon.ico')); ?>">
+    <link rel="icon" type="image/png" href="<?php echo e(asset('images/logo1.png')); ?>">
 
     <!-- Open Graph for better social sharing -->
     <meta property="og:title" content="<?php echo $__env->yieldContent('title'); ?> | NUIST Mobile" />

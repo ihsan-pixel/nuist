@@ -1377,21 +1377,14 @@ body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transf
 @keyframes nuist-stagger-in{from{opacity:0;transform:translateY(12px) scale(.99);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
 @media(prefers-reduced-motion:reduce){.dashboard-page .card,.dashboard-page .dashboard-stat-card,.dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut,.dashboard-page .progress-bar,.dashboard-page .dashboard-live-indicator,.dashboard-page .dashboard-live-indicator i{animation:none!important;opacity:1;transform:none;filter:none}}
 
-/* Extend the glass system to the dashboard shell */
-body:has(.dashboard-page){background:linear-gradient(135deg,#eef7f6 0%,#f7f9fc 52%,#edf7f4 100%);}
-body:has(.dashboard-page) #page-topbar{background:rgba(255,255,255,.72)!important;border-bottom:1px solid rgba(209,225,225,.7);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 8px 24px rgba(30,67,73,.05)}
-body:has(.dashboard-page) .vertical-menu{background:rgba(255,255,255,.72)!important;border-right:1px solid rgba(209,225,225,.68);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
-body:has(.dashboard-page) .vertical-menu .metismenu>li>a{border-radius:14px;margin:3px 12px;transition:background .22s ease,color .22s ease,transform .22s ease}
-body:has(.dashboard-page) .vertical-menu .metismenu>li>a:hover{background:rgba(10,128,100,.09);transform:translateX(3px)}
-body:has(.dashboard-page) .vertical-menu .metismenu>li.mm-active>a,.vertical-menu .metismenu>li>a.active{background:rgba(10,128,100,.12);color:#075f4a!important}
-body:has(.dashboard-page) .main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%);}
-body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none}
+/* Keep the application shell untouched; glass styles stay inside dashboard content. */
+body:has(.dashboard-page) .main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
+body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:calc(100vh - 150px)}
 body:has(.dashboard-page) .page-content{padding-top:calc(70px + 28px);padding-left:28px;padding-right:28px}
 body:has(.dashboard-page) .page-title-box{padding-top:0;margin-bottom:12px}
 body:has(.dashboard-page) .page-title-box h4{font-size:28px;letter-spacing:-.04em;color:#20333d}
 body:has(.dashboard-page) .page-title-box .breadcrumb{padding:10px 16px;border:1px solid rgba(255,255,255,.8);border-radius:999px;background:rgba(255,255,255,.48);backdrop-filter:blur(12px)}
 body:has(.dashboard-page) .container-fluid{max-width:none;width:100%}
-body:has(.dashboard-page) .dashboard-page{min-height:calc(100vh - 150px)}
 @media(max-width:991.98px){body:has(.dashboard-page) .page-content{padding-left:16px;padding-right:16px}.dashboard-page{min-height:calc(100vh - 110px)!important}}
 </style>
 

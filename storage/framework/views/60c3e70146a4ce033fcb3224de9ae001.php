@@ -19,7 +19,7 @@
     <meta property="og:image" content="<?php echo e(asset('build/images/logo-light.png')); ?>" />
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="<?php echo e(asset('build/images/favicon.ico')); ?>">
+    <link rel="icon" type="image/png" href="<?php echo e(asset('images/logo1.png')); ?>">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
