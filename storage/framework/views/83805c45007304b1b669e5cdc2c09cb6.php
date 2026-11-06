@@ -1241,7 +1241,7 @@
 .dashboard-live-attendance-item:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.98);box-shadow:0 16px 28px rgba(32,70,78,.11)}
 .dashboard-live-donut{--attendance-value:0%;width:88px;height:88px;margin:0 auto 10px;display:grid;place-items:center;position:relative;border-radius:50%;background:transparent}
 .dashboard-live-donut svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
-.dashboard-live-donut circle{fill:none;stroke-width:10}
+.dashboard-live-donut circle{fill:none;stroke-width:14}
 .dashboard-live-donut .donut-track{stroke:color-mix(in srgb,var(--attendance-color) 16%,white)}
 .dashboard-live-donut .donut-value{stroke:var(--attendance-color);stroke-linecap:round;transition:stroke-dashoffset .65s ease}
 .dashboard-live-donut:after{content:'';position:absolute;inset:10px;border-radius:50%;background:#fff}
