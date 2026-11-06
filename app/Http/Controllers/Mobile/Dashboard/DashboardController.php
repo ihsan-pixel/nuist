@@ -22,6 +22,11 @@ class DashboardController extends \App\Http\Controllers\Controller
     {
     }
 
+    private function userStartDate(User $user): ?Carbon
+    {
+        return $user->created_at ? Carbon::parse($user->created_at)->startOfDay() : null;
+    }
+
     private function calculateMonthlyAttendanceStats(User $user, int $currentYear, int $currentMonth): array
     {
         ApprovedIzinSyncService::syncApprovedIzinPresensiInRange(
@@ -45,11 +50,17 @@ class DashboardController extends \App\Http\Controllers\Controller
         $isCurrentMonth = $currentYear === $today->year && $currentMonth === $today->month;
         $isFutureMonth = Carbon::create($currentYear, $currentMonth, 1)->startOfMonth()->isAfter($today->copy()->startOfMonth());
         $lastDayToCount = $isFutureMonth ? 0 : ($isCurrentMonth ? $today->day : $daysInMonth);
+        $userStartDate = $this->userStartDate($user);
 
         for ($day = 1; $day <= $lastDayToCount; $day++) {
             $date = Carbon::create($currentYear, $currentMonth, $day);
             $dateKey = $date->toDateString();
             $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+
+            // Hari sebelum user didaftarkan bukan hari kerja user dan tidak dihitung alpha.
+            if ($userStartDate && $date->lt($userStartDate)) {
+                continue;
+            }
 
             if (!$this->attendanceObligationService->hasAttendanceObligation($user, $date)) {
                 continue;
@@ -85,6 +96,7 @@ class DashboardController extends \App\Http\Controllers\Controller
         $daysInMonth = Carbon::create($currentYear, $currentMonth, 1)->daysInMonth;
         $today = Carbon::today('Asia/Jakarta');
         $statuses = [];
+        $userStartDate = $this->userStartDate($user);
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiInRange(
             $user,
@@ -96,6 +108,12 @@ class DashboardController extends \App\Http\Controllers\Controller
             $date = Carbon::create($currentYear, $currentMonth, $day, 0, 0, 0, 'Asia/Jakarta');
             $dateKey = $date->toDateString();
             $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+
+            // Kalender tidak menandai hari sebelum user didaftarkan sebagai alpha.
+            if ($userStartDate && $date->lt($userStartDate)) {
+                $statuses[$dateKey] = null;
+                continue;
+            }
 
             if ($presensiStatus === 'sakit') {
                 $presensiStatus = 'izin';
