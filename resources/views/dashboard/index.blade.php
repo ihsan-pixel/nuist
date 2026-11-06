@@ -5,10 +5,12 @@
 
 @section('content')
 
-@component('components.breadcrumb')
-    @slot('li_1') Dashboards @endslot
-    @slot('title') Dashboard @endslot
-@endcomponent
+<div class="dashboard-breadcrumb-sticky">
+    @component('components.breadcrumb')
+        @slot('li_1') Dashboards @endslot
+        @slot('title') Dashboard @endslot
+    @endcomponent
+</div>
 
 <div class="dashboard-page">
 <div class="row g-4">
@@ -1222,6 +1224,8 @@
 
 <style>
 /* NUIST Dashboard — desktop-first, responsive, scoped to this page */
+.dashboard-breadcrumb-sticky{position:sticky;top:70px;z-index:1020;background:#fff;padding:0;margin:-24px 0 4px;border-bottom:1px solid #e6edf0}
+.dashboard-breadcrumb-sticky .page-title-box{padding-top:0;padding-bottom:14px}
 .dashboard-page{--nuist-green:#08745a;--nuist-dark:#064b3c;--nuist-ink:#192d37;--nuist-muted:#6c7c86;--nuist-border:#e6edf0;background:#f5f8fa;padding:18px;border-radius:16px;margin-bottom:24px}
 .dashboard-page,.dashboard-page *{box-sizing:border-box}
 .dashboard-page>.row{display:flex;flex-wrap:wrap;gap:18px;margin:0}
