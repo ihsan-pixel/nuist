@@ -1363,6 +1363,7 @@
 .dashboard-page .dashboard-stat-card{animation-duration:.82s}
 .dashboard-page .dashboard-location-card,.dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards,nuist-glass-float 8s ease-in-out 1.2s infinite;animation-delay:var(--nuist-delay,0ms),1.2s}
 .dashboard-page .dashboard-live-attendance-item:nth-child(2) .dashboard-live-donut{animation-delay:280ms}.dashboard-page .dashboard-live-attendance-item:nth-child(3) .dashboard-live-donut{animation-delay:380ms}
+.dashboard-page .nuist-stagger-item{opacity:0;transform:translateY(12px);animation:nuist-stagger-in .62s cubic-bezier(.22,.8,.24,1) forwards;animation-delay:var(--stagger-delay,0ms)}
 @keyframes nuist-card-in{from{opacity:0;transform:translateY(22px) scale(.985);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
 @keyframes nuist-stat-in{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes nuist-ring-in{from{transform:scale(.72) rotate(-28deg);opacity:.25}to{transform:scale(1) rotate(0);opacity:1}}
@@ -1371,6 +1372,7 @@
 @keyframes nuist-pulse{0%{box-shadow:0 0 0 0 rgba(32,185,107,.4)}70%{box-shadow:0 0 0 7px rgba(32,185,107,0)}100%{box-shadow:0 0 0 0 rgba(32,185,107,0)}}
 @keyframes nuist-icon-breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(19,155,117,0)}50%{transform:scale(1.045);box-shadow:0 0 0 8px rgba(19,155,117,.055)}}
 @keyframes nuist-glass-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes nuist-stagger-in{from{opacity:0;transform:translateY(12px) scale(.99);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
 @media(prefers-reduced-motion:reduce){.dashboard-page .card,.dashboard-page .dashboard-stat-card,.dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut,.dashboard-page .progress-bar,.dashboard-page .dashboard-live-indicator,.dashboard-page .dashboard-live-indicator i{animation:none!important;opacity:1;transform:none;filter:none}}
 
 /* Extend the glass system to the dashboard shell */
@@ -1423,6 +1425,21 @@ body:has(.dashboard-page) .dashboard-page{min-height:calc(100vh - 150px)}
 
         document.querySelectorAll('.dashboard-stat-card h3, .dashboard-stat-card h4, .dashboard-teacher-summary-item strong').forEach(function (element, index) {
             setTimeout(function () { animateNumber(element); }, 420 + (index * 90));
+        });
+
+        // Reveal dashboard sections sequentially instead of all at once.
+        var staggerGroups = [
+            '.dashboard-page > .row > .dashboard-page__profile-column > *',
+            '.dashboard-page > .row > .dashboard-page__main-column > *',
+            '.dashboard-page .dashboard-admin-primary-stats > div',
+            '.dashboard-page .dashboard-super-admin-stats > .row > div',
+            '.dashboard-page .dashboard-teacher-summary-item'
+        ];
+        staggerGroups.forEach(function (selector) {
+            document.querySelectorAll(selector).forEach(function (element, index) {
+                element.classList.add('nuist-stagger-item');
+                element.style.setProperty('--stagger-delay', (160 + index * 95) + 'ms');
+            });
         });
         var attendanceData = <?php echo json_encode($attendanceData ?? ['kehadiran' => 0, 'izin_sakit' => 0, 'alpha' => 0]) ?>;
 
