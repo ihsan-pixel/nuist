@@ -265,8 +265,8 @@ class DashboardController extends Controller
      */
     private function getSuperAdminStatistics()
     {
-        // Total madrasah/sekolah
-        $totalMadrasah = \App\Models\Madrasah::count();
+        // Madrasah ID 52 dipakai sebagai sekolah dummy dan tidak dihitung sebagai sekolah aktif.
+        $totalMadrasah = \App\Models\Madrasah::where('id', '!=', 52)->count();
 
         // Statistik tenaga pendidik hanya mengambil user yang terhubung ke madrasah.
         $teacherQuery = User::where('role', 'tenaga_pendidik')
