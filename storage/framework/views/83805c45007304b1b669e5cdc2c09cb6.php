@@ -7,6 +7,12 @@
     <?php $__env->slot('title'); ?> Dashboard <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
+<style>
+    /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
+    .dashboard-page{opacity:0;transition:opacity .28s ease}
+    body.dashboard-painted .dashboard-page{opacity:1}
+</style>
+
 <div class="dashboard-page">
 <div class="row g-4">
     <div class="col-lg-4 col-12 dashboard-page__profile-column">
@@ -1396,6 +1402,9 @@ body:has(.dashboard-page) .container-fluid{max-width:none;width:100%}
 
         // Keep the first paint stable; motion starts only after the layout is ready.
         document.body.classList.add('dashboard-motion-ready');
+        requestAnimationFrame(function () {
+            document.body.classList.add('dashboard-painted');
+        });
 
         // Count-up numbers: start at 1 and land on the server-rendered value.
         function animateNumber(element) {
