@@ -125,6 +125,7 @@ class DashboardController extends Controller
     {
         $totalTeachers = User::where('role', 'tenaga_pendidik')
             ->whereNotNull('madrasah_id')
+            ->where('madrasah_id', '!=', 52)
             ->count();
 
         $latestAttendance = \App\Models\Presensi::whereDate('tanggal', now()->toDateString())
@@ -138,6 +139,7 @@ class DashboardController extends Controller
 
         $teachersBySchool = User::where('role', 'tenaga_pendidik')
             ->whereNotNull('madrasah_id')
+            ->where('madrasah_id', '!=', 52)
             ->selectRaw('madrasah_id, COUNT(*) as total')
             ->groupBy('madrasah_id')
             ->pluck('total', 'madrasah_id');
@@ -270,7 +272,8 @@ class DashboardController extends Controller
 
         // Statistik tenaga pendidik hanya mengambil user yang terhubung ke madrasah.
         $teacherQuery = User::where('role', 'tenaga_pendidik')
-            ->whereNotNull('madrasah_id');
+            ->whereNotNull('madrasah_id')
+            ->where('madrasah_id', '!=', 52);
 
         $totalTeachers = (clone $teacherQuery)->count();
 
@@ -289,10 +292,18 @@ class DashboardController extends Controller
             });
 
         // Total users by role
-        $totalAdmin = User::where('role', 'admin')->count();
         $totalSuperAdmin = User::where('role', 'super_admin')->count();
         $totalPengurus = User::where('role', 'pengurus')->count();
-        $totalSchoolPrincipals = User::where('ketugasan', 'kepala madrasah/sekolah')->count();
+        $totalAdmin = User::where('role', 'admin')
+            ->where(function ($query) {
+                $query->whereNull('madrasah_id')->orWhere('madrasah_id', '!=', 52);
+            })
+            ->count();
+        $totalSchoolPrincipals = User::where('ketugasan', 'kepala madrasah/sekolah')
+            ->where(function ($query) {
+                $query->whereNull('madrasah_id')->orWhere('madrasah_id', '!=', 52);
+            })
+            ->count();
 
         return [
             'total_madrasah' => $totalMadrasah,
