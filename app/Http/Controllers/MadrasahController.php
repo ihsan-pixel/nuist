@@ -266,6 +266,8 @@ class MadrasahController extends Controller
             abort(403, 'Unauthorized access');
         }
 
+        abort_if((int) $id === 52, 404);
+
         $madrasah = Madrasah::findOrFail($id);
 
         // Cari kepala sekolah berdasarkan ketugasan 'kepala_madrasah'
@@ -300,6 +302,7 @@ class MadrasahController extends Controller
         $kabupaten = $kabupaten !== '' ? $kabupaten : null;
 
         $madrasahs = Madrasah::query()
+            ->where('id', '!=', 52)
             ->with(['yayasan:id,name'])
             ->withCount('tenagaPendidikUsers')
             ->when($search !== '', fn ($query) => $query->where('name', 'like', '%' . $search . '%'))

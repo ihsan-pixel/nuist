@@ -38,7 +38,7 @@
         <li><a href="{{ route('madrasah.profile') }}">Profil Madrasah/Sekolah</a></li>
         <li><a href="{{ route('teaching-schedules.index') }}">Jadwal Mengajar</a></li>
         <li><a href="{{ route('admin.monitor-jurnal-mengajar') }}">Jurnal Mengajar</a></li>
-        <li><a href="{{ route('presensi_admin.index') }}">Data Presensi</a></li>
+        <li><a href="{{ route('presensi_admin.index') }}">Presensi</a></li>
         <li><a href="{{ route('presensi_admin.settings') }}">Pengaturan Presensi</a></li>
         <li><a href="{{ route('presensi_admin.kiosk_devices') }}">Perangkat Kiosk</a></li>
         <li><a href="{{ route('presensi_admin.laporan_mingguan') }}">Laporan Presensi</a></li>

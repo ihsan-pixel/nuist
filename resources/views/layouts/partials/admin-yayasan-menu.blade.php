@@ -36,7 +36,7 @@
         <i class="bx bx-check-square"></i><span>Presensi</span>
     </a>
     <ul class="sub-menu collapse {{ request()->routeIs('presensi_admin.*') ? 'show' : '' }}" id="foundationAdminAttendance">
-        <li><a href="{{ route('presensi_admin.index') }}">Monitoring Presensi</a></li>
+        <li><a href="{{ route('presensi_admin.index') }}">Presensi</a></li>
         <li><a href="{{ route('presensi_admin.settings') }}">Pengaturan Presensi</a></li>
         <li><a href="{{ route('presensi_admin.laporan_mingguan') }}">Laporan Mingguan</a></li>
     </ul>

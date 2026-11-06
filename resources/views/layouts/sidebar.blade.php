@@ -199,10 +199,12 @@
                 <li>
                     <a href="#presensiAdminSubmenu" data-bs-toggle="collapse" class="has-arrow">
                         <i class="bx bx-check-square"></i>
-                        <span>Presensi Admin</span>
+                        <span>Presensi</span>
                     </a>
                     <ul class="sub-menu collapse" id="presensiAdminSubmenu">
+                        @if($userRole === 'super_admin')
                         <li><a href="{{ route('presensi_admin.settings') }}">Pengaturan Presensi</a></li>
+                        @endif
                         <li><a href="{{ route('presensi_admin.index') }}">Data Presensi</a></li>
                         <li><a href="{{ route('presensi_admin.laporan_mingguan') }}">Laporan</a></li>
                     </ul>
