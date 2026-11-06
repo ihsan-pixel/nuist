@@ -1,4 +1,15 @@
-<div wire:poll.1s="refreshData">
+<div wire:poll.15s="refreshData">
+    <div class="active-users-heading d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div>
+            <h4 class="mb-1"><i class="bx bx-user-check text-success me-2"></i>Pengguna Aktif</h4>
+            <p class="text-muted mb-0">Pantau pengguna yang sedang aktif dalam sistem secara realtime.</p>
+        </div>
+        <div class="active-users-search">
+            <i class="bx bx-search"></i>
+            <input type="search" id="activeUserSearch" placeholder="Cari nama, email, atau sekolah..." autocomplete="off">
+        </div>
+    </div>
+
     {{-- Statistics --}}
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6">
@@ -43,7 +54,7 @@
     {{-- Active Users by Role --}}
     <div class="row">
         @foreach($activeUsersByRole as $role => $users)
-        <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="col-12 mb-4 active-role-section" data-role-section="{{ $role }}">
             <div class="card user-card">
                 <div class="role-header">
                     <h5 class="mb-0">
@@ -55,7 +66,7 @@
                 <div class="card-body p-0">
                     <div class="user-list">
                         @forelse($users as $user)
-                        <div class="user-item">
+                        <div class="user-item" data-user-search="{{ strtolower($user['name'].' '.$user['email'].' '.($user['madrasah'] ?? '').' '.$user['nuist_id']) }}">
                             <div class="d-flex align-items-center">
                                 <img src="{{ $user['avatar'] }}"
                                      alt="Avatar" class="user-avatar me-3">
@@ -94,7 +105,7 @@
     .user-card {
         border-radius: 10px;
         border: none;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        box-shadow: 0 .5rem 1.5rem rgba(15, 23, 42, .07);
         transition: transform 0.2s;
     }
 
@@ -103,23 +114,30 @@
     }
 
     .role-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #075e4d 0%, #0b8b68 100%);
         color: white;
         border-radius: 10px 10px 0 0;
-        padding: 1rem;
+        padding: .9rem 1.15rem;
     }
 
     .user-list {
-        max-height: 400px;
+        max-height: 520px;
         overflow-y: auto;
+        scrollbar-width: thin;
     }
 
     .user-item {
-        padding: 0.75rem 1rem;
+        padding: .65rem 1rem;
         border-bottom: 1px solid #f1f1f1;
         transition: background-color 0.2s;
         overflow: hidden;
     }
+
+    .active-users-heading h4 { font-weight: 700; color: #192d37; }
+    .active-users-search { position: relative; width: min(100%, 360px); }
+    .active-users-search i { position: absolute; left: .8rem; top: 50%; transform: translateY(-50%); color: #7b8790; }
+    .active-users-search input { width: 100%; border: 1px solid #dfe8eb; border-radius: 999px; padding: .65rem 1rem .65rem 2.35rem; outline: none; }
+    .active-users-search input:focus { border-color: #0b8b68; box-shadow: 0 0 0 .2rem rgba(11, 139, 104, .12); }
 
     .user-item:hover {
         background-color: #f8f9fa;
@@ -140,7 +158,7 @@
     .stats-card {
         border-radius: 10px;
         border: none;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        box-shadow: 0 .5rem 1.5rem rgba(15, 23, 42, .07);
     }
 
     .user-item .grow {
@@ -155,4 +173,19 @@
         white-space: nowrap;
     }
     </style>
+    <script>
+    document.addEventListener('input', function (event) {
+        if (event.target.id !== 'activeUserSearch') return;
+        const query = event.target.value.toLowerCase().trim();
+        document.querySelectorAll('.active-role-section').forEach(section => {
+            let visible = 0;
+            section.querySelectorAll('.user-item[data-user-search]').forEach(item => {
+                const match = !query || item.dataset.userSearch.includes(query);
+                item.style.display = match ? '' : 'none';
+                if (match) visible++;
+            });
+            section.style.display = visible || !query ? '' : 'none';
+        });
+    });
+    </script>
 </div>
