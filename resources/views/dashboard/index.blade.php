@@ -12,7 +12,8 @@
 
 <style>
     /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
-    body,.main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
+    body{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
+    .main-content{background:transparent!important}
     .dashboard-page{opacity:0!important;background:transparent!important;border:0!important;box-shadow:none!important;transition:opacity .28s ease}
     body.dashboard-painted .dashboard-page{opacity:1!important}
 </style>
@@ -1400,7 +1401,7 @@ body.dashboard-motion-ready .dashboard-page .nuist-stagger-item{opacity:0;transf
 @media(prefers-reduced-motion:reduce){.dashboard-page .card,.dashboard-page .dashboard-stat-card,.dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut,.dashboard-page .progress-bar,.dashboard-page .dashboard-live-indicator,.dashboard-page .dashboard-live-indicator i{animation:none!important;opacity:1;transform:none;filter:none}}
 
 /* Keep the application shell untouched; glass styles stay inside dashboard content. */
-body:has(.dashboard-page) .main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
+body:has(.dashboard-page) .main-content{background:transparent!important}
 body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:calc(100vh - 150px)}
 body:has(.dashboard-page) .page-content{padding-top:calc(70px + 28px);padding-left:28px;padding-right:28px}
 body:has(.dashboard-page) .page-title-box{padding-top:0;margin-bottom:12px}
