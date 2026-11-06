@@ -643,7 +643,6 @@ Route::domain('admin.nuist.id')->group(function () {
             Route::get('/presensi-admin/export', [PresensiAdminController::class, 'export']);
             Route::get('/presensi-admin/export-madrasah/{madrasahId}', [PresensiAdminController::class, 'exportMadrasah']);
             Route::get('/presensi-admin/export-excel', [PresensiAdminController::class, 'exportExcel']);
-            Route::get('/admin/presensi_admin/laporan-mingguan', [PresensiAdminController::class, 'laporanMingguan']);
             Route::get('/presensi/rekap/pdf/{madrasahId}/{bulan}', [PresensiController::class, 'pdfRekap']);
 
             Route::get('teaching-schedules', [App\Http\Controllers\TeachingScheduleController::class, 'index']);
