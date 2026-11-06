@@ -79,7 +79,16 @@
                 @endif
 
 
-                @if(in_array($userRole, ['super_admin', 'pengurus']))
+                @if($userRole === 'pengurus')
+                <li>
+                    <a href="{{ route('mobile.pengurus.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-home-circle"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                @endif
+
+                @if($userRole === 'super_admin')
                 <li class="menu-title">INFORMATION</li>
                 <li>
                     <a href="{{ route('admin.data_madrasah') }}" class="waves-effect">
