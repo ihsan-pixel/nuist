@@ -17,6 +17,8 @@ use Carbon\CarbonPeriod;
 
 class TeachingProgressController extends Controller
 {
+    private const EXCLUDED_MADRASAH_IDS = [52];
+
     private const TEACHING_DAY_NAMES = [
         Carbon::MONDAY => 'Senin',
         Carbon::TUESDAY => 'Selasa',
@@ -45,7 +47,8 @@ class TeachingProgressController extends Controller
             : $endOfMonth->copy()->endOfDay();
 
         $madrasahPercentages = [];
-        $allMadrasahs = Madrasah::orderByRaw("CAST(scod AS UNSIGNED) ASC")->get();
+        $allMadrasahs = Madrasah::whereNotIn('id', self::EXCLUDED_MADRASAH_IDS)
+            ->orderByRaw("CAST(scod AS UNSIGNED) ASC")->get();
         $monthlyHolidayKeys = $this->getHolidayKeys($startOfMonth, $effectiveEndOfMonth);
 
         foreach ($allMadrasahs as $madrasah) {
@@ -151,6 +154,7 @@ class TeachingProgressController extends Controller
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = Madrasah::where('kabupaten', $kabupaten)
+                ->whereNotIn('id', self::EXCLUDED_MADRASAH_IDS)
                 ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
                 ->get();
 
@@ -339,6 +343,7 @@ class TeachingProgressController extends Controller
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = Madrasah::where('kabupaten', $kabupaten)
+                ->whereNotIn('id', self::EXCLUDED_MADRASAH_IDS)
                 ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
                 ->get();
 
@@ -576,6 +581,7 @@ class TeachingProgressController extends Controller
         ];
 
         $madrasahs = Madrasah::query()
+            ->whereNotIn('id', self::EXCLUDED_MADRASAH_IDS)
             ->orderByRaw("FIELD(kabupaten, '" . implode("','", $kabupatenOrder) . "')")
             ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
             ->orderBy('name')
@@ -1239,6 +1245,8 @@ class TeachingProgressController extends Controller
      */
     public function getMadrasahTeachers(Request $request, $madrasahId)
     {
+        abort_if(in_array((int) $madrasahId, self::EXCLUDED_MADRASAH_IDS, true), 404);
+
         // Format input week: YYYY-Www (contoh: 2025-W49)
         $weekInput = trim($request->input('week', now()->format('Y-\WW')));
 
