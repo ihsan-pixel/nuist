@@ -1344,6 +1344,11 @@
 .dashboard-page .dashboard-teacher-status-table tbody tr:nth-child(5) .progress-bar{background:linear-gradient(90deg,#db2777,#f472b6)!important}
 .dashboard-page .dashboard-teacher-status-table tbody tr:nth-child(6) .progress-bar{background:linear-gradient(90deg,#0891b2,#22d3ee)!important}
 .dashboard-page .dashboard-teacher-status-table tbody tr:nth-child(7) .progress-bar{background:linear-gradient(90deg,#ea580c,#fb923c)!important}
+.dashboard-page .dashboard-top-schools .dashboard-top-school-item:nth-child(1) .progress-bar{background:linear-gradient(90deg,#0f766e,#2dd4bf)!important}
+.dashboard-page .dashboard-top-schools .dashboard-top-school-item:nth-child(2) .progress-bar{background:linear-gradient(90deg,#2563eb,#60a5fa)!important}
+.dashboard-page .dashboard-top-schools .dashboard-top-school-item:nth-child(3) .progress-bar{background:linear-gradient(90deg,#7c3aed,#a78bfa)!important}
+.dashboard-page .dashboard-top-schools .dashboard-top-school-item:nth-child(4) .progress-bar{background:linear-gradient(90deg,#d97706,#fbbf24)!important}
+.dashboard-page .dashboard-top-schools .dashboard-top-school-item:nth-child(5) .progress-bar{background:linear-gradient(90deg,#db2777,#f472b6)!important}
 .dashboard-page .btn-primary,.dashboard-page .btn-success{background:var(--nuist-green);border-color:var(--nuist-green)}
 .dashboard-page .badge{font-weight:500}
 .dashboard-page .hover-lift{transition:transform .18s ease,box-shadow .18s ease}
