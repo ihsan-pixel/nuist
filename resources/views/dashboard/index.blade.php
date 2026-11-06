@@ -1339,8 +1339,8 @@
 @media(max-width:575.98px){.dashboard-page>.row>.dashboard-teacher-status-card{width:100%;max-width:none;flex-basis:100%;margin-left:0}.dashboard-teacher-summary{grid-template-columns:1fr}.dashboard-page{padding:10px;margin:0 -10px 16px;border-radius:0}.dashboard-page>.row,.dashboard-page__profile-column,.dashboard-page__main-column{gap:12px}.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid var(--nuist-border)}.dashboard-admin-primary-stats,.dashboard-super-admin-stats>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .card-body{padding:15px!important}.dashboard-page .dashboard-stat-card h3,.dashboard-page .dashboard-stat-card h4{font-size:19px!important}.dashboard-page .dashboard-stat-card .card-body{padding:13px!important}.dashboard-page .table{min-width:460px}}
 
 /* Floating glass layer */
-.dashboard-page{position:relative;isolation:isolate;overflow:hidden;padding:22px!important;border-radius:32px;background:transparent;border:0;box-shadow:none}
-.dashboard-page:before{content:"";position:absolute;inset:0;z-index:-2;border-radius:32px;background:linear-gradient(135deg,rgba(236,248,246,.68),rgba(244,247,251,.56));border:1px solid rgba(255,255,255,.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);pointer-events:none}
+.dashboard-page{position:relative;isolation:isolate;overflow:visible;padding:22px!important;border-radius:0;background:transparent;border:0;box-shadow:none}
+.dashboard-page:before{display:none}
 .dashboard-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none}
 .dashboard-page:after{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:nuist-float 10s ease-in-out infinite}
 .dashboard-page>.row:after{content:"";position:absolute;width:240px;height:240px;left:-100px;bottom:-100px;z-index:-1;border-radius:50%;background:rgba(98,158,255,.12);filter:blur(2px);animation:nuist-float 12s ease-in-out infinite reverse;pointer-events:none}
@@ -1371,7 +1371,7 @@ body:has(.dashboard-page) .vertical-menu{background:rgba(255,255,255,.72)!import
 body:has(.dashboard-page) .vertical-menu .metismenu>li>a{border-radius:14px;margin:3px 12px;transition:background .22s ease,color .22s ease,transform .22s ease}
 body:has(.dashboard-page) .vertical-menu .metismenu>li>a:hover{background:rgba(10,128,100,.09);transform:translateX(3px)}
 body:has(.dashboard-page) .vertical-menu .metismenu>li.mm-active>a,.vertical-menu .metismenu>li>a.active{background:rgba(10,128,100,.12);color:#075f4a!important}
-body:has(.dashboard-page) .main-content{background:transparent}
+body:has(.dashboard-page) .main-content{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%);}
 body:has(.dashboard-page) .page-content{padding-top:calc(70px + 28px);padding-left:28px;padding-right:28px}
 body:has(.dashboard-page) .page-title-box{padding-top:0;margin-bottom:12px}
 body:has(.dashboard-page) .page-title-box h4{font-size:28px;letter-spacing:-.04em;color:#20333d}
