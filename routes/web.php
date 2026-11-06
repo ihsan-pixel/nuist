@@ -1429,7 +1429,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/presensi-admin/face-diagnostics', [App\Http\Controllers\Admin\FaceDiagnosticController::class, 'store'])->name('presensi_admin.face_diagnostics.store');
 
     // Teaching progress for foundation administrators
-    Route::middleware(['role:super_admin,admin_yayasan'])->group(function () {
+    Route::middleware(['role:super_admin,admin_yayasan,pengurus'])->group(function () {
         Route::get('/teaching-progress', [App\Http\Controllers\TeachingProgressController::class, 'index'])->name('admin.teaching_progress');
         Route::get('/teaching-progress/madrasah/{madrasahId}/teachers', [App\Http\Controllers\TeachingProgressController::class, 'getMadrasahTeachers'])->name('admin.teaching_progress.teachers');
     });
