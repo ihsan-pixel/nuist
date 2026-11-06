@@ -17,6 +17,9 @@ use App\Models\Madrasah;
 use App\Models\DataTenagaPendidik;
 use App\Models\DataSekolah;
 use App\Models\DevelopmentHistory;
+use App\Models\Tagihan;
+use App\Models\UppmPaymentUpdate;
+use App\Models\UppmSetting;
 
 class PengurusController extends \App\Http\Controllers\Controller
 {
@@ -90,7 +93,10 @@ class PengurusController extends \App\Http\Controllers\Controller
             });
 
         // Get recent activities or notifications
-        $recentActivities = []; // You can populate this with relevant data
+        $recentActivities = DevelopmentHistory::query()
+            ->latest('created_at')
+            ->limit(5)
+            ->get(['id', 'title', 'description', 'created_at']);
 
         return view('mobile.pengurus.dashboard', compact(
             'bannerImage', 'showBanner', 'currentMonth', 'currentYear',
@@ -143,8 +149,34 @@ class PengurusController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
-        // UPPM related data - placeholder for now
-        $uppmData = []; // Implement UPPM logic here
+        $tahun = (int) $request->get('tahun', now()->year);
+        $setting = UppmSetting::query()
+            ->where('tahun_anggaran', $tahun)
+            ->where('aktif', true)
+            ->first();
+        $tagihan = Tagihan::query()
+            ->with('madrasah:id,name')
+            ->where('tahun_anggaran', $tahun)
+            ->get();
+        $paymentUpdates = UppmPaymentUpdate::query()
+            ->with('madrasah:id,name')
+            ->where('tahun_anggaran', $tahun)
+            ->latest('transfer_date')
+            ->latest('id')
+            ->limit(8)
+            ->get();
+
+        $uppmData = [
+            'tahun' => $tahun,
+            'setting_aktif' => (bool) $setting,
+            'jumlah_tagihan' => $tagihan->count(),
+            'tagihan_lunas' => $tagihan->where('status', 'lunas')->count(),
+            'tagihan_belum_lunas' => $tagihan->whereIn('status', ['belum', 'belum_lunas', 'sebagian'])->count(),
+            'total_tagihan' => (float) $tagihan->sum('nominal'),
+            'total_dibayar' => (float) $tagihan->sum('nominal_dibayar'),
+            'total_tunggakan' => (float) $tagihan->sum(fn ($item) => max(0, (float) $item->nominal - (float) $item->nominal_dibayar)),
+            'pembaruan_pembayaran' => $paymentUpdates,
+        ];
 
         return view('mobile.pengurus.uppm', compact('uppmData'));
     }

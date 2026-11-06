@@ -138,30 +138,32 @@ if ($hour >= 0 && $hour <= 11) {
                     <h5 class="card-title" style="font-size: 14px; font-weight: 600; color: #004b4c;">
                         <i class="bx bx-info-circle me-2"></i>Informasi UPPM
                     </h5>
-                    <p class="card-text" style="font-size: 12px;">
-                        Halaman ini berisi informasi terkait Unit Pengelola Program Madrasah (UPPM).
-                        Fitur ini sedang dalam pengembangan.
-                    </p>
+                    <p class="card-text" style="font-size: 12px;">Ringkasan monitoring iuran dan pembayaran UPPM tahun anggaran {{ $uppmData['tahun'] }}.</p>
 
-                    @if(count($uppmData) > 0)
-                        <div class="row">
-                            @foreach($uppmData as $item)
-                                <div class="col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h6 class="card-title">{{ $item['title'] ?? 'Judul' }}</h6>
-                                            <p class="card-text">{{ $item['description'] ?? 'Deskripsi' }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-info" style="font-size: 12px;">
-                            <i class="bx bx-info-circle me-2"></i>
-                            Data UPPM sedang dalam proses pengembangan.
-                        </div>
-                    @endif
+                    <div class="row g-2 mb-3">
+                        @foreach([
+                            ['label' => 'Total Tagihan', 'value' => $uppmData['jumlah_tagihan'], 'icon' => 'bx-receipt', 'color' => 'primary'],
+                            ['label' => 'Sudah Lunas', 'value' => $uppmData['tagihan_lunas'], 'icon' => 'bx-check-circle', 'color' => 'success'],
+                            ['label' => 'Belum Lunas', 'value' => $uppmData['tagihan_belum_lunas'], 'icon' => 'bx-time-five', 'color' => 'warning'],
+                        ] as $stat)
+                            <div class="col-4"><div class="border rounded p-2 text-center h-100"><i class="bx {{ $stat['icon'] }} text-{{ $stat['color'] }}" style="font-size: 22px;"></i><div class="fw-bold" style="font-size: 18px;">{{ $stat['value'] }}</div><small class="text-muted" style="font-size: 10px;">{{ $stat['label'] }}</small></div></div>
+                        @endforeach
+                    </div>
+
+                    <div class="alert {{ $uppmData['setting_aktif'] ? 'alert-success' : 'alert-warning' }} py-2" style="font-size: 12px;"><i class="bx {{ $uppmData['setting_aktif'] ? 'bx-check-circle' : 'bx-error' }} me-1"></i>Pengaturan UPPM {{ $uppmData['setting_aktif'] ? 'aktif' : 'belum tersedia' }} untuk tahun {{ $uppmData['tahun'] }}.</div>
+
+                    <div class="row g-2 mb-3" style="font-size: 12px;">
+                        <div class="col-6"><div class="bg-light rounded p-2">Total tagihan<br><strong>Rp {{ number_format($uppmData['total_tagihan'], 0, ',', '.') }}</strong></div></div>
+                        <div class="col-6"><div class="bg-light rounded p-2">Total dibayar<br><strong>Rp {{ number_format($uppmData['total_dibayar'], 0, ',', '.') }}</strong></div></div>
+                        <div class="col-12"><div class="bg-light rounded p-2">Total tunggakan<br><strong class="text-danger">Rp {{ number_format($uppmData['total_tunggakan'], 0, ',', '.') }}</strong></div></div>
+                    </div>
+
+                    <h6 class="fw-semibold mb-2" style="font-size: 13px;"><i class="bx bx-history me-1"></i>Pembaruan Pembayaran Terbaru</h6>
+                    @forelse($uppmData['pembaruan_pembayaran'] as $update)
+                        <div class="border-bottom py-2" style="font-size: 11px;"><div class="d-flex justify-content-between"><strong>{{ $update->madrasah?->name ?? 'Sekolah' }}</strong><span>Rp {{ number_format((float) $update->amount, 0, ',', '.') }}</span></div><div class="text-muted">{{ $update->payment_period_label }} · {{ optional($update->transfer_date)->format('d/m/Y') }}</div></div>
+                    @empty
+                        <div class="text-muted" style="font-size: 12px;">Belum ada pembaruan pembayaran untuk tahun ini.</div>
+                    @endforelse
                 </div>
             </div>
         </div>
