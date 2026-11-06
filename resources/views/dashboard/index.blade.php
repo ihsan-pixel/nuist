@@ -1382,7 +1382,6 @@ body.dashboard-motion-ready .dashboard-page .dashboard-stat-card{animation-name:
 .dashboard-page .dashboard-live-indicator i{animation:nuist-pulse 1.8s ease-out infinite}
 .dashboard-page .dashboard-attendance-ring,.dashboard-page .dashboard-live-donut{animation:nuist-ring-in 1.2s cubic-bezier(.2,.8,.2,1) both;animation-delay:180ms}
 .dashboard-page .progress-bar{transform-origin:left center;animation:nuist-progress-in 1.1s cubic-bezier(.2,.8,.2,1) both;animation-delay:420ms}
-.dashboard-page .dashboard-top-schools.dashboard-no-replay .progress-bar{animation:none!important;transition:width .55s ease}
 .dashboard-page .dashboard-stat-card .avatar-title{animation:nuist-icon-breathe 3.6s ease-in-out infinite;animation-delay:650ms}
 .dashboard-page .dashboard-stat-card{animation-duration:.82s}
 body.dashboard-motion-ready .dashboard-page .dashboard-location-card,body.dashboard-motion-ready .dashboard-page .dashboard-attendance-card{animation:nuist-card-in .82s cubic-bezier(.22,.8,.24,1) forwards,nuist-glass-float 8s ease-in-out 1.2s infinite;animation-delay:var(--nuist-delay,0ms),1.2s}
@@ -1539,10 +1538,7 @@ body:has(.dashboard-page) .dashboard-page{width:100%;max-width:none;min-height:c
         function updateTopSchools(schools) {
             var container = document.querySelector('#attendance-top-schools');
             if (!container) return;
-            var isRefresh = container.dataset.rendered === 'true';
-            container.classList.toggle('dashboard-no-replay', isRefresh);
             container.replaceChildren();
-            container.dataset.rendered = 'true';
 
             if (!schools.length) {
                 var empty = document.createElement('div');
