@@ -136,29 +136,31 @@ if ($hour >= 0 && $hour <= 11) {
                     <h5 class="card-title" style="font-size: 14px; font-weight: 600; color: #004b4c;">
                         <i class="bx bx-info-circle me-2"></i>Informasi UPPM
                     </h5>
-                    <p class="card-text" style="font-size: 12px;">
-                        Halaman ini berisi informasi terkait Unit Pengelola Program Madrasah (UPPM).
-                        Fitur ini sedang dalam pengembangan.
-                    </p>
+                    <p class="card-text" style="font-size: 12px;">Ringkasan monitoring iuran dan pembayaran UPPM tahun anggaran <?php echo e($uppmData['tahun']); ?>.</p>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($uppmData) > 0): ?>
-                        <div class="row">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $uppmData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                <div class="col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h6 class="card-title"><?php echo e($item['title'] ?? 'Judul'); ?></h6>
-                                            <p class="card-text"><?php echo e($item['description'] ?? 'Deskripsi'); ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="alert alert-info" style="font-size: 12px;">
-                            <i class="bx bx-info-circle me-2"></i>
-                            Data UPPM sedang dalam proses pengembangan.
-                        </div>
+                    <div class="row g-2 mb-3">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [
+                            ['label' => 'Total Tagihan', 'value' => $uppmData['jumlah_tagihan'], 'icon' => 'bx-receipt', 'color' => 'primary'],
+                            ['label' => 'Sudah Lunas', 'value' => $uppmData['tagihan_lunas'], 'icon' => 'bx-check-circle', 'color' => 'success'],
+                            ['label' => 'Belum Lunas', 'value' => $uppmData['tagihan_belum_lunas'], 'icon' => 'bx-time-five', 'color' => 'warning'],
+                        ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <div class="col-4"><div class="border rounded p-2 text-center h-100"><i class="bx <?php echo e($stat['icon']); ?> text-<?php echo e($stat['color']); ?>" style="font-size: 22px;"></i><div class="fw-bold" style="font-size: 18px;"><?php echo e($stat['value']); ?></div><small class="text-muted" style="font-size: 10px;"><?php echo e($stat['label']); ?></small></div></div>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                    </div>
+
+                    <div class="alert <?php echo e($uppmData['setting_aktif'] ? 'alert-success' : 'alert-warning'); ?> py-2" style="font-size: 12px;"><i class="bx <?php echo e($uppmData['setting_aktif'] ? 'bx-check-circle' : 'bx-error'); ?> me-1"></i>Pengaturan UPPM <?php echo e($uppmData['setting_aktif'] ? 'aktif' : 'belum tersedia'); ?> untuk tahun <?php echo e($uppmData['tahun']); ?>.</div>
+
+                    <div class="row g-2 mb-3" style="font-size: 12px;">
+                        <div class="col-6"><div class="bg-light rounded p-2">Total tagihan<br><strong>Rp <?php echo e(number_format($uppmData['total_tagihan'], 0, ',', '.')); ?></strong></div></div>
+                        <div class="col-6"><div class="bg-light rounded p-2">Total dibayar<br><strong>Rp <?php echo e(number_format($uppmData['total_dibayar'], 0, ',', '.')); ?></strong></div></div>
+                        <div class="col-12"><div class="bg-light rounded p-2">Total tunggakan<br><strong class="text-danger">Rp <?php echo e(number_format($uppmData['total_tunggakan'], 0, ',', '.')); ?></strong></div></div>
+                    </div>
+
+                    <h6 class="fw-semibold mb-2" style="font-size: 13px;"><i class="bx bx-history me-1"></i>Pembaruan Pembayaran Terbaru</h6>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $uppmData['pembaruan_pembayaran']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $update): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <div class="border-bottom py-2" style="font-size: 11px;"><div class="d-flex justify-content-between"><strong><?php echo e($update->madrasah?->name ?? 'Sekolah'); ?></strong><span>Rp <?php echo e(number_format((float) $update->amount, 0, ',', '.')); ?></span></div><div class="text-muted"><?php echo e($update->payment_period_label); ?> · <?php echo e(optional($update->transfer_date)->format('d/m/Y')); ?></div></div>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        <div class="text-muted" style="font-size: 12px;">Belum ada pembaruan pembayaran untuk tahun ini.</div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>

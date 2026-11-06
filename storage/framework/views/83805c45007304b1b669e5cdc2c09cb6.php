@@ -1207,7 +1207,8 @@
 
 <style>
 /* NUIST Dashboard — desktop-first, responsive, scoped to this page */
-.dashboard-page{--nuist-green:#08745a;--nuist-dark:#064b3c;--nuist-ink:#192d37;--nuist-muted:#6c7c86;--nuist-border:#e6edf0;background:#f5f8fa;padding:18px;border-radius:16px;margin-bottom:24px}
+.page-title-box{padding-bottom:8px}
+.dashboard-page{--nuist-green:#08745a;--nuist-dark:#064b3c;--nuist-ink:#192d37;--nuist-muted:#6c7c86;--nuist-border:#e6edf0;background:#f5f8fa;padding:8px 18px 18px;border-radius:16px;margin-bottom:24px}
 .dashboard-page,.dashboard-page *{box-sizing:border-box}
 .dashboard-page>.row{display:flex;flex-wrap:wrap;gap:18px;margin:0}
 .dashboard-page>.row>.dashboard-page__profile-column,.dashboard-page>.row>.dashboard-page__main-column{padding:0;max-width:none;width:100%;flex:0 0 100%;min-width:0}

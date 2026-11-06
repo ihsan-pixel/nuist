@@ -11,6 +11,8 @@
     <style>
         .turnstile-wrap { display: flex; justify-content: center; margin: 4px 0 14px; }
         .turnstile-wrap .cf-turnstile { max-width: 100%; }
+        .submit-btn:disabled { color: #8b9b97; background: #d9e2df; cursor: not-allowed; opacity: .8; box-shadow: none; transform: none; }
+        .submit-btn:disabled:hover { box-shadow: none; transform: none; }
     </style>
 <?php $__env->stopSection(); ?>
 
@@ -136,6 +138,9 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                         data-theme="dark"
                                         data-size="flexible"
                                         data-appearance="always"
+                                        data-callback="enableMobileLoginSubmit"
+                                        data-expired-callback="disableMobileLoginSubmit"
+                                        data-error-callback="disableMobileLoginSubmit"
                                     ></div>
                                 </div>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['turnstile'];
@@ -150,7 +155,7 @@ endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <button class="submit-btn" type="submit">Masuk</button>
+                            <button class="submit-btn" id="mobileLoginSubmit" type="submit" <?php if(config('services.turnstile.enabled') && filled(config('services.turnstile.site_key'))): ?> disabled <?php endif; ?>>Masuk</button>
                         </form>
                     </div>
                 </div>
@@ -164,6 +169,14 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 <?php $__env->startSection('scripts'); ?>
     <?php echo $__env->make('mobile._auth-loader-script', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <script>
+        window.enableMobileLoginSubmit = function () {
+            var button = document.getElementById('mobileLoginSubmit');
+            if (button) button.disabled = false;
+        };
+        window.disableMobileLoginSubmit = function () {
+            var button = document.getElementById('mobileLoginSubmit');
+            if (button) button.disabled = true;
+        };
         document.addEventListener('DOMContentLoaded', function () {
             var passwordInput = document.getElementById('password');
             var togglePasswordBtn = document.getElementById('togglePassword');
