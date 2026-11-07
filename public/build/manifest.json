@@ -1,4 +1,9 @@
 {
+  "resources/css/landing-home.css": {
+    "file": "css/landing-home.min.css",
+    "isEntry": true,
+    "src": "resources/css/landing-home.css"
+  },
   "resources/fonts/boxicons.eot": {
     "file": "icons/boxicons.eot",
     "src": "resources/fonts/boxicons.eot"
@@ -123,6 +128,18 @@
     "file": "js/app2.js",
     "isEntry": true,
     "src": "resources/js/app.js"
+  },
+  "resources/js/landing-shell.css": {
+    "file": "css/landing-shell.min.css",
+    "src": "resources/js/landing-shell.css"
+  },
+  "resources/js/landing-shell.js": {
+    "css": [
+      "css/landing-shell.min.css"
+    ],
+    "file": "js/landing-shell.js",
+    "isEntry": true,
+    "src": "resources/js/landing-shell.js"
   },
   "resources/scss/app.scss": {
     "file": "css/app.min.css",
