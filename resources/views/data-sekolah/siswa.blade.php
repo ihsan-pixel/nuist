@@ -340,6 +340,7 @@
 .card-body {
     padding: 2rem;
 }
+    .student-year-page{position:relative;isolation:isolate;padding:8px 0 24px}.student-year-page:before,.student-year-page:after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none;animation:student-year-float 12s ease-in-out infinite}.student-year-page:before{width:280px;height:280px;right:-90px;top:150px;background:rgba(42,190,153,.14)}.student-year-page:after{width:230px;height:230px;left:180px;bottom:-100px;background:rgba(98,158,255,.12);animation-direction:reverse}.student-year-page .card{border:1px solid rgba(255,255,255,.86)!important;border-radius:22px!important;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(32,70,78,.09)!important;overflow:hidden;animation:student-year-in .7s both}.student-year-page .filter-card{background:linear-gradient(135deg,rgba(0,91,88,.96),rgba(8,116,90,.9))!important;border:1px solid rgba(255,255,255,.4)!important;box-shadow:0 16px 36px rgba(8,116,90,.2)!important}.student-year-page .card-body{padding:22px 24px}.student-year-page .form-control,.student-year-page .form-select{border:1px solid #dce7e9;border-radius:9px}.student-year-page .btn-modern{border:0;border-radius:9px;background:linear-gradient(90deg,#0f766e,#14b8a6)!important;color:#fff!important;padding:.42rem .7rem;transition:transform .18s ease,box-shadow .18s ease}.student-year-page .btn-modern:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(8,116,90,.18)}.student-year-page .table-responsive{border:1px solid #e5edef;border-radius:16px;overflow-x:auto}.student-year-page .table-modern{min-width:720px;width:100%;border-collapse:separate;border-spacing:0}.student-year-page .table-modern thead th{background:#f1f6f6;color:#192d37;border:0;border-bottom:1px solid #e5edef;font-size:11px;padding:13px 14px;white-space:nowrap}.student-year-page .table-modern tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle;white-space:normal;overflow-wrap:anywhere}.student-year-page .table-modern tbody tr{transition:background .18s ease,transform .18s ease}.student-year-page .table-modern tbody tr:hover{background:rgba(231,246,240,.45);transform:translateX(2px)}.student-year-page .stats-icon{border:1px solid rgba(255,255,255,.8);box-shadow:0 7px 16px rgba(8,116,90,.12)}.student-year-page .empty-state{padding:54px 20px;border-radius:16px;background:rgba(255,255,255,.5);color:#6c7c86}.student-year-page .empty-icon{color:#08745a}.student-year-page .modal-content{border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}.student-year-page .modal-header{background:#f6faf9;border-bottom:1px solid #e5edef}.student-year-page .modal{z-index:2000!important}.student-year-page .modal-dialog{position:relative;z-index:2001}@keyframes student-year-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-12px,18px,0)}}@keyframes student-year-in{from{opacity:0;transform:translateY(18px) scale(.99);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}@media(max-width:767px){.student-year-page .card-body{padding:14px}.student-year-page .filter-card .card-body{padding:18px}.student-year-page .table-responsive{border-radius:12px}}
 </style>
 @endsection
 
@@ -350,7 +351,7 @@
     @slot('title') Data Jumlah Siswa per Tahun @endslot
 @endcomponent
 
-<div class="row">
+<div class="student-year-page"><div class="row">
     <div class="col-12">
         <div class="card filter-card mb-4">
             <div class="card-body">
@@ -673,6 +674,7 @@
         </div>
     </div>
 </div>
+    </div>
 @endsection
 
 
