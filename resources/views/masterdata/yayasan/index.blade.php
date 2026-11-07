@@ -90,8 +90,9 @@
         .swal2-container{z-index:3000!important}
         .yayasan-swal-popup{width:min(420px,calc(100% - 32px))!important;padding:26px 28px 24px!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:22px!important;background:rgba(255,255,255,.9)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(32,70,78,.2)!important;color:#192d37!important}
         .yayasan-swal-popup .swal2-icon{width:76px!important;height:76px!important;margin:0 auto 14px!important;border-width:3px!important}
-        .yayasan-swal-popup .swal2-icon.swal2-success [class^=swal2-success-line]{height:3px!important}
-        .yayasan-swal-popup .swal2-icon.swal2-success .swal2-success-ring{width:76px!important;height:76px!important}
+        .yayasan-swal-popup .yayasan-swal-icon{display:grid!important;place-items:center;width:76px!important;height:76px!important;margin:0 auto 14px!important;border:0!important;border-radius:50%!important;background:#e4f5ee!important;color:#08745a!important;font-size:42px!important;line-height:1!important}
+        .yayasan-swal-popup .yayasan-swal-icon .swal2-icon-content{display:flex!important;align-items:center;justify-content:center;transform:none!important;font-family:Boxicons!important;font-size:42px!important;font-weight:400!important}
+        .yayasan-swal-popup .swal2-icon.swal2-success [class^=swal2-success-line],.yayasan-swal-popup .swal2-icon.swal2-success .swal2-success-ring{display:none!important}
         .yayasan-swal-title{margin:0!important;color:#192d37!important;font-size:22px!important;line-height:1.25!important}
         .yayasan-swal-html{margin:9px 0 0!important;color:#6c7c86!important;font-size:14px!important;line-height:1.5!important}
         .yayasan-swal-popup .swal2-actions{gap:8px;margin:20px auto 0!important}
@@ -319,6 +320,7 @@
         const yayasanSwal = {
             customClass: {
                 popup: 'yayasan-swal-popup',
+                icon: 'yayasan-swal-icon',
                 title: 'yayasan-swal-title',
                 htmlContainer: 'yayasan-swal-html',
                 confirmButton: 'yayasan-swal-confirm',
@@ -329,7 +331,7 @@
         };
 
         @if(session('success'))
-            Swal.fire({...yayasanSwal, icon: 'success', title: 'Berhasil', text: @json(session('success')), timer: 2200, showConfirmButton: false, timerProgressBar: true});
+            Swal.fire({...yayasanSwal, icon: 'success', iconHtml: '<i class="bx bx-check"></i>', title: 'Berhasil', text: @json(session('success')), timer: 2200, showConfirmButton: false, timerProgressBar: true});
         @elseif(session('error'))
             Swal.fire({...yayasanSwal, icon: 'error', title: 'Gagal', text: @json(session('error'))});
         @elseif($errors->any())
