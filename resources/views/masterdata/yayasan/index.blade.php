@@ -11,6 +11,7 @@
     <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" />
     <style>
         .yayasan-page{--yayasan-green:#08745a;--yayasan-ink:#192d37;--yayasan-muted:#6c7c86;--yayasan-border:#e5edef;padding:8px 0 24px}
         body:has(.yayasan-page){background:linear-gradient(135deg,rgba(222,227,230,.92) 0%,rgba(238,241,243,.88) 52%,rgba(215,222,225,.92) 100%)}
@@ -86,6 +87,12 @@
         .yayasan-page .modal-body .form-control:focus{border-color:#75c8ac;box-shadow:0 0 0 3px rgba(8,116,90,.1)}
         .yayasan-page .modal-footer{border-top:1px solid var(--yayasan-border);padding:14px 22px}
         .yayasan-page .modal-footer .btn{border-radius:9px;font-size:12px}
+        .swal2-container{z-index:3000!important}
+        .yayasan-swal-popup{border:1px solid rgba(255,255,255,.85)!important;border-radius:20px!important;background:rgba(255,255,255,.86)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(32,70,78,.2)!important;color:#192d37!important}
+        .yayasan-swal-title{color:#192d37!important;font-size:18px!important}
+        .yayasan-swal-html{color:#6c7c86!important;font-size:13px!important}
+        .yayasan-swal-confirm{border:0!important;border-radius:10px!important;background:#08745a!important;box-shadow:0 7px 16px rgba(8,116,90,.18)!important}
+        .yayasan-swal-cancel{border:1px solid #dce7e9!important;border-radius:10px!important;background:#f5f8f9!important;color:#52656d!important}
         .yayasan-page .empty-state{padding:46px 20px!important;color:var(--yayasan-muted);background:#fbfdfd}
         .yayasan-page .empty-state .bx{display:block;margin-bottom:8px;color:#9ac9b8;font-size:38px}
         .yayasan-page .yayasan-shell:hover{box-shadow:0 16px 38px rgba(32,70,78,.12)}
@@ -124,20 +131,6 @@
         </div>
         <div class="yayasan-content">
 
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            @endif
-
-            @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            @endif
-
             <div class="table-panel">
             <div class="table-responsive">
                 <table id="datatable-buttons" class="table table-bordered dt-responsive w-100">
@@ -175,11 +168,10 @@
                                         <i class="bx bx-edit-alt"></i><span>Edit</span>
                                     </button>
 
-                                    <form action="{{ route('yayasan.destroy', $yayasan->id) }}" method="POST" style="display:inline-block;">
+                                    <form action="{{ route('yayasan.destroy', $yayasan->id) }}" method="POST" class="yayasan-delete-form" style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Yakin hapus yayasan ini?')" title="Hapus yayasan"><i class="bx bx-trash"></i><span>Hapus</span></button>
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Hapus yayasan"><i class="bx bx-trash"></i><span>Hapus</span></button>
                                     </form>
                                 </div></td>
                             </tr>
@@ -304,6 +296,7 @@
 @endsection
 
 @section('script')
+    <script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
@@ -318,6 +311,34 @@
     <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
     <script>
+        const yayasanSwal = {
+            customClass: {
+                popup: 'yayasan-swal-popup',
+                title: 'yayasan-swal-title',
+                htmlContainer: 'yayasan-swal-html',
+                confirmButton: 'yayasan-swal-confirm',
+                cancelButton: 'yayasan-swal-cancel'
+            },
+            buttonsStyling: false,
+            confirmButtonText: 'Mengerti'
+        };
+
+        @if(session('success'))
+            Swal.fire({...yayasanSwal, icon: 'success', title: 'Berhasil', text: @json(session('success')), timer: 2200, showConfirmButton: false, timerProgressBar: true});
+        @elseif(session('error'))
+            Swal.fire({...yayasanSwal, icon: 'error', title: 'Gagal', text: @json(session('error'))});
+        @elseif($errors->any())
+            Swal.fire({...yayasanSwal, icon: 'error', title: 'Periksa data', html: @json(implode('<br>', $errors->all())), confirmButtonText: 'Tutup'});
+        @endif
+
+        $(document).on('submit', '.yayasan-delete-form', function (event) {
+            event.preventDefault();
+            const form = this;
+            Swal.fire({...yayasanSwal, icon: 'warning', title: 'Hapus yayasan?', text: 'Data yang dihapus tidak dapat dikembalikan.', showCancelButton: true, confirmButtonText: 'Ya, hapus', cancelButtonText: 'Batal'}).then((result) => {
+                if (result.isConfirmed) form.submit();
+            });
+        });
+
         $(document).ready(function () {
             let table = $("#datatable-buttons").DataTable({
                 responsive: true,
