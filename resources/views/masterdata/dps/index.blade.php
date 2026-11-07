@@ -11,6 +11,10 @@
     <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" />
+    <style>
+        .dps-page{--dps-green:#08745a;--dps-ink:#192d37;--dps-muted:#6c7c86;position:relative;isolation:isolate;padding:8px 0 24px}.dps-page:before,.dps-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none;animation:dps-float 10s ease-in-out infinite}.dps-page:before{width:280px;height:280px;right:-100px;top:-90px;background:rgba(42,190,153,.15)}.dps-page:after{width:230px;height:230px;left:-100px;bottom:-100px;background:rgba(98,158,255,.11);animation-direction:reverse;animation-duration:12s}body:has(.dps-page){background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}body:has(.dps-page) .main-content{background:transparent!important}.dps-page .dps-shell{border:1px solid rgba(255,255,255,.86);border-radius:22px;background:rgba(255,255,255,.68);backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.08);overflow:hidden;animation:dps-in .72s both}.dps-page .dps-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;border-bottom:1px solid #e5edef}.dps-page .dps-eyebrow{margin:0 0 4px;color:var(--dps-green);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.dps-page .dps-title{margin:0;color:var(--dps-ink);font-size:22px;font-weight:700}.dps-page .dps-subtitle{margin:5px 0 0;color:var(--dps-muted);font-size:12px}.dps-page .dps-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.dps-page .dps-actions .btn{border:0;border-radius:12px;padding:.62rem .85rem;box-shadow:0 8px 18px rgba(8,116,90,.14)}.dps-page .dps-content{padding:20px 24px 24px}.dps-page .dps-stat{border:1px solid rgba(255,255,255,.86);border-radius:16px;background:rgba(255,255,255,.68);box-shadow:0 8px 22px rgba(32,70,78,.07)}.dps-page .table-panel{border:1px solid #e5edef;border-radius:16px;background:rgba(255,255,255,.58);overflow-x:auto}.dps-page table.dataTable{width:100%!important;table-layout:auto;min-width:880px}.dps-page table.dataTable thead th{border:0;border-bottom:1px solid #e5edef;background:#f1f6f6;color:var(--dps-ink);font-size:11px;padding:13px 14px;white-space:nowrap}.dps-page table.dataTable tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle;white-space:normal!important;overflow-wrap:anywhere;word-break:break-word}.dps-page table.dataTable th:nth-child(1),.dps-page table.dataTable td:nth-child(1){width:54px}.dps-page table.dataTable th:nth-child(2),.dps-page table.dataTable td:nth-child(2){width:120px}.dps-page table.dataTable th:nth-child(3),.dps-page table.dataTable td:nth-child(3){min-width:220px}.dps-page table.dataTable th:nth-child(4),.dps-page table.dataTable td:nth-child(4){min-width:280px}.dps-page table.dataTable th:nth-child(5),.dps-page table.dataTable td:nth-child(5){min-width:180px}.dps-page table.dataTable th:last-child,.dps-page table.dataTable td:last-child{width:115px}.dps-page .dataTables_wrapper{padding:16px}.dps-page .dataTables_wrapper .dt-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}.dps-page .dataTables_wrapper .dt-button{border:0!important;border-radius:8px!important;color:#fff!important;font-size:11px;font-weight:600;padding:.46rem .8rem}.dps-page .buttons-copy{background:linear-gradient(90deg,#0f766e,#14b8a6)!important}.dps-page .buttons-excel{background:linear-gradient(90deg,#2563eb,#60a5fa)!important}.dps-page .buttons-pdf{background:linear-gradient(90deg,#7c3aed,#a78bfa)!important}.dps-page .buttons-print{background:linear-gradient(90deg,#d97706,#fbbf24)!important}.dps-page .buttons-colvis,.dps-page .buttons-columnVisibility{background:linear-gradient(90deg,#db2777,#f472b6)!important}.dps-page div.dt-button-collection{width:245px!important;padding:10px!important;border:1px solid #e3eaec!important;border-radius:16px!important;background:#f8fafb!important;box-shadow:0 12px 28px rgba(32,70,78,.14)!important}.dps-page div.dt-button-collection button.dt-button{display:block!important;width:100%!important;margin:0 0 6px!important;padding:13px 18px!important;border:0!important;border-radius:14px!important;background:#fff!important;background-image:none!important;color:#192d37!important;box-shadow:0 4px 10px rgba(32,70,78,.07)!important;text-align:left!important;font-size:15px!important}.dps-page .modal{z-index:2000!important;pointer-events:none}.dps-page .modal.show{pointer-events:auto}.dps-page .modal.show .modal-dialog{position:relative;z-index:2001;pointer-events:auto}.dps-page .modal-content{border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}.dps-page .modal-header{border-bottom:1px solid #e5edef;background:#f6faf9}.dps-page .modal-footer{border-top:1px solid #e5edef}.dps-page .form-control{border:1px solid #dce7e9;border-radius:9px}.dps-swal{width:min(420px,calc(100% - 32px))!important;border-radius:22px!important;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(32,70,78,.2)!important}.dps-swal-confirm{border:0!important;border-radius:10px!important;background:#08745a!important;color:#fff!important;padding:10px 16px!important}.dps-swal-cancel{border:1px solid #dce7e9!important;border-radius:10px!important;background:#f5f8f9!important;color:#52656d!important;padding:10px 16px!important}@keyframes dps-in{from{opacity:0;transform:translateY(18px) scale(.99);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}@keyframes dps-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,14px,0)}}@media(max-width:767.98px){.dps-page .dps-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.dps-page .dps-actions{width:100%;justify-content:stretch}.dps-page .dps-actions .btn{flex:1}.dps-page .dps-content{padding:14px}.dps-page .dataTables_wrapper{padding:10px}.dps-page .modal-dialog{margin:.75rem}}@media(max-width:390px){.dps-page .dataTables_wrapper .dt-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.dps-page .dataTables_wrapper .dt-button{width:100%;text-align:center}}
+    </style>
 @endsection
 
 @section('content')
@@ -19,11 +23,11 @@
     @slot('title') DPS (Dewan Pengawas Sekolah) @endslot
 @endcomponent
 
-<div class="card mb-4">
-    <div class="card-body">
+<div class="dps-page"><div class="card dps-shell mb-4">
+    <div class="card-body dps-content">
         <div class="row g-3 mb-3">
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card dps-stat border-0 h-100">
                     <div class="card-body">
                         <div class="text-muted small">Jumlah Akun DPS</div>
                         <div class="fw-bold" style="font-size: 22px;">{{ $stats['akun_dps'] ?? 0 }}</div>
@@ -31,7 +35,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card dps-stat border-0 h-100">
                     <div class="card-body">
                         <div class="text-muted small">Jumlah Anggota DPS (Record)</div>
                         <div class="fw-bold" style="font-size: 22px;">{{ $stats['anggota_dps'] ?? 0 }}</div>
@@ -39,7 +43,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card dps-stat border-0 h-100">
                     <div class="card-body">
                         <div class="text-muted small">Jumlah Sekolah Terkait</div>
                         <div class="fw-bold" style="font-size: 22px;">{{ $stats['sekolah_terkait'] ?? 0 }}</div>
@@ -48,7 +52,7 @@
             </div>
         </div>
 
-        <div class="mb-3 d-flex justify-content-end gap-2">
+        <div class="mb-3 d-flex justify-content-end gap-2 dps-actions">
             <a href="{{ route('dps.accounts.export') }}" class="btn btn-outline-dark">
                 <i class="bx bx-download"></i> Unduh Akun DPS (Excel)
             </a>
@@ -97,8 +101,8 @@
         </div>
         @endif
 
-        <div class="table-responsive">
-            <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100 align-middle">
+        <div class="table-panel"><div class="table-responsive">
+            <table id="datatable-buttons" class="table table-bordered dt-responsive w-100 align-middle">
                 <thead class="table-light">
                     <tr>
                         <th style="width: 60px;">No</th>
@@ -139,17 +143,13 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                Belum ada data DPS.
-                            </td>
-                        </tr>
+                        {{-- Empty state ditangani oleh DataTables agar jumlah kolom valid. --}}
                     @endforelse
                 </tbody>
             </table>
-        </div>
+        </div></div>
     </div>
-</div>
+</div></div>
 
 <!-- Modal Import DPS -->
 <div class="modal fade" id="modalImportDps" tabindex="-1" aria-labelledby="modalImportDpsLabel" aria-hidden="true">
@@ -187,6 +187,7 @@
 @endsection
 
 @section('script')
+    <script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
@@ -202,15 +203,23 @@
 
     <script>
         $(document).ready(function () {
+            $('.modal').appendTo(document.body);
             let table = $("#datatable-buttons").DataTable({
                 responsive: true,
                 lengthChange: true,
                 autoWidth: false,
-                buttons: ["copy", "excel", "pdf", "print", "colvis"]
+                buttons: ["copy", "excel", "pdf", "print", "colvis"],
+                language: { emptyTable: 'Belum ada data DPS.', zeroRecords: 'Data DPS tidak ditemukan.' }
             });
 
             table.buttons().container()
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+            const normalizeColumnMenu = () => document.querySelectorAll('div.dt-button-collection, div.dt-button-collection *').forEach((item) => { item.style.setProperty('background','#fff','important'); item.style.setProperty('background-image','none','important'); item.style.setProperty('color','#192d37','important'); });
+            new MutationObserver(normalizeColumnMenu).observe(document.body,{childList:true,subtree:true});
+            $(document).on('click','.buttons-colvis,.buttons-columnVisibility',()=>setTimeout(normalizeColumnMenu,20));
+            @if(session('success')) Swal.fire({customClass:{popup:'dps-swal'},buttonsStyling:false,icon:'success',title:'Berhasil',text:@json(session('success')),timer:2200,showConfirmButton:false}); @endif
+            @if(session('error')) Swal.fire({customClass:{popup:'dps-swal',confirmButton:'dps-swal-confirm'},buttonsStyling:false,icon:'error',title:'Gagal',text:@json(session('error')),confirmButtonText:'Tutup'}); @endif
         });
     </script>
 @endsection
