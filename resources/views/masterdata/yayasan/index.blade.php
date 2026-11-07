@@ -184,61 +184,6 @@
                                 </div></td>
                             </tr>
 
-                            <!-- Modal Edit Yayasan -->
-                            <div class="modal fade" id="modalEditYayasan{{ $yayasan->id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <form action="{{ route('yayasan.update', $yayasan->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Edit Yayasan</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label>Nama Yayasan</label>
-                                                    <input type="text" name="name" class="form-control" value="{{ $yayasan->name }}" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label>Alamat</label>
-                                                    <textarea name="alamat" class="form-control" rows="2">{{ $yayasan->alamat }}</textarea>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label>Latitude</label>
-                                                            <input type="text" name="latitude" class="form-control" value="{{ $yayasan->latitude }}">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label>Longitude</label>
-                                                            <input type="text" name="longitude" class="form-control" value="{{ $yayasan->longitude }}">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label>Link Map</label>
-                                                    <input type="text" name="map_link" class="form-control" value="{{ $yayasan->map_link }}">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label>Visi</label>
-                                                    <textarea name="visi" class="form-control" rows="3">{{ $yayasan->visi }}</textarea>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label>Misi</label>
-                                                    <textarea name="misi" class="form-control" rows="3">{{ $yayasan->misi }}</textarea>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-primary">Simpan</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center empty-state">
@@ -256,6 +201,44 @@
             </div>
         </div>
     </div>
+
+    @foreach($yayasans as $yayasan)
+        <div class="modal fade" id="modalEditYayasan{{ $yayasan->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <form action="{{ route('yayasan.update', $yayasan->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Yayasan</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label>Nama Yayasan</label>
+                                <input type="text" name="name" class="form-control" value="{{ $yayasan->name }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label>Alamat</label>
+                                <textarea name="alamat" class="form-control" rows="2">{{ $yayasan->alamat }}</textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6"><div class="mb-3"><label>Latitude</label><input type="text" name="latitude" class="form-control" value="{{ $yayasan->latitude }}"></div></div>
+                                <div class="col-md-6"><div class="mb-3"><label>Longitude</label><input type="text" name="longitude" class="form-control" value="{{ $yayasan->longitude }}"></div></div>
+                            </div>
+                            <div class="mb-3"><label>Link Map</label><input type="text" name="map_link" class="form-control" value="{{ $yayasan->map_link }}"></div>
+                            <div class="mb-3"><label>Visi</label><textarea name="visi" class="form-control" rows="3">{{ $yayasan->visi }}</textarea></div>
+                            <div class="mb-3"><label>Misi</label><textarea name="misi" class="form-control" rows="3">{{ $yayasan->misi }}</textarea></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endforeach
 
     <!-- Modal Tambah Yayasan -->
     <div class="modal fade" id="modalTambahYayasan" tabindex="-1" aria-labelledby="modalTambahYayasanLabel" aria-hidden="true">
