@@ -15,7 +15,7 @@
         .yayasan-page{--yayasan-green:#08745a;--yayasan-ink:#192d37;--yayasan-muted:#6c7c86;--yayasan-border:#e5edef;padding:8px 0 24px}
         body:has(.yayasan-page){background:linear-gradient(135deg,rgba(222,227,230,.92) 0%,rgba(238,241,243,.88) 52%,rgba(215,222,225,.92) 100%)}
         body:has(.yayasan-page) .main-content{background:transparent!important}
-        .yayasan-page{position:relative;isolation:isolate;overflow:visible}
+        .yayasan-page{position:relative;overflow:visible}
         .yayasan-page:before,.yayasan-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none;animation:yayasan-float 10s ease-in-out infinite}
         .yayasan-page:before{width:280px;height:280px;right:-100px;top:-90px;background:rgba(42,190,153,.15)}
         .yayasan-page:after{width:230px;height:230px;left:-100px;bottom:-100px;background:rgba(98,158,255,.11);animation-direction:reverse;animation-duration:12s}
@@ -65,6 +65,8 @@
         .yayasan-page .dataTables_wrapper .dt-buttons .buttons-colvis,.yayasan-page .dataTables_wrapper .dt-buttons .buttons-columnVisibility{background:linear-gradient(90deg,#db2777,#f472b6)!important;border-color:#db2777!important}
         .yayasan-page .dt-button-collection{padding:8px!important;border:1px solid #e1e9eb!important;border-radius:10px!important;background:#fff!important;box-shadow:0 12px 28px rgba(32,70,78,.16)!important}
         .yayasan-page .dt-button-collection .dt-button{display:block;width:100%;margin:0 0 3px;border:0!important;border-radius:8px!important;background:#fff!important;color:#192d37!important;text-align:left;font-size:11px;padding:.48rem .7rem}
+        .yayasan-page .dt-buttons .dt-button-collection .dt-button.buttons-columnVisibility,
+        .yayasan-page .dt-buttons .dt-button-collection .dt-button.buttons-colvis{background:#fff!important;background-image:none!important;border-color:transparent!important;color:#192d37!important}
         .yayasan-page .dt-button-collection .dt-button:last-child{margin-bottom:0}
         .yayasan-page .dt-button-collection .dt-button:hover{background:#eef8f4!important;color:#08745a!important;transform:none;filter:none;box-shadow:none}
         .yayasan-page .dataTables_info{color:var(--yayasan-muted);font-size:11px;padding-top:14px!important}
@@ -72,6 +74,10 @@
         .yayasan-page .dataTables_paginate .paginate_button{border:0!important;border-radius:8px!important;color:var(--yayasan-green)!important;font-size:11px;padding:5px 9px!important}
         .yayasan-page .dataTables_paginate .paginate_button.current{background:#dff3eb!important;color:var(--yayasan-green)!important}
         .yayasan-page .modal-content{border:1px solid rgba(255,255,255,.88);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}
+        body:has(.yayasan-page) .modal-backdrop{z-index:1050}
+        body:has(.yayasan-page) .modal{z-index:1060;pointer-events:none}
+        body:has(.yayasan-page) .modal.show{pointer-events:auto}
+        body:has(.yayasan-page) .modal.show .modal-dialog{pointer-events:auto}
         .yayasan-page .modal-header{border-bottom:1px solid var(--yayasan-border);background:#f6faf9;padding:18px 22px}
         .yayasan-page .modal-title{color:var(--yayasan-ink);font-size:17px;font-weight:700}
         .yayasan-page .modal-body{padding:22px}
