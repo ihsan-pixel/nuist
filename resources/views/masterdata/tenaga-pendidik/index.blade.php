@@ -84,6 +84,8 @@
     @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-actions{width:100%;justify-content:stretch}.tp-page .tp-actions .btn{flex:1}.tp-page .tp-content{padding:14px}.tp-page .dataTables_wrapper{padding:10px}.tp-page .dataTables_wrapper .dataTables_length,.tp-page .dataTables_wrapper .dataTables_filter{float:none!important;text-align:left!important;margin-bottom:10px}.tp-page .dataTables_wrapper .dt-buttons{gap:5px}.tp-page .dataTables_wrapper .dt-button{flex:1 1 auto;text-align:center}.tp-modal-dialog{max-width:calc(100vw - 1.5rem)}}
     @media(max-width:390px){.tp-page .dataTables_wrapper .dt-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.tp-page .dataTables_wrapper .dt-button{width:100%}}
 
+    .tp-page table.dataTable th:nth-child(1),.tp-page table.dataTable td:nth-child(1){width:68px;min-width:68px}.tp-page table.dataTable th:nth-child(4),.tp-page table.dataTable td:nth-child(4){width:96px;min-width:96px;max-width:110px}
+
     @media (min-width: 992px) {
         .tp-modal-dialog {
             width: min(1100px, calc(100vw - 4rem));
