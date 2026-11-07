@@ -53,11 +53,11 @@
         .yayasan-page .dataTables_wrapper .dt-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
         .yayasan-page .dataTables_wrapper .dt-button{border:0!important;border-radius:8px!important;color:#fff!important;font-size:11px;font-weight:600;padding:.46rem .8rem;box-shadow:0 4px 10px rgba(32,70,78,.1);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
         .yayasan-page .dataTables_wrapper .dt-button:hover{transform:translateY(-1px);filter:brightness(.96);box-shadow:0 7px 14px rgba(32,70,78,.14)}
-        .yayasan-page .dataTables_wrapper .dt-button:nth-child(1){background:linear-gradient(90deg,#0f766e,#14b8a6)}
-        .yayasan-page .dataTables_wrapper .dt-button:nth-child(2){background:linear-gradient(90deg,#2563eb,#60a5fa)}
-        .yayasan-page .dataTables_wrapper .dt-button:nth-child(3){background:linear-gradient(90deg,#7c3aed,#a78bfa)}
-        .yayasan-page .dataTables_wrapper .dt-button:nth-child(4){background:linear-gradient(90deg,#d97706,#fbbf24)}
-        .yayasan-page .dataTables_wrapper .dt-button:nth-child(5){background:linear-gradient(90deg,#db2777,#f472b6)}
+        .yayasan-page .dataTables_wrapper .dt-buttons>.dt-button:nth-child(1){background:linear-gradient(90deg,#0f766e,#14b8a6)!important;border-color:#0f766e!important}
+        .yayasan-page .dataTables_wrapper .dt-buttons>.dt-button:nth-child(2){background:linear-gradient(90deg,#2563eb,#60a5fa)!important;border-color:#2563eb!important}
+        .yayasan-page .dataTables_wrapper .dt-buttons>.dt-button:nth-child(3){background:linear-gradient(90deg,#7c3aed,#a78bfa)!important;border-color:#7c3aed!important}
+        .yayasan-page .dataTables_wrapper .dt-buttons>.dt-button:nth-child(4){background:linear-gradient(90deg,#d97706,#fbbf24)!important;border-color:#d97706!important}
+        .yayasan-page .dataTables_wrapper .dt-buttons>.dt-button:nth-child(5){background:linear-gradient(90deg,#db2777,#f472b6)!important;border-color:#db2777!important}
         .yayasan-page .dataTables_info{color:var(--yayasan-muted);font-size:11px;padding-top:14px!important}
         .yayasan-page .dataTables_paginate{padding-top:10px!important}
         .yayasan-page .dataTables_paginate .paginate_button{border:0!important;border-radius:8px!important;color:var(--yayasan-green)!important;font-size:11px;padding:5px 9px!important}
