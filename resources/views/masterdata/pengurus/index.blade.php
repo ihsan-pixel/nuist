@@ -184,6 +184,9 @@
 const pengurusSwal = {customClass:{popup:'pengurus-swal',title:'pengurus-swal-title',confirmButton:'pengurus-swal-confirm',cancelButton:'pengurus-swal-cancel'},buttonsStyling:false};
 
 $(document).ready(function () {
+    // Keep Bootstrap modals outside page stacking contexts so the backdrop stays behind them.
+    $('.modal').appendTo(document.body);
+
     let table = $("#datatable-buttons").DataTable({
         responsive: true,
         lengthChange: true,
