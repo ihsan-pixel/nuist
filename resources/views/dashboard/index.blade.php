@@ -12,7 +12,7 @@
 
 <style>
     /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
-    body{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
+    body{background:linear-gradient(135deg,rgba(222,227,230,.92) 0%,rgba(238,241,243,.88) 52%,rgba(215,222,225,.92) 100%)}
     .main-content{background:transparent!important}
     .dashboard-page{opacity:0!important;background:transparent!important;border:0!important;box-shadow:none!important;transition:opacity .28s ease}
     body.dashboard-painted .dashboard-page{opacity:1!important}
@@ -385,7 +385,7 @@
                                 <td class="text-center">{{ $status['count'] }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="progress flex-grow-1"><div class="progress-bar" style="width:{{ $percentage }}%;background:{{ $statusColors[$loop->index % count($statusColors)] }}"></div></div>
+                                        <div class="progress grow"><div class="progress-bar" style="width:{{ $percentage }}%;background:{{ $statusColors[$loop->index % count($statusColors)] }}"></div></div>
                                         <span class="dashboard-status-percentage">{{ number_format($percentage, 1, ',', '.') }}%</span>
                                     </div>
                                 </td>
@@ -1370,18 +1370,18 @@
 .dashboard-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none}
 .dashboard-page:after{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:nuist-float 10s ease-in-out infinite}
 .dashboard-page>.row:after{content:"";position:absolute;width:240px;height:240px;left:-100px;bottom:-100px;z-index:-1;border-radius:50%;background:rgba(98,158,255,.12);filter:blur(2px);animation:nuist-float 12s ease-in-out infinite reverse;pointer-events:none}
-.dashboard-page .card{border:1px solid rgba(255,255,255,.66)!important;border-radius:24px!important;background:rgba(255,255,255,.42)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.055)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
+.dashboard-page .card{border:1px solid rgba(255,255,255,.72)!important;border-radius:24px!important;background:rgba(218,224,227,.62)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.09)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
 .dashboard-page .card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.98)!important;box-shadow:0 20px 42px rgba(32,70,78,.13)!important}
 .dashboard-page .card-body{padding:24px!important}
 .dashboard-welcome-card__banner{min-height:142px;border-radius:23px 23px 0 0;background:linear-gradient(125deg,#075f4a 0%,#0e9b76 62%,#55c7a4 100%);overflow:hidden}
 .dashboard-welcome-card__banner:after{content:"";position:absolute;width:180px;height:180px;right:-35px;top:-55px;border:1px solid rgba(255,255,255,.24);border-radius:50%;box-shadow:0 0 0 22px rgba(255,255,255,.06),0 0 0 46px rgba(255,255,255,.04)}
 .dashboard-welcome-card__mark{position:relative;z-index:1;color:rgba(255,255,255,.38);font-size:52px}
 .dashboard-avatar img{border:5px solid rgba(255,255,255,.9);box-shadow:0 8px 20px rgba(21,70,59,.18)}
-.dashboard-page .dashboard-stat-card{min-height:142px;background:rgba(255,255,255,.58)!important}
+.dashboard-page .dashboard-stat-card{min-height:142px;background:rgba(226,231,233,.72)!important}
 .dashboard-page .dashboard-stat-card .avatar-title,.dashboard-page .dashboard-status-card .avatar-title{border-radius:16px!important;background:rgba(19,155,117,.12)!important}
-.dashboard-page .dashboard-section-heading{background:rgba(255,255,255,.48)!important}
+.dashboard-page .dashboard-section-heading{background:rgba(224,230,232,.66)!important}
 .dashboard-page .dashboard-section-heading .card-body{padding:20px 24px!important}
-.dashboard-page .dashboard-teacher-summary-item{border-color:rgba(219,232,233,.8);border-radius:18px;background:rgba(255,255,255,.48)}
+.dashboard-page .dashboard-teacher-summary-item{border-color:rgba(203,213,217,.86);border-radius:18px;background:rgba(224,230,232,.66)}
 .dashboard-page .dashboard-location-card{overflow:hidden}
 .dashboard-page .dashboard-location-map #map-container,.dashboard-page .dashboard-location-map #foundation-map-container{border-radius:16px!important}
 .dashboard-page .btn-primary,.dashboard-page .btn-success{border-radius:12px;padding:.55rem .9rem;box-shadow:0 8px 18px rgba(8,116,90,.16)}
