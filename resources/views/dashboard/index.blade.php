@@ -385,7 +385,7 @@
                                 <td class="text-center">{{ $status['count'] }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="progress flex-grow-1"><div class="progress-bar" style="width:{{ $percentage }}%;background:{{ $statusColors[$loop->index % count($statusColors)] }}"></div></div>
+                                        <div class="progress grow"><div class="progress-bar" style="width:{{ $percentage }}%;background:{{ $statusColors[$loop->index % count($statusColors)] }}"></div></div>
                                         <span class="dashboard-status-percentage">{{ number_format($percentage, 1, ',', '.') }}%</span>
                                     </div>
                                 </td>
