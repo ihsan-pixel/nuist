@@ -293,15 +293,7 @@
                                 </div>
                             </div>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                            <tr>
-                                <td colspan="8" class="text-center p-4">
-                                    <div class="alert alert-info d-inline-block text-center mb-0" role="alert">
-                                        <i class="bx bx-info-circle bx-lg me-2"></i>
-                                        <strong>Belum ada data kelas</strong><br>
-                                        <small>Tambahkan data jumlah siswa atau lengkapi jadwal mengajar terlebih dahulu.</small>
-                                    </div>
-                                </td>
-                            </tr>
+                            
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </tbody>
                 </table>
@@ -396,7 +388,11 @@
                 lengthChange: true,
                 autoWidth: false,
                 buttons: ["copy", "excel", "pdf", "print", "colvis"],
-                order: [[1, "asc"], [2, "asc"]]
+                order: [[1, "asc"], [2, "asc"]],
+                language: {
+                    emptyTable: '<div class="empty-state"><i class="bx bx-group"></i><strong>Belum ada data kelas</strong><small>Tambahkan data jumlah siswa atau lengkapi jadwal mengajar terlebih dahulu.</small></div>',
+                    zeroRecords: 'Data kelas tidak ditemukan.'
+                }
             });
 
             table.buttons().container()
