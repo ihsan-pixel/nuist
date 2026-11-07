@@ -88,9 +88,14 @@
         .yayasan-page .modal-footer{border-top:1px solid var(--yayasan-border);padding:14px 22px}
         .yayasan-page .modal-footer .btn{border-radius:9px;font-size:12px}
         .swal2-container{z-index:3000!important}
-        .yayasan-swal-popup{border:1px solid rgba(255,255,255,.85)!important;border-radius:20px!important;background:rgba(255,255,255,.86)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(32,70,78,.2)!important;color:#192d37!important}
-        .yayasan-swal-title{color:#192d37!important;font-size:18px!important}
-        .yayasan-swal-html{color:#6c7c86!important;font-size:13px!important}
+        .yayasan-swal-popup{width:min(420px,calc(100% - 32px))!important;padding:26px 28px 24px!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:22px!important;background:rgba(255,255,255,.9)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(32,70,78,.2)!important;color:#192d37!important}
+        .yayasan-swal-popup .swal2-icon{width:76px!important;height:76px!important;margin:0 auto 14px!important;border-width:3px!important}
+        .yayasan-swal-popup .swal2-icon.swal2-success [class^=swal2-success-line]{height:3px!important}
+        .yayasan-swal-popup .swal2-icon.swal2-success .swal2-success-ring{width:76px!important;height:76px!important}
+        .yayasan-swal-title{margin:0!important;color:#192d37!important;font-size:22px!important;line-height:1.25!important}
+        .yayasan-swal-html{margin:9px 0 0!important;color:#6c7c86!important;font-size:14px!important;line-height:1.5!important}
+        .yayasan-swal-popup .swal2-actions{gap:8px;margin:20px auto 0!important}
+        .yayasan-swal-popup .swal2-timer-progress-bar{display:none!important}
         .yayasan-swal-confirm{border:0!important;border-radius:10px!important;background:#08745a!important;box-shadow:0 7px 16px rgba(8,116,90,.18)!important}
         .yayasan-swal-cancel{border:1px solid #dce7e9!important;border-radius:10px!important;background:#f5f8f9!important;color:#52656d!important}
         .yayasan-page .empty-state{padding:46px 20px!important;color:var(--yayasan-muted);background:#fbfdfd}
