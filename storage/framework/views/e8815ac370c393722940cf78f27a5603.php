@@ -75,6 +75,13 @@
         margin-bottom: .4rem;
     }
 
+    .tp-page{--tp-green:#08745a;--tp-ink:#192d37;--tp-muted:#6c7c86;position:relative;isolation:isolate;padding:8px 0 24px}
+    body:has(.tp-page){background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}body:has(.tp-page) .main-content{background:transparent!important}
+    .tp-page:before,.tp-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none;animation:tp-float 10s ease-in-out infinite}.tp-page:before{width:280px;height:280px;right:-100px;top:-90px;background:rgba(42,190,153,.15)}.tp-page:after{width:230px;height:230px;left:-100px;bottom:-100px;background:rgba(98,158,255,.11);animation-direction:reverse;animation-duration:12s}
+    .tp-page .tp-shell{border:1px solid rgba(255,255,255,.86);border-radius:22px;background:rgba(255,255,255,.68);backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.08);overflow:hidden;animation:tp-in .72s both}.tp-page .tp-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;border-bottom:1px solid #e5edef}.tp-page .tp-eyebrow{margin:0 0 4px;color:var(--tp-green);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.tp-page .tp-title{margin:0;color:var(--tp-ink);font-size:22px;font-weight:700}.tp-page .tp-subtitle{margin:5px 0 0;color:var(--tp-muted);font-size:12px}.tp-page .tp-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.tp-page .tp-actions .btn{border:0;border-radius:12px;padding:.62rem .85rem;box-shadow:0 8px 18px rgba(8,116,90,.14)}.tp-page .tp-content{padding:20px 24px 24px}.tp-page .tp-info{border:1px solid #dce7e9;border-radius:12px;background:rgba(255,255,255,.55);color:var(--tp-muted);font-size:12px}.tp-page .table-panel{border:1px solid #e5edef;border-radius:16px;background:rgba(255,255,255,.58);overflow-x:auto}.tp-page table.dataTable{width:100%!important;table-layout:auto;min-width:1550px}.tp-page table.dataTable thead th{border:0;border-bottom:1px solid #e5edef;background:#f1f6f6;color:var(--tp-ink);font-size:11px;padding:13px 14px;white-space:nowrap}.tp-page table.dataTable tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle;white-space:normal!important;overflow-wrap:anywhere;word-break:break-word}.tp-page table.dataTable th:nth-child(1),.tp-page table.dataTable td:nth-child(1){width:54px}.tp-page table.dataTable th:nth-child(2),.tp-page table.dataTable td:nth-child(2){min-width:210px}.tp-page table.dataTable th:nth-child(3),.tp-page table.dataTable td:nth-child(3){min-width:230px}.tp-page table.dataTable th:nth-child(4),.tp-page table.dataTable td:nth-child(4),.tp-page table.dataTable th:nth-child(5),.tp-page table.dataTable td:nth-child(5),.tp-page table.dataTable th:nth-child(6),.tp-page table.dataTable td:nth-child(6){min-width:120px}.tp-page table.dataTable th:nth-child(7),.tp-page table.dataTable td:nth-child(7){min-width:180px}.tp-page table.dataTable th:nth-child(8),.tp-page table.dataTable td:nth-child(8){min-width:190px}.tp-page table.dataTable th:nth-child(9),.tp-page table.dataTable td:nth-child(9){min-width:180px}.tp-page table.dataTable th:nth-child(10),.tp-page table.dataTable td:nth-child(10){width:100px}.tp-page table.dataTable th:nth-child(11),.tp-page table.dataTable td:nth-child(11),.tp-page table.dataTable th:nth-child(12),.tp-page table.dataTable td:nth-child(12){min-width:150px}.tp-page table.dataTable th:nth-child(13),.tp-page table.dataTable td:nth-child(13){min-width:250px}.tp-page table.dataTable th:last-child,.tp-page table.dataTable td:last-child{width:125px}.tp-page .dataTables_wrapper{padding:16px}.tp-page .dataTables_wrapper .dt-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}.tp-page .dataTables_wrapper .dt-button{border:0!important;border-radius:8px!important;color:#fff!important;font-size:11px;font-weight:600;padding:.46rem .8rem}.tp-page .dataTables_wrapper .buttons-copy{background:linear-gradient(90deg,#0f766e,#14b8a6)!important}.tp-page .dataTables_wrapper .buttons-excel{background:linear-gradient(90deg,#2563eb,#60a5fa)!important}.tp-page .dataTables_wrapper .buttons-pdf{background:linear-gradient(90deg,#7c3aed,#a78bfa)!important}.tp-page .dataTables_wrapper .buttons-print{background:linear-gradient(90deg,#d97706,#fbbf24)!important}.tp-page .dataTables_wrapper .buttons-colvis,.tp-page .dataTables_wrapper .buttons-columnVisibility{background:linear-gradient(90deg,#db2777,#f472b6)!important}.tp-page div.dt-button-collection{width:245px!important;padding:10px!important;border:1px solid #e3eaec!important;border-radius:16px!important;background:#f8fafb!important;box-shadow:0 12px 28px rgba(32,70,78,.14)!important}.tp-page div.dt-button-collection button.dt-button{display:block!important;width:100%!important;margin:0 0 6px!important;padding:13px 18px!important;border:0!important;border-radius:14px!important;background:#fff!important;background-image:none!important;color:#192d37!important;box-shadow:0 4px 10px rgba(32,70,78,.07)!important;text-align:left!important;font-size:15px!important}.tp-page .modal-content{border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}.tp-page .modal-header{border-bottom:1px solid #e5edef;background:#f6faf9}.tp-page .modal-footer{border-top:1px solid #e5edef}.tp-page .modal{z-index:2000!important;pointer-events:none}.tp-page .modal.show{pointer-events:auto}.tp-page .modal.show .modal-dialog{position:relative;z-index:2001;pointer-events:auto}@keyframes tp-in{from{opacity:0;transform:translateY(18px) scale(.99);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}@keyframes tp-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,14px,0)}}
+    @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-actions{width:100%;justify-content:stretch}.tp-page .tp-actions .btn{flex:1}.tp-page .tp-content{padding:14px}.tp-page .dataTables_wrapper{padding:10px}.tp-page .dataTables_wrapper .dataTables_length,.tp-page .dataTables_wrapper .dataTables_filter{float:none!important;text-align:left!important;margin-bottom:10px}.tp-page .dataTables_wrapper .dt-buttons{gap:5px}.tp-page .dataTables_wrapper .dt-button{flex:1 1 auto;text-align:center}.tp-modal-dialog{max-width:calc(100vw - 1.5rem)}}
+    @media(max-width:390px){.tp-page .dataTables_wrapper .dt-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.tp-page .dataTables_wrapper .dt-button{width:100%}}
+
     @media (min-width: 992px) {
         .tp-modal-dialog {
             width: min(1100px, calc(100vw - 4rem));
@@ -94,18 +101,16 @@
 </style>
 <?php $__env->stopSection(); ?>
 
-<div class="row">
+<div class="row tp-page">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
+        <div class="card tp-shell">
+            <div class="card-header tp-toolbar">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                     <div>
-                        <h4 class="card-title mb-1">
-                            <i class="bx bx-user me-2"></i>Tenaga Pendidik
-                        </h4>
-                        <p class="text-muted mb-0 small">Data dimuat bertahap dari server agar tetap cepat walau jumlah user besar.</p>
+                        <p class="tp-eyebrow">MASTER DATA</p><h4 class="tp-title">Data Tenaga Pendidik</h4>
+                        <p class="tp-subtitle">Kelola data tenaga pendidik, status kepegawaian, dan penugasan.</p>
                     </div>
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-2 tp-actions">
                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalExportSekolah">
                             <i class="bx bx-spreadsheet"></i> Export Excel per Sekolah
                         </button>
@@ -124,8 +129,8 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="alert alert-light border mb-3">
+            <div class="card-body tp-content">
+                <div class="alert tp-info mb-3">
                     <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
                         <div>
                             <strong>Export data lengkap</strong><br>
@@ -137,8 +142,8 @@
                     </div>
                 </div>
 
-        <div class="table-responsive">
-            <table class="table table-bordered dt-responsive nowrap w-100" id="datatable-buttons">
+        <div class="table-panel"><div class="table-responsive">
+            <table class="table table-bordered dt-responsive w-100" id="datatable-buttons">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
@@ -160,7 +165,7 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            </div>
+            </div></div>
         </div>
     </div>
 </div>
