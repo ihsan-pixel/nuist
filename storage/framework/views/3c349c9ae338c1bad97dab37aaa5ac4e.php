@@ -37,6 +37,8 @@
     div.dt-button-collection button.dt-button:last-child,div.dt-button-collection button.buttons-columnVisibility:last-child{margin-bottom:0!important}
     div.dt-button-collection button.dt-button:hover,div.dt-button-collection button.buttons-columnVisibility:hover{background:#f1faf6!important;background-color:#f1faf6!important;color:#08745a!important;transform:none!important;filter:none!important;box-shadow:0 5px 12px rgba(8,116,90,.1)!important}
     body:has(.pengurus-page) .modal{position:fixed!important;inset:0!important;display:none;overflow-x:hidden;overflow-y:auto;pointer-events:none!important;z-index:2200!important}body:has(.pengurus-page) .modal.show{display:block!important;pointer-events:auto!important}body:has(.pengurus-page) .modal.show .modal-dialog{pointer-events:auto!important;z-index:2201!important}
+    body:has(.pengurus-page) div.dt-button-collection button,body:has(.pengurus-page) div.dt-button-collection .dt-button,body:has(.pengurus-page) div.dt-button-collection .buttons-columnVisibility{background:#fff!important;background-color:#fff!important;background-image:none!important;color:#192d37!important;border:0!important;box-shadow:0 4px 10px rgba(32,70,78,.07)!important}
+    body:has(.pengurus-page) div.dt-button-collection button:hover,body:has(.pengurus-page) div.dt-button-collection .dt-button:hover{background:#f1faf6!important;background-color:#f1faf6!important;color:#08745a!important}
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -198,6 +200,19 @@ $(document).ready(function () {
 
     table.buttons().container()
         .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+    const normalizePengurusColumnMenu = () => {
+        document.querySelectorAll('div.dt-button-collection, div.dt-button-collection *').forEach((item) => {
+            item.style.setProperty('background', '#fff', 'important');
+            item.style.setProperty('background-color', '#fff', 'important');
+            item.style.setProperty('background-image', 'none', 'important');
+            item.style.setProperty('color', '#192d37', 'important');
+            item.style.setProperty('border-color', 'transparent', 'important');
+            item.style.setProperty('box-shadow', 'none', 'important');
+        });
+    };
+    new MutationObserver(normalizePengurusColumnMenu).observe(document.body, {childList:true, subtree:true});
+    $(document).on('click', '.buttons-colvis,.buttons-columnVisibility', () => setTimeout(normalizePengurusColumnMenu, 20));
 
     <?php if(session('success')): ?>
         Swal.fire({...pengurusSwal,icon:'success',title:'Berhasil',text:<?php echo json_encode(session('success'), 15, 512) ?>,timer:2200,showConfirmButton:false});

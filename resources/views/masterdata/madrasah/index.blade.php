@@ -191,6 +191,14 @@
         .leaflet-toolbar button:active {
             transform: translateY(0);
         }
+
+        .madrasah-page{--m-green:#08745a;--m-ink:#192d37;--m-muted:#6c7c86;position:relative;isolation:isolate;padding:8px 0 24px}
+        body:has(.madrasah-page){background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}body:has(.madrasah-page) .main-content{background:transparent!important}
+        .madrasah-page:before,.madrasah-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none;animation:madrasah-float 10s ease-in-out infinite}.madrasah-page:before{width:280px;height:280px;right:-100px;top:-90px;background:rgba(42,190,153,.15)}.madrasah-page:after{width:230px;height:230px;left:-100px;bottom:-100px;background:rgba(98,158,255,.11);animation-direction:reverse;animation-duration:12s}
+        .madrasah-page .madrasah-shell{border:1px solid rgba(255,255,255,.86);border-radius:22px;background:rgba(255,255,255,.68);backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.08);overflow:hidden;animation:madrasah-in .72s both}.madrasah-page .madrasah-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;border-bottom:1px solid #e5edef}.madrasah-page .eyebrow{margin:0 0 4px;color:var(--m-green);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.madrasah-page h1{margin:0;color:var(--m-ink);font-size:22px;font-weight:700}.madrasah-page .subtitle{margin:5px 0 0;color:var(--m-muted);font-size:12px}.madrasah-page .madrasah-actions{display:flex;flex-wrap:wrap;gap:8px}.madrasah-page .madrasah-actions .btn{border:0;border-radius:12px;padding:.62rem .85rem;box-shadow:0 8px 18px rgba(8,116,90,.14)}.madrasah-page .madrasah-content{padding:20px 24px 24px}.madrasah-page .table-panel{border:1px solid #e5edef;border-radius:16px;background:rgba(255,255,255,.58);overflow:hidden}.madrasah-page table.dataTable{width:100%!important;table-layout:fixed;min-width:1000px}.madrasah-page table.dataTable thead th{border:0;border-bottom:1px solid #e5edef;background:#f1f6f6;color:var(--m-ink);font-size:11px;padding:13px 14px;white-space:nowrap}.madrasah-page table.dataTable tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle;white-space:normal!important;overflow-wrap:anywhere}.madrasah-page table.dataTable tbody tr:last-child td{border-bottom:0}.madrasah-page .school-name{display:block;color:var(--m-ink);font-weight:700;overflow-wrap:anywhere}.madrasah-page .school-logo{width:42px;height:42px;object-fit:contain;border-radius:10px;border:3px solid #e4f5ee}.madrasah-page .school-actions{display:flex;flex-wrap:wrap;gap:6px}.madrasah-page .school-actions .btn{border-radius:8px;font-size:11px;padding:.34rem .55rem}.madrasah-page .btn-warning{color:#6d4b00;background:#fff4d6;border-color:#ffe5a0}.madrasah-page .btn-danger{color:#b33b3b;background:#fff0f0;border-color:#ffd2d2}.madrasah-page .dataTables_wrapper{padding:16px}.madrasah-page .dataTables_wrapper .dt-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}.madrasah-page .dataTables_wrapper .dt-button{border:0!important;border-radius:8px!important;color:#fff!important;font-size:11px;font-weight:600;padding:.46rem .8rem}.madrasah-page .dataTables_wrapper .dt-button:nth-child(1){background:linear-gradient(90deg,#0f766e,#14b8a6)!important}.madrasah-page .dataTables_wrapper .dt-button:nth-child(2){background:linear-gradient(90deg,#2563eb,#60a5fa)!important}.madrasah-page .dataTables_wrapper .dt-button:nth-child(3){background:linear-gradient(90deg,#7c3aed,#a78bfa)!important}.madrasah-page .dataTables_wrapper .dt-button:nth-child(4){background:linear-gradient(90deg,#d97706,#fbbf24)!important}.madrasah-page .dataTables_wrapper .dt-button:nth-child(5){background:linear-gradient(90deg,#db2777,#f472b6)!important}.madrasah-page .dt-button-collection{padding:10px!important;border:1px solid #e3eaec!important;border-radius:16px!important;background:#f8fafb!important;box-shadow:0 12px 28px rgba(32,70,78,.14)!important}.madrasah-page .dt-button-collection .dt-button{display:block;width:100%;margin:0 0 6px;background:#fff!important;background-image:none!important;color:var(--m-ink)!important;border:0!important;border-radius:14px!important;box-shadow:0 4px 10px rgba(32,70,78,.07)!important;text-align:left;font-size:15px;font-weight:600}.madrasah-page .empty-state{padding:46px 20px!important;color:var(--m-muted)}.madrasah-page .empty-state .bx{display:block;color:#9ac9b8;font-size:38px;margin-bottom:8px}.madrasah-page .modal-content{border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}.madrasah-page .modal-header{border-bottom:1px solid #e5edef;background:#f6faf9;padding:18px 22px}.madrasah-page .modal-body{padding:22px}.madrasah-page .modal-body label{display:block;margin-bottom:6px;color:var(--m-ink);font-size:12px;font-weight:600}.madrasah-page .modal-body .form-control,.madrasah-page .modal-body .form-select{border:1px solid #dce7e9;border-radius:9px;font-size:13px;padding:.55rem .7rem}.madrasah-page .modal-footer{border-top:1px solid #e5edef;padding:14px 22px}.madrasah-page .modal-footer .btn{border-radius:9px;font-size:12px}
+        div.dt-button-collection{width:245px!important;padding:10px!important;border:1px solid #e3eaec!important;border-radius:16px!important;background:#f8fafb!important;background-image:none!important;box-shadow:0 12px 28px rgba(32,70,78,.14)!important}div.dt-button-collection button.dt-button,div.dt-button-collection button.buttons-columnVisibility{display:block!important;width:100%!important;min-height:48px!important;margin:0 0 6px!important;padding:13px 18px!important;border:0!important;border-radius:14px!important;background:#fff!important;background-color:#fff!important;background-image:none!important;color:#192d37!important;box-shadow:0 4px 10px rgba(32,70,78,.07)!important;text-align:left!important;font-size:16px!important;font-weight:600!important}
+        @keyframes madrasah-in{from{opacity:0;transform:translateY(18px) scale(.99);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}@keyframes madrasah-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,14px,0)}}@media(max-width:767.98px){.madrasah-page .madrasah-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.madrasah-page .madrasah-actions{width:100%}.madrasah-page .madrasah-actions .btn{flex:1}.madrasah-page .madrasah-content{padding:14px}.madrasah-page .dataTables_wrapper{padding:10px}.madrasah-page .modal-dialog{margin:.75rem}}
+        .madrasah-swal{width:min(420px,calc(100% - 32px))!important;padding:26px 28px 24px!important;border-radius:22px!important;background:rgba(255,255,255,.9)!important;backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(32,70,78,.2)!important}.madrasah-swal-confirm{border:0!important;border-radius:10px!important;background:#08745a!important;color:#fff!important;padding:10px 16px!important}.madrasah-swal-cancel{border:1px solid #dce7e9!important;border-radius:10px!important;background:#f5f8f9!important;color:#52656d!important;padding:10px 16px!important}
     </style>
 @endsection
 
@@ -201,22 +209,15 @@
 @endphp
 
 @if($isAllowed)
+<div class="madrasah-page">
     @component('components.breadcrumb')
         @slot('li_1') Master Data @endslot
         @slot('title') Madrasah/Sekolah @endslot
     @endcomponent
 
-    <div class="card mb-4">
-        <div class="card-body">
-
-            <div class="mb-3 d-flex justify-content-end gap-2 @if($userRole == 'admin') d-none @endif">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahMadrasah">
-                    <i class="bx bx-plus"></i> Tambah Madrasah
-                </button>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportMadrasah">
-                    <i class="bx bx-upload"></i> Import Data
-                </button>
-            </div>
+    <div class="madrasah-shell mb-4">
+        <div class="madrasah-toolbar"><div><p class="eyebrow">Master Data</p><h1>Data Madrasah/Sekolah</h1><p class="subtitle">Kelola data sekolah, alamat, jadwal KBM, logo, dan lokasi.</p></div><div class="madrasah-actions">@if($userRole != 'admin')<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahMadrasah"><i class="bx bx-plus"></i> Tambah Madrasah</button><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportMadrasah"><i class="bx bx-upload"></i> Import Data</button>@endif</div></div>
+        <div class="madrasah-content">
 
             @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -232,8 +233,8 @@
             </div>
             @endif
 
-            <div class="table-responsive">
-                <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
+            <div class="table-panel"><div class="table-responsive">
+                <table id="datatable-buttons" class="table table-bordered dt-responsive w-100">
                     <thead class="table-light">
                         <tr>
                             <th>No</th>
@@ -261,11 +262,11 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td>{{ $madrasah->name }}</td>
+                                <td><span class="school-name">{{ $madrasah->name }}</span></td>
                                 <td>{{ $madrasah->kabupaten ?? '-' }}</td>
                                 <td>{{ $madrasah->alamat ?? '-' }}</td>
                                 <td>{{ $madrasah->hari_kbm ? $madrasah->hari_kbm . ' hari' : '-' }}</td>
-                                <td>
+                                <td><div class="school-actions">
                                     @if($madrasah->latitude && $madrasah->longitude)
                                         <small>{{ $madrasah->latitude }}, {{ $madrasah->longitude }}</small>
                                         @if($madrasah->map_link)
@@ -281,24 +282,20 @@
                                     <form action="{{ route('madrasah.destroy', $madrasah->id) }}" method="POST" class="d-inline-block">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger @if($userRole == 'admin') d-none @endif" onclick="return confirm('Yakin hapus madrasah ini?')">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-danger @if($userRole == 'admin') d-none @endif">Hapus</button>
                                     </form>
-                                </td>
+                                </div></td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center p-4">
-                                    <div class="alert alert-info d-inline-block text-center" role="alert">
-                                        <i class="bx bx-info-circle bx-lg me-2"></i>
-                                        <strong>Belum ada data Madrasah</strong><br>
-                                        <small>Silakan tambahkan data madrasah terlebih dahulu untuk melanjutkan.</small>
-                                    </div>
+                                <td colspan="8" class="text-center empty-state">
+                                    <div role="status"><i class="bx bx-buildings"></i><strong class="d-block">Belum ada data Madrasah</strong><small>Silakan tambahkan data madrasah terlebih dahulu untuk melanjutkan.</small></div>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-            </div>
+            </div></div>
         </div>
     </div>
 
@@ -653,6 +650,8 @@
     </div>
     @endforeach
 
+</div>
+
 @else
 <div class="alert alert-danger text-center">
     <h4>Akses Ditolak</h4>
@@ -675,6 +674,7 @@
     <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
     {{-- Leaflet scripts for polygon editing --}}
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script> --}}
@@ -743,6 +743,9 @@
                 buttons: ["copy", "excel", "pdf", "print", "colvis"]
             });
             dataTableInstance.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+            const normalizeMadrasahColumnMenu = () => document.querySelectorAll('div.dt-button-collection, div.dt-button-collection *').forEach((item) => { item.style.setProperty('background','#fff','important'); item.style.setProperty('background-color','#fff','important'); item.style.setProperty('background-image','none','important'); item.style.setProperty('color','#192d37','important'); item.style.setProperty('border-color','transparent','important'); item.style.setProperty('box-shadow','none','important'); });
+            new MutationObserver(normalizeMadrasahColumnMenu).observe(document.body,{childList:true,subtree:true});
+            $(document).on('click','.buttons-colvis,.buttons-columnVisibility',()=>setTimeout(normalizeMadrasahColumnMenu,20));
         };
 
         // ---------------------- Polygon Map Management ----------------------
@@ -1614,6 +1617,13 @@
                 }
             });
         });
+
+        @if(session('success'))
+            Swal.fire({customClass:{popup:'madrasah-swal'},buttonsStyling:false,icon:'success',title:'Berhasil',text:@json(session('success')),timer:2200,showConfirmButton:false});
+        @elseif(session('error'))
+            Swal.fire({customClass:{popup:'madrasah-swal'},buttonsStyling:false,icon:'error',title:'Gagal',text:@json(session('error'))});
+        @endif
+        $(document).on('submit','form[action*="/madrasah/"]',function(event){if(!this.querySelector('input[name="_method"][value="DELETE"]'))return;event.preventDefault();const form=this;Swal.fire({customClass:{popup:'madrasah-swal',confirmButton:'madrasah-swal-confirm',cancelButton:'madrasah-swal-cancel'},buttonsStyling:false,icon:'warning',title:'Hapus madrasah?',text:'Data yang dihapus tidak dapat dikembalikan.',showCancelButton:true,confirmButtonText:'Ya, hapus',cancelButtonText:'Batal'}).then(result=>{if(result.isConfirmed)form.submit()});});
 
         })();
     </script>
