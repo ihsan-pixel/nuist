@@ -2,15 +2,21 @@
 
 @section('title', $isEdit ? 'Edit Kalender Akademik' : 'Tambah Kalender Akademik')
 
+@section('css')
+<style>
+body{background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}.academic-form-page .card{border:1px solid rgba(255,255,255,.86)!important;border-radius:22px!important;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(32,70,78,.09)!important}.academic-form-page .card-body{padding:24px}.academic-form-page .form-control,.academic-form-page .form-select{border:1px solid #dce7e9;border-radius:9px}.academic-form-page .btn{border-radius:10px}.academic-form-page .btn-primary{background:linear-gradient(90deg,#0f766e,#14b8a6);border:0}.academic-form-page .form-check-input:checked{background-color:#08745a;border-color:#08745a}
+</style>
+@endsection
+
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') Akademik @endslot
     @slot('title') {{ $isEdit ? 'Edit Kalender Akademik' : 'Tambah Kalender Akademik' }} @endslot
 @endcomponent
 
-<div class="row">
+<div class="academic-form-page"><div class="row">
     <div class="col-lg-9">
-        <div class="card border-0 shadow-sm">
+        <div class="card">
             <div class="card-body">
                 <div class="mb-4">
                     <h4 class="mb-1">{{ $isEdit ? 'Ubah Event Akademik' : 'Tambah Event Akademik' }}</h4>
@@ -156,7 +162,7 @@
     </div>
 
     <div class="col-lg-3">
-        <div class="card border-0 shadow-sm">
+        <div class="card">
             <div class="card-body">
                 <h5 class="mb-3">Catatan Integrasi</h5>
                 <ul class="text-muted ps-3 mb-0">
@@ -168,7 +174,7 @@
             </div>
         </div>
     </div>
-</div>
+</div></div>
 @endsection
 
 @section('script')

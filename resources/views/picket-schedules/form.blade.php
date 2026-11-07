@@ -2,15 +2,21 @@
 
 @section('title', $isEdit ? 'Edit Izin Jadwal Piket' : 'Tambah Izin Jadwal Piket')
 
+@section('css')
+<style>
+body{background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}.picket-form-page .card{border:1px solid rgba(255,255,255,.86)!important;border-radius:22px!important;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(32,70,78,.09)!important}.picket-form-page .card-body{padding:24px}.picket-form-page .form-control,.picket-form-page .form-select{border:1px solid #dce7e9;border-radius:9px}.picket-form-page .btn{border-radius:10px}.picket-form-page .btn-primary{background:linear-gradient(90deg,#0f766e,#14b8a6);border:0}.picket-form-page .picket-page-note,.picket-form-page .picket-inline-alert,.picket-form-page .picket-teacher-card,.picket-form-page .picket-date-option{background:rgba(255,255,255,.68);border-color:#e5edef;box-shadow:0 5px 14px rgba(32,70,78,.05)}.picket-form-page .picket-teacher-card{border-radius:16px}.picket-form-page .picket-date-option{border-radius:12px}
+</style>
+@endsection
+
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') Akademik @endslot
     @slot('title') {{ $isEdit ? 'Edit Izin Jadwal Piket' : 'Tambah Izin Jadwal Piket' }} @endslot
 @endcomponent
 
-<div class="row">
+<div class="picket-form-page"><div class="row">
     <div class="col-12">
-        <div class="card border-0 shadow-sm">
+        <div class="card">
             <div class="card-body">
                 <style>
                     .picket-page-note {
@@ -204,7 +210,7 @@
             </div>
         </div>
     </div>
-</div>
+</div></div>
 
 @php
     $teacherPayload = $teachers->map(function ($teacher) {
