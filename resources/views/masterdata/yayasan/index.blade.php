@@ -74,10 +74,10 @@
         .yayasan-page .dataTables_paginate .paginate_button{border:0!important;border-radius:8px!important;color:var(--yayasan-green)!important;font-size:11px;padding:5px 9px!important}
         .yayasan-page .dataTables_paginate .paginate_button.current{background:#dff3eb!important;color:var(--yayasan-green)!important}
         .yayasan-page .modal-content{border:1px solid rgba(255,255,255,.88);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}
-        body:has(.yayasan-page) .modal-backdrop{z-index:1050}
-        body:has(.yayasan-page) .modal{z-index:1060;pointer-events:none}
+        body:has(.yayasan-page) .modal-backdrop{z-index:1990!important}
+        body:has(.yayasan-page) .modal{z-index:2000!important;pointer-events:none}
         body:has(.yayasan-page) .modal.show{pointer-events:auto}
-        body:has(.yayasan-page) .modal.show .modal-dialog{pointer-events:auto}
+        body:has(.yayasan-page) .modal.show .modal-dialog{position:relative;z-index:2001;pointer-events:auto}
         .yayasan-page .modal-header{border-bottom:1px solid var(--yayasan-border);background:#f6faf9;padding:18px 22px}
         .yayasan-page .modal-title{color:var(--yayasan-ink);font-size:17px;font-weight:700}
         .yayasan-page .modal-body{padding:22px}
