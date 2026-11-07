@@ -217,22 +217,6 @@
         <div class="madrasah-toolbar"><div><p class="eyebrow">Master Data</p><h1>Data Madrasah/Sekolah</h1><p class="subtitle">Kelola data sekolah, alamat, jadwal KBM, logo, dan lokasi.</p></div><div class="madrasah-actions"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole != 'admin'): ?><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahMadrasah"><i class="bx bx-plus"></i> Tambah Madrasah</button><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportMadrasah"><i class="bx bx-upload"></i> Import Data</button><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></div></div>
         <div class="madrasah-content">
 
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
-
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
-
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
             <div class="table-panel"><div class="table-responsive">
                 <table id="datatable-buttons" class="table table-bordered dt-responsive w-100">
                     <thead class="table-light">
@@ -1275,6 +1259,8 @@
 
         // Initialize DataTable and wire up edit buttons
         document.addEventListener('DOMContentLoaded', function(){
+            // Keep all Bootstrap modals outside page stacking contexts, matching the Yayasan page.
+            document.querySelectorAll('.modal').forEach((modal) => document.body.appendChild(modal));
             initDataTable();
         });
 
