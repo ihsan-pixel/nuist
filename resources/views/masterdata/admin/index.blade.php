@@ -280,16 +280,17 @@ $(document).ready(function () {
         .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
 
     const normalizeAdminColumnMenu = () => {
-        document.querySelectorAll('div.dt-button-collection button').forEach((button) => {
-            button.style.setProperty('background', '#fff', 'important');
-            button.style.setProperty('background-color', '#fff', 'important');
-            button.style.setProperty('background-image', 'none', 'important');
-            button.style.setProperty('color', '#192d37', 'important');
-            button.style.setProperty('border', '0', 'important');
-            button.style.setProperty('box-shadow', '0 4px 10px rgba(32,70,78,.07)', 'important');
+        document.querySelectorAll('div.dt-button-collection, div.dt-button-collection *').forEach((item) => {
+            item.style.setProperty('background', '#fff', 'important');
+            item.style.setProperty('background-color', '#fff', 'important');
+            item.style.setProperty('background-image', 'none', 'important');
+            item.style.setProperty('color', '#192d37', 'important');
+            item.style.setProperty('border-color', 'transparent', 'important');
+            item.style.setProperty('box-shadow', 'none', 'important');
         });
     };
     new MutationObserver(normalizeAdminColumnMenu).observe(document.body, {childList:true, subtree:true});
+    $(document).on('click', '.buttons-colvis,.buttons-columnVisibility', () => setTimeout(normalizeAdminColumnMenu, 20));
 
     @if(session('success'))
         Swal.fire({customClass:{popup:'admin-swal',confirmButton:'admin-swal-confirm'},buttonsStyling:false,icon:'success',title:'Berhasil',text:@json(session('success')),timer:2200,showConfirmButton:false});
