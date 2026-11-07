@@ -13,7 +13,13 @@
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
     <style>
         .yayasan-page{--yayasan-green:#08745a;--yayasan-ink:#192d37;--yayasan-muted:#6c7c86;--yayasan-border:#e5edef;padding:8px 0 24px}
-        .yayasan-page .yayasan-shell{border:1px solid rgba(255,255,255,.82);border-radius:22px;background:rgba(255,255,255,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.08);overflow:hidden}
+        body:has(.yayasan-page){background:linear-gradient(135deg,rgba(222,227,230,.92) 0%,rgba(238,241,243,.88) 52%,rgba(215,222,225,.92) 100%)}
+        body:has(.yayasan-page) .main-content{background:transparent!important}
+        .yayasan-page{position:relative;isolation:isolate;overflow:visible}
+        .yayasan-page:before,.yayasan-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none;animation:yayasan-float 10s ease-in-out infinite}
+        .yayasan-page:before{width:280px;height:280px;right:-100px;top:-90px;background:rgba(42,190,153,.15)}
+        .yayasan-page:after{width:230px;height:230px;left:-100px;bottom:-100px;background:rgba(98,158,255,.11);animation-direction:reverse;animation-duration:12s}
+        .yayasan-page .yayasan-shell{border:1px solid rgba(255,255,255,.86);border-radius:22px;background:rgba(255,255,255,.68);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.08);overflow:hidden;animation:yayasan-card-in .72s cubic-bezier(.22,.8,.24,1) both}
         .yayasan-page .yayasan-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;border-bottom:1px solid rgba(220,231,233,.75)}
         .yayasan-page .yayasan-eyebrow{margin:0 0 4px;color:var(--yayasan-green);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
         .yayasan-page .yayasan-title{margin:0;color:var(--yayasan-ink);font-size:22px;font-weight:700}
@@ -45,8 +51,13 @@
         .yayasan-page .dataTables_wrapper input{margin-left:6px;padding:6px 10px;outline:0}
         .yayasan-page .dataTables_wrapper input:focus{border-color:#75c8ac;box-shadow:0 0 0 3px rgba(8,116,90,.1)}
         .yayasan-page .dataTables_wrapper .dt-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-        .yayasan-page .dataTables_wrapper .dt-button{border:1px solid #dce7e9;border-radius:8px;background:#fff;color:#49616a;font-size:11px;padding:.4rem .62rem}
-        .yayasan-page .dataTables_wrapper .dt-button:hover{border-color:#9fd6c2;background:#effaf5;color:var(--yayasan-green)}
+        .yayasan-page .dataTables_wrapper .dt-button{border:0!important;border-radius:8px!important;color:#fff!important;font-size:11px;font-weight:600;padding:.46rem .8rem;box-shadow:0 4px 10px rgba(32,70,78,.1);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+        .yayasan-page .dataTables_wrapper .dt-button:hover{transform:translateY(-1px);filter:brightness(.96);box-shadow:0 7px 14px rgba(32,70,78,.14)}
+        .yayasan-page .dataTables_wrapper .dt-button:nth-child(1){background:linear-gradient(90deg,#0f766e,#14b8a6)}
+        .yayasan-page .dataTables_wrapper .dt-button:nth-child(2){background:linear-gradient(90deg,#2563eb,#60a5fa)}
+        .yayasan-page .dataTables_wrapper .dt-button:nth-child(3){background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+        .yayasan-page .dataTables_wrapper .dt-button:nth-child(4){background:linear-gradient(90deg,#d97706,#fbbf24)}
+        .yayasan-page .dataTables_wrapper .dt-button:nth-child(5){background:linear-gradient(90deg,#db2777,#f472b6)}
         .yayasan-page .dataTables_info{color:var(--yayasan-muted);font-size:11px;padding-top:14px!important}
         .yayasan-page .dataTables_paginate{padding-top:10px!important}
         .yayasan-page .dataTables_paginate .paginate_button{border:0!important;border-radius:8px!important;color:var(--yayasan-green)!important;font-size:11px;padding:5px 9px!important}
@@ -62,7 +73,11 @@
         .yayasan-page .modal-footer .btn{border-radius:9px;font-size:12px}
         .yayasan-page .empty-state{padding:46px 20px!important;color:var(--yayasan-muted);background:#fbfdfd}
         .yayasan-page .empty-state .bx{display:block;margin-bottom:8px;color:#9ac9b8;font-size:38px}
-        @media(max-width:767.98px){.yayasan-page .yayasan-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.yayasan-page .yayasan-toolbar .btn-primary{width:100%;justify-content:center}.yayasan-page .yayasan-content{padding:14px}.yayasan-page .dataTables_wrapper{padding:10px}.yayasan-page .dataTables_wrapper .dataTables_length,.yayasan-page .dataTables_wrapper .dataTables_filter{float:none!important;text-align:left!important}.yayasan-page .dataTables_wrapper .dataTables_filter input{width:calc(100% - 70px);max-width:220px}.yayasan-page .modal-dialog{margin:.75rem}.yayasan-page .modal-body{padding:18px}}
+        .yayasan-page .yayasan-shell:hover{box-shadow:0 16px 38px rgba(32,70,78,.12)}
+        @keyframes yayasan-card-in{from{opacity:0;transform:translateY(18px) scale(.99);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+        @keyframes yayasan-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,14px,0)}}
+        @media(prefers-reduced-motion:reduce){.yayasan-page:before,.yayasan-page:after,.yayasan-page .yayasan-shell{animation:none!important}}
+        @media(max-width:767.98px){.yayasan-page .yayasan-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.yayasan-page .yayasan-toolbar .btn-primary{width:100%;justify-content:center}.yayasan-page .yayasan-content{padding:14px}.yayasan-page .dataTables_wrapper{padding:10px}.yayasan-page .dataTables_wrapper .dataTables_length,.yayasan-page .dataTables_wrapper .dataTables_filter{float:none!important;text-align:left!important}.yayasan-page .dataTables_wrapper .dataTables_filter input{width:calc(100% - 70px);max-width:220px}.yayasan-page .dataTables_wrapper .dt-buttons{gap:5px}.yayasan-page .dataTables_wrapper .dt-button{flex:1 1 auto;text-align:center;padding:.44rem .58rem}.yayasan-page .modal-dialog{margin:.75rem}.yayasan-page .modal-body{padding:18px}}
         @media(max-width:390px){.yayasan-page{padding-top:0}.yayasan-page .yayasan-title{font-size:19px}.yayasan-page .yayasan-content{padding:10px}.yayasan-page .dataTables_wrapper .dt-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.yayasan-page .dataTables_wrapper .dt-button{width:100%}}
     </style>
 @endsection
