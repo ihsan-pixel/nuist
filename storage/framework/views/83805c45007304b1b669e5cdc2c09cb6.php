@@ -9,7 +9,7 @@
 
 <style>
     /* Critical first-paint guard: prevents the unstyled dashboard from flashing. */
-    body{background:linear-gradient(135deg,rgba(238,247,246,.84) 0%,rgba(247,249,252,.72) 52%,rgba(237,247,244,.82) 100%)}
+    body{background:linear-gradient(135deg,rgba(222,227,230,.92) 0%,rgba(238,241,243,.88) 52%,rgba(215,222,225,.92) 100%)}
     .main-content{background:transparent!important}
     .dashboard-page{opacity:0!important;background:transparent!important;border:0!important;box-shadow:none!important;transition:opacity .28s ease}
     body.dashboard-painted .dashboard-page{opacity:1!important}
@@ -375,7 +375,7 @@
                                 <td class="text-center"><?php echo e($status['count']); ?></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="progress flex-grow-1"><div class="progress-bar" style="width:<?php echo e($percentage); ?>%;background:<?php echo e($statusColors[$loop->index % count($statusColors)]); ?>"></div></div>
+                                        <div class="progress grow"><div class="progress-bar" style="width:<?php echo e($percentage); ?>%;background:<?php echo e($statusColors[$loop->index % count($statusColors)]); ?>"></div></div>
                                         <span class="dashboard-status-percentage"><?php echo e(number_format($percentage, 1, ',', '.')); ?>%</span>
                                     </div>
                                 </td>
@@ -1355,18 +1355,18 @@
 .dashboard-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none}
 .dashboard-page:after{width:290px;height:290px;right:-100px;top:-100px;background:rgba(42,190,153,.16);animation:nuist-float 10s ease-in-out infinite}
 .dashboard-page>.row:after{content:"";position:absolute;width:240px;height:240px;left:-100px;bottom:-100px;z-index:-1;border-radius:50%;background:rgba(98,158,255,.12);filter:blur(2px);animation:nuist-float 12s ease-in-out infinite reverse;pointer-events:none}
-.dashboard-page .card{border:1px solid rgba(255,255,255,.66)!important;border-radius:24px!important;background:rgba(255,255,255,.42)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.055)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
+.dashboard-page .card{border:1px solid rgba(255,255,255,.82)!important;border-radius:24px!important;background:rgba(255,255,255,.68)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.09)!important;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
 .dashboard-page .card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.98)!important;box-shadow:0 20px 42px rgba(32,70,78,.13)!important}
 .dashboard-page .card-body{padding:24px!important}
 .dashboard-welcome-card__banner{min-height:142px;border-radius:23px 23px 0 0;background:linear-gradient(125deg,#075f4a 0%,#0e9b76 62%,#55c7a4 100%);overflow:hidden}
 .dashboard-welcome-card__banner:after{content:"";position:absolute;width:180px;height:180px;right:-35px;top:-55px;border:1px solid rgba(255,255,255,.24);border-radius:50%;box-shadow:0 0 0 22px rgba(255,255,255,.06),0 0 0 46px rgba(255,255,255,.04)}
 .dashboard-welcome-card__mark{position:relative;z-index:1;color:rgba(255,255,255,.38);font-size:52px}
 .dashboard-avatar img{border:5px solid rgba(255,255,255,.9);box-shadow:0 8px 20px rgba(21,70,59,.18)}
-.dashboard-page .dashboard-stat-card{min-height:142px;background:rgba(255,255,255,.58)!important}
+.dashboard-page .dashboard-stat-card{min-height:142px;background:rgba(255,255,255,.76)!important}
 .dashboard-page .dashboard-stat-card .avatar-title,.dashboard-page .dashboard-status-card .avatar-title{border-radius:16px!important;background:rgba(19,155,117,.12)!important}
-.dashboard-page .dashboard-section-heading{background:rgba(255,255,255,.48)!important}
+.dashboard-page .dashboard-section-heading{background:rgba(255,255,255,.7)!important}
 .dashboard-page .dashboard-section-heading .card-body{padding:20px 24px!important}
-.dashboard-page .dashboard-teacher-summary-item{border-color:rgba(219,232,233,.8);border-radius:18px;background:rgba(255,255,255,.48)}
+.dashboard-page .dashboard-teacher-summary-item{border-color:rgba(255,255,255,.78);border-radius:18px;background:rgba(255,255,255,.68)}
 .dashboard-page .dashboard-location-card{overflow:hidden}
 .dashboard-page .dashboard-location-map #map-container,.dashboard-page .dashboard-location-map #foundation-map-container{border-radius:16px!important}
 .dashboard-page .btn-primary,.dashboard-page .btn-success{border-radius:12px;padding:.55rem .9rem;box-shadow:0 8px 18px rgba(8,116,90,.16)}
@@ -1374,6 +1374,83 @@
 .dashboard-page [data-lucide]{width:18px;height:18px;vertical-align:-.2em}
 @keyframes nuist-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,16px,0)}}
 @media(max-width:575.98px){.dashboard-page{padding:12px!important;border-radius:24px}.dashboard-page .card{border-radius:20px!important}.dashboard-page .card-body{padding:18px!important}}
+
+/* Refined top row: balanced welcome profile beside the location card. */
+.dashboard-page__profile-column{grid-template-columns:minmax(290px,.82fr) minmax(0,1.38fr);gap:22px;align-items:stretch}
+.dashboard-page__profile-column>.dashboard-welcome-card{display:flex;flex-direction:column;min-height:100%;background:rgba(255,255,255,.76)!important}
+.dashboard-welcome-card__banner{min-height:156px;padding:8px 10px;background:linear-gradient(135deg,#075f4a 0%,#0b8062 58%,#36b28e 100%);border-radius:23px 23px 0 0}
+.dashboard-welcome-card__banner .row{height:100%;margin:0}
+.dashboard-welcome-card__banner .col-8,.dashboard-welcome-card__banner .col-4{padding:0}
+.dashboard-welcome-card__banner .p-3{padding:22px 16px!important}
+.dashboard-welcome-card__banner h5{font-size:21px;line-height:1.35;max-width:250px}
+.dashboard-welcome-card__mark{display:grid;place-items:center;height:100%;margin-right:8px;font-size:58px;color:rgba(255,255,255,.3)}
+.dashboard-welcome-card .card-body{display:flex;align-items:center;flex:1;padding:26px!important}
+.dashboard-welcome-card .card-body>.row{width:100%;margin:0;gap:18px}
+.dashboard-welcome-card .card-body>.row>[class*=col-]{padding:0}
+.dashboard-welcome-card .dashboard-avatar{margin:0!important;flex-basis:88px;width:88px;height:88px}
+.dashboard-welcome-card .dashboard-avatar img{width:76px;height:76px}
+.dashboard-welcome-card .card-body h5{font-size:17px;margin-bottom:5px!important}
+.dashboard-welcome-card .card-body .text-muted{font-size:12px}
+.dashboard-welcome-card .badge{font-size:11px}
+.dashboard-page__profile-column>.dashboard-location-card{grid-template-columns:minmax(180px,.72fr) minmax(0,1.28fr);height:100%;margin:0!important}
+.dashboard-location-card .card-body{padding:22px!important}
+.dashboard-location-card .card-title{font-size:16px}
+.dashboard-location-card .mb-4{margin-bottom:18px!important}
+.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{height:100%!important;min-height:310px}
+.dashboard-location-info{border-right:1px solid rgba(203,213,217,.55)}
+@media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-page__profile-column>.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid rgba(203,213,217,.55)}.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{min-height:260px}}
+
+/* Clean top dashboard layout: solid panels, clear hierarchy, minimal decoration. */
+.dashboard-page__profile-column{grid-template-columns:minmax(0,.92fr) minmax(0,1.58fr);gap:20px;align-items:start}
+.dashboard-page__profile-column>.card{border:1px solid #e3e8eb!important;border-radius:16px!important;background:#fff!important;box-shadow:0 4px 16px rgba(31,52,61,.07)!important;overflow:hidden}
+.dashboard-page__profile-column>.dashboard-welcome-card{display:flex;flex-direction:column;height:auto;min-height:0;align-self:start}
+.dashboard-welcome-card__banner{min-height:126px;padding:0;background:#08745a;border-radius:0;background-image:linear-gradient(120deg,#075f4a,#0b8565)}
+.dashboard-welcome-card__banner:after{display:none}
+.dashboard-welcome-card__banner .row{height:100%;margin:0}
+.dashboard-welcome-card__banner .p-3{padding:20px 22px!important}
+.dashboard-welcome-card__banner h5{font-size:19px;line-height:1.35;max-width:220px}
+.dashboard-welcome-card__mark{display:grid;place-items:center;height:100%;margin:0;font-size:48px;color:rgba(255,255,255,.22)}
+.dashboard-welcome-card .card-body{display:flex;align-items:center;flex:none;padding:22px!important}
+.dashboard-welcome-card .card-body>.row{width:100%;margin:0;gap:16px}
+.dashboard-welcome-card .dashboard-avatar{flex-basis:76px;width:76px;height:76px;background:#f0f7f4;border:4px solid #e0f0e9;box-shadow:none}
+.dashboard-welcome-card .dashboard-avatar img{width:66px;height:66px;border:0;box-shadow:none}
+.dashboard-welcome-card .card-body h5{font-size:16px;color:#20343b;margin-bottom:4px!important}
+.dashboard-welcome-card .card-body .text-muted{font-size:12px}
+.dashboard-welcome-card .badge{font-size:10px;padding:.38rem .55rem}
+.dashboard-page__profile-column>.dashboard-location-card{grid-template-columns:minmax(180px,.78fr) minmax(0,1.22fr);height:330px;margin:0!important}
+.dashboard-location-card .card-body{padding:20px!important}
+.dashboard-location-card .card-title{font-size:15px;font-weight:700}
+.dashboard-location-card .card-title i{font-size:17px}
+.dashboard-location-card .mb-4{margin-bottom:16px!important}
+.dashboard-location-card .avatar-title{width:36px;height:36px;font-size:15px}
+.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{height:100%!important;min-height:310px;border-radius:0!important;box-shadow:none!important}
+.dashboard-location-info{border-right:1px solid #e8edef;background:#fff}
+.dashboard-location-map{background:#f7f9fa}
+.dashboard-location-map .card-body{padding:20px!important}
+@media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-page__profile-column>.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid #e8edef}.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{min-height:260px}}
+
+/* Alternative top composition: horizontal welcome panel with a compact location panel. */
+.dashboard-page__profile-column{grid-template-columns:minmax(0,1.02fr) minmax(0,1.48fr);gap:20px;align-items:stretch}
+.dashboard-page__profile-column>.dashboard-welcome-card{display:grid;grid-template-columns:minmax(150px,.82fr) minmax(0,1.18fr);height:330px;min-height:0;align-self:stretch}
+.dashboard-welcome-card__banner{height:100%;min-height:0;padding:0;border-radius:16px 0 0 16px;background:linear-gradient(155deg,#075f4a 0%,#08745a 55%,#12a477 100%)}
+.dashboard-welcome-card__banner .row{display:flex;flex-direction:column;height:100%;margin:0}
+.dashboard-welcome-card__banner .col-8,.dashboard-welcome-card__banner .col-4{width:100%;max-width:100%;padding:0}
+.dashboard-welcome-card__banner .col-8{flex:1}
+.dashboard-welcome-card__banner .p-3{padding:28px 20px!important}
+.dashboard-welcome-card__banner h5{font-size:20px;line-height:1.35;max-width:160px}
+.dashboard-welcome-card__banner .dashboard-eyebrow{font-size:9px;letter-spacing:.12em}
+.dashboard-welcome-card__mark{height:auto;justify-content:start;padding:0 20px 28px;font-size:44px}
+.dashboard-page__profile-column>.dashboard-welcome-card .card-body{display:flex;align-items:center;flex:none;padding:28px 22px!important}
+.dashboard-welcome-card .card-body>.row{display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+.dashboard-welcome-card .dashboard-avatar{flex-basis:78px;width:78px;height:78px}
+.dashboard-welcome-card .dashboard-avatar img{width:68px;height:68px}
+.dashboard-welcome-card .card-body h5{font-size:17px}
+.dashboard-welcome-card .card-body .d-flex{gap:6px!important}
+.dashboard-page__profile-column>.dashboard-location-card{grid-template-columns:minmax(175px,.72fr) minmax(0,1.28fr);height:330px;align-self:stretch}
+.dashboard-location-card .card-body{padding:22px!important}
+.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{min-height:0;height:100%!important}
+@media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-page__profile-column>.dashboard-welcome-card{grid-template-columns:minmax(145px,.75fr) minmax(0,1.25fr);height:280px}.dashboard-page__profile-column>.dashboard-location-card{height:330px;grid-template-columns:1fr 1fr}.dashboard-location-info{border-right:1px solid #e8edef;border-bottom:0}}
+@media(max-width:575.98px){.dashboard-page__profile-column>.dashboard-welcome-card{display:flex;height:auto;min-height:0}.dashboard-welcome-card__banner{height:132px;border-radius:16px 16px 0 0}.dashboard-welcome-card__banner .row{display:grid;grid-template-columns:2fr 1fr}.dashboard-welcome-card__banner .col-8{width:auto}.dashboard-welcome-card__banner .col-4{width:auto}.dashboard-welcome-card__mark{height:100%;padding:0;justify-content:center}.dashboard-page__profile-column>.dashboard-location-card{height:auto;grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid #e8edef}.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{min-height:260px}}
 
 /* Motion system: soft entrance, ambient floating and live status feedback */
 .dashboard-page .card{opacity:1;animation:none}
@@ -1418,6 +1495,41 @@ body.vertical-collpsed:has(.dashboard-page) .vertical-menu #sidebar-menu>ul>li>a
 body.vertical-collpsed:has(.dashboard-page) .vertical-menu #sidebar-menu>ul>li.mm-active>a,body.vertical-collpsed:has(.dashboard-page) .vertical-menu #sidebar-menu>ul>li>a.active{width:auto;background:rgba(7,116,90,.13)}
 body.vertical-collpsed:has(.dashboard-page) .dashboard-page{width:100%;max-width:none}
 @media(max-width:991.98px){.dashboard-page{min-height:calc(100vh - 110px)!important}}
+
+/* Approved scoped refinements: welcome, address, and map cards only. */
+.dashboard-page__profile-column{grid-template-columns:minmax(280px,.9fr) minmax(0,1.5fr);gap:18px;align-items:stretch}
+.dashboard-page__profile-column>.dashboard-welcome-card,
+.dashboard-page__profile-column>.dashboard-location-card{border:1px solid rgba(255,255,255,.86)!important;border-radius:20px!important;background:rgba(255,255,255,.72)!important;box-shadow:0 8px 24px rgba(32,70,78,.08)!important;overflow:hidden}
+.dashboard-page__profile-column>.dashboard-welcome-card{display:flex;flex-direction:column;height:340px;min-height:0}
+.dashboard-welcome-card__banner{min-height:136px;padding:0;background:linear-gradient(135deg,#075f4a 0%,#0a8062 68%,#34b28e 100%);border-radius:19px 19px 0 0}
+.dashboard-welcome-card__banner:after{display:block;opacity:.75}
+.dashboard-welcome-card__banner .row{height:100%;margin:0}
+.dashboard-welcome-card__banner .p-3{padding:22px!important}
+.dashboard-welcome-card__banner h5{font-size:20px;line-height:1.35;max-width:230px}
+.dashboard-welcome-card__mark{display:grid;place-items:center;height:100%;margin-right:12px;font-size:46px;color:rgba(255,255,255,.3)}
+.dashboard-page__profile-column>.dashboard-welcome-card .card-body{display:flex;align-items:center;flex:1;padding:24px!important}
+.dashboard-welcome-card .card-body>.row{width:100%;margin:0;gap:16px}
+.dashboard-welcome-card .dashboard-avatar{flex:0 0 78px;width:78px;height:78px;background:rgba(255,255,255,.78);border:4px solid rgba(255,255,255,.82);box-shadow:0 6px 18px rgba(32,70,78,.1)}
+.dashboard-welcome-card .dashboard-avatar img{width:68px;height:68px;object-fit:cover;border:0;box-shadow:none}
+.dashboard-welcome-card .card-body h5{font-size:17px;margin-bottom:4px!important}
+.dashboard-welcome-card .card-body .text-muted{font-size:12px}
+.dashboard-welcome-card .badge{font-size:10px;padding:.38rem .58rem}
+.dashboard-page__profile-column>.dashboard-location-card{display:grid;grid-template-columns:minmax(190px,.74fr) minmax(0,1.26fr);height:340px;margin:0!important}
+.dashboard-location-info,.dashboard-location-map{min-width:0;min-height:0}
+.dashboard-location-info{border-right:1px solid rgba(203,213,217,.55);background:rgba(255,255,255,.4)}
+.dashboard-location-map{background:rgba(245,249,249,.55)}
+.dashboard-location-card .card-body{padding:22px!important;height:100%;overflow:hidden}
+.dashboard-location-card .card-title{font-size:15px;line-height:1.3}
+.dashboard-location-card .card-title i{width:16px;height:16px;vertical-align:-3px}
+.dashboard-location-card .text-muted.small{font-size:11px}
+.dashboard-location-card h6,.dashboard-location-card p{overflow-wrap:anywhere}
+.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{height:242px!important;min-height:0;border-radius:14px!important;box-shadow:0 4px 14px rgba(32,70,78,.1)!important}
+.dashboard-location-card iframe{display:block;max-width:100%}
+.dashboard-location-card .btn{max-width:100%;white-space:normal;text-align:left}
+@media(max-width:1199.98px){.dashboard-page__profile-column{grid-template-columns:minmax(260px,.82fr) minmax(0,1.18fr)}.dashboard-page__profile-column>.dashboard-location-card{grid-template-columns:minmax(170px,.78fr) minmax(0,1.22fr)}}
+@media(max-width:991.98px){.dashboard-page__profile-column{grid-template-columns:1fr}.dashboard-page__profile-column>.dashboard-welcome-card{height:300px}.dashboard-page__profile-column>.dashboard-location-card{height:auto;grid-template-columns:1fr 1fr}.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{height:260px!important}.dashboard-location-info{border-right:1px solid rgba(203,213,217,.55);border-bottom:0}}
+@media(max-width:767.98px){.dashboard-page__profile-column>.dashboard-location-card{grid-template-columns:1fr}.dashboard-location-info{border-right:0;border-bottom:1px solid rgba(203,213,217,.55)}.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{height:240px!important}.dashboard-page__profile-column>.dashboard-welcome-card{height:auto}.dashboard-page__profile-column>.dashboard-welcome-card .card-body{padding:20px!important}}
+@media(max-width:390px){.dashboard-welcome-card__banner{min-height:126px}.dashboard-welcome-card__banner .p-3{padding:18px!important}.dashboard-welcome-card__banner h5{font-size:18px}.dashboard-welcome-card__mark{font-size:40px;margin-right:4px}.dashboard-location-card .card-body{padding:18px!important}.dashboard-location-card #map-container,.dashboard-location-card #foundation-map-container{height:220px!important}}
 </style>
 
 <script>
