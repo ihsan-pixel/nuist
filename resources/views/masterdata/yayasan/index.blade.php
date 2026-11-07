@@ -31,17 +31,17 @@
         .yayasan-page .alert-danger{border-color:#f2d2d2;background:#fff5f5;color:#a33737}
         .yayasan-page .table-panel{border:1px solid var(--yayasan-border);border-radius:16px;background:rgba(255,255,255,.58);overflow:hidden}
         .yayasan-page .table-responsive{overflow-x:auto}
-        .yayasan-page table.dataTable{margin:0!important;border-collapse:separate;border-spacing:0;min-width:900px}
+        .yayasan-page table.dataTable{width:100%!important;margin:0!important;border-collapse:separate;border-spacing:0;table-layout:fixed;min-width:880px}
         .yayasan-page table.dataTable thead th{border:0;border-bottom:1px solid var(--yayasan-border);background:#f1f6f6;color:var(--yayasan-ink);font-size:11px;font-weight:700;letter-spacing:.02em;padding:13px 14px;white-space:nowrap}
-        .yayasan-page table.dataTable tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle}
+        .yayasan-page table.dataTable tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle;white-space:normal!important;overflow-wrap:anywhere;word-break:normal}
         .yayasan-page table.dataTable tbody tr:last-child td{border-bottom:0}
         .yayasan-page table.dataTable tbody tr:hover{background:rgba(231,246,240,.4)}
         .yayasan-page .yayasan-name{display:block;color:var(--yayasan-ink);font-weight:700;min-width:150px}
-        .yayasan-page .yayasan-text{display:block;max-width:220px;line-height:1.5;overflow-wrap:anywhere}
-        .yayasan-page .yayasan-location{display:inline-flex;align-items:center;gap:5px;color:var(--yayasan-green);font-size:11px;font-weight:600;white-space:nowrap}
+        .yayasan-page .yayasan-text{display:block;width:100%;max-width:220px;line-height:1.5;white-space:normal!important;overflow-wrap:anywhere;word-break:break-word}
+        .yayasan-page .yayasan-location{display:inline-flex;align-items:flex-start;gap:5px;max-width:100%;color:var(--yayasan-green);font-size:11px;font-weight:600;white-space:normal;overflow-wrap:anywhere}
         .yayasan-page .yayasan-location.is-empty{color:var(--yayasan-muted);font-weight:400}
         .yayasan-page .yayasan-map-link{display:inline-flex;align-items:center;gap:4px;margin-top:6px;border-radius:8px!important;padding:.3rem .5rem!important;color:#08745a!important;background:#e7f6ef!important;border:0!important;font-size:11px}
-        .yayasan-page .yayasan-actions{display:flex;flex-wrap:wrap;gap:6px;min-width:112px}
+        .yayasan-page .yayasan-actions{display:flex;flex-wrap:wrap;gap:6px;min-width:0;max-width:120px}
         .yayasan-page .yayasan-actions .btn{border-radius:8px;font-size:11px;padding:.34rem .55rem}
         .yayasan-page .yayasan-actions .btn-warning{color:#6d4b00;background:#fff4d6;border-color:#ffe5a0}
         .yayasan-page .yayasan-actions .btn-danger{background:#fff0f0;border-color:#ffd2d2;color:#b33b3b}
@@ -77,7 +77,7 @@
         @keyframes yayasan-card-in{from{opacity:0;transform:translateY(18px) scale(.99);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
         @keyframes yayasan-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,14px,0)}}
         @media(prefers-reduced-motion:reduce){.yayasan-page:before,.yayasan-page:after,.yayasan-page .yayasan-shell{animation:none!important}}
-        @media(max-width:767.98px){.yayasan-page .yayasan-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.yayasan-page .yayasan-toolbar .btn-primary{width:100%;justify-content:center}.yayasan-page .yayasan-content{padding:14px}.yayasan-page .dataTables_wrapper{padding:10px}.yayasan-page .dataTables_wrapper .dataTables_length,.yayasan-page .dataTables_wrapper .dataTables_filter{float:none!important;text-align:left!important}.yayasan-page .dataTables_wrapper .dataTables_filter input{width:calc(100% - 70px);max-width:220px}.yayasan-page .dataTables_wrapper .dt-buttons{gap:5px}.yayasan-page .dataTables_wrapper .dt-button{flex:1 1 auto;text-align:center;padding:.44rem .58rem}.yayasan-page .modal-dialog{margin:.75rem}.yayasan-page .modal-body{padding:18px}}
+        @media(max-width:767.98px){.yayasan-page .yayasan-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.yayasan-page .yayasan-toolbar .btn-primary{width:100%;justify-content:center}.yayasan-page .yayasan-content{padding:14px}.yayasan-page .dataTables_wrapper{padding:10px}.yayasan-page .dataTables_wrapper .dataTables_length,.yayasan-page .dataTables_wrapper .dataTables_filter{float:none!important;text-align:left!important}.yayasan-page .dataTables_wrapper .dataTables_filter input{width:calc(100% - 70px);max-width:220px}.yayasan-page .dataTables_wrapper .dt-buttons{gap:5px}.yayasan-page .dataTables_wrapper .dt-button{flex:1 1 auto;text-align:center;padding:.44rem .58rem}.yayasan-page .yayasan-text{max-width:none}.yayasan-page .yayasan-actions{max-width:none}.yayasan-page .modal-dialog{margin:.75rem}.yayasan-page .modal-body{padding:18px}}
         @media(max-width:390px){.yayasan-page{padding-top:0}.yayasan-page .yayasan-title{font-size:19px}.yayasan-page .yayasan-content{padding:10px}.yayasan-page .dataTables_wrapper .dt-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.yayasan-page .dataTables_wrapper .dt-button{width:100%}}
     </style>
 @endsection
@@ -125,7 +125,7 @@
 
             <div class="table-panel">
             <div class="table-responsive">
-                <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
+                <table id="datatable-buttons" class="table table-bordered dt-responsive w-100">
                     <thead class="table-light">
                         <tr>
                             <th>No</th>
