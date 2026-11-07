@@ -279,6 +279,18 @@ $(document).ready(function () {
     table.buttons().container()
         .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
 
+    const normalizeAdminColumnMenu = () => {
+        document.querySelectorAll('div.dt-button-collection button').forEach((button) => {
+            button.style.setProperty('background', '#fff', 'important');
+            button.style.setProperty('background-color', '#fff', 'important');
+            button.style.setProperty('background-image', 'none', 'important');
+            button.style.setProperty('color', '#192d37', 'important');
+            button.style.setProperty('border', '0', 'important');
+            button.style.setProperty('box-shadow', '0 4px 10px rgba(32,70,78,.07)', 'important');
+        });
+    };
+    new MutationObserver(normalizeAdminColumnMenu).observe(document.body, {childList:true, subtree:true});
+
     @if(session('success'))
         Swal.fire({customClass:{popup:'admin-swal',confirmButton:'admin-swal-confirm'},buttonsStyling:false,icon:'success',title:'Berhasil',text:@json(session('success')),timer:2200,showConfirmButton:false});
     @endif
