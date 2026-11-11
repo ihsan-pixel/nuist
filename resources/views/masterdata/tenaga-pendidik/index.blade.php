@@ -85,6 +85,7 @@
     @media(max-width:390px){.tp-page .dataTables_wrapper .dt-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.tp-page .dataTables_wrapper .dt-button{width:100%}}
 
     .tp-page table.dataTable th:nth-child(1),.tp-page table.dataTable td:nth-child(1){width:68px;min-width:68px}.tp-page table.dataTable th:nth-child(4),.tp-page table.dataTable td:nth-child(4){width:96px;min-width:96px;max-width:110px}
+    body:has(.tp-page) .modal-backdrop{z-index:1990!important}
 
     @media (min-width: 992px) {
         .tp-modal-dialog {
