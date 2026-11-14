@@ -186,7 +186,7 @@ class AuthController extends Controller
             // Temporary fallback keeps released versions of the app working.
             'email' => 'required_without:identifier|string',
             'password' => 'required|string',
-            'login_as' => 'nullable|in:siswa,tenaga_pendidik,pengurus,pengurus_bpppmnu',
+            'login_as' => 'nullable|in:siswa,tenaga_pendidik,karyawan,pengurus,pengurus_bpppmnu',
         ]);
 
         $identifier = trim((string) ($data['identifier'] ?? $data['email']));
@@ -209,8 +209,8 @@ class AuthController extends Controller
             ];
 
             if (!Auth::attempt($credentials)) {
-                if ($loginAs === 'tenaga_pendidik') {
-                    return response()->json(['message' => 'Email atau password tenaga pendidik tidak sesuai.'], 401);
+                if (in_array($loginAs, ['tenaga_pendidik', 'karyawan'], true)) {
+                    return response()->json(['message' => 'Email atau password akun tidak sesuai.'], 401);
                 }
 
                 try {
@@ -241,7 +241,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!in_array($user->role, ['tenaga_pendidik', 'siswa', 'pengurus', 'pengurus_bpppmnu'])) {
+        if (!in_array($user->role, ['tenaga_pendidik', 'karyawan', 'siswa', 'pengurus', 'pengurus_bpppmnu'])) {
             Auth::logout();
 
             return response()->json([
@@ -264,6 +264,7 @@ class AuthController extends Controller
             'siswa' => '/mobile/siswa/dashboard',
             'pengurus' => '/mobile/pengurus/dashboard',
             'pengurus_bpppmnu' => '/mobile/bpppmnu/presensi',
+            'karyawan' => '/mobile/karyawan/dashboard',
             default => '/mobile/dashboard',
         };
 
