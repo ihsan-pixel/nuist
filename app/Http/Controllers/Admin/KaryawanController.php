@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\AppSetting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,19 @@ class KaryawanController extends Controller
             ->limit(10)
             ->get();
 
-        return view('mobile.karyawan.dashboard', compact('todayAttendance', 'attendanceHistory'));
+        $settings = AppSetting::getSettings();
+        $now = Carbon::now('Asia/Jakarta')->format('H:i');
+        $hasEntry = filled($todayAttendance?->waktu_masuk);
+        $hasExit = filled($todayAttendance?->waktu_keluar);
+        $attendanceAction = $hasExit
+            ? ['label' => 'Presensi Hari Ini Selesai', 'mode' => null, 'disabled' => true, 'hint' => 'Presensi masuk dan pulang sudah tercatat.']
+            : (! $hasEntry
+                ? ['label' => 'Presensi Masuk', 'mode' => 'masuk', 'disabled' => false, 'hint' => 'Presensi masuk tersedia sesuai jam yang diatur.']
+                : ($now >= $settings->employee_exit_start
+                    ? ['label' => 'Presensi Keluar', 'mode' => 'keluar', 'disabled' => false, 'hint' => 'Jam presensi keluar sudah dimulai.']
+                    : ['label' => 'Presensi Masuk Tercatat', 'mode' => null, 'disabled' => true, 'hint' => 'Presensi keluar tersedia mulai pukul '.Carbon::parse($settings->employee_exit_start)->format('H:i').'.']));
+
+        return view('mobile.karyawan.dashboard', compact('todayAttendance', 'attendanceHistory', 'attendanceAction'));
     }
 
     public function index(Request $request)
