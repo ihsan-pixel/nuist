@@ -6,6 +6,7 @@
     <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
     <style>
         .mgmp-page{--dash-green:#08745a;--dash-ink:#192d37;position:relative;isolation:isolate;padding:8px 0 24px}.mgmp-page:before,.mgmp-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none;animation:karyawan-orb 11s ease-in-out infinite}.mgmp-page:before{width:280px;height:280px;right:-90px;top:-80px;background:rgba(42,190,153,.15)}.mgmp-page:after{width:230px;height:230px;left:-100px;bottom:-100px;background:rgba(98,158,255,.12);animation-direction:reverse;animation-duration:14s}body:has(.mgmp-page){background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}.mgmp-page .mgmp-hero-strip{position:relative;overflow:hidden;background:linear-gradient(135deg,#005b58,#08745a);border:1px solid rgba(255,255,255,.35);border-radius:22px;padding:24px;box-shadow:0 14px 34px rgba(32,70,78,.14);animation:karyawan-in .7s both}.mgmp-page .mgmp-hero-strip:before{content:"";position:absolute;inset:-80% -30%;background:linear-gradient(110deg,transparent 38%,rgba(255,255,255,.16) 48%,transparent 58%);transform:translateX(-50%) rotate(12deg);animation:karyawan-shine 7s ease-in-out infinite}.mgmp-page .mgmp-hero-strip>*{position:relative}.mgmp-page .mgmp-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:#c4f3df}.mgmp-page>.card{border:1px solid rgba(255,255,255,.86)!important;border-radius:20px!important;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(16px);box-shadow:0 8px 26px rgba(32,70,78,.08)!important}.mgmp-page .card-body{padding:20px 24px}.mgmp-page .table-responsive{border:1px solid #e5edef;border-radius:16px;overflow-x:auto}.mgmp-page .karyawan-table{min-width:850px}.mgmp-page .karyawan-table thead th{background:#f1f6f6!important;border:0!important;border-bottom:1px solid #e5edef!important;color:var(--dash-ink);font-size:11px;padding:13px 14px;white-space:nowrap}.mgmp-page .karyawan-table tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle}.mgmp-page .karyawan-table tbody tr{transition:background .18s ease,transform .18s ease}.mgmp-page .karyawan-table tbody tr:hover{background:rgba(231,246,240,.45);transform:translateX(2px)}.mgmp-page .btn{border-radius:10px;transition:transform .18s ease,box-shadow .18s ease}.mgmp-page .btn:hover{transform:translateY(-2px);box-shadow:0 7px 14px rgba(32,70,78,.14)}.mgmp-page .btn-primary{background:linear-gradient(90deg,#0f766e,#14b8a6);border:0}.mgmp-page .form-control{border-radius:10px;border-color:#e5edef}.mgmp-page .badge{border-radius:999px;padding:.45em .75em}@keyframes karyawan-shine{0%,35%{transform:translateX(-55%) rotate(12deg)}70%,100%{transform:translateX(55%) rotate(12deg)}}@keyframes karyawan-orb{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-12px,18px,0)}}@keyframes karyawan-in{from{opacity:0;transform:translateY(18px) scale(.99);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}@media(max-width:767.98px){.mgmp-page .mgmp-hero-strip{padding:18px}.mgmp-page .card-body{padding:14px}}
     </style>
@@ -31,8 +32,6 @@
         </div>
     </div></div>
 
-    @if(session('success')) <div class="alert alert-success alert-dismissible fade show"><i class="bx bx-check-circle me-2"></i>{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div> @endif
-    @if($errors->any()) <div class="alert alert-danger alert-dismissible fade show"><i class="bx bx-error-circle me-2"></i><strong>Data belum disimpan.</strong><ul class="mb-0 mt-1">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div> @endif
 
     <div class="card"><div class="card-body">
             <form class="row g-2 mb-3" method="GET">
@@ -48,7 +47,7 @@
                             <td><strong>{{ $employee->name }}</strong><small class="d-block text-muted">{{ $employee->nip ?: 'NIP belum diisi' }}</small></td>
                             <td>{{ $employee->email }}</td><td>{{ $employee->jabatan ?: '-' }}</td>
                             <td><span class="badge {{ $employee->is_active ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}">{{ $employee->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
-                            <td class="text-end">@if($employee->is_active)<form method="POST" action="{{ route('admin.karyawan.destroy', $employee) }}" class="d-inline">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Nonaktifkan akun ini?')">Nonaktifkan</button></form>@endif</td>
+                            <td class="text-end">@if($employee->is_active)<form method="POST" action="{{ route('admin.karyawan.destroy', $employee) }}" class="d-inline js-deactivate-form" data-name="{{ $employee->name }}">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger">Nonaktifkan</button></form>@endif</td>
                         </tr>
                     @empty <tr><td colspan="5" class="text-center text-muted py-4">Belum ada data karyawan.</td></tr> @endforelse
                     </tbody>
@@ -76,6 +75,40 @@
 </div>
 @endsection
 
-@if($errors->any())
-@push('scripts')<script>document.addEventListener('DOMContentLoaded',function(){var modal=document.getElementById('tambahKaryawanModal');if(modal&&window.bootstrap){bootstrap.Modal.getOrCreateInstance(modal).show();}});</script>@endpush
-@endif
+@push('scripts')
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const glossy = {
+        customClass: { popup: 'karyawan-swal-popup', confirmButton: 'karyawan-swal-confirm', cancelButton: 'karyawan-swal-cancel' },
+        buttonsStyling: false
+    };
+
+    @if(session('success'))
+        Swal.fire({ ...glossy, icon: 'success', title: 'Berhasil', text: @json(session('success')), confirmButtonText: 'Oke', timer: 3200, timerProgressBar: true });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({ ...glossy, icon: 'error', title: 'Data belum disimpan', html: @json('<ul style="text-align:left;margin:0;padding-left:20px">'.collect($errors->all())->map(fn($error) => '<li>'.e($error).'</li>')->implode('').'</ul>'), confirmButtonText: 'Periksa kembali' });
+        const modal = document.getElementById('tambahKaryawanModal');
+        if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
+    @endif
+
+    document.querySelectorAll('.js-deactivate-form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            Swal.fire({ ...glossy, icon: 'warning', title: 'Nonaktifkan akun?', text: 'Akun '+form.dataset.name+' tidak dapat login setelah dinonaktifkan.', showCancelButton: true, confirmButtonText: 'Ya, nonaktifkan', cancelButtonText: 'Batal' }).then(function (result) {
+                if (result.isConfirmed) form.submit();
+            });
+        });
+    });
+});
+</script>
+<style>
+    .karyawan-swal-popup{border:1px solid rgba(255,255,255,.9)!important;border-radius:22px!important;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(32,70,78,.22)!important;color:#192d37!important}
+    .karyawan-swal-confirm,.karyawan-swal-cancel{border:0;border-radius:10px;padding:10px 18px;margin:0 4px;font-weight:700;transition:transform .18s ease,box-shadow .18s ease}
+    .karyawan-swal-confirm{background:linear-gradient(90deg,#08745a,#14b8a6);color:#fff;box-shadow:0 7px 16px rgba(8,116,90,.2)}
+    .karyawan-swal-cancel{background:#f1f5f6;color:#52656d}
+    .karyawan-swal-confirm:hover,.karyawan-swal-cancel:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(32,70,78,.14)}
+</style>
+@endpush
