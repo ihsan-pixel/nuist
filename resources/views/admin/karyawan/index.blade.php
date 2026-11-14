@@ -27,11 +27,12 @@
     <div class="card mb-4"><div class="card-body">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
             <div><div class="mgmp-kicker text-success mb-2">Employee Directory</div><h5 class="mb-1">Daftar Karyawan</h5><p class="text-muted mb-0">Data akun karyawan yayasan yang dapat menggunakan presensi.</p></div>
-            <a href="{{ route('admin.karyawan.create') }}" class="btn btn-primary"><i class="bx bx-plus me-1"></i>Tambah Karyawan</a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahKaryawanModal"><i class="bx bx-plus me-1"></i>Tambah Karyawan</button>
         </div>
     </div></div>
 
-    @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+    @if(session('success')) <div class="alert alert-success alert-dismissible fade show"><i class="bx bx-check-circle me-2"></i>{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div> @endif
+    @if($errors->any()) <div class="alert alert-danger alert-dismissible fade show"><i class="bx bx-error-circle me-2"></i><strong>Data belum disimpan.</strong><ul class="mb-0 mt-1">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div> @endif
 
     <div class="card"><div class="card-body">
             <form class="row g-2 mb-3" method="GET">
@@ -57,4 +58,24 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="tambahKaryawanModal" tabindex="-1" aria-labelledby="tambahKaryawanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+        <div class="modal-header"><div><div class="mgmp-kicker text-success mb-1">Employee Directory</div><h5 class="modal-title" id="tambahKaryawanModalLabel">Tambah Karyawan Yayasan</h5></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
+        <form method="POST" action="{{ route('admin.karyawan.store') }}" autocomplete="off">@csrf
+            <div class="modal-body"><div class="row g-3">
+                @foreach([['name','Nama lengkap','text',true],['nip','NIP / kode karyawan','text',false],['email','Email akun','email',true],['no_hp','Nomor telepon','text',false],['jabatan','Jabatan','text',false],['instansi_asal','Unit kerja yayasan','text',false]] as [$field,$label,$type,$required])
+                    <div class="col-12 col-md-6"><label class="form-label" for="modal_{{$field}}">{{$label}} @if($required)<span class="text-danger">*</span>@endif</label><input id="modal_{{$field}}" name="{{$field}}" type="{{$type}}" value="{{ old($field) }}" class="form-control" @if($required) required @endif></div>
+                @endforeach
+                <div class="col-12 col-md-6"><label class="form-label" for="modal_password">Password awal <span class="text-danger">*</span></label><input id="modal_password" name="password" type="password" minlength="8" class="form-control" required><small class="text-muted">Minimal 8 karakter.</small></div>
+                <div class="col-12 col-md-6"><label class="form-label" for="modal_password_confirmation">Konfirmasi password <span class="text-danger">*</span></label><input id="modal_password_confirmation" name="password_confirmation" type="password" minlength="8" class="form-control" required></div>
+            </div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i>Simpan Karyawan</button></div>
+        </form>
+    </div></div>
+</div>
 @endsection
+
+@if($errors->any())
+@push('scripts')<script>document.addEventListener('DOMContentLoaded',function(){var modal=document.getElementById('tambahKaryawanModal');if(modal&&window.bootstrap){bootstrap.Modal.getOrCreateInstance(modal).show();}});</script>@endpush
+@endif

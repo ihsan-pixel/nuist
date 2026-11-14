@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class KaryawanController extends Controller
 {
@@ -35,7 +37,7 @@ class KaryawanController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'nip' => ['nullable', 'string', 'max:50'],
+            'nip' => ['nullable', 'string', 'max:50', Rule::unique('users', 'nip')->where(fn ($query) => $query->where('role', 'karyawan'))],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'no_hp' => ['nullable', 'string', 'max:30'],
             'jabatan' => ['nullable', 'string', 'max:150'],
@@ -43,11 +45,19 @@ class KaryawanController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $data['role'] = 'karyawan';
-        $data['password'] = Hash::make($data['password']);
-        $data['is_active'] = true;
-
-        User::create($data);
+        DB::transaction(function () use ($data): void {
+            User::create([
+                'name' => trim($data['name']),
+                'nip' => filled($data['nip'] ?? null) ? trim($data['nip']) : null,
+                'email' => strtolower(trim($data['email'])),
+                'no_hp' => $data['no_hp'] ?? null,
+                'jabatan' => $data['jabatan'] ?? null,
+                'instansi_asal' => $data['instansi_asal'] ?? null,
+                'role' => 'karyawan',
+                'password' => Hash::make($data['password']),
+                'is_active' => true,
+            ]);
+        });
 
         return redirect()->route('admin.karyawan.index')->with('success', 'Data karyawan berhasil ditambahkan.');
     }
