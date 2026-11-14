@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class KaryawanController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $user = auth()->user();
         abort_unless($user && $user->role === 'karyawan', 403);
@@ -27,6 +27,9 @@ class KaryawanController extends Controller
             ->get();
 
         $settings = AppSetting::getSettings();
+        $currentIps = collect(array_merge([$request->ip()], $request->ips()))->filter()->unique();
+        $allowedIps = collect(preg_split('/[\r\n,]+/', (string) $settings->employee_wifi_allowed_ips))->map(fn ($ip) => trim($ip))->filter();
+        $wifiAllowed = $settings->employee_attendance_enabled && $currentIps->intersect($allowedIps)->isNotEmpty();
         $now = Carbon::now('Asia/Jakarta')->format('H:i');
         $hasEntry = filled($todayAttendance?->waktu_masuk);
         $hasExit = filled($todayAttendance?->waktu_keluar);
@@ -38,7 +41,7 @@ class KaryawanController extends Controller
                     ? ['label' => 'Presensi Keluar', 'mode' => 'keluar', 'disabled' => false, 'hint' => 'Jam presensi keluar sudah dimulai.']
                     : ['label' => 'Presensi Masuk Tercatat', 'mode' => null, 'disabled' => true, 'hint' => 'Presensi keluar tersedia mulai pukul '.Carbon::parse($settings->employee_exit_start)->format('H:i').'.']));
 
-        return view('mobile.karyawan.dashboard', compact('todayAttendance', 'attendanceHistory', 'attendanceAction'));
+        return view('mobile.karyawan.dashboard', compact('todayAttendance', 'attendanceHistory', 'attendanceAction', 'wifiAllowed'));
     }
 
     public function index(Request $request)
