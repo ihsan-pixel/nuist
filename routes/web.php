@@ -1682,6 +1682,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin/karyawan')->name(
     Route::get('/', [App\Http\Controllers\Admin\KaryawanController::class, 'index'])->name('index');
     Route::get('/create', [App\Http\Controllers\Admin\KaryawanController::class, 'create'])->name('create');
     Route::post('/', [App\Http\Controllers\Admin\KaryawanController::class, 'store'])->name('store');
+    Route::put('/{user}', [App\Http\Controllers\Admin\KaryawanController::class, 'update'])->name('update');
     Route::delete('/{user}', [App\Http\Controllers\Admin\KaryawanController::class, 'destroy'])->name('destroy');
 });
 

@@ -47,7 +47,7 @@
                             <td><strong>{{ $employee->name }}</strong><small class="d-block text-muted">{{ $employee->nip ?: 'NIP belum diisi' }}</small></td>
                             <td>{{ $employee->email }}</td><td>{{ $employee->jabatan ?: '-' }}</td>
                             <td><span class="badge {{ $employee->is_active ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}">{{ $employee->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
-                            <td class="text-end">@if($employee->is_active)<form method="POST" action="{{ route('admin.karyawan.destroy', $employee) }}" class="d-inline js-deactivate-form" data-name="{{ $employee->name }}">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger">Nonaktifkan</button></form>@endif</td>
+                            <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editKaryawan{{ $employee->id }}"><i class="bx bx-edit-alt"></i></button>@if($employee->is_active)<form method="POST" action="{{ route('admin.karyawan.destroy', $employee) }}" class="d-inline js-deactivate-form" data-name="{{ $employee->name }}">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger">Nonaktifkan</button></form>@endif</td>
                         </tr>
                     @empty <tr><td colspan="5" class="text-center text-muted py-4">Belum ada data karyawan.</td></tr> @endforelse
                     </tbody>
@@ -57,6 +57,24 @@
         </div>
     </div>
 </div>
+
+@foreach($employees as $employee)
+<div class="modal fade" id="editKaryawan{{ $employee->id }}" tabindex="-1" aria-labelledby="editKaryawanLabel{{ $employee->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+        <div class="modal-header"><div><div class="mgmp-kicker text-success mb-1">Employee Directory</div><h5 class="modal-title" id="editKaryawanLabel{{ $employee->id }}">Edit Data Karyawan</h5></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
+        <form method="POST" action="{{ route('admin.karyawan.update', $employee) }}" autocomplete="off">@csrf @method('PUT')
+            <div class="modal-body"><div class="row g-3">
+                @foreach([['name','Nama lengkap','text'],['nip','NIP / kode karyawan','text'],['email','Email akun','email'],['no_hp','Nomor telepon','text'],['jabatan','Jabatan','text'],['instansi_asal','Unit kerja yayasan','text']] as [$field,$label,$type])
+                    <div class="col-12 col-md-6"><label class="form-label" for="edit_{{$field}}_{{$employee->id}}">{{$label}}</label><input id="edit_{{$field}}_{{$employee->id}}" name="{{$field}}" type="{{$type}}" value="{{ old($field, $employee->{$field}) }}" class="form-control" @if(in_array($field, ['name','email'], true)) required @endif></div>
+                @endforeach
+                <div class="col-12 col-md-6"><label class="form-label">Password baru <small class="text-muted">(opsional)</small></label><input name="password" type="password" minlength="8" class="form-control"><small class="text-muted">Kosongkan jika tidak ingin mengubah password.</small></div>
+                <div class="col-12 col-md-6"><label class="form-label">Konfirmasi password baru</label><input name="password_confirmation" type="password" minlength="8" class="form-control"></div>
+            </div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i>Simpan Perubahan</button></div>
+        </form>
+    </div></div>
+</div>
+@endforeach
 
 <div class="modal fade" id="tambahKaryawanModal" tabindex="-1" aria-labelledby="tambahKaryawanModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
