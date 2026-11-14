@@ -45,7 +45,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         $user = Auth::user();
 
         // Allow all tenaga_pendidik to access presensi form; kepala madrasah will see madrasah-level monitoring data
-        if ($user->role !== 'tenaga_pendidik') {
+        if (! in_array($user->role, ['tenaga_pendidik', 'karyawan'], true)) {
             abort(403, 'Unauthorized.');
         }
 
@@ -182,7 +182,7 @@ class PresensiController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'tenaga_pendidik') {
+        if (! in_array($user->role, ['tenaga_pendidik', 'karyawan'], true)) {
             abort(403, 'Unauthorized.');
         }
 
@@ -772,7 +772,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         $user = Auth::user();
 
         // only tenaga_pendidik may access mobile pages
-        if ($user->role !== 'tenaga_pendidik') {
+        if (! in_array($user->role, ['tenaga_pendidik', 'karyawan'], true)) {
             abort(403, 'Unauthorized.');
         }
 
@@ -844,7 +844,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         $user = Auth::user();
 
         // only tenaga_pendidik may access mobile pages
-        if ($user->role !== 'tenaga_pendidik') {
+        if (! in_array($user->role, ['tenaga_pendidik', 'karyawan'], true)) {
             abort(403, 'Unauthorized.');
         }
 
@@ -869,7 +869,7 @@ class PresensiController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'tenaga_pendidik') {
+        if (! in_array($user->role, ['tenaga_pendidik', 'karyawan'], true)) {
             abort(403, 'Unauthorized.');
         }
 

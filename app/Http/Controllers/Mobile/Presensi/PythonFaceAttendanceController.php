@@ -16,7 +16,7 @@ class PythonFaceAttendanceController extends Controller
     public function show(Request $request, string $mode)
     {
         $user = $request->user();
-        abort_unless($user && $user->role === 'tenaga_pendidik', 403, 'Unauthorized.');
+        abort_unless($user && in_array($user->role, ['tenaga_pendidik', 'karyawan'], true), 403, 'Unauthorized.');
         abort_unless(in_array($mode, ['masuk', 'keluar'], true), 404);
 
         if (!$this->hasKiosk2Enrollment($user)) {
