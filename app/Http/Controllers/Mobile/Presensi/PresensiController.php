@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\Presensi;
+use App\Models\AppSetting;
 use App\Models\FaceDiagnostic;
 use App\Models\Notification;
 use App\Models\User;
@@ -181,6 +182,7 @@ class PresensiController extends \App\Http\Controllers\Controller
     public function storePresensi(Request $request)
     {
         $user = Auth::user();
+        $isKaryawan = $user->role === 'karyawan';
 
         if (! in_array($user->role, ['tenaga_pendidik', 'karyawan'], true)) {
             abort(403, 'Unauthorized.');
@@ -188,8 +190,8 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         $request->validate([
             'presensi_mode' => 'nullable|in:masuk,keluar',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => $isKaryawan ? 'nullable|numeric' : 'required|numeric',
+            'longitude' => $isKaryawan ? 'nullable|numeric' : 'required|numeric',
             'lokasi' => 'nullable|string',
             'accuracy' => 'nullable|numeric',
             'altitude' => 'nullable|numeric',
@@ -206,6 +208,20 @@ class PresensiController extends \App\Http\Controllers\Controller
             'verification_nonce' => 'nullable|string|min:8',
             'verification_timestamp' => 'nullable|integer',
         ]);
+
+        if ($isKaryawan && ! $this->isOfficeWifiRequest($request)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi karyawan hanya dapat dilakukan melalui Wi-Fi kantor.',
+            ], 403);
+        }
+
+        if ($isKaryawan && ! $this->isEmployeeAttendanceTimeAllowed()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi karyawan hanya dapat dilakukan pada jam presensi yang telah ditentukan.',
+            ], 422);
+        }
 
         if ($request->filled('verification_timestamp')) {
             $verificationTimestampMs = (int) $request->input('verification_timestamp');
@@ -301,8 +317,13 @@ class PresensiController extends \App\Http\Controllers\Controller
         $determinedMadrasahId = null;
         $isWithinAnyPolygon = false;
 
+        if ($isKaryawan) {
+            $determinedMadrasahId = $user->madrasah_id;
+            $isWithinAnyPolygon = true;
+        }
+
         // If user has pemenuhan_beban_kerja_lain and madrasah_id_tambahan, check additional madrasah first
-        if ($user->pemenuhan_beban_kerja_lain && $user->madrasah_id_tambahan) {
+        if (! $isKaryawan && $user->pemenuhan_beban_kerja_lain && $user->madrasah_id_tambahan) {
             $additionalMadrasah = $user->madrasahTambahan;
             $polygonsToCheck = [];
             if ($additionalMadrasah && $additionalMadrasah->polygon_koordinat) {
@@ -330,7 +351,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         // If not within additional madrasah (or no additional), check main madrasah
-        if (!$isWithinAnyPolygon) {
+        if (!$isKaryawan && !$isWithinAnyPolygon) {
             $mainMadrasah = $user->madrasah;
             $polygonsToCheck = [];
             if ($mainMadrasah && $mainMadrasah->polygon_koordinat) {
@@ -468,7 +489,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         // Check if entry presensi is attempted before allowed time
-        if ($isPresensiMasuk) {
+        if ($isPresensiMasuk && ! $isKaryawan) {
             if ($user->ketugasan === 'penjaga sekolah') {
                 // Penjaga sekolah: no time restrictions for presensi masuk
                 // Can presensi anytime 24 hours
@@ -492,7 +513,9 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         // Validate location for fake GPS detection
-        $locationValidation = $this->validateLocationForFakeGPS($request, $user, $isPresensiMasuk);
+        $locationValidation = $isKaryawan
+            ? ['is_fake' => false, 'analysis' => null]
+            : $this->validateLocationForFakeGPS($request, $user, $isPresensiMasuk);
 
         if ($locationValidation['is_fake']) {
             return response()->json([
@@ -693,7 +716,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 // Penjaga sekolah: no time restrictions for presensi keluar
                 // Can presensi anytime 24 hours
             } elseif (!$user->pemenuhan_beban_kerja_lain) {
-                $isPulangAwal = $this->attendanceWorkflowService->isEarlyCheckout($user, $user->madrasah, $now);
+                $isPulangAwal = ! $isKaryawan && $this->attendanceWorkflowService->isEarlyCheckout($user, $user->madrasah, $now);
             }
             // User with beban kerja lain: no time restriction for presensi keluar
 
@@ -1180,6 +1203,29 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         return true;
+    }
+
+    private function isOfficeWifiRequest(Request $request): bool
+    {
+        $settings = AppSetting::getSettings();
+        $allowedIps = collect(preg_split('/[\r\n,]+/', (string) $settings->employee_wifi_allowed_ips))
+            ->map(fn ($ip) => trim($ip))->filter()->values()->all();
+
+        if (! $settings->employee_attendance_enabled || $allowedIps === []) {
+            Log::warning('Employee attendance is disabled or office Wi-Fi is not configured.');
+            return false;
+        }
+
+        return in_array($request->ip(), $allowedIps, true);
+    }
+
+    private function isEmployeeAttendanceTimeAllowed(): bool
+    {
+        $settings = AppSetting::getSettings();
+        $current = Carbon::now('Asia/Jakarta')->format('H:i');
+
+        return ($current >= $settings->employee_entry_start && $current <= $settings->employee_entry_end)
+            || ($current >= $settings->employee_exit_start && $current <= $settings->employee_exit_end);
     }
 
 }

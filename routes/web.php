@@ -1681,6 +1681,8 @@ Route::get('/dashboard/presensi-hari-ini', [DashboardController::class, 'todayAt
 Route::middleware(['auth', 'role:super_admin'])->prefix('admin/karyawan')->name('admin.karyawan.')->group(function () {
     Route::get('/', [App\Http\Controllers\Admin\KaryawanController::class, 'index'])->name('index');
     Route::get('/create', [App\Http\Controllers\Admin\KaryawanController::class, 'create'])->name('create');
+    Route::get('/settings', [App\Http\Controllers\Admin\EmployeeAttendanceSettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings', [App\Http\Controllers\Admin\EmployeeAttendanceSettingsController::class, 'update'])->name('settings.update');
     Route::post('/', [App\Http\Controllers\Admin\KaryawanController::class, 'store'])->name('store');
     Route::put('/{user}', [App\Http\Controllers\Admin\KaryawanController::class, 'update'])->name('update');
     Route::delete('/{user}', [App\Http\Controllers\Admin\KaryawanController::class, 'destroy'])->name('destroy');
