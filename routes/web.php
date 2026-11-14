@@ -1701,7 +1701,7 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
         Route::get('/dashboard/stats-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getStatsData'])->name('dashboard.stats-data');
     });
     Route::middleware(['role:karyawan'])->group(function () {
-        Route::view('/karyawan/dashboard', 'mobile.karyawan.dashboard')->name('karyawan.dashboard');
+        Route::get('/karyawan/dashboard', [App\Http\Controllers\Admin\KaryawanController::class, 'dashboard'])->name('karyawan.dashboard');
     });
 
     // Pengurus routes

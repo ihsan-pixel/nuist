@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,22 @@ use Illuminate\Validation\Rule;
 
 class KaryawanController extends Controller
 {
+    public function dashboard()
+    {
+        $user = auth()->user();
+        abort_unless($user && $user->role === 'karyawan', 403);
+
+        $today = Carbon::today('Asia/Jakarta');
+        $todayAttendance = $user->presensis()->whereDate('tanggal', $today)->latest('id')->first();
+        $attendanceHistory = $user->presensis()
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id')
+            ->limit(10)
+            ->get();
+
+        return view('mobile.karyawan.dashboard', compact('todayAttendance', 'attendanceHistory'));
+    }
+
     public function index(Request $request)
     {
         $query = User::query()->where('role', 'karyawan');
