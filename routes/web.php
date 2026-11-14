@@ -1678,6 +1678,13 @@ Route::get('/dashboard/presensi-hari-ini', [DashboardController::class, 'todayAt
     ->name('dashboard.attendance-today')
     ->middleware(['auth']);
 
+Route::middleware(['auth', 'role:super_admin'])->prefix('admin/karyawan')->name('admin.karyawan.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Admin\KaryawanController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Admin\KaryawanController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Admin\KaryawanController::class, 'store'])->name('store');
+    Route::delete('/{user}', [App\Http\Controllers\Admin\KaryawanController::class, 'destroy'])->name('destroy');
+});
+
 // Mobile routes for all authenticated users
 Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function () {
     Route::post('/push-token', [App\Http\Controllers\Mobile\PushTokenController::class, 'store'])
@@ -1689,6 +1696,9 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
         Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
         Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData'])->name('dashboard.calendar-data');
         Route::get('/dashboard/stats-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getStatsData'])->name('dashboard.stats-data');
+    });
+    Route::middleware(['role:karyawan'])->group(function () {
+        Route::view('/karyawan/dashboard', 'mobile.karyawan.dashboard')->name('karyawan.dashboard');
     });
 
     // Pengurus routes
@@ -2072,8 +2082,8 @@ Route::get('/customers', [App\Http\Controllers\CustomerController::class, 'index
 // Presensi Routes - accessible by tenaga_pendidik, admin, super_admin
 Route::middleware(['auth'])->group(function () {
     Route::get('/presensi', [PresensiController::class, 'index'])->name('presensi.index');
-    Route::get('/presensi/create', [PresensiController::class, 'create'])->name('presensi.create')->middleware('role:tenaga_pendidik,admin,super_admin');
-    Route::post('/presensi/store', [PresensiController::class, 'store'])->name('presensi.store')->middleware('role:tenaga_pendidik,admin,super_admin');
+    Route::get('/presensi/create', [PresensiController::class, 'create'])->name('presensi.create')->middleware('role:tenaga_pendidik,karyawan,admin,super_admin');
+    Route::post('/presensi/store', [PresensiController::class, 'store'])->name('presensi.store')->middleware('role:tenaga_pendidik,karyawan,admin,super_admin');
     Route::get('/presensi/laporan', [PresensiController::class, 'laporan'])->name('presensi.laporan');
 });
 

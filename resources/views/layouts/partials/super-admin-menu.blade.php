@@ -6,6 +6,7 @@
 </li>
 
 <li class="menu-title">ORGANISASI & PENGGUNA</li>
+<li><a href="{{ route('admin.karyawan.index') }}" class="waves-effect"><i class="bx bx-id-card"></i><span>Karyawan Yayasan</span></a></li>
 <li>
     <a href="#superAdminMasterData" data-bs-toggle="collapse" class="has-arrow" aria-expanded="{{ request()->routeIs('yayasan.*', 'pengurus.*', 'admin.*', 'operator-spp.*', 'madrasah.*', 'tenaga-pendidik.*', 'class-student-counts.*', 'dps.*', 'status-kepegawaian.*', 'tahun-pelajaran.*', 'admin_masterdata.broadcast-numbers.*') ? 'true' : 'false' }}">
         <i class="bx bx-data"></i><span>Master Data</span>
