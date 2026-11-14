@@ -520,6 +520,8 @@
                     break;
                 }
             }
+        } elseif ($userRole === 'karyawan') {
+            $showNav = false;
         } elseif ($userRole === 'dps') {
             $menuRoutes = ['mobile.dps.*'];
             $showNav = request()->routeIs('mobile.dps.*');

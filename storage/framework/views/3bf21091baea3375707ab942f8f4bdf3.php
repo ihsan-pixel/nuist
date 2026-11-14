@@ -2851,6 +2851,7 @@ window.addEventListener('load', function() {
     const faceVerifyUrl = <?php echo json_encode(route('mobile.face.verify'), 15, 512) ?>;
     const faceDiagnosticStoreUrl = <?php echo json_encode(route('presensi_admin.face_diagnostics.store'), 15, 512) ?>;
     const faceScanRequired = verificationMode === 'face_scan';
+    const isKaryawan = <?php echo json_encode(($user->role ?? null) === 'karyawan', 15, 512) ?>;
     const faceEnrollmentReady = <?php echo json_encode(($faceVerificationState['enrolled'] ?? false) || $hasKiosk2Enrollment, 15, 512) ?>;
     const hasKiosk2Enrollment = <?php echo json_encode($hasKiosk2Enrollment, 15, 512) ?>;
     const selfieContainer = document.getElementById('selfie-container');
@@ -4473,9 +4474,10 @@ window.addEventListener('load', function() {
             if (pythonUrl) {
                 const locationState = syncLatestLocationState();
                 const reading = locationState.lastReading;
-                if (!reading || !Number.isFinite(Number(reading.latitude))
+                if (!isKaryawan && (!reading
+                    || !Number.isFinite(Number(reading.latitude))
                     || !Number.isFinite(Number(reading.longitude))
-                    || Date.now() - Number(reading.timestamp) > 120000) {
+                    || Date.now() - Number(reading.timestamp) > 120000)) {
                     showFormalErrorAlert('Lokasi Belum Siap', 'Tunggu pembacaan lokasi terbaru di halaman presensi sebelum melanjutkan.');
                     return;
                 }
@@ -4558,7 +4560,7 @@ window.addEventListener('load', function() {
             return;
         }
 
-        if (!latestLocationState.latitude || !latestLocationState.longitude) {
+        if (!isKaryawan && (!latestLocationState.latitude || !latestLocationState.longitude)) {
             showFormalErrorAlert(
                 'Lokasi Belum Siap',
                 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu hingga proses pembacaan lokasi selesai.'
@@ -4592,7 +4594,9 @@ window.addEventListener('load', function() {
         submitButton.html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
-        navigator.geolocation.getCurrentPosition(
+        (isKaryawan
+            ? function (success) { success({ coords: { latitude: 0, longitude: 0, accuracy: null, altitude: null, speed: null } }); }
+            : navigator.geolocation.getCurrentPosition.bind(navigator.geolocation))(
             async function(position) {
                 let reading4Lat = position.coords.latitude;
                 let reading4Lng = position.coords.longitude;
