@@ -212,7 +212,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         if ($isKaryawan && ! $this->isOfficeWifiRequest($request)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Presensi karyawan hanya dapat dilakukan melalui Wi-Fi kantor.',
+                'message' => 'Presensi karyawan hanya dapat dilakukan melalui Wi-Fi kantor. IP yang terbaca server: '.implode(', ', $this->requestIpCandidates($request)),
             ], 403);
         }
 
@@ -1216,7 +1216,15 @@ class PresensiController extends \App\Http\Controllers\Controller
             return false;
         }
 
-        return in_array($request->ip(), $allowedIps, true);
+        return array_intersect($allowedIps, $this->requestIpCandidates($request)) !== [];
+    }
+
+    private function requestIpCandidates(Request $request): array
+    {
+        return collect(array_merge(
+            [$request->ip()],
+            method_exists($request, 'ips') ? $request->ips() : [],
+        ))->filter()->map(fn ($ip) => trim((string) $ip))->unique()->values()->all();
     }
 
     private function isEmployeeAttendanceTimeAllowed(): bool
