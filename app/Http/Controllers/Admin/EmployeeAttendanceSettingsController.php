@@ -10,7 +10,7 @@ class EmployeeAttendanceSettingsController extends Controller
 {
     public function edit()
     {
-        return view('admin.karyawan.settings', ['settings' => AppSetting::getSettings()]);
+        return view('admin.karyawan.settings', ['settings' => AppSetting::getSettings(), 'detectedIp' => request()->ip()]);
     }
 
     public function update(Request $request)

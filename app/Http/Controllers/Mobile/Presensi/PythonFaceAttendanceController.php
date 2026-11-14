@@ -31,6 +31,7 @@ class PythonFaceAttendanceController extends Controller
             'user' => $user,
             'presensiStoreUrl' => route('mobile.presensi.store'),
             'presensiUrl' => route('mobile.presensi'),
+            'isKaryawan' => $user->role === 'karyawan',
         ]);
     }
 

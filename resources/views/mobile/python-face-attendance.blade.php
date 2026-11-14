@@ -230,6 +230,7 @@
     const presensiUrl = @json($presensiUrl);
     const csrf = @json(csrf_token());
     const userId = @json($user->id);
+    const isKaryawan = @json($isKaryawan ?? false);
     let stream = null;
     let location = null;
     let verificationInFlight = false;
@@ -277,6 +278,9 @@
     }
 
     function readLocation() {
+        if (isKaryawan) {
+            return { coords: { latitude: null, longitude: null, accuracy: null, altitude: null, speed: null }, lokasi: null, readings: [] };
+        }
         let saved;
         try {
             saved = JSON.parse(sessionStorage.getItem('python-presensi-location') || 'null');
@@ -331,7 +335,7 @@
     }
 
     async function verifyFace() {
-        if (verificationInFlight || !location || !stream) {
+        if (verificationInFlight || (!isKaryawan && !location) || !stream) {
             return;
         }
 
@@ -357,8 +361,8 @@
                     face_frames: frames,
                     selfie_data: frames[frames.length - 1],
                     presensi_mode: mode,
-                    latitude: location.coords.latitude,
-                    longitude: location.coords.longitude,
+                    latitude: isKaryawan ? null : location.coords.latitude,
+                    longitude: isKaryawan ? null : location.coords.longitude,
                     lokasi: location.lokasi,
                     location_readings: JSON.stringify(location.readings),
                     accuracy: location.coords.accuracy,
