@@ -26,7 +26,11 @@ class PythonFaceAttendanceController extends Controller
             );
         }
 
-        return view('mobile.python-face-attendance', [
+        $view = $user->role === 'karyawan'
+            ? 'mobile.karyawan.face-attendance'
+            : 'mobile.python-face-attendance';
+
+        return view($view, [
             'mode' => $mode,
             'user' => $user,
             'presensiStoreUrl' => route('mobile.presensi.store'),
