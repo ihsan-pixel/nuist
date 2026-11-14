@@ -179,7 +179,7 @@
                 <select id="teacherSelect" class="form-select mb-3">
                     <option value="">Pilih guru</option>
                     @foreach($teachers as $teacher)
-                        <option value="{{ $teacher->id }}">{{ $teacher->name }}{{ $teacher->madrasah?->nama ? ' - '.$teacher->madrasah->nama : '' }}</option>
+                        <option value="{{ $teacher->id }}" {{ (int) ($selectedUserId ?? 0) === (int) $teacher->id ? 'selected' : '' }}>{{ $teacher->name }}{{ $teacher->role === 'karyawan' ? ' - Karyawan Yayasan' : ($teacher->madrasah?->nama ? ' - '.$teacher->madrasah->nama : '') }}</option>
                     @endforeach
                 </select>
                 <div class="video-box mb-3">

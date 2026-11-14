@@ -49,8 +49,10 @@ class FaceEnrollmentKioskController extends Controller
             $selectedMadrasahId = null;
         }
 
+        $selectedUserId = $request->filled('user_id') ? (int) $request->input('user_id') : null;
+
         $teachersQuery = User::query()
-            ->where('role', 'tenaga_pendidik')
+            ->whereIn('role', ['tenaga_pendidik', 'karyawan'])
             ->with('madrasah')
             ->orderBy('name');
 
@@ -58,11 +60,12 @@ class FaceEnrollmentKioskController extends Controller
             $teachersQuery->where('madrasah_id', $selectedMadrasahId);
         }
 
-        $teachers = $teachersQuery->get(['id', 'name', 'nip', 'nuptk', 'madrasah_id', 'face_registered_at']);
+        $teachers = $teachersQuery->get(['id', 'name', 'nip', 'nuptk', 'madrasah_id', 'face_registered_at', 'role']);
 
         return view('kiosk.face-enrollment-kiosk', [
             'schools' => $schools,
             'selectedMadrasahId' => $selectedMadrasahId,
+            'selectedUserId' => $selectedUserId,
             'teachers' => $teachers,
             'teachersPayload' => $teachers->map(fn (User $teacher) => [
                 'id' => $teacher->id,
@@ -85,7 +88,7 @@ class FaceEnrollmentKioskController extends Controller
             'metadata' => ['nullable', 'array'],
         ]);
 
-        $teacher = User::whereKey($validated['user_id'])->where('role', 'tenaga_pendidik')->firstOrFail();
+        $teacher = User::whereKey($validated['user_id'])->whereIn('role', ['tenaga_pendidik', 'karyawan'])->firstOrFail();
 
         $session = FaceEnrollmentSession::create([
             'session_uuid' => (string) Str::uuid(),
