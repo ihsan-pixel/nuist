@@ -1,5 +1,10 @@
 @extends('layouts.master')
 @section('title', 'Pengaturan Presensi Karyawan')
+@section('css')
+<style>
+    .mgmp-page{--dash-green:#08745a;--dash-ink:#192d37;padding:8px 0 24px}.mgmp-page:before,.mgmp-page:after{content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(2px);pointer-events:none}.mgmp-page:before{width:280px;height:280px;right:-90px;top:-80px;background:rgba(42,190,153,.15)}body:has(.mgmp-page){background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}.mgmp-page .mgmp-hero-strip{position:relative;overflow:hidden;background:linear-gradient(135deg,#005b58,#08745a);border:1px solid rgba(255,255,255,.35);border-radius:22px;padding:24px;box-shadow:0 14px 34px rgba(32,70,78,.14)}.mgmp-page .mgmp-hero-strip:after{content:"";position:absolute;width:220px;height:220px;right:-90px;top:-100px;border-radius:50%;background:rgba(255,255,255,.13);filter:blur(2px)}.mgmp-page .mgmp-hero-strip>*{position:relative;z-index:1}.mgmp-page>.card{border:1px solid rgba(255,255,255,.86)!important;border-radius:20px!important;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(16px);box-shadow:0 8px 26px rgba(32,70,78,.08)!important}.mgmp-page .card-body{padding:20px 24px}.mgmp-page .form-control,.mgmp-page .form-select{border-radius:10px;border-color:#e5edef}.mgmp-page .btn{border-radius:10px}.mgmp-page .btn-primary{background:linear-gradient(90deg,#0f766e,#14b8a6);border:0}@media(max-width:767.98px){.mgmp-page .mgmp-hero-strip{padding:18px}.mgmp-page .card-body{padding:14px}}
+</style>
+@endsection
 @section('content')
 <div class="container-fluid py-3 mgmp-page">
     <div class="mgmp-hero-strip mb-4"><div class="mgmp-kicker mb-2">Admin · Karyawan Yayasan</div><h4 class="mb-1 text-white">Pengaturan Presensi Karyawan</h4><p class="mb-0 text-white-50">Atur Wi-Fi kantor dan jam presensi tanpa mengubah konfigurasi hosting.</p></div>

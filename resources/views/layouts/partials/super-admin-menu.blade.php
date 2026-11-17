@@ -11,6 +11,7 @@
     <ul class="sub-menu collapse {{ request()->routeIs('admin.karyawan.*') ? 'show' : '' }}" id="yayasanKaryawanMenu">
         <li><a href="{{ route('admin.karyawan.index') }}">Data Karyawan</a></li>
         <li><a href="{{ route('admin.karyawan.settings.edit') }}">Pengaturan Presensi</a></li>
+        <li><a href="{{ route('admin.karyawan.attendance-history') }}">Riwayat Presensi</a></li>
     </ul>
 </li>
 <li>

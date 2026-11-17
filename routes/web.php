@@ -1683,6 +1683,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin/karyawan')->name(
     Route::get('/create', [App\Http\Controllers\Admin\KaryawanController::class, 'create'])->name('create');
     Route::get('/settings', [App\Http\Controllers\Admin\EmployeeAttendanceSettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [App\Http\Controllers\Admin\EmployeeAttendanceSettingsController::class, 'update'])->name('settings.update');
+    Route::get('/attendance-history', [App\Http\Controllers\Admin\KaryawanController::class, 'attendanceHistory'])->name('attendance-history');
     Route::post('/', [App\Http\Controllers\Admin\KaryawanController::class, 'store'])->name('store');
     Route::put('/{user}', [App\Http\Controllers\Admin\KaryawanController::class, 'update'])->name('update');
     Route::delete('/{user}', [App\Http\Controllers\Admin\KaryawanController::class, 'destroy'])->name('destroy');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\AppSetting;
+use App\Models\Presensi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,23 @@ use Illuminate\Validation\Rule;
 
 class KaryawanController extends Controller
 {
+    public function attendanceHistory(Request $request)
+    {
+        $employees = User::where('role', 'karyawan')->orderBy('name')->get(['id', 'name', 'nip']);
+        $query = Presensi::with('user')->whereHas('user', fn ($q) => $q->where('role', 'karyawan'));
+
+        if ($request->filled('employee_id')) {
+            $query->where('user_id', $request->integer('employee_id'));
+        }
+        if ($request->filled('month') && preg_match('/^\d{4}-\d{2}$/', $request->month)) {
+            [$year, $month] = array_map('intval', explode('-', $request->month));
+            $query->whereYear('tanggal', $year)->whereMonth('tanggal', $month);
+        }
+
+        $records = $query->orderByDesc('tanggal')->orderByDesc('id')->paginate(25)->withQueryString();
+        return view('admin.karyawan.attendance-history', compact('employees', 'records'));
+    }
+
     public function dashboard(Request $request)
     {
         $user = auth()->user();
