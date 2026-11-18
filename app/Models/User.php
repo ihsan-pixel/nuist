@@ -123,6 +123,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isExcludedFromTeachingJournal(): bool
     {
         $jobTitle = mb_strtolower(trim(implode(' ', array_filter([
+            $this->mengajar,
             $this->jabatan,
             $this->ketugasan,
         ]))));
