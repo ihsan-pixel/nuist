@@ -557,7 +557,9 @@ class TeachingProgressController extends Controller
                 $subQuery->whereNull('ketugasan')
                     ->orWhereRaw('LOWER(ketugasan) NOT LIKE ?', ['%kepala%']);
             })
-            ->get();
+            ->get()
+            ->reject(fn (User $teacher) => $teacher->isExcludedFromTeachingJournal())
+            ->values();
     }
 
     private function hasTeachingAttendance($teacherId, Carbon $date)
@@ -934,7 +936,9 @@ class TeachingProgressController extends Controller
             ->orderByRaw("CAST(madrasahs.scod AS UNSIGNED) ASC")
             ->orderBy('users.name')
             ->select('users.*')
-            ->get();
+            ->get()
+            ->reject(fn (User $teacher) => $teacher->isExcludedFromTeachingJournal())
+            ->values();
     }
 
     private function summarizeTeachingSchedules(
