@@ -117,6 +117,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(StatusKepegawaian::class, 'status_kepegawaian_id');
     }
 
+    /**
+     * Jabatan bimbingan konseling tidak dihitung sebagai beban jurnal mengajar.
+     */
+    public function isExcludedFromTeachingJournal(): bool
+    {
+        $jobTitle = mb_strtolower(trim(implode(' ', array_filter([
+            $this->jabatan,
+            $this->ketugasan,
+        ]))));
+
+        return $jobTitle !== '' && (bool) preg_match(
+            '/(?:guru\s*bk|guru\s*bimbingan|bimbingan\s*(?:dan|&)?\s*konseling|konseling)/u',
+            $jobTitle
+        );
+    }
+
     public function madrasah()
     {
         return $this->belongsTo(Madrasah::class, 'madrasah_id');

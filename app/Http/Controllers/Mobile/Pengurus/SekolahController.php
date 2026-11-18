@@ -744,14 +744,24 @@ class SekolahController extends \App\Http\Controllers\Controller
             }
 
             // ========== 3. Persentase Presensi Mengajar ==========
-            $teachingSchedules = TeachingSchedule::where('school_id', $madrasah->id)->count();
+            $teachingSchedulesQuery = TeachingSchedule::with('teacher:id,jabatan,ketugasan')
+                ->where('school_id', $madrasah->id);
+            $teachingSchedules = $teachingSchedulesQuery->get()
+                ->reject(fn (TeachingSchedule $schedule) => $schedule->teacher?->isExcludedFromTeachingJournal())
+                ->count();
             if ($teachingSchedules > 0) {
                 $startOfMonth = Carbon::create($currentYear, $currentMonth, 1)->startOfDay();
                 $endOfMonth = now()->endOfDay(); // Samapai hari ini
 
-                $totalTeachingAttendances = TeachingAttendance::whereHas('teachingSchedule', function($q) use ($madrasah) {
-                    $q->where('school_id', $madrasah->id);
-                })->whereBetween('tanggal', [$startOfMonth, $endOfMonth])->count();
+                $eligibleScheduleIds = $teachingSchedulesQuery->get()
+                    ->reject(fn (TeachingSchedule $schedule) => $schedule->teacher?->isExcludedFromTeachingJournal())
+                    ->pluck('id');
+                $totalTeachingAttendances = TeachingAttendance::whereIn('teaching_schedule_id', $eligibleScheduleIds)
+                    ->whereHas('teachingSchedule', function($q) use ($madrasah) {
+                        $q->where('school_id', $madrasah->id);
+                    })
+                    ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+                    ->count();
 
                 // Estimasi: jumlah jadwal x rata-rata pertemuan per hari KBM x hari aktif
                 $hariKbm = $madrasah->hari_kbm ?? 5;

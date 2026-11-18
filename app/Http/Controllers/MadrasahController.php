@@ -380,16 +380,20 @@ class MadrasahController extends Controller
             ? collect()
             : TeachingSchedule::query()
                 ->whereIn('teaching_schedule_period_id', $activePeriodIds)
+                ->with('teacher:id,jabatan,ketugasan')
                 ->get(['id', 'school_id', 'teaching_schedule_period_id', 'teacher_id', 'day']);
 
         $schedulesBySchool = $activeSchedules->groupBy('school_id');
         $scheduleCountsByPeriod = $activeSchedules->groupBy('teaching_schedule_period_id')->map->count();
+        $eligibleActiveScheduleIds = $activeSchedules
+            ->reject(fn (TeachingSchedule $schedule) => $schedule->teacher?->isExcludedFromTeachingJournal())
+            ->pluck('id');
 
-        $journalCountsBySchool = $activePeriodIds->isEmpty()
+        $journalCountsBySchool = $eligibleActiveScheduleIds->isEmpty()
             ? collect()
             : TeachingAttendance::query()
                 ->join('teaching_schedules', 'teaching_schedules.id', '=', 'teaching_attendances.teaching_schedule_id')
-                ->whereIn('teaching_schedules.teaching_schedule_period_id', $activePeriodIds)
+                ->whereIn('teaching_schedules.id', $eligibleActiveScheduleIds)
                 ->whereDate('teaching_attendances.tanggal', '<=', $today->toDateString())
                 ->selectRaw('teaching_schedules.school_id, COUNT(teaching_attendances.id) as total_journals')
                 ->groupBy('teaching_schedules.school_id')
@@ -489,6 +493,10 @@ class MadrasahController extends Controller
                     $periodEnd = $activePeriod->end_date->copy()->startOfDay()->min($today->copy());
 
                     foreach ($schoolSchedules as $schedule) {
+                        if ($schedule->teacher?->isExcludedFromTeachingJournal()) {
+                            continue;
+                        }
+
                         $journalExpectedMeetings += $this->countScheduleOccurrences(
                             (string) $schedule->day,
                             $periodStart->copy(),
