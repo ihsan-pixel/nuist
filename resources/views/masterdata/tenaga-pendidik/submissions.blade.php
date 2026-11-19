@@ -92,7 +92,6 @@ document.addEventListener('DOMContentLoaded', function () {
     showStep(1);
 });
 </script>
-@endsection
 
 <div class="modal fade" id="modalTambahTP" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content tp-modal-content">
@@ -108,3 +107,4 @@ document.addEventListener('DOMContentLoaded', function () {
         </form>
     </div></div>
 </div>
+@endsection
