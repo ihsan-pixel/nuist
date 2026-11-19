@@ -2,7 +2,6 @@
 
 @section('title', 'Pengajuan Tenaga Pendidik')
 
-@section('content')
 @section('css')
 <style>
     .tp-page{--tp-green:#08745a;--tp-ink:#192d37;--tp-muted:#6c7c86;position:relative;padding:8px 0 24px}
@@ -18,6 +17,7 @@
     @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-content{padding:14px}.tp-page .tp-toolbar .btn{width:100%}}
 </style>
 @endsection
+@section('content')
 @component('components.breadcrumb')
     @slot('li_1') Master Data @endslot
     @slot('title') Pengajuan Tenaga Pendidik @endslot
