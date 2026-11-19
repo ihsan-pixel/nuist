@@ -46,6 +46,7 @@ class TenagaPendidikController extends Controller
             'submissions' => $submissions,
             'counts' => $counts,
             'statusKepegawaian' => StatusKepegawaian::query()->orderBy('name')->get(['id', 'name']),
+            'mengajarOptions' => User::query()->whereNotNull('mengajar')->where('mengajar', '<>', '')->orderBy('mengajar')->pluck('mengajar')->map(fn ($value) => trim($value))->filter()->unique(fn ($value) => mb_strtolower($value))->values(),
             'madrasahs' => Madrasah::query()
                 ->when(trim(strtolower($user->role)) === 'admin', fn ($q) => $q->whereKey($user->madrasah_id))
                 ->orderBy('name')->get(['id', 'name']),
@@ -231,8 +232,10 @@ class TenagaPendidikController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
+            'gelar' => 'nullable|string|max:100',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:6',
+            'password_confirmation' => 'required|same:password',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'madrasah_id' => 'nullable|exists:madrasahs,id',
             'ketugasan' => 'nullable|in:tenaga pendidik,penjaga sekolah,kepala madrasah/sekolah',
@@ -253,7 +256,7 @@ class TenagaPendidikController extends Controller
             'submitted_by' => $actor->id,
             'madrasah_id' => $madrasahId,
             'status' => 'menunggu_review',
-            'payload' => array_merge($request->except(['_token', 'avatar']), [
+            'payload' => array_merge($request->except(['_token', 'avatar', 'password_confirmation']), [
                 'madrasah_id' => $madrasahId,
                 'avatar_path' => $avatarPath,
                 'password' => Crypt::encryptString($request->password),
@@ -273,7 +276,7 @@ class TenagaPendidikController extends Controller
 
         $payload = $submission->payload;
         $user = User::create([
-            'name' => $payload['nama'], 'email' => $payload['email'],
+            'name' => $payload['nama'], 'gelar' => $payload['gelar'] ?? null, 'email' => $payload['email'],
             'password' => Hash::make(Crypt::decryptString($payload['password'])), 'role' => 'tenaga_pendidik',
             'madrasah_id' => $submission->madrasah_id,
             'tempat_lahir' => $payload['tempat_lahir'] ?? null, 'tanggal_lahir' => $payload['tanggal_lahir'] ?? null,

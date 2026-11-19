@@ -13,6 +13,7 @@
     .tp-page .tp-content{padding:20px 24px 24px}.tp-page .tp-stat{border:1px solid #dce7e9;border-radius:14px;background:rgba(255,255,255,.58);box-shadow:0 5px 14px rgba(32,70,78,.05)}
     .tp-page .tp-filter,.tp-page .tp-table-panel{border:1px solid #e5edef;border-radius:16px;background:rgba(255,255,255,.58)}.tp-page .tp-table-panel{overflow-x:auto}
     .tp-page .tp-form-section{background:#f8fafc;border:1px solid #e9edf4;border-radius:1rem;padding:1.25rem}.tp-modal-content{border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}.tp-modal-content .modal-header{border-bottom:1px solid #e5edef;background:#f6faf9}.tp-modal-content .modal-footer{border-top:1px solid #e5edef}.tp-modal-content .form-label{font-size:.82rem;font-weight:600;color:#334155}.tp-modal-content .form-control,.tp-modal-content .form-select{border-color:#dce7e9;border-radius:9px}
+    .tp-stepper span{flex:1;border-bottom:3px solid #dce7e9;padding:.55rem .4rem;color:#8a9aa2;font-size:.75rem;font-weight:600;text-align:center}.tp-stepper span.active{border-color:#08745a;color:#08745a}
     .tp-page table thead th{border:0;border-bottom:1px solid #e5edef;background:#f1f6f6;color:var(--tp-ink);font-size:11px;padding:13px 14px;white-space:nowrap}.tp-page table tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle}.tp-page .btn{border-radius:10px}.tp-page .tp-toolbar .btn{border-radius:12px}.tp-page .pagination{margin:16px 0 0}
     @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-content{padding:14px}.tp-page .tp-toolbar .btn{width:100%}}
 </style>
@@ -56,15 +57,51 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let currentStep = 1;
+    const totalSteps = 4;
+    const form = document.querySelector('#modalTambahTP form');
+    const showStep = (step) => {
+        currentStep = step;
+        document.querySelectorAll('#modalTambahTP .tp-step').forEach(el => el.classList.toggle('d-none', Number(el.dataset.step) !== step));
+        document.querySelectorAll('#modalTambahTP [data-step-label]').forEach(el => el.classList.toggle('active', Number(el.dataset.stepLabel) === step));
+        document.querySelector('#submissionPrevious').classList.toggle('d-none', step === 1);
+        document.querySelector('#submissionNext').classList.toggle('d-none', step === totalSteps);
+        document.querySelector('#submissionSubmit').classList.toggle('d-none', step !== totalSteps);
+    };
+    document.querySelector('#submissionNext').addEventListener('click', () => {
+        const fields = [...document.querySelectorAll('#modalTambahTP .tp-step:not(.d-none) input, #modalTambahTP .tp-step:not(.d-none) select')];
+        if (!fields.every(field => field.reportValidity())) return;
+        showStep(Math.min(totalSteps, currentStep + 1));
+    });
+    document.querySelector('#submissionPrevious').addEventListener('click', () => showStep(Math.max(1, currentStep - 1)));
+    document.querySelectorAll('[data-toggle-password]').forEach(button => button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.togglePassword);
+        input.type = input.type === 'password' ? 'text' : 'password';
+        button.querySelector('i').className = input.type === 'password' ? 'bx bx-show' : 'bx bx-hide';
+    }));
+    form.addEventListener('submit', function (event) {
+        const password = form.querySelector('[name="password"]');
+        const confirmation = form.querySelector('[name="password_confirmation"]');
+        if (password.value !== confirmation.value) { event.preventDefault(); confirmation.setCustomValidity('Konfirmasi password tidak sama.'); confirmation.reportValidity(); } else confirmation.setCustomValidity('');
+    });
+    showStep(1);
+});
+</script>
 @endsection
 
 <div class="modal fade" id="modalTambahTP" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content tp-modal-content">
         <form action="{{ route('tenaga-pendidik.store') }}" method="POST" enctype="multipart/form-data">@csrf
             <div class="modal-header"><div><h5 class="modal-title mb-1">Tambah Pengajuan Tenaga Pendidik</h5><p class="text-muted mb-0 small">Data akan dikirim untuk direview oleh Super Admin.</p></div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="alert alert-info small">Lengkapi data utama akun dan penugasan. Data tambahan dapat dilengkapi pada proses review.</div>
-                <div class="row g-3"><div class="col-md-6"><label class="form-label">Nama Lengkap *</label><input name="nama" class="form-control" required></div><div class="col-md-6"><label class="form-label">Email *</label><input type="email" name="email" class="form-control" required></div><div class="col-md-6"><label class="form-label">Password Awal *</label><input type="password" name="password" class="form-control" minlength="6" required></div><div class="col-md-6"><label class="form-label">Madrasah *</label><select name="madrasah_id" class="form-select" required><option value="">Pilih Madrasah</option>@foreach($madrasahs as $madrasah)<option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Status Kepegawaian</label><select name="status_kepegawaian_id" class="form-select"><option value="">Pilih Status</option>@foreach($statusKepegawaian as $status)<option value="{{ $status->id }}">{{ $status->name }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Ketugasan</label><select name="ketugasan" class="form-select"><option value="">Pilih Ketugasan</option><option value="tenaga pendidik">Tenaga Pendidik</option><option value="penjaga sekolah">Penjaga Sekolah</option><option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option></select></div><div class="col-md-6"><label class="form-label">Mengajar</label><input name="mengajar" class="form-control"></div><div class="col-md-6"><label class="form-label">No. HP</label><input name="no_hp" class="form-control"></div><div class="col-md-6"><label class="form-label">NIP Ma'arif</label><input name="nip" class="form-control"></div><div class="col-md-6"><label class="form-label">NUPTK</label><input name="nuptk" class="form-control"></div><div class="col-md-6"><label class="form-label">Pendidikan Terakhir</label><input name="pendidikan_terakhir" class="form-control"></div><div class="col-md-6"><label class="form-label">Program Studi</label><input name="program_studi" class="form-control"></div><div class="col-md-6"><label class="form-label">Tanggal Lahir</label><input type="date" name="tanggal_lahir" class="form-control"></div><div class="col-md-6"><label class="form-label">Foto Profil</label><input type="file" name="avatar" class="form-control" accept=".jpg,.jpeg,.png"></div><div class="col-12"><label class="form-label">Alamat</label><textarea name="alamat" class="form-control" rows="3"></textarea></div></div>
-            </div><div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary"><i class="bx bx-send me-1"></i> Kirim Pengajuan</button></div>
+            <div class="modal-body"><div class="alert alert-info small">Lengkapi data secara bertahap. Gunakan tombol Berikutnya untuk melanjutkan.</div>
+                <div class="tp-stepper d-flex gap-2 mb-4"><span class="active" data-step-label="1">1. Akun</span><span data-step-label="2">2. Penugasan</span><span data-step-label="3">3. Profil</span><span data-step-label="4">4. Pendidikan</span></div>
+                <div class="tp-step" data-step="1"><div class="row g-3"><div class="col-md-8"><label class="form-label">Nama Lengkap *</label><input name="nama" class="form-control" required></div><div class="col-md-4"><label class="form-label">Gelar</label><input name="gelar" class="form-control" placeholder="S.Pd., M.Pd."></div><div class="col-md-6"><label class="form-label">Email *</label><input type="email" name="email" class="form-control" required></div><div class="col-md-6"><label class="form-label">Password *</label><div class="input-group"><input type="password" name="password" id="submission_password" class="form-control" minlength="6" required><button type="button" class="btn btn-outline-secondary" data-toggle-password="submission_password"><i class="bx bx-show"></i></button></div></div><div class="col-md-6"><label class="form-label">Konfirmasi Password *</label><div class="input-group"><input type="password" name="password_confirmation" id="submission_password_confirmation" class="form-control" required><button type="button" class="btn btn-outline-secondary" data-toggle-password="submission_password_confirmation"><i class="bx bx-show"></i></button></div></div></div></div>
+                <div class="tp-step d-none" data-step="2"><div class="row g-3"><div class="col-md-6"><label class="form-label">Madrasah/Sekolah</label>@if(auth()->user()->role === 'admin')<input class="form-control" value="{{ optional(auth()->user()->madrasah)->name }}" readonly><input type="hidden" name="madrasah_id" value="{{ auth()->user()->madrasah_id }}">@else<select name="madrasah_id" class="form-select" required><option value="">Pilih Madrasah</option>@foreach($madrasahs as $madrasah)<option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>@endforeach</select>@endif</div><div class="col-md-6"><label class="form-label">Ketugasan</label><input class="form-control" value="Tenaga Pendidik" readonly><input type="hidden" name="ketugasan" value="tenaga pendidik"></div><div class="col-md-6"><label class="form-label">Mengajar</label><select name="mengajar" class="form-select"><option value="">Pilih data mengajar</option>@foreach($mengajarOptions as $option)<option value="{{ $option }}">{{ $option }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Status Kepegawaian</label><select name="status_kepegawaian_id" class="form-select"><option value="">Pilih Status</option>@foreach($statusKepegawaian as $status)<option value="{{ $status->id }}">{{ $status->name }}</option>@endforeach</select></div></div></div>
+                <div class="tp-step d-none" data-step="3"><div class="row g-3"><div class="col-md-6"><label class="form-label">No. HP</label><input name="no_hp" class="form-control"></div><div class="col-md-6"><label class="form-label">Kartanu</label><input name="kartanu" class="form-control"></div><div class="col-md-6"><label class="form-label">Tanggal Lahir</label><input type="date" name="tanggal_lahir" class="form-control"></div><div class="col-md-6"><label class="form-label">Tempat Lahir</label><input name="tempat_lahir" class="form-control"></div><div class="col-12"><label class="form-label">Alamat</label><textarea name="alamat" class="form-control" rows="4"></textarea></div></div></div>
+                <div class="tp-step d-none" data-step="4"><div class="row g-3"><div class="col-md-6"><label class="form-label">NIP Ma'arif</label><input name="nip" class="form-control"></div><div class="col-md-6"><label class="form-label">NUPTK</label><input name="nuptk" class="form-control"></div><div class="col-md-6"><label class="form-label">Pendidikan Terakhir</label><input name="pendidikan_terakhir" class="form-control"></div><div class="col-md-6"><label class="form-label">Program Studi</label><input name="program_studi" class="form-control"></div><div class="col-md-6"><label class="form-label">Foto Profil</label><input type="file" name="avatar" class="form-control" accept=".jpg,.jpeg,.png"></div></div></div>
+            </div><div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button><button type="button" class="btn btn-outline-secondary d-none" id="submissionPrevious">Sebelumnya</button><button type="button" class="btn btn-primary" id="submissionNext">Berikutnya</button><button type="submit" class="btn btn-success d-none" id="submissionSubmit"><i class="bx bx-send me-1"></i> Kirim Pengajuan</button></div>
         </form>
     </div></div>
 </div>
