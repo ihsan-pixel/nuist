@@ -33,7 +33,7 @@
     @endif
 </head>
 
-<body class="{{ request()->is('admin/data-madrasah','admin/teaching-progress','teaching-progress','madrasah/profile','masterdata/madrasah/profile','masterdata/madrasah/*/detail','teaching-schedules*','admin/monitor-jurnal-mengajar','presensi_admin*','presensi-admin*','admin/presensi_admin*') ? 'monitoring-theme' : '' }}" data-topbar="light" data-layout-mode="light">
+<body class="{{ request()->is('admin/data-madrasah','admin/teaching-progress','teaching-progress','madrasah/profile','masterdata/madrasah/profile','masterdata/madrasah/*/detail','teaching-schedules*','admin/monitor-jurnal-mengajar','presensi_admin*','presensi-admin*','admin/presensi_admin*') ? 'monitoring-theme' : '' }} {{ request()->is('masterdata/tenaga-pendidik/pengajuan') ? 'teacher-submission-theme' : '' }}" data-topbar="light" data-layout-mode="light">
 
     <div id="layout-wrapper">
         @include('layouts.topbar')

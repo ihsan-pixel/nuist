@@ -5,7 +5,7 @@
 @section('css')
 <style>
     .tp-page{--tp-green:#08745a;--tp-ink:#192d37;--tp-muted:#6c7c86;position:relative;padding:8px 0 24px}
-    body:has(.tp-page){background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}body:has(.tp-page) .main-content{background:transparent!important}
+    body.teacher-submission-theme{background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}body.teacher-submission-theme .main-content{background:transparent!important}
     .tp-page .tp-shell{border:1px solid rgba(255,255,255,.86);border-radius:22px;background:rgba(255,255,255,.68);backdrop-filter:blur(18px);box-shadow:0 8px 26px rgba(32,70,78,.08);overflow:hidden}
     .tp-page .tp-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;border-bottom:1px solid #e5edef}
     .tp-page .tp-eyebrow{margin:0 0 4px;color:var(--tp-green);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.tp-page .tp-title{margin:0;color:var(--tp-ink);font-size:22px;font-weight:700}.tp-page .tp-subtitle{margin:5px 0 0;color:var(--tp-muted);font-size:12px}
