@@ -325,25 +325,45 @@ class TenagaPendidikController extends Controller
 
     private function teachingOptions()
     {
-        $aliases = [
-            'mtk' => 'matematika', 'math' => 'matematika',
-            'bindo' => 'bahasa indonesia', 'bahasaindonesia' => 'bahasa indonesia',
-            'bing' => 'bahasa inggris', 'bahasainggris' => 'bahasa inggris',
-            'pai' => 'pendidikan agama islam', 'pendidikanagamaislam' => 'pendidikan agama islam',
-            'ips' => 'ilmu pengetahuan sosial', 'ilmupengetahuansosial' => 'ilmu pengetahuan sosial',
-            'ipa' => 'ilmu pengetahuan alam', 'ilmupengetahuanalam' => 'ilmu pengetahuan alam',
-            'pjok' => 'pendidikan jasmani olahraga dan kesehatan',
-            'tik' => 'teknologi informasi dan komunikasi',
-        ];
-
         return User::query()->whereNotNull('mengajar')->where('mengajar', '<>', '')->pluck('mengajar')
             ->map(fn ($value) => trim(preg_replace('/\s+/', ' ', (string) $value)))
             ->filter()
-            ->groupBy(function ($value) use ($aliases) {
-                $key = mb_strtolower(preg_replace('/[^\pL\pN]/u', '', $value));
-                return $aliases[$key] ?? $key;
+            ->map(function ($value) {
+                $key = mb_strtolower(preg_replace('/[^\pL\pN]+/u', ' ', $value));
+                $key = trim(preg_replace('/\s+/', ' ', $key));
+
+                $excluded = ['staff', 'staf', 'admin', 'operator', 'kepala', 'bendahara', 'keamanan', 'kebersihan', 'penjaga', 'pesuruh', 'tukang', 'kasir', 'pegawai', 'karyawan', 'perpustakaan', 'dapo'];
+                foreach ($excluded as $word) {
+                    if (preg_match('/\b'.preg_quote($word, '/').'\b/u', $key)) return null;
+                }
+
+                $canonical = [
+                    '/\b(mtk|math|matematika)\b/u' => 'Matematika',
+                    '/\b(bhs?\.?\s*indonesia|bindo|bahasa indonesia)\b/u' => 'Bahasa Indonesia',
+                    '/\b(bhs?\.?\s*inggris|bing|bahasa inggris)\b/u' => 'Bahasa Inggris',
+                    '/\b(bhs?\.?\s*jawa|bahasa jawa)\b/u' => 'Bahasa Jawa',
+                    '/\b(pai|paibp|pend\.?\s*agama islam|pendidikan agama islam)\b/u' => 'Pendidikan Agama Islam',
+                    '/\b(fikih|fiqih)\b/u' => 'Fikih',
+                    '/\b(akidah akhlak|akidah ahlaq)\b/u' => 'Akidah Akhlak',
+                    '/\b(al qur.?an hadis|alquran hadis)\b/u' => 'Al-Qur’an Hadis',
+                    '/\b(ski|sejarah kebudayaan islam)\b/u' => 'Sejarah Kebudayaan Islam',
+                    '/\b(ipa|ip[a]?s|ilmu pengetahuan alam)\b/u' => 'Ilmu Pengetahuan Alam',
+                    '/\b(ips|ilmu pengetahuan sosial)\b/u' => 'Ilmu Pengetahuan Sosial',
+                    '/\b(pjok|pendidikan jasmani|olahraga)\b/u' => 'Pendidikan Jasmani dan Olahraga',
+                    '/\b(ppkn|pkn|pendidikan pancasila|pendidikan kewarganegaraan)\b/u' => 'Pendidikan Pancasila dan Kewarganegaraan',
+                    '/\b(bk|bimbingan dan konseling|bimbingan konseling)\b/u' => 'Bimbingan dan Konseling',
+                    '/\b(tik|informatika|komputer)\b/u' => 'Informatika',
+                    '/\b(seni budaya|seni musik|seni)\b/u' => 'Seni Budaya',
+                    '/\b(prakarya|wirausaha|kewirausahaan)\b/u' => 'Prakarya dan Kewirausahaan',
+                    '/\b(produktif|teknik)\b/u' => 'Mata Pelajaran Produktif',
+                ];
+                foreach ($canonical as $pattern => $label) {
+                    if (preg_match($pattern, $key)) return $label;
+                }
+                return $value;
             })
-            ->map(fn ($values) => $values->sortByDesc(fn ($value) => mb_strlen($value))->first())
+            ->filter()
+            ->unique()
             ->sort(fn ($a, $b) => strcasecmp($a, $b))
             ->values();
     }
