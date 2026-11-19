@@ -3,6 +3,9 @@
 @section('title', 'Pengajuan Tenaga Pendidik')
 
 @section('css')
+<link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
 <style>
     .tp-page{--tp-green:#08745a;--tp-ink:#192d37;--tp-muted:#6c7c86;position:relative;padding:8px 0 24px}
     body.teacher-submission-theme{background:linear-gradient(135deg,rgba(222,227,230,.92),rgba(238,241,243,.88) 52%,rgba(215,222,225,.92))}body.teacher-submission-theme .main-content{background:transparent!important}
