@@ -128,6 +128,9 @@
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahTP">
                             <i class="bx bx-plus"></i> Tambah Tenaga Pendidik
                         </button>
+                        <a href="{{ route('tenaga-pendidik.submissions') }}" class="btn btn-outline-primary">
+                            <i class="bx bx-task me-1"></i> Lihat Pengajuan
+                        </a>
                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportTP">
                             <i class="bx bx-upload"></i> Import Data TP
                         </button>

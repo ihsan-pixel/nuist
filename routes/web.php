@@ -2002,6 +2002,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,pengurus,admi
 
 Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {
     Route::get('/tenaga-pendidik', [TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
+    Route::get('/tenaga-pendidik/pengajuan', [TenagaPendidikController::class, 'submissions'])->name('tenaga-pendidik.submissions');
     Route::get('/tenaga-pendidik/data', [TenagaPendidikController::class, 'data'])->name('tenaga-pendidik.data');
     Route::get('/tenaga-pendidik/export-school-summary', [TenagaPendidikController::class, 'exportSchoolSummary'])->name('tenaga-pendidik.export-school-summary');
     Route::get('/tenaga-pendidik/export-complete', [TenagaPendidikController::class, 'exportComplete'])->name('tenaga-pendidik.export-complete');

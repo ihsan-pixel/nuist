@@ -24,6 +24,32 @@ use DataTables;
 
 class TenagaPendidikController extends Controller
 {
+    public function submissions(Request $request)
+    {
+        $user = auth()->user();
+        $this->ensureAuthorizedRole($user);
+
+        $query = TeacherSubmission::query()
+            ->with(['submitter:id,name,email', 'reviewer:id,name', 'madrasah:id,name'])
+            ->when(trim(strtolower($user->role)) === 'admin', fn ($q) => $q->where('madrasah_id', $user->madrasah_id))
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
+            ->when($request->filled('madrasah_id') && trim(strtolower($user->role)) === 'super_admin', fn ($q) => $q->where('madrasah_id', $request->integer('madrasah_id')))
+            ->latest();
+
+        $submissions = $query->paginate(20)->withQueryString();
+        $counts = TeacherSubmission::query()
+            ->when(trim(strtolower($user->role)) === 'admin', fn ($q) => $q->where('madrasah_id', $user->madrasah_id))
+            ->selectRaw("status, COUNT(*) as total")
+            ->groupBy('status')->pluck('total', 'status');
+
+        return view('masterdata.tenaga-pendidik.submissions', [
+            'submissions' => $submissions,
+            'counts' => $counts,
+            'madrasahs' => trim(strtolower($user->role)) === 'super_admin' ? Madrasah::orderBy('name')->get(['id', 'name']) : collect(),
+            'isSuperAdmin' => trim(strtolower($user->role)) === 'super_admin',
+        ]);
+    }
+
     public function index()
     {
         $user = auth()->user();
