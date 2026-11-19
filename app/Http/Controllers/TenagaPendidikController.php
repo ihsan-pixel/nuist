@@ -45,6 +45,7 @@ class TenagaPendidikController extends Controller
         return view('masterdata.tenaga-pendidik.submissions', [
             'submissions' => $submissions,
             'counts' => $counts,
+            'statusKepegawaian' => StatusKepegawaian::query()->orderBy('name')->get(['id', 'name']),
             'madrasahs' => Madrasah::query()
                 ->when(trim(strtolower($user->role)) === 'admin', fn ($q) => $q->whereKey($user->madrasah_id))
                 ->orderBy('name')->get(['id', 'name']),
