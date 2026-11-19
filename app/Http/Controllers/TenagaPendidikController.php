@@ -325,20 +325,31 @@ class TenagaPendidikController extends Controller
 
     private function teachingOptions()
     {
-        return collect([
-            'Akidah Akhlak', 'Al-Qur’an Hadis', 'Aswaja', 'Bahasa Arab',
-            'Bahasa Indonesia', 'Bahasa Inggris', 'Bahasa Jawa',
-            'Bimbingan dan Konseling', 'Biologi', 'Desain Grafis',
-            'Desain Komunikasi Visual', 'Ekonomi', 'Farmasi', 'Fikih',
-            'Fisika', 'Geografi', 'Ilmu Pengetahuan Alam',
-            'Ilmu Pengetahuan Sosial', 'Informatika', 'Kimia',
-            'Kuliner/Boga', 'Matematika', 'Multimedia',
-            'Pendidikan Agama Islam', 'Pendidikan Jasmani dan Olahraga',
-            'Pendidikan Pancasila dan Kewarganegaraan', 'Prakarya dan Kewirausahaan',
-            'Sejarah', 'Sejarah Kebudayaan Islam', 'Seni Budaya',
-            'Teknik Kendaraan/Otomotif', 'Teknik Komputer dan Jaringan',
-            'Mata Pelajaran Produktif', 'Lainnya',
-        ]);
+        $aliases = [
+            'mtk' => 'Matematika', 'math' => 'Matematika', 'akidah ahlaq' => 'Akidah Akhlak',
+            'bhs indonesia' => 'Bahasa Indonesia', 'bhs inggris' => 'Bahasa Inggris', 'bhs jawa' => 'Bahasa Jawa',
+            'bindo' => 'Bahasa Indonesia', 'bing' => 'Bahasa Inggris', 'pai' => 'Pendidikan Agama Islam',
+            'paibp' => 'Pendidikan Agama Islam', 'pkn' => 'Pendidikan Pancasila dan Kewarganegaraan',
+            'ppkn' => 'Pendidikan Pancasila dan Kewarganegaraan', 'ips' => 'Ilmu Pengetahuan Sosial',
+            'ipa' => 'Ilmu Pengetahuan Alam', 'ipas' => 'Ilmu Pengetahuan Alam dan Sosial',
+            'pjok' => 'Pendidikan Jasmani dan Olahraga', 'tik' => 'Informatika', 'bk' => 'Bimbingan dan Konseling',
+            'fiqih' => 'Fikih', 'ski' => 'Sejarah Kebudayaan Islam', 'alquran hadis' => 'Al-Qur’an Hadis',
+        ];
+
+        return User::query()->whereNotNull('mengajar')->where('mengajar', '<>', '')->pluck('mengajar')
+            ->map(function ($value) use ($aliases) {
+                $label = trim(preg_replace('/\s+/', ' ', (string) $value));
+                if ($label === '' || $label === '-') return null;
+                $key = mb_strtolower(preg_replace('/[^\pL\pN]+/u', ' ', $label));
+                $key = trim(preg_replace('/\s+/', ' ', $key));
+                $key = preg_replace('/^(guru|mengajar|mapel|mata pelajaran|pelajaran|produktif)\s+/u', '', $key);
+                if (isset($aliases[$key])) return $aliases[$key];
+                return mb_convert_case($key, MB_CASE_TITLE, 'UTF-8');
+            })
+            ->filter()
+            ->unique(fn ($value) => mb_strtolower(preg_replace('/[^\pL\pN]+/u', '', $value)))
+            ->sort(fn ($a, $b) => strcasecmp($a, $b))
+            ->values();
     }
 
     private function legacyStore(Request $request)
