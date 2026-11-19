@@ -117,9 +117,6 @@
                         <p class="tp-subtitle">Kelola data tenaga pendidik, status kepegawaian, dan penugasan.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2 tp-actions">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahTP">
-                            <i class="bx bx-plus"></i> Tambah Tenaga Pendidik
-                        </button>
                         <a href="{{ route('tenaga-pendidik.submissions') }}" class="btn btn-outline-primary">
                             <i class="bx bx-task me-1"></i> Pengajuan
                             @if(isset($submissions) && $submissions->whereIn('status', ['menunggu_review', 'perlu_perbaikan'])->count())

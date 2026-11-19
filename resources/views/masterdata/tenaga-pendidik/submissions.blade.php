@@ -12,6 +12,7 @@
     .tp-page .tp-eyebrow{margin:0 0 4px;color:var(--tp-green);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.tp-page .tp-title{margin:0;color:var(--tp-ink);font-size:22px;font-weight:700}.tp-page .tp-subtitle{margin:5px 0 0;color:var(--tp-muted);font-size:12px}
     .tp-page .tp-content{padding:20px 24px 24px}.tp-page .tp-stat{border:1px solid #dce7e9;border-radius:14px;background:rgba(255,255,255,.58);box-shadow:0 5px 14px rgba(32,70,78,.05)}
     .tp-page .tp-filter,.tp-page .tp-table-panel{border:1px solid #e5edef;border-radius:16px;background:rgba(255,255,255,.58)}.tp-page .tp-table-panel{overflow-x:auto}
+    .tp-page .tp-form-section{background:#f8fafc;border:1px solid #e9edf4;border-radius:1rem;padding:1.25rem}.tp-modal-content{border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}.tp-modal-content .modal-header{border-bottom:1px solid #e5edef;background:#f6faf9}.tp-modal-content .modal-footer{border-top:1px solid #e5edef}.tp-modal-content .form-label{font-size:.82rem;font-weight:600;color:#334155}.tp-modal-content .form-control,.tp-modal-content .form-select{border-color:#dce7e9;border-radius:9px}
     .tp-page table thead th{border:0;border-bottom:1px solid #e5edef;background:#f1f6f6;color:var(--tp-ink);font-size:11px;padding:13px 14px;white-space:nowrap}.tp-page table tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle}.tp-page .btn{border-radius:10px}.tp-page .tp-toolbar .btn{border-radius:12px}.tp-page .pagination{margin:16px 0 0}
     @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-content{padding:14px}.tp-page .tp-toolbar .btn{width:100%}}
 </style>
@@ -26,7 +27,7 @@
         <div class="card tp-shell">
             <div class="card-header tp-toolbar">
                 <div><p class="tp-eyebrow">MASTER DATA</p><h4 class="tp-title">Pengajuan Tenaga Pendidik</h4><p class="tp-subtitle">Pantau proses pengajuan, review, dan persetujuan akun tenaga pendidik.</p></div>
-                <a href="{{ route('tenaga-pendidik.index') }}" class="btn btn-outline-secondary"><i class="bx bx-arrow-back me-1"></i> Data Tenaga Pendidik</a>
+                <div class="d-flex flex-wrap gap-2"><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahTP"><i class="bx bx-plus me-1"></i> Tambah Pengajuan</button><a href="{{ route('tenaga-pendidik.index') }}" class="btn btn-outline-secondary"><i class="bx bx-arrow-back me-1"></i> Data Tenaga Pendidik</a></div>
             </div>
             <div class="card-body tp-content">
                 <div class="row g-3 mb-4">
@@ -56,3 +57,14 @@
     </div>
 </div>
 @endsection
+
+<div class="modal fade" id="modalTambahTP" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content tp-modal-content">
+        <form action="{{ route('tenaga-pendidik.store') }}" method="POST" enctype="multipart/form-data">@csrf
+            <div class="modal-header"><div><h5 class="modal-title mb-1">Tambah Pengajuan Tenaga Pendidik</h5><p class="text-muted mb-0 small">Data akan dikirim untuk direview oleh Super Admin.</p></div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="alert alert-info small">Lengkapi data utama akun dan penugasan. Data tambahan dapat dilengkapi pada proses review.</div>
+                <div class="row g-3"><div class="col-md-6"><label class="form-label">Nama Lengkap *</label><input name="nama" class="form-control" required></div><div class="col-md-6"><label class="form-label">Email *</label><input type="email" name="email" class="form-control" required></div><div class="col-md-6"><label class="form-label">Password Awal *</label><input type="password" name="password" class="form-control" minlength="6" required></div><div class="col-md-6"><label class="form-label">Madrasah *</label><select name="madrasah_id" class="form-select" required><option value="">Pilih Madrasah</option>@foreach($madrasahs as $madrasah)<option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Status Kepegawaian</label><select name="status_kepegawaian_id" class="form-select"><option value="">Pilih Status</option>@foreach($statusKepegawaian as $status)<option value="{{ $status->id }}">{{ $status->name }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Ketugasan</label><select name="ketugasan" class="form-select"><option value="">Pilih Ketugasan</option><option value="tenaga pendidik">Tenaga Pendidik</option><option value="penjaga sekolah">Penjaga Sekolah</option><option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option></select></div><div class="col-md-6"><label class="form-label">Mengajar</label><input name="mengajar" class="form-control"></div><div class="col-md-6"><label class="form-label">No. HP</label><input name="no_hp" class="form-control"></div><div class="col-md-6"><label class="form-label">NIP Ma'arif</label><input name="nip" class="form-control"></div><div class="col-md-6"><label class="form-label">NUPTK</label><input name="nuptk" class="form-control"></div><div class="col-md-6"><label class="form-label">Pendidikan Terakhir</label><input name="pendidikan_terakhir" class="form-control"></div><div class="col-md-6"><label class="form-label">Program Studi</label><input name="program_studi" class="form-control"></div><div class="col-md-6"><label class="form-label">Tanggal Lahir</label><input type="date" name="tanggal_lahir" class="form-control"></div><div class="col-md-6"><label class="form-label">Foto Profil</label><input type="file" name="avatar" class="form-control" accept=".jpg,.jpeg,.png"></div><div class="col-12"><label class="form-label">Alamat</label><textarea name="alamat" class="form-control" rows="3"></textarea></div></div>
+            </div><div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary"><i class="bx bx-send me-1"></i> Kirim Pengajuan</button></div>
+        </form>
+    </div></div>
+</div>
