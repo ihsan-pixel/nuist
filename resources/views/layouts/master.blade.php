@@ -27,7 +27,19 @@
     @include('layouts.head-css')
     @yield('css')
     @if(request()->is('masterdata/tenaga-pendidik/pengajuan'))
-    <style>body.teacher-submission-theme{visibility:hidden}body.teacher-submission-theme.page-assets-ready{visibility:visible}</style>
+    <style>
+        body.teacher-submission-theme{visibility:hidden}
+        body.teacher-submission-theme.page-assets-ready{visibility:visible}
+        body.teacher-submission-theme #page-topbar{position:fixed;top:0;right:0;left:0;z-index:1002;background:#fff}
+        body.teacher-submission-theme .navbar-header{display:flex;align-items:center;height:70px;margin:0 auto;padding:0 12px 0 0}
+        body.teacher-submission-theme .navbar-brand-box{width:250px;padding:0 1.5rem;text-align:center}
+        body.teacher-submission-theme .logo{line-height:70px}
+        body.teacher-submission-theme .logo-dark{display:block}
+        body.teacher-submission-theme .logo-light{display:none}
+        body.teacher-submission-theme .logo .logo-lg{display:inline-block}
+        body.teacher-submission-theme .logo .logo-sm{display:none}
+        body.teacher-submission-theme .logo .logo-lg img{height:40px;width:auto;vertical-align:middle}
+    </style>
     @endif
     @if(request()->is('admin/data-madrasah','admin/teaching-progress','teaching-progress','madrasah/profile','masterdata/madrasah/profile','masterdata/madrasah/*/detail','teaching-schedules*','admin/monitor-jurnal-mengajar','presensi_admin*','presensi-admin*','admin/presensi_admin*'))
     <style>
