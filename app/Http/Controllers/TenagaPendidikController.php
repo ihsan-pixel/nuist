@@ -9,10 +9,14 @@ use App\Imports\TenagaPendidikImport;
 use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
 use App\Models\User;
+use App\Models\TeacherSubmission;
+use App\Mail\TeacherSubmissionStatusMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -38,6 +42,11 @@ class TenagaPendidikController extends Controller
             'statusKepegawaian' => $statusKepegawaian,
             'userRole' => trim(strtolower($user->role)),
             'isSuperAdmin' => trim(strtolower($user->role)) === 'super_admin',
+            'submissions' => TeacherSubmission::query()
+                ->with(['submitter:id,name', 'madrasah:id,name'])
+                ->when(trim(strtolower($user->role)) === 'admin', fn ($q) => $q->where('madrasah_id', $user->madrasah_id))
+                ->latest()
+                ->get(),
         ]);
     }
 
@@ -204,6 +213,85 @@ class TenagaPendidikController extends Controller
         $avatarPath = $request->hasFile('avatar')
             ? $request->file('avatar')->store('tenaga_pendidik', 'public')
             : null;
+
+        $actor = auth()->user();
+        $madrasahId = $actor->role === 'admin' ? $actor->madrasah_id : $request->madrasah_id;
+        if (!$madrasahId) {
+            return back()->withErrors(['madrasah_id' => 'Madrasah wajib dipilih.'])->withInput();
+        }
+
+        $submission = TeacherSubmission::create([
+            'submitted_by' => $actor->id,
+            'madrasah_id' => $madrasahId,
+            'status' => 'menunggu_review',
+            'payload' => array_merge($request->except(['_token', 'avatar']), [
+                'madrasah_id' => $madrasahId,
+                'avatar_path' => $avatarPath,
+                'password' => Crypt::encryptString($request->password),
+            ]),
+        ]);
+
+        $submission = $submission->load(['submitter', 'madrasah']);
+        $this->notifySubmission($submission, 'submitted');
+
+        return redirect()->route('tenaga-pendidik.index')->with('success', 'Pengajuan tenaga pendidik berhasil dikirim dan menunggu review super admin.');
+    }
+
+    public function approveSubmission(TeacherSubmission $submission)
+    {
+        abort_unless(auth()->user()->role === 'super_admin', 403);
+        abort_if($submission->status === 'disetujui', 422, 'Pengajuan sudah disetujui.');
+
+        $payload = $submission->payload;
+        $user = User::create([
+            'name' => $payload['nama'], 'email' => $payload['email'],
+            'password' => Hash::make(Crypt::decryptString($payload['password'])), 'role' => 'tenaga_pendidik',
+            'madrasah_id' => $submission->madrasah_id,
+            'tempat_lahir' => $payload['tempat_lahir'] ?? null, 'tanggal_lahir' => $payload['tanggal_lahir'] ?? null,
+            'no_hp' => $payload['no_hp'] ?? null, 'kartanu' => $payload['kartanu'] ?? null,
+            'nip' => $payload['nip'] ?? null, 'nuptk' => $payload['nuptk'] ?? null, 'npk' => $payload['npk'] ?? null,
+            'pendidikan_terakhir' => $payload['pendidikan_terakhir'] ?? null, 'tahun_lulus' => $payload['tahun_lulus'] ?? null,
+            'program_studi' => $payload['program_studi'] ?? null, 'status_kepegawaian_id' => $payload['status_kepegawaian_id'] ?? null,
+            'tmt' => $payload['tmt'] ?? null, 'ketugasan' => $payload['ketugasan'] ?? null, 'mengajar' => $payload['mengajar'] ?? null,
+            'avatar' => $payload['avatar_path'] ?? null, 'alamat' => $payload['alamat'] ?? null,
+            'pemenuhan_beban_kerja_lain' => $payload['pemenuhan_beban_kerja_lain'] ?? null,
+            'madrasah_id_tambahan' => $payload['madrasah_id_tambahan'] ?? null,
+        ]);
+        $submission->update(['status' => 'disetujui', 'reviewed_by' => auth()->id(), 'reviewed_at' => now(), 'review_note' => null]);
+        $this->notifySubmission($submission->fresh(['submitter', 'madrasah']), 'approved');
+        return back()->with('success', 'Pengajuan disetujui dan akun tenaga pendidik berhasil dibuat.');
+    }
+
+    public function rejectSubmission(Request $request, TeacherSubmission $submission)
+    {
+        abort_unless(auth()->user()->role === 'super_admin', 403);
+        $validated = $request->validate(['review_note' => 'required|string|max:2000']);
+        $submission->update(['status' => 'perlu_perbaikan', 'review_note' => $validated['review_note'], 'reviewed_by' => auth()->id(), 'reviewed_at' => now()]);
+        $this->notifySubmission($submission->fresh(['submitter', 'madrasah']), 'needs_revision');
+        return back()->with('success', 'Pengajuan dikembalikan untuk diperbaiki.');
+    }
+
+    public function resubmitSubmission(Request $request, TeacherSubmission $submission)
+    {
+        abort_unless(auth()->user()->role === 'admin' && (int) $submission->madrasah_id === (int) auth()->user()->madrasah_id, 403);
+        $validated = $request->validate(['review_note' => 'required|string|max:2000']);
+        $submission->update(['status' => 'menunggu_review', 'review_note' => $validated['review_note'], 'reviewed_by' => null, 'reviewed_at' => null]);
+        $this->notifySubmission($submission->fresh(['submitter', 'madrasah']), 'submitted');
+        return back()->with('success', 'Pengajuan berhasil diajukan ulang untuk direview.');
+    }
+
+    private function notifySubmission(?TeacherSubmission $submission, string $event): void
+    {
+        if (!$submission) return;
+        $recipients = array_values(array_unique(array_filter([
+            optional($submission->submitter)->email,
+            'nuistnu@gmail.com',
+        ])));
+        if ($recipients) Mail::to($recipients)->queue(new TeacherSubmissionStatusMail($submission, $event));
+    }
+
+    private function legacyStore(Request $request)
+    {
 
         $inputPassword = $validated['password'];
 

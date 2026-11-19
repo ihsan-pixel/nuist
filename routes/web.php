@@ -2010,6 +2010,9 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::put('/tenaga-pendidik/update/{id}', [TenagaPendidikController::class, 'update'])->name('tenaga-pendidik.update');
     Route::delete('/tenaga-pendidik/destroy/{id}', [TenagaPendidikController::class, 'destroy'])->name('tenaga-pendidik.destroy');
     Route::post('/tenaga-pendidik/import', [TenagaPendidikController::class, 'import'])->name('tenaga-pendidik.import');
+    Route::post('/tenaga-pendidik/submissions/{submission}/approve', [TenagaPendidikController::class, 'approveSubmission'])->name('tenaga-pendidik.submissions.approve');
+    Route::post('/tenaga-pendidik/submissions/{submission}/reject', [TenagaPendidikController::class, 'rejectSubmission'])->name('tenaga-pendidik.submissions.reject');
+    Route::post('/tenaga-pendidik/submissions/{submission}/resubmit', [TenagaPendidikController::class, 'resubmitSubmission'])->name('tenaga-pendidik.submissions.resubmit');
 
     // Status Kepegawaian routes
     Route::get('/status-kepegawaian', [StatusKepegawaianController::class, 'index'])->name('status-kepegawaian.index');

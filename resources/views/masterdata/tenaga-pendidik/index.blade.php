@@ -147,6 +147,45 @@
                     </div>
                 </div>
 
+                @if(isset($submissions) && $submissions->isNotEmpty())
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div><h6 class="mb-1">Pengajuan Tenaga Pendidik</h6><small class="text-muted">Alur pengajuan dan review akun baru.</small></div>
+                                <span class="badge bg-light text-dark">{{ $submissions->count() }} pengajuan</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead><tr><th>Nama</th><th>Madrasah</th><th>Pengaju</th><th>Status</th><th>Catatan</th><th>Aksi</th></tr></thead>
+                                    <tbody>
+                                    @foreach($submissions as $submission)
+                                        @php($payload = $submission->payload ?? [])
+                                        <tr>
+                                            <td><strong>{{ $payload['nama'] ?? '-' }}</strong><br><small class="text-muted">{{ $payload['email'] ?? '-' }}</small></td>
+                                            <td>{{ optional($submission->madrasah)->name ?: '-' }}</td>
+                                            <td>{{ optional($submission->submitter)->name ?: '-' }}</td>
+                                            <td><span class="badge bg-{{ $submission->status === 'disetujui' ? 'success' : ($submission->status === 'perlu_perbaikan' ? 'warning text-dark' : 'info') }}">{{ str_replace('_', ' ', ucfirst($submission->status)) }}</span></td>
+                                            <td class="small">{{ $submission->review_note ?: '-' }}</td>
+                                            <td class="text-nowrap">
+                                                @if($isSuperAdmin && $submission->status !== 'disetujui')
+                                                    <form method="POST" action="{{ route('tenaga-pendidik.submissions.approve', $submission) }}" class="d-inline">@csrf<button class="btn btn-sm btn-success" onclick="return confirm('Approve pengajuan ini?')"><i class="bx bx-check"></i> Approve</button></form>
+                                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectSubmission{{ $submission->id }}"><i class="bx bx-x"></i> Minta Perbaikan</button>
+                                                @elseif($userRole === 'admin' && $submission->status === 'perlu_perbaikan')
+                                                    <form method="POST" action="{{ route('tenaga-pendidik.submissions.resubmit', $submission) }}" class="d-inline">@csrf<input type="hidden" name="review_note" value="Perbaikan telah dilakukan dan data diajukan kembali."><button class="btn btn-sm btn-primary"><i class="bx bx-refresh"></i> Ajukan Ulang</button></form>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @if($isSuperAdmin && $submission->status !== 'disetujui')
+                                            <div class="modal fade" id="rejectSubmission{{ $submission->id }}" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST" action="{{ route('tenaga-pendidik.submissions.reject', $submission) }}">@csrf<div class="modal-header"><h5 class="modal-title">Minta Perbaikan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="small text-muted">Berikan catatan yang harus diperbaiki oleh admin sekolah.</p><textarea name="review_note" class="form-control" rows="4" required></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-danger">Kirim Catatan</button></div></form></div></div></div>
+                                        @endif
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
         <div class="table-panel"><div class="table-responsive">
             <table class="table table-bordered dt-responsive w-100" id="datatable-buttons">
                 <thead class="table-light">
