@@ -234,7 +234,7 @@ class TenagaPendidikController extends Controller
             'nama' => 'required|string|max:255',
             'gelar' => 'nullable|string|max:100',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => ['required', 'string', 'min:8', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
             'password_confirmation' => 'required|same:password',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'madrasah_id' => 'nullable|exists:madrasahs,id',

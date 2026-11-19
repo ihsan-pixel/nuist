@@ -65,6 +65,28 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentStep = 1;
     const totalSteps = 4;
     const form = document.querySelector('#modalTambahTP form');
+    const passwordInput = document.getElementById('submission_password');
+    const passwordGroup = passwordInput.closest('.input-group');
+    passwordInput.minLength = 8;
+    const strengthBar = document.createElement('div');
+    strengthBar.className = 'progress mt-2'; strengthBar.style.height = '6px';
+    strengthBar.innerHTML = '<div class="progress-bar" role="progressbar" style="width:0"></div>';
+    passwordGroup.after(strengthBar);
+    const strengthHint = document.createElement('small');
+    strengthHint.className = 'text-muted'; strengthHint.textContent = 'Minimal 8 karakter: huruf besar, huruf kecil, angka, dan simbol.';
+    strengthBar.after(strengthHint);
+    const generateButton = document.createElement('button');
+    generateButton.type = 'button'; generateButton.className = 'btn btn-outline-success'; generateButton.title = 'Buat password aman'; generateButton.innerHTML = '<i class="bx bx-shield-quarter"></i>';
+    passwordGroup.append(generateButton);
+    const updateStrength = () => {
+        const value = passwordInput.value;
+        const score = [value.length >= 8, /[A-Z]/.test(value), /[a-z]/.test(value), /[0-9]/.test(value), /[^A-Za-z0-9]/.test(value)].filter(Boolean).length;
+        const colors = ['', 'bg-danger', 'bg-warning', 'bg-info', 'bg-success', 'bg-success'];
+        const labels = ['Masukkan password', 'Sangat lemah', 'Lemah', 'Cukup kuat', 'Kuat', 'Sangat kuat'];
+        const bar = strengthBar.firstElementChild; bar.className = 'progress-bar ' + (colors[score] || ''); bar.style.width = `${score * 20}%`; strengthHint.textContent = labels[score] + (score < 5 ? ' — gunakan huruf besar, huruf kecil, angka, dan simbol.' : '.');
+    };
+    passwordInput.addEventListener('input', updateStrength);
+    generateButton.addEventListener('click', () => { const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*'; let value = 'Nuist@'; while (value.length < 14) value += chars[Math.floor(Math.random() * chars.length)]; passwordInput.value = value; passwordInput.dispatchEvent(new Event('input')); });
     const showStep = (step) => {
         currentStep = step;
         document.querySelectorAll('#modalTambahTP .tp-step').forEach(el => el.classList.toggle('d-none', Number(el.dataset.step) !== step));
