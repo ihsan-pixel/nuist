@@ -314,6 +314,7 @@ class TenagaPendidikController extends Controller
         if (!$submission) return;
         $recipients = array_values(array_unique(array_filter([
             optional($submission->submitter)->email,
+            data_get($submission->payload, 'email'),
             'nuistnu@gmail.com',
         ])));
         if ($recipients) Mail::to($recipients)->queue(new TeacherSubmissionStatusMail($submission, $event));
