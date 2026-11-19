@@ -325,31 +325,64 @@ class TenagaPendidikController extends Controller
 
     private function teachingOptions()
     {
-        $aliases = [
-            'mtk' => 'Matematika', 'math' => 'Matematika', 'akidah ahlaq' => 'Akidah Akhlak',
-            'bhs indonesia' => 'Bahasa Indonesia', 'bhs inggris' => 'Bahasa Inggris', 'bhs jawa' => 'Bahasa Jawa',
-            'bindo' => 'Bahasa Indonesia', 'bing' => 'Bahasa Inggris', 'pai' => 'Pendidikan Agama Islam',
-            'paibp' => 'Pendidikan Agama Islam', 'pkn' => 'Pendidikan Pancasila dan Kewarganegaraan',
-            'ppkn' => 'Pendidikan Pancasila dan Kewarganegaraan', 'ips' => 'Ilmu Pengetahuan Sosial',
-            'ipa' => 'Ilmu Pengetahuan Alam', 'ipas' => 'Ilmu Pengetahuan Alam dan Sosial',
-            'pjok' => 'Pendidikan Jasmani dan Olahraga', 'tik' => 'Informatika', 'bk' => 'Bimbingan dan Konseling',
-            'fiqih' => 'Fikih', 'ski' => 'Sejarah Kebudayaan Islam', 'alquran hadis' => 'Al-Qur’an Hadis',
-        ];
-
-        return User::query()->whereNotNull('mengajar')->where('mengajar', '<>', '')->pluck('mengajar')
-            ->map(function ($value) use ($aliases) {
-                $label = trim(preg_replace('/\s+/', ' ', (string) $value));
-                if ($label === '' || $label === '-') return null;
-                $key = mb_strtolower(preg_replace('/[^\pL\pN]+/u', ' ', $label));
-                $key = trim(preg_replace('/\s+/', ' ', $key));
-                $key = preg_replace('/^(guru|mengajar|mapel|mata pelajaran|pelajaran|produktif)\s+/u', '', $key);
-                if (isset($aliases[$key])) return $aliases[$key];
-                return mb_convert_case($key, MB_CASE_TITLE, 'UTF-8');
-            })
-            ->filter()
-            ->unique(fn ($value) => mb_strtolower(preg_replace('/[^\pL\pN]+/u', '', $value)))
-            ->sort(fn ($a, $b) => strcasecmp($a, $b))
-            ->values();
+        return collect([
+            'Guru Kelas',
+            'Pendidikan Agama Islam',
+            'Al-Qur’an Hadis',
+            'Akidah Akhlak',
+            'Fikih',
+            'Sejarah Kebudayaan Islam',
+            'Aswaja/Ke-NU-an',
+            'Tahfidz',
+            'Bahasa Arab',
+            'Bahasa Indonesia',
+            'Bahasa Inggris',
+            'Bahasa Jawa',
+            'Matematika',
+            'Ilmu Pengetahuan Alam',
+            'Ilmu Pengetahuan Sosial',
+            'Ilmu Pengetahuan Alam dan Sosial (IPAS)',
+            'Pendidikan Pancasila dan Kewarganegaraan',
+            'Sejarah Indonesia',
+            'Sosiologi',
+            'Geografi',
+            'Ekonomi',
+            'Biologi',
+            'Fisika',
+            'Kimia',
+            'Pendidikan Jasmani dan Olahraga',
+            'Bimbingan dan Konseling',
+            'Informatika',
+            'Koding dan Kecerdasan Artifisial',
+            'Seni Budaya',
+            'Prakarya dan Kewirausahaan',
+            'Akuntansi',
+            'Perbankan Syariah',
+            'Perhotelan',
+            'Farmasi',
+            'Kuliner',
+            'Tata Busana',
+            'Tata Kecantikan',
+            'Desain Komunikasi Visual',
+            'Multimedia',
+            'Rekayasa Perangkat Lunak',
+            'Teknik Komputer dan Jaringan',
+            'Teknik Kendaraan Ringan dan Otomotif',
+            'Teknik Sepeda Motor',
+            'Teknik Elektronika dan Audio Video',
+            'Teknik Instalasi Tenaga Listrik',
+            'Teknik Otomasi Industri',
+            'Teknik Mesin dan Otomotif',
+            'Bendahara',
+            'Operator Sekolah',
+            'Tata Usaha',
+            'Kepala Sekolah',
+            'Keamanan',
+            'Kebersihan',
+            'Perpustakaan',
+            'Kasir',
+            'Toolman',
+        ]);
     }
 
     private function legacyStore(Request $request)
