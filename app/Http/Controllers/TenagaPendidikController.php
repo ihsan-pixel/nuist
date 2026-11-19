@@ -46,7 +46,7 @@ class TenagaPendidikController extends Controller
             'submissions' => $submissions,
             'counts' => $counts,
             'statusKepegawaian' => StatusKepegawaian::query()->orderBy('name')->get(['id', 'name']),
-            'mengajarOptions' => User::query()->whereNotNull('mengajar')->where('mengajar', '<>', '')->orderBy('mengajar')->pluck('mengajar')->map(fn ($value) => trim($value))->filter()->unique(fn ($value) => mb_strtolower($value))->values(),
+            'mengajarOptions' => $this->teachingOptions(),
             'madrasahs' => Madrasah::query()
                 ->when(trim(strtolower($user->role)) === 'admin', fn ($q) => $q->whereKey($user->madrasah_id))
                 ->orderBy('name')->get(['id', 'name']),
@@ -321,6 +321,31 @@ class TenagaPendidikController extends Controller
             'nuistnu@gmail.com',
         ])));
         if ($recipients) Mail::to($recipients)->queue(new TeacherSubmissionStatusMail($submission, $event));
+    }
+
+    private function teachingOptions()
+    {
+        $aliases = [
+            'mtk' => 'matematika', 'math' => 'matematika',
+            'bindo' => 'bahasa indonesia', 'bahasaindonesia' => 'bahasa indonesia',
+            'bing' => 'bahasa inggris', 'bahasainggris' => 'bahasa inggris',
+            'pai' => 'pendidikan agama islam', 'pendidikanagamaislam' => 'pendidikan agama islam',
+            'ips' => 'ilmu pengetahuan sosial', 'ilmupengetahuansosial' => 'ilmu pengetahuan sosial',
+            'ipa' => 'ilmu pengetahuan alam', 'ilmupengetahuanalam' => 'ilmu pengetahuan alam',
+            'pjok' => 'pendidikan jasmani olahraga dan kesehatan',
+            'tik' => 'teknologi informasi dan komunikasi',
+        ];
+
+        return User::query()->whereNotNull('mengajar')->where('mengajar', '<>', '')->pluck('mengajar')
+            ->map(fn ($value) => trim(preg_replace('/\s+/', ' ', (string) $value)))
+            ->filter()
+            ->groupBy(function ($value) use ($aliases) {
+                $key = mb_strtolower(preg_replace('/[^\pL\pN]/u', '', $value));
+                return $aliases[$key] ?? $key;
+            })
+            ->map(fn ($values) => $values->sortByDesc(fn ($value) => mb_strlen($value))->first())
+            ->sort(fn ($a, $b) => strcasecmp($a, $b))
+            ->values();
     }
 
     private function legacyStore(Request $request)
