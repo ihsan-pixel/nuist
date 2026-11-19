@@ -2,6 +2,12 @@
 
 @section('title', 'Pengajuan Tenaga Pendidik')
 
+@section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Master Data @endslot
+    @slot('title') Pengajuan Tenaga Pendidik @endslot
+@endcomponent
+
 @section('css')
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
@@ -20,12 +26,6 @@
     @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-content{padding:14px}.tp-page .tp-toolbar .btn{width:100%}}
 </style>
 @endsection
-@section('content')
-@component('components.breadcrumb')
-    @slot('li_1') Master Data @endslot
-    @slot('title') Pengajuan Tenaga Pendidik @endslot
-@endcomponent
-
 <div class="row tp-page">
     <div class="col-12">
         <div class="card tp-shell">
