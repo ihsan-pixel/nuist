@@ -49,7 +49,7 @@ class TenagaPendidikController extends Controller
             'mengajarOptions' => $this->teachingOptions(),
             'madrasahs' => Madrasah::query()
                 ->when(trim(strtolower($user->role)) === 'admin', fn ($q) => $q->whereKey($user->madrasah_id))
-                ->orderBy('name')->get(['id', 'name']),
+                ->orderBy('name')->get(['id', 'name', 'scod']),
             'isSuperAdmin' => trim(strtolower($user->role)) === 'super_admin',
         ]);
     }
@@ -237,6 +237,7 @@ class TenagaPendidikController extends Controller
             'password' => ['required', 'string', 'min:8', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
             'password_confirmation' => 'required|same:password',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'surat_permohonan' => 'required|file|mimes:pdf|max:5120',
             'madrasah_id' => 'nullable|exists:madrasahs,id',
             'ketugasan' => 'nullable|in:tenaga pendidik,penjaga sekolah,kepala madrasah/sekolah',
             'mengajar' => 'nullable|string|max:255',
@@ -245,6 +246,7 @@ class TenagaPendidikController extends Controller
         $avatarPath = $request->hasFile('avatar')
             ? $request->file('avatar')->store('tenaga_pendidik', 'public')
             : null;
+        $suratPermohonanPath = $request->file('surat_permohonan')->store('tenaga_pendidik/surat_permohonan', 'public');
 
         $actor = auth()->user();
         $madrasahId = $actor->role === 'admin' ? $actor->madrasah_id : $request->madrasah_id;
@@ -256,9 +258,10 @@ class TenagaPendidikController extends Controller
             'submitted_by' => $actor->id,
             'madrasah_id' => $madrasahId,
             'status' => 'menunggu_review',
-            'payload' => array_merge($request->except(['_token', 'avatar', 'password_confirmation']), [
+            'payload' => array_merge($request->except(['_token', 'avatar', 'surat_permohonan', 'password_confirmation']), [
                 'madrasah_id' => $madrasahId,
                 'avatar_path' => $avatarPath,
+                'surat_permohonan_path' => $suratPermohonanPath,
                 'password' => Crypt::encryptString($request->password),
             ]),
         ]);
