@@ -21,9 +21,17 @@
     .tp-page .tp-content{padding:20px 24px 24px}.tp-page .tp-stat{border:1px solid #dce7e9;border-radius:14px;background:rgba(255,255,255,.58);box-shadow:0 5px 14px rgba(32,70,78,.05)}
     .tp-page .tp-filter,.tp-page .tp-table-panel{border:1px solid #e5edef;border-radius:16px;background:rgba(255,255,255,.58)}.tp-page .tp-table-panel{overflow-x:auto}
     .tp-page .tp-form-section{background:#f8fafc;border:1px solid #e9edf4;border-radius:1rem;padding:1.25rem}.tp-modal-content{border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 18px 50px rgba(22,53,61,.18);overflow:hidden}.tp-modal-content .modal-header{border-bottom:1px solid #e5edef;background:#f6faf9}.tp-modal-content .modal-footer{border-top:1px solid #e5edef}.tp-modal-content .form-label{font-size:.82rem;font-weight:600;color:#334155}.tp-modal-content .form-control,.tp-modal-content .form-select{border-color:#dce7e9;border-radius:9px}
+    .tp-modal-content .modal-body{padding:1.5rem 1.75rem 1.75rem;background:#fff}
+    .tp-modal-content .tp-step{min-height:270px}
+    .tp-modal-content .tp-step > .row{align-items:start}
+    .tp-modal-content .tp-step .form-label{display:block;min-height:1.25rem;margin-bottom:.45rem}
+    .tp-modal-content .tp-step .form-text,.tp-modal-content .tp-step small.text-muted{display:block;line-height:1.45}
+    .tp-modal-content .tp-step textarea{min-height:92px;resize:vertical}
+    .tp-modal-content input[type=file]{padding:.55rem .75rem}
+    .tp-modal-content .tp-step[data-step="4"] .col-md-6{margin-top:.15rem}
     .tp-stepper span{flex:1;border-bottom:3px solid #dce7e9;padding:.55rem .4rem;color:#8a9aa2;font-size:.75rem;font-weight:600;text-align:center}.tp-stepper span.active{border-color:#08745a;color:#08745a}
     .tp-page table thead th{border:0;border-bottom:1px solid #e5edef;background:#f1f6f6;color:var(--tp-ink);font-size:11px;padding:13px 14px;white-space:nowrap}.tp-page table tbody td{border:0;border-bottom:1px solid #edf2f3;color:#465a64;font-size:12px;padding:14px;vertical-align:middle}.tp-page .btn{border-radius:10px}.tp-page .tp-toolbar .btn{border-radius:12px}.tp-page .pagination{margin:16px 0 0}
-    @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-content{padding:14px}.tp-page .tp-toolbar .btn{width:100%}}
+    @media(max-width:767.98px){.tp-page .tp-toolbar{align-items:flex-start;flex-direction:column;padding:18px}.tp-page .tp-content{padding:14px}.tp-page .tp-toolbar .btn{width:100%}.tp-modal-content .modal-body{padding:1rem}.tp-modal-content .tp-step{min-height:0}.tp-modal-content .tp-step .form-label{min-height:0}}
 </style>
 @endsection
 <div class="row tp-page">
